@@ -109,6 +109,28 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   bool _isOpeningCreateAd = false;
   bool _isCreateAdOverlayVisible = false;
 
+  ScrollPhysics _defaultScrollPhysics() {
+    final platform = Theme.of(context).platform;
+    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    return AlwaysScrollableScrollPhysics(
+      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+    );
+  }
+
+  RefreshIndicator _buildRefreshWrapper({
+    required Future<void> Function() onRefresh,
+    required Widget child,
+  }) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      color: OpeiColors.pureBlack,
+      backgroundColor: OpeiColors.pureWhite,
+      displacement: 25,
+      triggerMode: RefreshIndicatorTriggerMode.onEdge,
+      child: child,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -441,11 +463,10 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       child: _LoadingShield(
         isBlocking: blockInteractions,
         showOverlay: showOverlay,
-        child: RefreshIndicator(
+        child: _buildRefreshWrapper(
           onRefresh: _handleRefresh,
-          color: OpeiColors.pureBlack,
           child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+            physics: _defaultScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
@@ -766,12 +787,13 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   ) {
     final theme = Theme.of(context);
     final isLoading = state.isLoading;
+    final scrollPhysics = _defaultScrollPhysics();
 
     Widget buildContent() {
       if (isLoading && !state.hasLoaded) {
         return ListView(
           key: ValueKey('orders-loading-${state.selectedFilter.name}'),
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: scrollPhysics,
           padding: const EdgeInsets.symmetric(vertical: 140),
           children: const [
             Center(
@@ -787,7 +809,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       if (state.errorMessage != null && state.trades.isEmpty) {
         return ListView(
           key: ValueKey('orders-error-${state.selectedFilter.name}'),
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: scrollPhysics,
           padding: const EdgeInsets.fromLTRB(16, 80, 16, 40),
           children: [
             _OrdersErrorState(
@@ -801,7 +823,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       if (state.trades.isEmpty) {
         return ListView(
           key: ValueKey('orders-empty-${state.selectedFilter.name}'),
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: scrollPhysics,
           padding: const EdgeInsets.fromLTRB(24, 80, 24, 40),
           children: [
             _OrdersEmptyState(info: state.infoMessage),
@@ -811,7 +833,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
       return ListView.separated(
         key: ValueKey('orders-${state.selectedFilter.name}-${state.trades.length}'),
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: scrollPhysics,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 26),
         itemCount: state.trades.length,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
@@ -879,9 +901,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 child: _MessageBanner(message: state.infoMessage!, isError: false),
               ),
             Expanded(
-              child: RefreshIndicator(
+              child: _buildRefreshWrapper(
                 onRefresh: _handleOrdersRefresh,
-                color: OpeiColors.pureBlack,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
                   layoutBuilder: (currentChild, previousChildren) => currentChild ?? const SizedBox.shrink(),
@@ -899,12 +920,13 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     final theme = Theme.of(context);
     final isLoading = state.isLoading;
     final isCreateAdButtonLoading = _isOpeningCreateAd && !_isCreateAdOverlayVisible;
+    final scrollPhysics = _defaultScrollPhysics();
 
     Widget buildContent() {
       if (isLoading && !state.hasLoaded) {
         return ListView(
           key: ValueKey('my-ads-loading-${state.selectedFilter.name}'),
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: scrollPhysics,
           padding: const EdgeInsets.symmetric(vertical: 140),
           children: const [
             Center(
@@ -920,7 +942,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       if (state.errorMessage != null && state.ads.isEmpty) {
         return ListView(
           key: ValueKey('my-ads-error-${state.selectedFilter.name}'),
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: scrollPhysics,
           padding: const EdgeInsets.fromLTRB(16, 80, 16, 40),
           children: [
             _OrdersErrorState(
@@ -935,7 +957,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       if (state.ads.isEmpty) {
         return ListView(
           key: ValueKey('my-ads-empty-${state.selectedFilter.name}'),
-          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          physics: scrollPhysics,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
           children: [
             _MyAdsEmptyState(
@@ -948,7 +970,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
       return ListView.separated(
         key: ValueKey('my-ads-${state.selectedFilter.name}-${state.ads.length}'),
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: scrollPhysics,
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         itemCount: state.ads.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -1018,9 +1040,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
               ),
             const SizedBox(height: 8),
             Expanded(
-              child: RefreshIndicator(
+              child: _buildRefreshWrapper(
                 onRefresh: _handleMyAdsRefresh,
-                color: OpeiColors.pureBlack,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
                   layoutBuilder: (child, previousChildren) => child ?? const SizedBox.shrink(),
@@ -1895,12 +1916,20 @@ class _ProfileContentView extends StatelessWidget {
     final joinedLabel = profile.createdAt != null
         ? DateFormat('d MMM yyyy').format(profile.createdAt!.toLocal())
         : null;
+    final platform = Theme.of(context).platform;
+    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final scrollPhysics = AlwaysScrollableScrollPhysics(
+      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+    );
 
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: OpeiColors.pureBlack,
+      backgroundColor: OpeiColors.pureWhite,
+      displacement: 25,
+      triggerMode: RefreshIndicatorTriggerMode.onEdge,
       child: ListView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: scrollPhysics,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
         children: [
           const SizedBox(height: 4),
