@@ -7,11 +7,17 @@ class KycSessionResponse {
   final String sessionUrl;
   final String status;
   final String workflowId;
+  final String? sessionId;
+  final String? declineReason;
+  final DateTime? lastUpdatedAt;
 
   KycSessionResponse({
     required this.sessionUrl,
     required this.status,
     required this.workflowId,
+    this.sessionId,
+    this.declineReason,
+    this.lastUpdatedAt,
   });
 
   factory KycSessionResponse.fromJson(Map<String, dynamic> json) =>

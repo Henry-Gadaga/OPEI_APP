@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:tt1/core/config/api_config.dart';
 import 'package:tt1/core/providers/providers.dart';
 import 'package:tt1/features/kyc/kyc_state.dart';
 import 'package:tt1/theme.dart';
@@ -25,6 +26,7 @@ class KycScreen extends ConsumerStatefulWidget {
 class _KycScreenState extends ConsumerState<KycScreen> {
   WebViewController? _webViewController;
   bool _isWebViewLoading = true;
+  bool _handledCallbackNavigation = false;
 
   @override
   Widget build(BuildContext context) {
@@ -143,6 +145,24 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     }
 
     return const _FilePickerConfig(fileType: FileType.any);
+  }
+
+  bool _isKycCallbackUrl(String? url) {
+    if (url == null || url.isEmpty) return false;
+    final normalizedUrl = url.toLowerCase();
+    final normalizedTarget = ApiConfig.kycCallbackUrl.toLowerCase();
+    return normalizedUrl.startsWith(normalizedTarget);
+  }
+
+  void _handleCallbackRedirect() {
+    if (_handledCallbackNavigation || !mounted) return;
+    _handledCallbackNavigation = true;
+    ref.read(kycControllerProvider.notifier).reset();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.go('/kyc/result');
+      }
+    });
   }
 
   Widget _buildBody(KycState state) {
@@ -363,6 +383,15 @@ class _KycScreenState extends ConsumerState<KycScreen> {
           },
           onWebResourceError: (error) {
             debugPrint('❌ WebView error: ${error.description}');
+          },
+          onNavigationRequest: (request) {
+            final targetUrl = request.url;
+            if (!_handledCallbackNavigation && _isKycCallbackUrl(targetUrl)) {
+              debugPrint('🔁 Detected KYC callback navigation: $targetUrl');
+              _handleCallbackRedirect();
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
           },
         ),
       )

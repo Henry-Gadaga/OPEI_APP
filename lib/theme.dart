@@ -69,6 +69,7 @@ class OpeiColors {
   static const errorRed = Color(0xFFDC2626);
   static const successGreen = Color(0xFF16A34A);
   static const success = successGreen;
+  static const warningYellow = Color(0xFFF59E0B);
 
   // iOS-like neutrals for subtle, compact UI
   static const iosLabelSecondary = Color(0xFF8E8E93); // secondary label

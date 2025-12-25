@@ -33,4 +33,24 @@ class KycRepository {
       rethrow;
     }
   }
+
+  Future<KycSessionResponse> getSessionStatus() async {
+    try {
+      final response = await _apiClient.get<Map<String, dynamic>>('/kyc/session');
+      final apiResponse = ApiResponse<KycSessionResponse>.fromJson(
+        response,
+        (json) => KycSessionResponse.fromJson(json as Map<String, dynamic>),
+      );
+
+      if (apiResponse.success && apiResponse.data != null) {
+        debugPrint('📊 Current KYC status: ${apiResponse.data!.status}');
+        return apiResponse.data!;
+      }
+
+      throw Exception(apiResponse.message);
+    } catch (e) {
+      debugPrint('❌ Failed to fetch KYC session status: $e');
+      rethrow;
+    }
+  }
 }

@@ -16,6 +16,7 @@ import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_screen.dart'
 import 'package:tt1/features/auth/quick_auth/quick_auth_screen.dart';
 import 'package:tt1/features/dashboard/dashboard_screen.dart';
 import 'package:tt1/features/kyc/kyc_screen.dart';
+import 'package:tt1/features/kyc/kyc_result_screen.dart';
 import 'package:tt1/features/profile/profile_screen.dart';
 import 'package:tt1/features/send_money/send_money_screen.dart';
 import 'package:tt1/features/deposit/deposit_screen.dart';
@@ -268,6 +269,14 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
           ),
         ),
         GoRoute(
+          path: '/kyc/result',
+          name: 'kyc-result',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const KycResultScreen(),
+          ),
+        ),
+        GoRoute(
           path: '/quick-auth-setup',
           name: 'quick-auth-setup',
           pageBuilder: (context, state) => buildOpeiTransitionPage(
@@ -462,6 +471,10 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     }
 
     if (location == '/quick-auth' || location == '/quick-auth-setup') {
+      return null;
+    }
+
+    if (location == '/kyc/result') {
       return null;
     }
 
