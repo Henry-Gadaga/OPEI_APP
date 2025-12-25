@@ -64,16 +64,23 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final showCardList = cardsState.cards.isNotEmpty;
     final showBlockingLoader = cardsState.isLoading && cardsState.cards.isEmpty && !showErrorState;
 
+    final platform = Theme.of(context).platform;
+    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final scrollPhysics = AlwaysScrollableScrollPhysics(
+      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+    );
+
     return Scaffold(
       backgroundColor: OpeiColors.pureWhite,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _handleRefresh,
-          edgeOffset: 12,
+          displacement: 25,
+          triggerMode: RefreshIndicatorTriggerMode.onEdge,
           color: OpeiColors.pureBlack,
           backgroundColor: OpeiColors.pureWhite,
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            physics: scrollPhysics,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Column(
