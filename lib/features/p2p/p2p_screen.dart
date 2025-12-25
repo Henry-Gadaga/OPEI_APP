@@ -457,7 +457,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
   Widget _buildHomeTab(P2PAdsState state, P2PAdsController controller) {
     final bool showOverlay = state.isRefreshing && state.hasLoaded;
-    final bool blockInteractions = !state.hasLoaded || state.isRefreshing;
+    final bool blockInteractions = !state.hasLoaded;
 
     return SafeArea(
       child: _LoadingShield(
@@ -855,7 +855,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
     final list = buildContent();
     final bool showOverlay = state.isRefreshing && state.hasLoaded;
-    final bool blockInteractions = !state.hasLoaded || state.isRefreshing;
+    final bool blockInteractions = !state.hasLoaded;
 
     return SafeArea(
       child: _LoadingShield(
@@ -986,7 +986,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
     final list = buildContent();
     final bool showOverlay = state.isRefreshing && state.hasLoaded;
-    final bool blockInteractions = !state.hasLoaded || state.isRefreshing;
+    final bool blockInteractions = !state.hasLoaded;
 
     return SafeArea(
       child: _LoadingShield(
@@ -1091,7 +1091,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     }
 
     final bool showOverlay = state.isRefreshing && state.hasLoaded;
-    final bool blockInteractions = !state.hasLoaded || state.isRefreshing;
+    final bool blockInteractions = !state.hasLoaded;
 
     return SafeArea(
       child: _LoadingShield(
