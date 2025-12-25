@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tt1/core/providers/providers.dart';
 import 'package:tt1/features/kyc/kyc_state.dart';
@@ -74,7 +77,22 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         return [];
       }
 
-      return result.files.map((file) => file.path).whereType<String>().toList();
+      final uriStrings = <String>[];
+      for (final file in result.files) {
+        String? path = file.path;
+        if (path == null && file.bytes != null) {
+          final tempDir = await getTemporaryDirectory();
+          final extension = file.extension?.isNotEmpty == true ? '.${file.extension}' : '';
+          final tempFile = File('${tempDir.path}/didit_upload_${DateTime.now().millisecondsSinceEpoch}$extension');
+          await tempFile.writeAsBytes(file.bytes!);
+          path = tempFile.path;
+        }
+        if (path != null) {
+          uriStrings.add(Uri.file(path).toString());
+        }
+      }
+
+      return uriStrings;
     } catch (e, stackTrace) {
       debugPrint('❌ File picker error: $e');
       debugPrint('$stackTrace');
