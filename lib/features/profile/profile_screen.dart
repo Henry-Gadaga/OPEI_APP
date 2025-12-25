@@ -18,6 +18,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final state = ref.watch(profileControllerProvider);
     final controller = ref.read(profileControllerProvider.notifier);
     final profile = state.profile;
+    final platform = Theme.of(context).platform;
+    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final scrollPhysics = AlwaysScrollableScrollPhysics(
+      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+    );
 
     if (state.isLoading && profile == null) {
       return const Scaffold(
@@ -93,8 +98,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: RefreshIndicator(
           onRefresh: () async => await controller.refreshProfile(),
           color: OpeiColors.pureBlack,
+          backgroundColor: OpeiColors.pureWhite,
+          displacement: 25,
+          triggerMode: RefreshIndicatorTriggerMode.onEdge,
           child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
+            physics: scrollPhysics,
             padding: AppSpacing.horizontalMd + const EdgeInsets.only(top: 24, bottom: 32),
             children: [
               ProfileHeader(
