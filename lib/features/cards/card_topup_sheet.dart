@@ -47,45 +47,57 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
     final state = ref.watch(cardTopUpControllerProvider);
 
     return FractionallySizedBox(
-      heightFactor: 0.92,
-      child: AnimatedPadding(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: OpeiColors.grey300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: _buildHeader(context, state),
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 220),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  child: _buildStepContent(context, state),
+      heightFactor: _sheetHeightFactor(context),
+      alignment: Alignment.bottomCenter,
+      child: SafeArea(
+        top: false,
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: OpeiColors.grey300,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildHeader(context, state),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    child: _buildStepContent(context, state),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  double _sheetHeightFactor(BuildContext context) {
+    final height = MediaQuery.of(context).size.height;
+    if (height >= 900) return 0.72;
+    if (height >= 780) return 0.78;
+    if (height >= 680) return 0.84;
+    return 0.92;
   }
 
   Widget _buildHeader(BuildContext context, CardTopUpState state) {
@@ -109,29 +121,13 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
               : const SizedBox.shrink(),
         ),
         Expanded(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Top up card',
-                style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 18,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                widget.card.cardName.isNotEmpty
-                    ? widget.card.cardName
-                    : 'Virtual card',
-                style: theme.textTheme.bodySmall?.copyWith(
-                      color: OpeiColors.grey600,
-                      fontSize: 12,
-                    ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+          child: Text(
+            'Top up card',
+            style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                ),
+            textAlign: TextAlign.center,
           ),
         ),
         SizedBox(
