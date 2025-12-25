@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,26 +30,101 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Identity Verification'),
-        leading: (state is KycWebViewReady && !kIsWeb)
-            ? null
-            : IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  if (state is KycWebViewReady) {
-                    ref.read(kycControllerProvider.notifier).reset();
-                  }
-                  // Prefer popping when we have a back stack; otherwise go to Address
-                  final router = GoRouter.of(context);
-                  if (router.canPop()) {
-                    context.pop();
-                  } else {
-                    context.go('/address');
-                  }
-                },
-              ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: _handleBackToSignup,
+        ),
       ),
       body: _buildBody(state),
     );
+  }
+
+  Future<void> _handleBackToSignup() async {
+    ref.read(kycControllerProvider.notifier).reset();
+
+    final logoutFuture = ref.read(authRepositoryProvider).logout();
+    ref.read(authSessionProvider.notifier).clearSession();
+
+    if (!mounted) {
+      return;
+    }
+
+    context.go('/signup');
+
+    try {
+      await logoutFuture;
+    } catch (e, stackTrace) {
+      debugPrint('⚠️ Failed to logout before returning to signup: $e');
+      debugPrint('$stackTrace');
+    }
+  }
+
+  Future<List<String>> _handleAndroidFileSelection(FileSelectorParams params) async {
+    try {
+      final config = _resolveFilePickerConfig(params.acceptTypes);
+      final allowMultiple = params.mode == FileSelectorMode.openMultiple;
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: allowMultiple,
+        type: config.fileType,
+        allowedExtensions: config.allowedExtensions,
+        withData: false,
+      );
+
+      if (result == null || result.files.isEmpty) {
+        return [];
+      }
+
+      return result.files.map((file) => file.path).whereType<String>().toList();
+    } catch (e, stackTrace) {
+      debugPrint('❌ File picker error: $e');
+      debugPrint('$stackTrace');
+      return [];
+    }
+  }
+
+  _FilePickerConfig _resolveFilePickerConfig(List<String> acceptTypes) {
+    if (acceptTypes.isEmpty) {
+      return const _FilePickerConfig(fileType: FileType.any);
+    }
+
+    final normalized = acceptTypes
+        .map((type) => type.toLowerCase().trim())
+        .where((type) => type.isNotEmpty)
+        .toList();
+
+    if (normalized.any((type) => type.contains('image'))) {
+      return const _FilePickerConfig(fileType: FileType.image);
+    }
+    if (normalized.any((type) => type.contains('video'))) {
+      return const _FilePickerConfig(fileType: FileType.video);
+    }
+    if (normalized.any((type) => type.contains('audio'))) {
+      return const _FilePickerConfig(fileType: FileType.audio);
+    }
+
+    final extensions = <String>[];
+    for (final type in normalized) {
+      if (type.startsWith('.')) {
+        final extension = type.substring(1);
+        if (extension.isNotEmpty) {
+          extensions.add(extension);
+        }
+      } else if (type.contains('/')) {
+        final subtype = type.split('/').last;
+        if (subtype != '*' && subtype.isNotEmpty) {
+          extensions.add(subtype);
+        }
+      }
+    }
+
+    if (extensions.isNotEmpty) {
+      return _FilePickerConfig(
+        fileType: FileType.custom,
+        allowedExtensions: extensions,
+      );
+    }
+
+    return const _FilePickerConfig(fileType: FileType.any);
   }
 
   Widget _buildBody(KycState state) {
@@ -294,6 +370,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         onHidePrompt: () {},
       );
       platformController.setMediaPlaybackRequiresUserGesture(false);
+      platformController.setOnShowFileSelector(_handleAndroidFileSelection);
     }
   }
 
@@ -428,4 +505,14 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       ),
     );
   }
+}
+
+class _FilePickerConfig {
+  final FileType fileType;
+  final List<String>? allowedExtensions;
+
+  const _FilePickerConfig({
+    required this.fileType,
+    this.allowedExtensions,
+  });
 }
