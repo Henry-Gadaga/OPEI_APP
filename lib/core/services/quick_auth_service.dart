@@ -70,6 +70,10 @@ class QuickAuthService {
 
   Future<bool> isSetupCompleted(String userIdentifier) async {
     try {
+      final hasPin = await hasPinSetup(userIdentifier);
+      if (!hasPin) {
+        return false;
+      }
       final key = _getUserKey(userIdentifier, 'setup_completed');
       debugPrint('🔍 Checking setup completed with key: $key');
       final value = await _storage.read(key: key);

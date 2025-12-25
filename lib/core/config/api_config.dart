@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String baseUrl = 'https://vortically-grippelike-viki.ngrok-free.dev';
+  static const String baseUrl = 'https://opei-gateway-production.up.railway.app';
   static const String apiVersion = 'v1';
   static const String kycCallbackUrl = 'https://opei.app/kyc/result';
   

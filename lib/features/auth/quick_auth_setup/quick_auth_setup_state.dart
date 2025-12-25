@@ -1,7 +1,5 @@
 sealed class QuickAuthSetupState {}
 
-class QuickAuthSetupInitial extends QuickAuthSetupState {}
-
 class QuickAuthSetupLoading extends QuickAuthSetupState {}
 
 class QuickAuthSetupPinEntry extends QuickAuthSetupState {

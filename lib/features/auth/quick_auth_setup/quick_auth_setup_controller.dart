@@ -7,7 +7,7 @@ import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
 
 class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
   @override
-  QuickAuthSetupState build() => QuickAuthSetupInitial();
+  QuickAuthSetupState build() => QuickAuthSetupPinEntry();
   
   String? _userIdentifier;
 
@@ -24,10 +24,6 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
     }
 
     return identifier;
-  }
-
-  void startPinSetup() {
-    state = QuickAuthSetupPinEntry();
   }
 
   void addDigit(String digit) {
@@ -137,27 +133,9 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
       state = QuickAuthSetupError('Failed to enable biometric authentication');
     }
   }
-  
-  Future<void> skipSetup() async {
-    try {
-      final quickAuthService = ref.read(quickAuthServiceProvider);
-      final storage = ref.read(secureStorageServiceProvider);
-      
-      final userIdentifier = await _resolveUserIdentifier(quickAuthService, storage);
-      
-      // Mark setup as completed (even though they skipped)
-      await quickAuthService.markSetupCompleted(userIdentifier);
-      
-      debugPrint('✅ Quick auth setup skipped');
-      state = QuickAuthSetupSuccess('Setup skipped');
-    } catch (e) {
-      debugPrint('❌ Error skipping setup: $e');
-      state = QuickAuthSetupError('Failed to skip setup');
-    }
-  }
 
   void reset() {
-    state = QuickAuthSetupInitial();
+    state = QuickAuthSetupPinEntry();
   }
 }
 

@@ -15,7 +15,7 @@ class QuickAuthSetupScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(quickAuthSetupControllerProvider);
-    
+
     ref.listen(quickAuthSetupControllerProvider, (previous, next) {
       if (next is QuickAuthSetupSuccess) {
         Future.microtask(() => ref.read(quickAuthSetupControllerProvider.notifier).reset());
@@ -46,115 +46,11 @@ class QuickAuthSetupScreen extends ConsumerWidget {
       );
     }
 
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: OpeiColors.pureWhite,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 32),
-              Text(
-                'Quick Access',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Set up quick authentication for faster login',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildOptionButton(
-                context,
-                icon: Icons.dialpad,
-                title: 'Set up 6-Digit PIN',
-                subtitle: 'Use a PIN code to unlock the app',
-                onTap: () => ref.read(quickAuthSetupControllerProvider.notifier).startPinSetup(),
-              ),
-              const Spacer(),
-              Center(
-                child: TextButton(
-                  onPressed: () => ref.read(quickAuthSetupControllerProvider.notifier).skipSetup(),
-                  child: Text(
-                    'Skip for Now',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: OpeiColors.grey600,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
-        ),
-      ),
+      body: Center(child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
     );
   }
-
-  Widget _buildOptionButton(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) => GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          decoration: BoxDecoration(
-            color: OpeiColors.pureWhite,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: OpeiColors.grey200),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                offset: const Offset(0, 8),
-                blurRadius: 20,
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF7F7FA),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, size: 22, color: OpeiColors.pureBlack),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: OpeiColors.grey600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: OpeiColors.grey400),
-            ],
-          ),
-        ),
-      );
 }
 
 class _PinEntryScreen extends ConsumerWidget {

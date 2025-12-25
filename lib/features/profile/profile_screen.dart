@@ -561,7 +561,7 @@ class ProfileActionItem extends StatefulWidget {
   final String? subtitle;
   final bool isDestructive;
   final bool isLoading;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const ProfileActionItem({
     super.key,
@@ -570,7 +570,7 @@ class ProfileActionItem extends StatefulWidget {
     this.subtitle,
     this.isDestructive = false,
     this.isLoading = false,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
@@ -598,18 +598,9 @@ class _ProfileActionItemState extends State<ProfileActionItem> with SingleTicker
   Widget build(BuildContext context) {
     final color = widget.isDestructive ? OpeiColors.errorRed : OpeiColors.pureBlack;
     final iconColor = widget.isDestructive ? OpeiColors.errorRed : OpeiColors.grey600;
+    final isInteractive = widget.onTap != null && !widget.isLoading;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) {
-        _controller.reverse();
-        if (!widget.isLoading) widget.onTap();
-      },
-      onTapCancel: () => _controller.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
+    Widget buildContent() => Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           child: Row(
             children: [
@@ -649,11 +640,29 @@ class _ProfileActionItemState extends State<ProfileActionItem> with SingleTicker
                     strokeWidth: 2,
                   ),
                 )
-              else if (!widget.isDestructive)
+              else if (!widget.isDestructive && isInteractive)
                 const Icon(Icons.chevron_right, color: OpeiColors.grey400, size: 18),
             ],
           ),
-        ),
+        );
+
+    final content = buildContent();
+
+    if (!isInteractive) {
+      return content;
+    }
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) {
+        _controller.reverse();
+        if (!widget.isLoading) widget.onTap?.call();
+      },
+      onTapCancel: () => _controller.reverse(),
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: content,
       ),
     );
   }
@@ -899,17 +908,7 @@ class _QuickAuthSettingsSectionState extends ConsumerState<QuickAuthSettingsSect
           subtitle: _isLoadingPinStatus 
               ? 'Loading...' 
               : _hasPinSetup ? 'Enabled' : 'Disabled',
-          onTap: () {
-            if (_isLoadingPinStatus) return;
-            context
-                .push('/quick-auth-setup', extra: true)
-                .then((value) {
-              if (!mounted) return;
-              if (value == true) {
-                _loadQuickAuthStatus();
-              }
-            });
-          },
+          onTap: null,
         ),
         // Biometric Authentication Toggle
         if (_canUseBiometric)

@@ -71,9 +71,9 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
           icon: Icons.verified,
           iconColor: OpeiColors.successGreen,
           title: 'KYC approved',
-          message: 'You’re fully verified and can continue to your dashboard.',
+          message: 'You’re fully verified. Set your PIN to finish onboarding.',
           buttonLabel: 'Continue',
-          onPressed: _handleContinueToDashboard,
+          onPressed: _handleContinueToPinSetup,
         );
       case _KycOutcome.review:
         return _buildResultCard(
@@ -280,9 +280,9 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
     }
   }
 
-  Future<void> _handleContinueToDashboard() async {
+  Future<void> _handleContinueToPinSetup() async {
     if (!mounted) return;
-    context.go('/dashboard');
+    context.go('/quick-auth-setup');
   }
 
   Future<void> _handleReturnToLogin() async {

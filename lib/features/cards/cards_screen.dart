@@ -63,6 +63,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final showEmptyState = cardsState.hasLoaded && cardsState.cards.isEmpty && !hasError && !cardsState.isLoading;
     final showCardList = cardsState.cards.isNotEmpty;
     final showBlockingLoader = cardsState.isLoading && cardsState.cards.isEmpty && !showErrorState;
+    final showHeaderCreateButton = cardsState.hasLoaded && cardsState.cards.isEmpty;
 
     final platform = Theme.of(context).platform;
     final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
@@ -103,24 +104,26 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                         ),
                         Align(
                           alignment: Alignment.centerRight,
-                          child: GestureDetector(
-                            onTap: () async {
-                              await _startCardCreationFlow();
-                            },
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: OpeiColors.pureBlack,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                color: OpeiColors.pureWhite,
-                                size: 20,
-                              ),
-                            ),
-                          ),
+                          child: showHeaderCreateButton
+                              ? GestureDetector(
+                                  onTap: () async {
+                                    await _startCardCreationFlow();
+                                  },
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: OpeiColors.pureBlack,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: OpeiColors.pureWhite,
+                                      size: 20,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox(width: 32, height: 32),
                         ),
                       ],
                     ),
@@ -181,7 +184,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                       onRetry: () => ref.read(cardsControllerProvider.notifier).refresh(),
                     ),
                     const SizedBox(height: 24),
-                   ] else if (showBlockingLoader) ...[
+                  ] else if (showBlockingLoader) ...[
                      const _CardsLoadingPlaceholder(),
                      const SizedBox(height: 24),
                   ] else if (showEmptyState) ...[
@@ -223,6 +226,31 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
+                    Center(
+                      child: CupertinoButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
+                        color: OpeiColors.pureBlack,
+                        borderRadius: BorderRadius.circular(12),
+                        onPressed: _startCardCreationFlow,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.add, color: OpeiColors.pureWhite, size: 16),
+                            SizedBox(width: 6),
+                            Text(
+                              'Create Card',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: OpeiColors.pureWhite,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 36),
                   ] else ...[
                     const SizedBox(height: 12),
                   ],

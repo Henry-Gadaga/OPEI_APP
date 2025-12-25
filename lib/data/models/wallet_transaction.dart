@@ -50,7 +50,7 @@ class WalletTransaction {
   String get humanizedTransactionType {
     final type = rawType?.trim();
     if (type == null || type.isEmpty) {
-      return 'Transaction';
+      return 'Deposit / Withdraw';
     }
 
     final spaced = type.replaceAll('_', ' ').replaceAll('-', ' ').trim();
