@@ -581,18 +581,41 @@ class WalletBottomNav extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
-        border: Border(top: BorderSide(color: OpeiColors.iosSeparator, width: 0.5)),
+        border: Border(
+          top: BorderSide(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+            width: 0.5,
+          ),
+        ),
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 49,
+          height: 50,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              NavItem(icon: Icons.house_rounded, label: 'Home', isActive: selectedIndex == 0, onTap: () => onItemTapped(0)),
-              NavItem(icon: Icons.credit_card_rounded, label: 'Cards', isActive: selectedIndex == 1, onTap: () => onItemTapped(1)),
-              NavItem(icon: Icons.person_rounded, label: 'Profile', isActive: selectedIndex == 2, onTap: () => onItemTapped(2)),
+              NavItem(
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home,
+                label: 'Home',
+                isActive: selectedIndex == 0,
+                onTap: () => onItemTapped(0),
+              ),
+              NavItem(
+                icon: Icons.credit_card_outlined,
+                activeIcon: Icons.credit_card,
+                label: 'Cards',
+                isActive: selectedIndex == 1,
+                onTap: () => onItemTapped(1),
+              ),
+              NavItem(
+                icon: Icons.person_outline,
+                activeIcon: Icons.person,
+                label: 'Profile',
+                isActive: selectedIndex == 2,
+                onTap: () => onItemTapped(2),
+              ),
             ],
           ),
         ),
@@ -603,11 +626,19 @@ class WalletBottomNav extends StatelessWidget {
 
 class NavItem extends StatefulWidget {
   final IconData icon;
+  final IconData activeIcon;
   final String label;
   final bool isActive;
   final VoidCallback onTap;
 
-  const NavItem({super.key, required this.icon, required this.label, required this.isActive, required this.onTap});
+  const NavItem({
+    super.key,
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.isActive,
+    required this.onTap,
+  });
 
   @override
   State<NavItem> createState() => _NavItemState();
@@ -616,12 +647,27 @@ class NavItem extends StatefulWidget {
 class _NavItemState extends State<NavItem> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
+  late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 80));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.85).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+    _opacityAnimation = Tween<double>(begin: 1.0, end: 0.6).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   @override
@@ -639,25 +685,37 @@ class _NavItemState extends State<NavItem> with SingleTickerProviderStateMixin {
         widget.onTap();
       },
       onTapCancel: () => _controller.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(widget.icon, color: widget.isActive ? OpeiColors.pureBlack : OpeiColors.iosLabelSecondary, size: 26),
-              const SizedBox(height: 3),
-              Text(
-                widget.label,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: 10,
-                      color: widget.isActive ? OpeiColors.pureBlack : OpeiColors.iosLabelSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-              ),
-            ],
+      child: FadeTransition(
+        opacity: _opacityAnimation,
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.isActive ? widget.activeIcon : widget.icon,
+                  color: widget.isActive
+                      ? OpeiColors.pureBlack
+                      : OpeiColors.iosLabelSecondary,
+                  size: 24,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  widget.label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontSize: 9,
+                        color: widget.isActive
+                            ? OpeiColors.pureBlack
+                            : OpeiColors.iosLabelSecondary,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: -0.1,
+                      ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
