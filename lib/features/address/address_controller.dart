@@ -161,6 +161,7 @@ class AddressNotifier extends Notifier<AddressState> {
 
       if (response.success) {
         debugPrint('✅ Address submission successful');
+        ref.read(authSessionProvider.notifier).updateUserStage('PENDING_KYC');
         state = state.copyWith(isLoading: false);
         return true;
       } else {

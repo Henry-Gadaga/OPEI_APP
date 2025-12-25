@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tt1/core/providers/providers.dart';
 import 'package:tt1/features/kyc/kyc_state.dart';
 import 'package:tt1/theme.dart';
@@ -97,10 +98,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  debugPrint('🔘 Start verification button pressed');
-                  ref.read(kycControllerProvider.notifier).initializeKycSession();
-                },
+                onPressed: _handleStartVerification,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -113,6 +111,84 @@ class _KycScreenState extends ConsumerState<KycScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _handleStartVerification() async {
+    debugPrint('🔘 Start verification button pressed');
+    if (!kIsWeb) {
+      final granted = await _ensureKycPermissions();
+      if (!granted) {
+        return;
+      }
+    }
+    if (!mounted) return;
+    ref.read(kycControllerProvider.notifier).initializeKycSession();
+  }
+
+  Future<bool> _ensureKycPermissions() async {
+    final platform = defaultTargetPlatform;
+    if (platform != TargetPlatform.android && platform != TargetPlatform.iOS) {
+      return true;
+    }
+
+    final permissions = <Permission>{
+      Permission.camera,
+      Permission.microphone,
+    };
+
+    if (platform == TargetPlatform.iOS) {
+      permissions.add(Permission.photos);
+    }
+
+    final results = await permissions.toList().request();
+    final allGranted = results.values.every((status) => status.isGranted || status.isLimited);
+
+    if (allGranted) {
+      return true;
+    }
+
+    final permanentlyDenied = results.entries.any((entry) => entry.value.isPermanentlyDenied);
+
+    if (permanentlyDenied && mounted) {
+      await _showPermissionDialog();
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Camera and microphone access are required to continue.'),
+        ),
+      );
+    }
+
+    return false;
+  }
+
+  Future<void> _showPermissionDialog() async {
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Allow Access'),
+          content: const Text(
+            'Camera, microphone, and media permissions are needed to capture your verification selfie. '
+            'Please enable them in Settings to continue.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Not now'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await openAppSettings();
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
+        );
+      },
     );
   }
 

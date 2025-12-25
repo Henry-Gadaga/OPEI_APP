@@ -98,6 +98,10 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
 
       if (response.success) {
         debugPrint('✅ Email verified successfully');
+        final newStage = response.data?['userStage'] as String?;
+        if (newStage != null) {
+          ref.read(authSessionProvider.notifier).updateUserStage(newStage);
+        }
         state = state.copyWith(isVerifying: false);
         return true;
       } else {

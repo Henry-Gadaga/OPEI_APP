@@ -74,8 +74,9 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       
       // Set auth session - this will trigger dependent providers to refresh
       ref.read(authSessionProvider.notifier).setSession(
-        response.user.id,
-        response.accessToken,
+        userId: response.user.id,
+        accessToken: response.accessToken,
+        userStage: response.user.userStage,
       );
       debugPrint('✅ Auth session set via quick auth PIN');
       
@@ -121,8 +122,9 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       
       // Set auth session - this will trigger dependent providers to refresh
       ref.read(authSessionProvider.notifier).setSession(
-        response.user.id,
-        response.accessToken,
+        userId: response.user.id,
+        accessToken: response.accessToken,
+        userStage: response.user.userStage,
       );
       debugPrint('✅ Auth session set via biometric auth');
       

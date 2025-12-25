@@ -28,18 +28,28 @@ export 'package:tt1/features/profile/profile_controller.dart';
 class AuthSession {
   final String? userId;
   final String? accessToken;
+  final String? userStage;
   final int sessionNonce;
+
+  bool get isAuthenticated => userId != null && accessToken != null;
 
   const AuthSession({
     this.userId,
     this.accessToken,
+    this.userStage,
     this.sessionNonce = 0,
   });
 
-  AuthSession copyWith({String? userId, String? accessToken, int? sessionNonce}) {
+  AuthSession copyWith({
+    String? userId,
+    String? accessToken,
+    String? userStage,
+    int? sessionNonce,
+  }) {
     return AuthSession(
       userId: userId ?? this.userId,
       accessToken: accessToken ?? this.accessToken,
+      userStage: userStage ?? this.userStage,
       sessionNonce: sessionNonce ?? this.sessionNonce,
     );
   }
@@ -49,10 +59,23 @@ class AuthSessionNotifier extends Notifier<AuthSession> {
   @override
   AuthSession build() => const AuthSession();
 
-  void setSession(String userId, String accessToken) {
+  void setSession({
+    required String userId,
+    required String accessToken,
+    required String userStage,
+  }) {
     state = AuthSession(
       userId: userId,
       accessToken: accessToken,
+      userStage: userStage,
+      sessionNonce: state.sessionNonce + 1,
+    );
+  }
+
+  void updateUserStage(String userStage) {
+    if (state.userStage == userStage) return;
+    state = state.copyWith(
+      userStage: userStage,
       sessionNonce: state.sessionNonce + 1,
     );
   }
@@ -61,6 +84,7 @@ class AuthSessionNotifier extends Notifier<AuthSession> {
     state = AuthSession(
       userId: null,
       accessToken: null,
+      userStage: null,
       sessionNonce: state.sessionNonce + 1,
     );
   }

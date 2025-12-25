@@ -50,13 +50,41 @@ class OpeiApp extends ConsumerStatefulWidget {
   ConsumerState<OpeiApp> createState() => _OpeiAppState();
 }
 
+const Set<String> _publicPaths = {
+  '/splash',
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-email',
+  '/quick-auth',
+  '/quick-auth-setup',
+};
+
+const Set<String> _onboardingPaths = {
+  '/verify-email',
+  '/address',
+  '/kyc',
+};
+
 class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
   bool _wasBackgrounded = false;
+  late final GoRouter _router;
+  late final ValueNotifier<int> _routerRefreshNotifier;
+  late final ProviderSubscription<AuthSession> _sessionSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _routerRefreshNotifier = ValueNotifier<int>(0);
+    _sessionSubscription = ref.listenManual<AuthSession>(
+      authSessionProvider,
+      (previous, next) {
+        _routerRefreshNotifier.value++;
+      },
+    );
+    _router = _createRouter();
 
     // Warm up frequently used SVG icons to avoid first-use delay on web.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -80,6 +108,8 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _sessionSubscription.close();
+    _routerRefreshNotifier.dispose();
     super.dispose();
   }
 
@@ -149,258 +179,345 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       routerConfig: _router,
     );
   }
-}
 
-final _router = GoRouter(
-  initialLocation: '/splash',
-  routes: [
-    GoRoute(
-      path: '/splash',
-      name: 'splash',
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const _SplashScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: CurveTween(curve: Curves.easeOut).animate(animation),
-            child: child,
-          );
-        },
-      ),
-    ),
-    GoRoute(
-      path: '/login',
-      name: 'login',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const LoginScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/signup',
-      name: 'signup',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const SignupScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/verify-email',
-      name: 'verify-email',
-      pageBuilder: (context, state) {
-        final autoSend = state.uri.queryParameters['autoSend'] == 'true';
-        return buildOpeiTransitionPage(
-          state: state,
-          child: VerifyEmailScreen(autoSendCode: autoSend),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/forgot-password',
-      name: 'forgot-password',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const ForgotPasswordScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/reset-password',
-      name: 'reset-password',
-      pageBuilder: (context, state) {
-        final email = state.uri.queryParameters['email'] ?? '';
-        return buildOpeiTransitionPage(
-          state: state,
-          child: ResetPasswordScreen(email: email),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/address',
-      name: 'address',
-      pageBuilder: (context, state) {
-        final isFromProfile = state.uri.queryParameters['source'] == 'profile';
-        return buildOpeiTransitionPage(
-          state: state,
-          child: AddressScreen(isFromProfile: isFromProfile),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/kyc',
-      name: 'kyc',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const KycScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/quick-auth-setup',
-      name: 'quick-auth-setup',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: QuickAuthSetupScreen(
-          popOnComplete: state.extra is bool ? state.extra as bool : false,
+  GoRouter _createRouter() => GoRouter(
+        initialLocation: '/splash',
+        refreshListenable: _routerRefreshNotifier,
+        routes: _buildRoutes(),
+        redirect: _guardRedirect,
+      );
+
+  List<RouteBase> _buildRoutes() => [
+        GoRoute(
+          path: '/splash',
+          name: 'splash',
+          pageBuilder: (context, state) => CustomTransitionPage(
+            key: state.pageKey,
+            child: const _SplashScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: CurveTween(curve: Curves.easeOut).animate(animation),
+                child: child,
+              );
+            },
+          ),
         ),
-      ),
-    ),
-    GoRoute(
-      path: '/quick-auth',
-      name: 'quick-auth',
-      pageBuilder: (context, state) => CustomTransitionPage(
-        key: state.pageKey,
-        child: const QuickAuthScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: CurveTween(curve: Curves.easeOut).animate(animation),
-            child: child,
-          );
-        },
-      ),
-    ),
-    GoRoute(
-      path: '/dashboard',
-      name: 'dashboard',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const DashboardScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/transactions',
-      name: 'transactions',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const TransactionsScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/profile',
-      name: 'profile',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const ProfileScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/send-money',
-      name: 'send-money',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const SendMoneyScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/p2p',
-      name: 'p2p',
-      pageBuilder: (context, state) {
-        final intentRaw = state.uri.queryParameters['intent'];
-        final intentParam = intentRaw?.toLowerCase().trim();
-        P2PAdType? initialType;
-        if (intentParam == 'sell') {
-          initialType = P2PAdType.sell;
-        } else if (intentParam == 'buy') {
-          initialType = P2PAdType.buy;
-        }
+        GoRoute(
+          path: '/login',
+          name: 'login',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const LoginScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/signup',
+          name: 'signup',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const SignupScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/verify-email',
+          name: 'verify-email',
+          pageBuilder: (context, state) {
+            final autoSend = state.uri.queryParameters['autoSend'] == 'true';
+            return buildOpeiTransitionPage(
+              state: state,
+              child: VerifyEmailScreen(autoSendCode: autoSend),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/forgot-password',
+          name: 'forgot-password',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const ForgotPasswordScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/reset-password',
+          name: 'reset-password',
+          pageBuilder: (context, state) {
+            final email = state.uri.queryParameters['email'] ?? '';
+            return buildOpeiTransitionPage(
+              state: state,
+              child: ResetPasswordScreen(email: email),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/address',
+          name: 'address',
+          pageBuilder: (context, state) {
+            final isFromProfile = state.uri.queryParameters['source'] == 'profile';
+            return buildOpeiTransitionPage(
+              state: state,
+              child: AddressScreen(isFromProfile: isFromProfile),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/kyc',
+          name: 'kyc',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const KycScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/quick-auth-setup',
+          name: 'quick-auth-setup',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: QuickAuthSetupScreen(
+              popOnComplete: state.extra is bool ? state.extra as bool : false,
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/quick-auth',
+          name: 'quick-auth',
+          pageBuilder: (context, state) => CustomTransitionPage(
+            key: state.pageKey,
+            child: const QuickAuthScreen(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: CurveTween(curve: Curves.easeOut).animate(animation),
+                child: child,
+              );
+            },
+          ),
+        ),
+        GoRoute(
+          path: '/dashboard',
+          name: 'dashboard',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const DashboardScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/transactions',
+          name: 'transactions',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const TransactionsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const ProfileScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/send-money',
+          name: 'send-money',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const SendMoneyScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/p2p',
+          name: 'p2p',
+          pageBuilder: (context, state) {
+            final intentRaw = state.uri.queryParameters['intent'];
+            final intentParam = intentRaw?.toLowerCase().trim();
+            P2PAdType? initialType;
+            if (intentParam == 'sell') {
+              initialType = P2PAdType.sell;
+            } else if (intentParam == 'buy') {
+              initialType = P2PAdType.buy;
+            }
 
-        return buildOpeiTransitionPage(
-          state: state,
-          child: P2PExchangeScreen(initialType: initialType),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/p2p/rate-trade',
-      name: 'p2p-rate-trade',
-      pageBuilder: (context, state) {
-        final trade = state.extra as P2PTrade;
-        return buildOpeiTransitionPage(
-          state: state,
-          child: P2PRatingScreen(trade: trade),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/deposit/crypto-currency',
-      name: 'deposit-crypto-currency',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const CryptoCurrencySelectionScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/deposit/crypto-network',
-      name: 'deposit-crypto-network',
-      pageBuilder: (context, state) {
-        final currency = state.extra as String;
-        return buildOpeiTransitionPage(
-          state: state,
-          child: CryptoNetworkSelectionScreen(currency: currency),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/deposit/crypto-address',
-      name: 'deposit-crypto-address',
-      pageBuilder: (context, state) {
-        final params = state.extra as Map<String, String>;
-        return buildOpeiTransitionPage(
-          state: state,
-          child: CryptoAddressDisplayScreen(
-            currency: params['currency']!,
-            network: params['network']!,
+            return buildOpeiTransitionPage(
+              state: state,
+              child: P2PExchangeScreen(initialType: initialType),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/p2p/rate-trade',
+          name: 'p2p-rate-trade',
+          pageBuilder: (context, state) {
+            final trade = state.extra as P2PTrade;
+            return buildOpeiTransitionPage(
+              state: state,
+              child: P2PRatingScreen(trade: trade),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/deposit/crypto-currency',
+          name: 'deposit-crypto-currency',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const CryptoCurrencySelectionScreen(),
           ),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/withdraw/crypto-currency',
-      name: 'withdraw-crypto-currency',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const WithdrawCurrencySelectionScreen(),
-      ),
-    ),
-    GoRoute(
-      path: '/withdraw/crypto-network',
-      name: 'withdraw-crypto-network',
-      pageBuilder: (context, state) {
-        final currency = state.extra as String;
-        return buildOpeiTransitionPage(
-          state: state,
-          child: WithdrawNetworkSelectionScreen(currency: currency),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/withdraw/crypto-form',
-      name: 'withdraw-crypto-form',
-      pageBuilder: (context, state) {
-        final params = state.extra as Map<String, String>;
-        return buildOpeiTransitionPage(
-          state: state,
-          child: CryptoWithdrawFormScreen(
-            currency: params['currency']!,
-            network: params['network']!,
+        ),
+        GoRoute(
+          path: '/deposit/crypto-network',
+          name: 'deposit-crypto-network',
+          pageBuilder: (context, state) {
+            final currency = state.extra as String;
+            return buildOpeiTransitionPage(
+              state: state,
+              child: CryptoNetworkSelectionScreen(currency: currency),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/deposit/crypto-address',
+          name: 'deposit-crypto-address',
+          pageBuilder: (context, state) {
+            final params = state.extra as Map<String, String>;
+            return buildOpeiTransitionPage(
+              state: state,
+              child: CryptoAddressDisplayScreen(
+                currency: params['currency']!,
+                network: params['network']!,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/withdraw/crypto-currency',
+          name: 'withdraw-crypto-currency',
+          pageBuilder: (context, state) => buildOpeiTransitionPage(
+            state: state,
+            child: const WithdrawCurrencySelectionScreen(),
           ),
-        );
-      },
-    ),
-    GoRoute(
-      path: '/withdraw/crypto-success',
-      name: 'withdraw-crypto-success',
-      pageBuilder: (context, state) {
-        final params = state.extra as Map<String, String>;
-        return buildOpeiTransitionPage(
-          state: state,
-          child: CryptoWithdrawSuccessScreen(
-            currency: params['currency']!,
-            network: params['network']!,
-          ),
-        );
-      },
-    ),
-  ],
-);
+        ),
+        GoRoute(
+          path: '/withdraw/crypto-network',
+          name: 'withdraw-crypto-network',
+          pageBuilder: (context, state) {
+            final currency = state.extra as String;
+            return buildOpeiTransitionPage(
+              state: state,
+              child: WithdrawNetworkSelectionScreen(currency: currency),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/withdraw/crypto-form',
+          name: 'withdraw-crypto-form',
+          pageBuilder: (context, state) {
+            final params = state.extra as Map<String, String>;
+            return buildOpeiTransitionPage(
+              state: state,
+              child: CryptoWithdrawFormScreen(
+                currency: params['currency']!,
+                network: params['network']!,
+              ),
+            );
+          },
+        ),
+        GoRoute(
+          path: '/withdraw/crypto-success',
+          name: 'withdraw-crypto-success',
+          pageBuilder: (context, state) {
+            final params = state.extra as Map<String, String>;
+            return buildOpeiTransitionPage(
+              state: state,
+              child: CryptoWithdrawSuccessScreen(
+                currency: params['currency']!,
+                network: params['network']!,
+              ),
+            );
+          },
+        ),
+      ];
+
+  String? _guardRedirect(BuildContext context, GoRouterState state) {
+    final location = state.uri.path;
+    final session = ref.read(authSessionProvider);
+
+    if (location == '/splash') {
+      if (!session.isAuthenticated) {
+        return null;
+      }
+      final stage = session.userStage;
+      if (stage == null) {
+        return null;
+      }
+      final stageRoute = _stageRouteFor(stage);
+      if (stageRoute != null) {
+        return stageRoute;
+      }
+      return '/dashboard';
+    }
+
+    if (!session.isAuthenticated) {
+      if (_isPublicPath(location)) {
+        return null;
+      }
+      return '/login';
+    }
+
+    if (location == '/quick-auth' || location == '/quick-auth-setup') {
+      return null;
+    }
+
+    final stage = session.userStage;
+    if (stage == null) {
+      return '/splash';
+    }
+
+    final stageRoute = _stageRouteFor(stage);
+    if (stageRoute != null) {
+      final requiredPath = _basePath(stageRoute);
+      if (location != requiredPath) {
+        return stageRoute;
+      }
+      return null;
+    }
+
+    if (_isOnboardingPath(location) || location == '/login' || location == '/signup') {
+      return '/dashboard';
+    }
+
+    return null;
+  }
+
+  bool _isPublicPath(String path) {
+    if (path.startsWith('/reset-password')) {
+      return true;
+    }
+    return _publicPaths.contains(path);
+  }
+
+  bool _isOnboardingPath(String path) => _onboardingPaths.contains(path);
+
+  String? _stageRouteFor(String stage) {
+    switch (stage.toUpperCase()) {
+      case 'PENDING_EMAIL':
+        return '/verify-email?autoSend=true';
+      case 'PENDING_ADDRESS':
+        return '/address';
+      case 'PENDING_KYC':
+        return '/kyc';
+      case 'VERIFIED':
+        return null;
+      default:
+        return '/kyc';
+    }
+  }
+
+  String _basePath(String route) {
+    final questionMarkIndex = route.indexOf('?');
+    if (questionMarkIndex == -1) {
+      return route;
+    }
+    return route.substring(0, questionMarkIndex);
+  }
+}
 
 class _SplashScreen extends ConsumerStatefulWidget {
   const _SplashScreen();
@@ -447,7 +564,11 @@ class _SplashScreenState extends ConsumerState<_SplashScreen> {
       if (accessToken != null) {
         final user = await userRepo.getCurrentUser();
         await storage.saveUser(user);
-        ref.read(authSessionProvider.notifier).setSession(user.id, accessToken);
+        ref.read(authSessionProvider.notifier).setSession(
+          userId: user.id,
+          accessToken: accessToken,
+          userStage: user.userStage,
+        );
         if (mounted) context.go('/dashboard');
         return;
       }
@@ -459,8 +580,9 @@ class _SplashScreenState extends ConsumerState<_SplashScreen> {
       final response = await authRepo.refreshAccessToken(refreshToken);
       await storage.saveUser(response.user);
       ref.read(authSessionProvider.notifier).setSession(
-        response.user.id,
-        response.accessToken,
+        userId: response.user.id,
+        accessToken: response.accessToken,
+        userStage: response.user.userStage,
       );
       if (mounted) context.go('/dashboard');
       return;

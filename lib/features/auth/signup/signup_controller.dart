@@ -32,8 +32,9 @@ class SignupController extends Notifier<SignupState> {
       
       // Set auth session - this will trigger dependent providers to refresh
       ref.read(authSessionProvider.notifier).setSession(
-        response.user.id,
-        response.accessToken,
+        userId: response.user.id,
+        accessToken: response.accessToken,
+        userStage: response.user.userStage,
       );
 
       state = SignupSuccess(response);
