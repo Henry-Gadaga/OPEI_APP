@@ -11,8 +11,6 @@ class ReferenceCopyValue extends StatefulWidget {
   final String reference;
   final bool labelOnTop;
   final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry pillPadding;
-  final double pillRadius;
   final TextStyle? labelStyle;
   final TextStyle? valueStyle;
 
@@ -22,8 +20,6 @@ class ReferenceCopyValue extends StatefulWidget {
     required this.reference,
     this.labelOnTop = false,
     this.padding = EdgeInsets.zero,
-    this.pillPadding = const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-    this.pillRadius = 12,
     this.labelStyle,
     this.valueStyle,
   });
@@ -48,75 +44,71 @@ class _ReferenceCopyValueState extends State<ReferenceCopyValue> {
     final trimmed = widget.reference.trim();
     final sanitized = (trimmed == '—') ? '' : trimmed;
     final isEmpty = sanitized.isEmpty;
-    final truncated = sanitized.length <= 15 ? sanitized : '${sanitized.substring(0, 15)}…';
 
-    final resolvedLabelStyle = widget.labelStyle ?? theme.textTheme.bodyMedium?.copyWith(
+    final resolvedLabelStyle = widget.labelStyle ??
+        theme.textTheme.bodyMedium?.copyWith(
           color: OpeiColors.grey600,
           fontWeight: FontWeight.w500,
           fontSize: 13,
         );
 
-    final resolvedValueStyle = widget.valueStyle ?? theme.textTheme.bodyMedium?.copyWith(
+    final resolvedValueStyle = widget.valueStyle ??
+        theme.textTheme.bodyMedium?.copyWith(
           fontWeight: FontWeight.w600,
           fontSize: 13,
           letterSpacing: -0.1,
         );
 
-    final action = AnimatedSwitcher(
-      duration: const Duration(milliseconds: 220),
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeInCubic,
-      child: _copied && !isEmpty
-          ? const _CopiedBadge(key: ValueKey('copied'))
-          : _CopyButton(
-              key: const ValueKey('copy'),
-              onTap: isEmpty ? null : () => _copyReference(context, sanitized),
-            ),
-    );
-
-    final pill = AnimatedOpacity(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutCubic,
-      opacity: isEmpty ? 0.5 : 1,
-      child: Container(
-        padding: widget.pillPadding,
-        decoration: BoxDecoration(
-          color: OpeiColors.pureWhite,
-          borderRadius: BorderRadius.circular(widget.pillRadius),
-          border: Border.all(
-            color: OpeiColors.grey200.withValues(alpha: 0.9),
-            width: 0.7,
+    final valueRow = Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Flexible(
+          child: Text(
+            isEmpty ? '—' : sanitized,
+            style: resolvedValueStyle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          boxShadow: theme.brightness == Brightness.dark
-              ? null
-              : [
-                  BoxShadow(
-                    color: OpeiColors.pureBlack.withValues(alpha: 0.04),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                isEmpty ? '—' : truncated,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: resolvedValueStyle,
+        if (!isEmpty) ...[
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () => _copyReference(context, sanitized),
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 48,
+              height: 20,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                child: _copied
+                    ? Align(
+                        key: const ValueKey('copied'),
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Copied',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: OpeiColors.grey600,
+                            letterSpacing: -0.1,
+                          ),
+                        ),
+                      )
+                    : Align(
+                        key: const ValueKey('copy'),
+                        alignment: Alignment.center,
+                        child: Icon(
+                          CupertinoIcons.doc_on_doc,
+                          size: 16,
+                          color: OpeiColors.grey600,
+                        ),
+                      ),
               ),
             ),
-            if (!isEmpty) ...[
-              const SizedBox(width: 10),
-              action,
-            ],
-          ],
-        ),
-      ),
+          ),
+        ],
+      ],
     );
 
     final content = widget.labelOnTop
@@ -125,7 +117,7 @@ class _ReferenceCopyValueState extends State<ReferenceCopyValue> {
             children: [
               Text(widget.label, style: resolvedLabelStyle),
               const SizedBox(height: 6),
-              pill,
+              valueRow,
             ],
           )
         : Row(
@@ -133,7 +125,7 @@ class _ReferenceCopyValueState extends State<ReferenceCopyValue> {
             children: [
               Text(widget.label, style: resolvedLabelStyle),
               const SizedBox(width: 12),
-              Expanded(child: pill),
+              Expanded(child: valueRow),
             ],
           );
 
@@ -158,68 +150,5 @@ class _ReferenceCopyValueState extends State<ReferenceCopyValue> {
       if (!mounted) return;
       setState(() => _copied = false);
     });
-  }
-}
-
-class _CopyButton extends StatelessWidget {
-  final VoidCallback? onTap;
-
-  const _CopyButton({super.key, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-        decoration: BoxDecoration(
-          color: onTap == null ? OpeiColors.grey200 : OpeiColors.grey100,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(
-          CupertinoIcons.doc_on_doc,
-          size: 16,
-          color: onTap == null ? OpeiColors.grey500 : OpeiColors.pureBlack,
-        ),
-      ),
-    );
-  }
-}
-
-class _CopiedBadge extends StatelessWidget {
-  const _CopiedBadge({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: OpeiColors.success.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Icon(
-            CupertinoIcons.check_mark_circled_solid,
-            size: 16,
-            color: OpeiColors.success,
-          ),
-          SizedBox(width: 6),
-          Text(
-            'Copied',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.1,
-              color: OpeiColors.success,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

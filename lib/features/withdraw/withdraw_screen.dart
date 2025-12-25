@@ -1112,7 +1112,6 @@ class _DetailRow extends StatelessWidget {
           fontSize: 14.5,
           fontWeight: FontWeight.w600,
         ),
-        pillPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       );
     }
 
