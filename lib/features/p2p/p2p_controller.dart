@@ -53,13 +53,15 @@ class P2PAdsController extends Notifier<P2PAdsState> {
       return;
     }
 
+    final shouldTreatAsRefresh = state.hasLoaded;
+
     state = state.copyWith(
       selectedType: type,
       clearError: true,
       clearInfo: true,
     );
 
-    await _fetchAds();
+    await _fetchAds(asRefresh: shouldTreatAsRefresh);
   }
 
   Future<void> updateCurrency(String currencyCode) async {
@@ -68,13 +70,15 @@ class P2PAdsController extends Notifier<P2PAdsState> {
       return;
     }
 
+    final shouldTreatAsRefresh = state.hasLoaded;
+
     state = state.copyWith(
       selectedCurrencyCode: normalized,
       clearError: true,
       clearInfo: true,
     );
 
-    await _fetchAds();
+    await _fetchAds(asRefresh: shouldTreatAsRefresh);
   }
 
   Future<void> updateAmountBounds({int? minAmountCents, int? maxAmountCents}) async {
@@ -108,20 +112,19 @@ class P2PAdsController extends Notifier<P2PAdsState> {
       clearInfo: true,
     );
 
-    await _fetchAds();
+    await _fetchAds(asRefresh: state.hasLoaded);
   }
 
   void updatePaymentMethod(String? paymentMethodLabel) {
     final normalized = paymentMethodLabel?.trim();
     final nextSelection = normalized == null || normalized.isEmpty ? null : normalized;
-    if (state.selectedPaymentMethod == nextSelection) {
-      return;
-    }
 
     final filtered = _filterAds(state.allAds, nextSelection);
+    final shouldClearSelection = nextSelection == null;
 
     state = state.copyWith(
       selectedPaymentMethod: nextSelection,
+      clearSelectedPaymentMethod: shouldClearSelection,
       filteredAds: filtered,
       infoMessage: filtered.isEmpty ? 'No ads available right now.' : null,
       clearInfo: filtered.isNotEmpty,
