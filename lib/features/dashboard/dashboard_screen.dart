@@ -68,7 +68,7 @@ class DashboardHomeScreen extends ConsumerWidget {
       child: RefreshIndicator(
         color: OpeiColors.pureBlack,
         backgroundColor: OpeiColors.pureWhite,
-        displacement: 31,
+        displacement: 25,
         triggerMode: RefreshIndicatorTriggerMode.onEdge,
         onRefresh: () => controller.refreshBalance(),
         child: SingleChildScrollView(
