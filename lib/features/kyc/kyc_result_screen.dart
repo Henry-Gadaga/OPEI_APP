@@ -70,7 +70,7 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
         return _buildResultCard(
           icon: Icons.verified,
           iconColor: OpeiColors.successGreen,
-          title: 'KYC approved!',
+          title: 'KYC approved',
           message: 'You’re fully verified and can continue to your dashboard.',
           buttonLabel: 'Continue',
           onPressed: _handleContinueToDashboard,
@@ -80,7 +80,7 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
           icon: Icons.watch_later_outlined,
           iconColor: OpeiColors.warningYellow,
           title: 'Under review',
-          message: 'Your documents are under review. We’ll email you within 24 hours.',
+          message: 'We’ll email you within 24 hours once the review finishes.',
           buttonLabel: 'Done',
           onPressed: _handleReturnToLogin,
         );
@@ -90,7 +90,7 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
           iconColor: OpeiColors.errorRed,
           title: 'KYC declined',
           message:
-              'Please check your email for the reason and next steps, or contact support if you need help.',
+              'Check your email for the reason and next steps, or contact support if you need help.',
           buttonLabel: 'Retry verification',
           onPressed: _handleRetryVerification,
         );
@@ -128,46 +128,66 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
     required String buttonLabel,
     required VoidCallback onPressed,
   }) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.12),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(icon, size: 64, color: iconColor),
-        ),
-        const SizedBox(height: 32),
-        Text(
-          title,
-          style: Theme.of(context).textTheme.displayMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          message,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: OpeiColors.grey700,
+    final theme = Theme.of(context);
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: iconColor.withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-          textAlign: TextAlign.center,
+              child: Icon(icon, size: 44, color: iconColor),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              message,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 13,
+                    height: 1.4,
+                    color: OpeiColors.grey700,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: 260,
+              child: ElevatedButton(
+                onPressed: _isActionInFlight ? null : onPressed,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: _isActionInFlight
+                    ? const SizedBox(
+                        height: 18,
+                        width: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(
+                        buttonLabel,
+                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: _isActionInFlight ? null : onPressed,
-            child: _isActionInFlight
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(buttonLabel),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

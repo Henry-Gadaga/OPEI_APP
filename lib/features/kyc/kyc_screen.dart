@@ -37,15 +37,21 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         title: const Text('Identity Verification'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: _handleBackToSignup,
+          onPressed: _handleBackNavigation,
         ),
       ),
       body: _buildBody(state),
     );
   }
 
-  Future<void> _handleBackToSignup() async {
+  Future<void> _handleBackNavigation() async {
     ref.read(kycControllerProvider.notifier).reset();
+    final router = GoRouter.of(context);
+
+    if (router.canPop()) {
+      context.pop();
+      return;
+    }
 
     final logoutFuture = ref.read(authRepositoryProvider).logout();
     ref.read(authSessionProvider.notifier).clearSession();
@@ -176,55 +182,73 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   }
 
   Widget _buildInitialView() {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.horizontalLg,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: OpeiColors.pureBlack.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final verticalPadding = constraints.maxHeight > 640 ? 48.0 : 24.0;
+        return Padding(
+          padding: EdgeInsets.fromLTRB(24, verticalPadding, 24, verticalPadding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: OpeiColors.pureBlack.withValues(alpha: 0.08),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.verified_user_outlined,
+                  size: 48,
+                  color: OpeiColors.pureBlack,
+                ),
               ),
-              child: const Icon(
-                Icons.verified_user_outlined,
-                size: 64,
-                color: OpeiColors.pureBlack,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Text(
-              'Identity Verification',
-              style: Theme.of(context).textTheme.displayMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'We need to verify your identity to complete your account setup. This process is secure and typically takes 2-3 minutes.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: OpeiColors.grey600,
+              Column(
+                children: [
+                  const SizedBox(height: 16),
+                  Text(
+                    'Identity verification',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
+                    textAlign: TextAlign.center,
                   ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 48),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _handleStartVerification,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  const SizedBox(height: 8),
+                  Text(
+                    'We need to verify your identity to complete your account setup. This usually takes 2-3 minutes.',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: OpeiColors.grey600,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 280,
+                child: ElevatedButton(
+                  onPressed: _handleStartVerification,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    minimumSize: const Size.fromHeight(0),
+                  ),
+                  child: const Text(
+                    'Start identity verification',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-                child: const Text('Start Identity Verification'),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 

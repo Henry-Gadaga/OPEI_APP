@@ -29,63 +29,63 @@ class WithdrawOptionsSheet extends StatelessWidget {
         bottom: false,
         child: Padding(
           padding: EdgeInsets.only(bottom: effectiveBottomSpacing),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosLabelTertiary,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: OpeiColors.iosLabelTertiary,
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Text(
-                      'Withdraw',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Choose how you want to move funds out of your wallet',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 15,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
-                    ),
+            ),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  Text(
+                    'Withdraw',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Choose how you want to move funds out of your wallet',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
+                          color: OpeiColors.iosLabelSecondary,
+                        ),
+                  ),
                     const SizedBox(height: 24),
-                    WithdrawOptionCard(
-                      iconAsset: 'assets/images/btc.svg',
-                      title: 'Crypto Withdrawal',
-                      description: 'Send USDT or USDC to your crypto wallet',
-                      onTap: () {
-                        context.pop();
-                        context.push('/withdraw/crypto-currency');
-                      },
-                    ),
-                    const SizedBox(height: 4),
-                    WithdrawOptionCard(
-                      iconAsset: 'assets/images/exchange.svg',
-                      title: 'Exchange',
-                      description: 'Bank transfer, Mobile Payments and more',
-                      onTap: () {
-                        context.pop();
-                        context.push('/p2p?intent=sell');
-                      },
-                    ),
-                  ],
-                ),
+                  WithdrawOptionCard(
+                    iconAsset: 'assets/images/btc.svg',
+                    title: 'Crypto Withdrawal',
+                    description: 'Send USDT or USDC to your crypto wallet',
+                    onTap: () {
+                      context.pop();
+                      context.push('/withdraw/crypto-currency');
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  WithdrawOptionCard(
+                    iconAsset: 'assets/images/exchange.svg',
+                    title: 'Exchange',
+                    description: 'Bank transfer, Mobile Payments and more',
+                    onTap: () {
+                      context.pop();
+                      context.push('/p2p?intent=sell');
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
+          ],
           ),
         ),
       ),

@@ -32,7 +32,7 @@ class DepositOptionsSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -628,12 +628,14 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
     final state = ref.watch(depositControllerProvider);
     final displayCurrency = state.selectedCurrency ?? currency;
     final displayNetwork = state.selectedNetwork ?? network;
+    final normalizedNetwork = displayNetwork.toLowerCase();
     final networkLabel = _resolveNetworkLabel(displayNetwork);
     final addressValue = state.addressResponse?.address ?? '';
     final hasAddress = addressValue.isNotEmpty;
     final networkIcon = _resolveNetworkIcon(displayNetwork);
 
     final textTheme = Theme.of(context).textTheme;
+    final disableScroll = normalizedNetwork == 'polygon' || normalizedNetwork == 'ethereum';
 
     return Scaffold(
       backgroundColor: OpeiColors.pureWhite,
@@ -654,9 +656,13 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
         centerTitle: true,
       ),
       body: SafeArea(
+        bottom: false,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          physics: disableScroll
+              ? const NeverScrollableScrollPhysics()
+              : const ClampingScrollPhysics(),
+          shrinkWrap: disableScroll,
           children: [
             Text(
               'Scan to deposit',
@@ -887,19 +893,29 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 28),
-            SizedBox(
-              width: double.infinity,
-              child: CupertinoButton.filled(
-                borderRadius: BorderRadius.circular(14),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                onPressed: () => context.go('/dashboard'),
-                child: Text(
-                  'Done',
-                  style: textTheme.titleMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.pureWhite,
-                      ),
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewPadding.bottom + 16,
+              ),
+              child: Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width >= 400
+                      ? 320
+                      : double.infinity,
+                  child: CupertinoButton.filled(
+                    borderRadius: BorderRadius.circular(12),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    onPressed: () => context.go('/dashboard'),
+                    child: Text(
+                      'Done',
+                      style: textTheme.bodyMedium?.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: OpeiColors.pureWhite,
+                          ),
+                    ),
+                  ),
                 ),
               ),
             ),
