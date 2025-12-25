@@ -15,7 +15,7 @@ class QuickAuthSetupScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(quickAuthSetupControllerProvider);
-
+    
     ref.listen(quickAuthSetupControllerProvider, (previous, next) {
       if (next is QuickAuthSetupSuccess) {
         Future.microtask(() => ref.read(quickAuthSetupControllerProvider.notifier).reset());
@@ -49,7 +49,7 @@ class QuickAuthSetupScreen extends ConsumerWidget {
     return const Scaffold(
       backgroundColor: OpeiColors.pureWhite,
       body: Center(child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
-    );
+      );
   }
 }
 

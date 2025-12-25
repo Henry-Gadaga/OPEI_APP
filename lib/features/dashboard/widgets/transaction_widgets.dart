@@ -185,13 +185,13 @@ class _SkeletonCircleState extends State<_SkeletonCircle> with SingleTickerProvi
       animation: _pulse,
       builder: (context, child) {
         final opacity = 0.35 + (0.25 * _pulse.value);
-        return Container(
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
+    return Container(
+      width: 28,
+      height: 28,
+      decoration: BoxDecoration(
             color: baseColor.withOpacity(opacity),
-            borderRadius: BorderRadius.circular(14),
-          ),
+        borderRadius: BorderRadius.circular(14),
+      ),
         );
       },
     );
@@ -235,13 +235,13 @@ class _SkeletonLineState extends State<_SkeletonLine> with SingleTickerProviderS
       animation: _pulse,
       builder: (context, child) {
         final opacity = 0.35 + (0.25 * _pulse.value);
-        return Container(
+    return Container(
           width: widget.width,
           height: widget.height,
-          decoration: BoxDecoration(
+      decoration: BoxDecoration(
             color: baseColor.withOpacity(opacity),
-            borderRadius: BorderRadius.circular(12),
-          ),
+        borderRadius: BorderRadius.circular(12),
+      ),
         );
       },
     );

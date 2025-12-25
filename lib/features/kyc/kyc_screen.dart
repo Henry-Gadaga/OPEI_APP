@@ -36,9 +36,9 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       appBar: AppBar(
         title: const Text('Identity Verification'),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back),
           onPressed: _handleBackNavigation,
-        ),
+              ),
       ),
       body: _buildBody(state),
     );
@@ -187,55 +187,55 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         final verticalPadding = constraints.maxHeight > 640 ? 48.0 : 24.0;
         return Padding(
           padding: EdgeInsets.fromLTRB(24, verticalPadding, 24, verticalPadding),
-          child: Column(
+        child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
+          children: [
+            Container(
                 padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
+              decoration: BoxDecoration(
                   color: OpeiColors.pureBlack.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.verified_user_outlined,
-                  size: 48,
-                  color: OpeiColors.pureBlack,
-                ),
+                shape: BoxShape.circle,
               ),
+              child: const Icon(
+                Icons.verified_user_outlined,
+                  size: 48,
+                color: OpeiColors.pureBlack,
+              ),
+            ),
               Column(
                 children: [
                   const SizedBox(height: 16),
-                  Text(
+            Text(
                     'Identity verification',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontSize: 22,
                           fontWeight: FontWeight.w600,
                         ),
-                    textAlign: TextAlign.center,
-                  ),
+              textAlign: TextAlign.center,
+            ),
                   const SizedBox(height: 8),
-                  Text(
+            Text(
                     'We need to verify your identity to complete your account setup. This usually takes 2-3 minutes.',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontSize: 13,
                           height: 1.4,
-                          color: OpeiColors.grey600,
-                        ),
-                    textAlign: TextAlign.center,
+                    color: OpeiColors.grey600,
                   ),
+              textAlign: TextAlign.center,
+            ),
                 ],
               ),
-              SizedBox(
+            SizedBox(
                 width: 280,
-                child: ElevatedButton(
+              child: ElevatedButton(
                   onPressed: _handleStartVerification,
-                  style: ElevatedButton.styleFrom(
+                style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                    shape: RoundedRectangleBorder(
+                  shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
-                    ),
-                    minimumSize: const Size.fromHeight(0),
                   ),
+                    minimumSize: const Size.fromHeight(0),
+                ),
                   child: const Text(
                     'Start identity verification',
                     style: TextStyle(
@@ -243,10 +243,10 @@ class _KycScreenState extends ConsumerState<KycScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
         );
       },
     );

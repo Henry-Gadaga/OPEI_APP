@@ -106,22 +106,22 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                           alignment: Alignment.centerRight,
                           child: showHeaderCreateButton
                               ? GestureDetector(
-                                  onTap: () async {
-                                    await _startCardCreationFlow();
-                                  },
-                                  child: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      color: OpeiColors.pureBlack,
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: const Icon(
-                                      Icons.add,
-                                      color: OpeiColors.pureWhite,
-                                      size: 20,
-                                    ),
-                                  ),
+                            onTap: () async {
+                              await _startCardCreationFlow();
+                            },
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: OpeiColors.pureBlack,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                color: OpeiColors.pureWhite,
+                                size: 20,
+                              ),
+                            ),
                                 )
                               : const SizedBox(width: 32, height: 32),
                         ),
@@ -184,7 +184,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                       onRetry: () => ref.read(cardsControllerProvider.notifier).refresh(),
                     ),
                     const SizedBox(height: 24),
-                  ] else if (showBlockingLoader) ...[
+                   ] else if (showBlockingLoader) ...[
                      const _CardsLoadingPlaceholder(),
                      const SizedBox(height: 24),
                   ] else if (showEmptyState) ...[

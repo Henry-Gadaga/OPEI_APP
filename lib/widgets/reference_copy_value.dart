@@ -85,15 +85,15 @@ class _ReferenceCopyValueState extends State<ReferenceCopyValue> {
                     ? Align(
                         key: const ValueKey('copied'),
                         alignment: Alignment.center,
-                        child: Text(
+              child: Text(
                           'Copied',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                             color: OpeiColors.grey600,
                             letterSpacing: -0.1,
-                          ),
-                        ),
+              ),
+            ),
                       )
                     : Align(
                         key: const ValueKey('copy'),
@@ -105,8 +105,8 @@ class _ReferenceCopyValueState extends State<ReferenceCopyValue> {
                         ),
                       ),
               ),
-            ),
-          ),
+        ),
+      ),
         ],
       ],
     );

@@ -903,19 +903,19 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                   width: MediaQuery.of(context).size.width >= 400
                       ? 320
                       : double.infinity,
-                  child: CupertinoButton.filled(
+              child: CupertinoButton.filled(
                     borderRadius: BorderRadius.circular(12),
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    onPressed: () => context.go('/dashboard'),
-                    child: Text(
-                      'Done',
+                onPressed: () => context.go('/dashboard'),
+                child: Text(
+                  'Done',
                       style: textTheme.bodyMedium?.copyWith(
                             fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: OpeiColors.pureWhite,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiColors.pureWhite,
                           ),
                     ),
-                  ),
+                      ),
                 ),
               ),
             ),
