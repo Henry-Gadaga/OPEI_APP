@@ -5,6 +5,7 @@ import 'package:tt1/features/cards/cards_screen.dart';
 import 'package:tt1/features/dashboard/dashboard_controller.dart';
 import 'package:tt1/features/dashboard/dashboard_state.dart';
 import 'package:tt1/features/dashboard/widgets/transaction_widgets.dart';
+import 'package:tt1/features/dashboard/widgets/skeleton_pulse_scope.dart';
 import 'package:tt1/features/deposit/deposit_screen.dart';
 import 'package:tt1/features/profile/profile_screen.dart';
 import 'package:tt1/features/transactions/widgets/transaction_detail_sheet.dart';
@@ -344,7 +345,7 @@ class TransactionsList extends StatelessWidget {
     Widget content;
 
     if (showSkeleton) {
-      content = const TransactionsListSkeleton();
+      content = const TransactionsListSkeleton(itemCount: 5);
     } else if (transactions.isEmpty) {
       if (state.transactionsError != null) {
         content = Padding(
@@ -484,7 +485,7 @@ class DashboardHomeSkeleton extends StatelessWidget {
             ],
           ),
           padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
-          child: const TransactionsListSkeleton(),
+          child: const TransactionsListSkeleton(itemCount: 5),
         ),
         const SizedBox(height: 24),
       ],
@@ -528,7 +529,7 @@ class _BalanceCardSkeleton extends StatelessWidget {
   }
 }
 
-class _SkeletonBox extends StatelessWidget {
+class _SkeletonBox extends StatefulWidget {
   final double width;
   final double height;
   final double radius;
@@ -540,32 +541,94 @@ class _SkeletonBox extends StatelessWidget {
   });
 
   @override
+  State<_SkeletonBox> createState() => _SkeletonBoxState();
+}
+
+class _SkeletonBoxState extends State<_SkeletonBox> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
+    _pulse = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: OpeiColors.iosSurfaceMuted,
-        borderRadius: BorderRadius.circular(radius),
-      ),
+    const baseColor = OpeiColors.iosSurfaceMuted;
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        final opacity = 0.35 + (0.25 * _pulse.value);
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: baseColor.withOpacity(opacity),
+            borderRadius: BorderRadius.circular(widget.radius),
+          ),
+        );
+      },
     );
   }
 }
 
-class _SkeletonCircle extends StatelessWidget {
+class _SkeletonCircle extends StatefulWidget {
   final double size;
 
   const _SkeletonCircle({required this.size});
 
   @override
+  State<_SkeletonCircle> createState() => _SkeletonCircleState();
+}
+
+class _SkeletonCircleState extends State<_SkeletonCircle> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
+    _pulse = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: OpeiColors.iosSurfaceMuted,
-        borderRadius: BorderRadius.circular(size / 2),
-      ),
+    const baseColor = OpeiColors.iosSurfaceMuted;
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        final opacity = 0.35 + (0.25 * _pulse.value);
+        return Container(
+          width: widget.size,
+          height: widget.size,
+          decoration: BoxDecoration(
+            color: baseColor.withOpacity(opacity),
+            borderRadius: BorderRadius.circular(widget.size / 2),
+          ),
+        );
+      },
     );
   }
 }

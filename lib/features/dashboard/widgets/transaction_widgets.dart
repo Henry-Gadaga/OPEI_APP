@@ -151,37 +151,99 @@ class TransactionsListSkeleton extends StatelessWidget {
   }
 }
 
-class _SkeletonCircle extends StatelessWidget {
+class _SkeletonCircle extends StatefulWidget {
   const _SkeletonCircle();
 
   @override
+  State<_SkeletonCircle> createState() => _SkeletonCircleState();
+}
+
+class _SkeletonCircleState extends State<_SkeletonCircle> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
+    _pulse = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: OpeiColors.iosSurfaceMuted,
-        borderRadius: BorderRadius.circular(14),
-      ),
+    const baseColor = OpeiColors.iosSurfaceMuted;
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        final opacity = 0.35 + (0.25 * _pulse.value);
+        return Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: baseColor.withOpacity(opacity),
+            borderRadius: BorderRadius.circular(14),
+          ),
+        );
+      },
     );
   }
 }
 
-class _SkeletonLine extends StatelessWidget {
+class _SkeletonLine extends StatefulWidget {
   final double width;
   final double height;
 
   const _SkeletonLine({required this.width, required this.height});
 
   @override
+  State<_SkeletonLine> createState() => _SkeletonLineState();
+}
+
+class _SkeletonLineState extends State<_SkeletonLine> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
+    _pulse = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: OpeiColors.iosSurfaceMuted,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    const baseColor = OpeiColors.iosSurfaceMuted;
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        final opacity = 0.35 + (0.25 * _pulse.value);
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: baseColor.withOpacity(opacity),
+            borderRadius: BorderRadius.circular(12),
+          ),
+        );
+      },
     );
   }
 }
