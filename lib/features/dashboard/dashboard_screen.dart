@@ -57,12 +57,37 @@ class DashboardHomeScreen extends ConsumerWidget {
     final scrollPhysics = AlwaysScrollableScrollPhysics(
       parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
     );
+    final isSkeleton = dashboardState.showSkeleton;
 
     if (!dashboardState.hasAttemptedInitialLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         controller.ensureBalanceLoaded();
       });
     }
+
+    final Widget content = isSkeleton
+        ? const DashboardHomeSkeleton()
+        : Column(
+            children: [
+              const SizedBox(height: 12),
+              WalletHeader(onProfileTap: onProfileTap),
+              const SizedBox(height: 40),
+              BalanceCard(state: dashboardState),
+              const SizedBox(height: 28),
+              QuickActions(onCardsTap: onCardsTap),
+              const SizedBox(height: 28),
+              TransactionsList(
+                state: dashboardState,
+                onViewAll: () {
+                  context.push('/transactions');
+                },
+                onRetry: () {
+                  controller.refreshBalance(showSpinner: false);
+                },
+              ),
+              const SizedBox(height: 24),
+            ],
+          );
 
     return SafeArea(
       child: RefreshIndicator(
@@ -71,30 +96,14 @@ class DashboardHomeScreen extends ConsumerWidget {
         displacement: 25,
         triggerMode: RefreshIndicatorTriggerMode.onEdge,
         onRefresh: () => controller.refreshBalance(),
-        child: SingleChildScrollView(
-          physics: scrollPhysics,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
-                const SizedBox(height: 12),
-                WalletHeader(onProfileTap: onProfileTap),
-                const SizedBox(height: 40),
-                BalanceCard(state: dashboardState),
-                const SizedBox(height: 28),
-                QuickActions(onCardsTap: onCardsTap),
-                const SizedBox(height: 28),
-                TransactionsList(
-                  state: dashboardState,
-                  onViewAll: () {
-                    context.push('/transactions');
-                  },
-                  onRetry: () {
-                    controller.refreshBalance(showSpinner: false);
-                  },
-                ),
-                const SizedBox(height: 24),
-              ],
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: SingleChildScrollView(
+            key: ValueKey(isSkeleton ? 'dashboard-skeleton' : 'dashboard-content'),
+            physics: scrollPhysics,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: content,
             ),
           ),
         ),
@@ -437,6 +446,126 @@ class TransactionsList extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class DashboardHomeSkeleton extends StatelessWidget {
+  const DashboardHomeSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            _SkeletonBox(width: 72, height: 22),
+            _SkeletonCircle(size: 32),
+          ],
+        ),
+        const SizedBox(height: 40),
+        const _BalanceCardSkeleton(),
+        const SizedBox(height: 28),
+        const _QuickActionsSkeleton(),
+        const SizedBox(height: 28),
+        Container(
+          decoration: BoxDecoration(
+            color: OpeiColors.pureWhite,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: OpeiColors.pureBlack.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+          child: const TransactionsListSkeleton(),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+}
+
+class _QuickActionsSkeleton extends StatelessWidget {
+  const _QuickActionsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: List.generate(
+        4,
+        (_) => Column(
+          children: const [
+            _SkeletonCircle(size: 56),
+            SizedBox(height: 8),
+            _SkeletonBox(width: 44, height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BalanceCardSkeleton extends StatelessWidget {
+  const _BalanceCardSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: const [
+        _SkeletonBox(width: 110, height: 14),
+        SizedBox(height: 12),
+        _SkeletonBox(width: 180, height: 48, radius: 18),
+      ],
+    );
+  }
+}
+
+class _SkeletonBox extends StatelessWidget {
+  final double width;
+  final double height;
+  final double radius;
+
+  const _SkeletonBox({
+    required this.width,
+    required this.height,
+    this.radius = 12,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: OpeiColors.iosSurfaceMuted,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+}
+
+class _SkeletonCircle extends StatelessWidget {
+  final double size;
+
+  const _SkeletonCircle({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: OpeiColors.iosSurfaceMuted,
+        borderRadius: BorderRadius.circular(size / 2),
+      ),
     );
   }
 }
