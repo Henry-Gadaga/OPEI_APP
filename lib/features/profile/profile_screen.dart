@@ -19,14 +19,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final controller = ref.read(profileControllerProvider.notifier);
     final profile = state.profile;
     final platform = Theme.of(context).platform;
-    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final isCupertino =
+        platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
     final scrollPhysics = AlwaysScrollableScrollPhysics(
-      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+      parent: isCupertino
+          ? const BouncingScrollPhysics()
+          : const ClampingScrollPhysics(),
     );
 
     if (state.isLoading && profile == null) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
+        body: Center(
+            child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
       );
     }
 
@@ -103,7 +107,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           triggerMode: RefreshIndicatorTriggerMode.onEdge,
           child: ListView(
             physics: scrollPhysics,
-            padding: AppSpacing.horizontalMd + const EdgeInsets.only(top: 24, bottom: 32),
+            padding: AppSpacing.horizontalMd +
+                const EdgeInsets.only(top: 24, bottom: 32),
             children: [
               ProfileHeader(
                 displayName: profile?.displayName ?? 'User',
@@ -201,11 +206,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         label: 'City',
                         value: profile.address!.city!,
                       ),
-                    if (profile.address!.houseNumber != null && profile.address!.addressLine != null)
+                    if (profile.address!.houseNumber != null &&
+                        profile.address!.addressLine != null)
                       ProfileInfoItem(
                         icon: Icons.home_outlined,
                         label: 'Address',
-                        value: '${profile.address!.houseNumber} ${profile.address!.addressLine}',
+                        value:
+                            '${profile.address!.houseNumber} ${profile.address!.addressLine}',
                       ),
                     if (profile.address!.zipCode != null)
                       ProfileInfoItem(
@@ -230,20 +237,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
               // Show verification badge if documents are verified
               if (profile?.identity != null &&
-                  (profile!.identity!.selfieUrl != null || profile.identity!.frontImage != null)) ...[
+                  (profile!.identity!.selfieUrl != null ||
+                      profile.identity!.frontImage != null)) ...[
                 const SizedBox(height: 24),
                 ProfileSection(
                   title: 'Verification Status',
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 16),
                       child: Row(
                         children: [
                           Container(
                             width: 56,
                             height: 56,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF34C759).withValues(alpha: 0.15),
+                              color: const Color(0xFF34C759)
+                                  .withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -259,7 +269,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               children: [
                                 Text(
                                   'Identity Verified',
-                                  style: context.textStyles.titleMedium?.copyWith(
+                                  style:
+                                      context.textStyles.titleMedium?.copyWith(
                                     color: OpeiColors.pureBlack,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -339,7 +350,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               color: OpeiColors.pureBlack.withValues(alpha: 0.06),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.shield_outlined, color: OpeiColors.pureBlack, size: 24),
+            child: const Icon(Icons.shield_outlined,
+                color: OpeiColors.pureBlack, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -353,13 +365,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'Verify your identity to unlock all features',
-                  style: context.textStyles.bodySmall?.copyWith(color: OpeiColors.grey600),
+                  style: context.textStyles.bodySmall
+                      ?.copyWith(color: OpeiColors.grey600),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 8),
-          const Icon(Icons.arrow_forward_ios, color: OpeiColors.grey400, size: 16),
+          const Icon(Icons.arrow_forward_ios,
+              color: OpeiColors.grey400, size: 16),
         ],
       ),
     );
@@ -398,7 +412,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       builder: (dialogContext) {
         return CupertinoActionSheet(
           title: const Text('Log Out'),
-          message: const Text("You’ll need to sign in again to access your account."),
+          message: const Text(
+              "You’ll need to sign in again to access your account."),
           actions: [
             CupertinoActionSheetAction(
               onPressed: () async {
@@ -412,7 +427,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   context.go('/login');
                   debugPrint('✅ Navigation command sent');
                 } else {
-                  debugPrint('❌ Navigation cancelled - success: $success, mounted: ${context.mounted}');
+                  debugPrint(
+                      '❌ Navigation cancelled - success: $success, mounted: ${context.mounted}');
                 }
               },
               isDestructiveAction: true,
@@ -434,7 +450,8 @@ class ProfileHeader extends StatelessWidget {
   final String displayName;
   final String email;
 
-  const ProfileHeader({super.key, required this.displayName, required this.email});
+  const ProfileHeader(
+      {super.key, required this.displayName, required this.email});
 
   @override
   Widget build(BuildContext context) {
@@ -460,7 +477,8 @@ class ProfileHeader extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           email,
-          style: context.textStyles.bodyMedium?.copyWith(color: OpeiColors.grey600),
+          style: context.textStyles.bodyMedium
+              ?.copyWith(color: OpeiColors.grey600),
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -474,7 +492,8 @@ class ProfileSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
-  const ProfileSection({super.key, required this.title, required this.children});
+  const ProfileSection(
+      {super.key, required this.title, required this.children});
 
   @override
   Widget build(BuildContext context) {
@@ -508,7 +527,9 @@ class ProfileSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: separatedChildren),
+        Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: separatedChildren),
       ],
     );
   }
@@ -538,11 +559,14 @@ class ProfileInfoItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: context.textStyles.bodySmall?.copyWith(color: OpeiColors.grey600)),
+                Text(label,
+                    style: context.textStyles.bodySmall
+                        ?.copyWith(color: OpeiColors.grey600)),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: context.textStyles.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                  style: context.textStyles.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w500),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -577,15 +601,18 @@ class ProfileActionItem extends StatefulWidget {
   State<ProfileActionItem> createState() => _ProfileActionItemState();
 }
 
-class _ProfileActionItemState extends State<ProfileActionItem> with SingleTickerProviderStateMixin {
+class _ProfileActionItemState extends State<ProfileActionItem>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 100));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -596,8 +623,10 @@ class _ProfileActionItemState extends State<ProfileActionItem> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    final color = widget.isDestructive ? OpeiColors.errorRed : OpeiColors.pureBlack;
-    final iconColor = widget.isDestructive ? OpeiColors.errorRed : OpeiColors.grey600;
+    final color =
+        widget.isDestructive ? OpeiColors.errorRed : OpeiColors.pureBlack;
+    final iconColor =
+        widget.isDestructive ? OpeiColors.errorRed : OpeiColors.grey600;
     final isInteractive = widget.onTap != null && !widget.isLoading;
 
     Widget buildContent() => Container(
@@ -623,7 +652,8 @@ class _ProfileActionItemState extends State<ProfileActionItem> with SingleTicker
                       const SizedBox(height: 2),
                       Text(
                         widget.subtitle!,
-                        style: context.textStyles.bodySmall?.copyWith(color: OpeiColors.grey600),
+                        style: context.textStyles.bodySmall
+                            ?.copyWith(color: OpeiColors.grey600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -641,7 +671,8 @@ class _ProfileActionItemState extends State<ProfileActionItem> with SingleTicker
                   ),
                 )
               else if (!widget.isDestructive && isInteractive)
-                const Icon(Icons.chevron_right, color: OpeiColors.grey400, size: 18),
+                const Icon(Icons.chevron_right,
+                    color: OpeiColors.grey400, size: 18),
             ],
           ),
         );
@@ -729,7 +760,8 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Select Language', style: Theme.of(context).textTheme.titleLarge),
+                Text('Select Language',
+                    style: Theme.of(context).textTheme.titleLarge),
                 IconButton(
                   icon: const Icon(Icons.close, color: OpeiColors.grey700),
                   onPressed: () => Navigator.pop(context),
@@ -759,21 +791,28 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
                 return InkWell(
                   onTap: () => widget.onLanguageSelected(language),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
                     decoration: const BoxDecoration(
-                      border: Border(bottom: BorderSide(color: OpeiColors.grey200, width: 0.5)),
+                      border: Border(
+                          bottom: BorderSide(
+                              color: OpeiColors.grey200, width: 0.5)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           language,
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.w400,
+                                  ),
                         ),
                         if (isSelected)
-                          const Icon(Icons.check, color: OpeiColors.pureBlack, size: 20),
+                          const Icon(Icons.check,
+                              color: OpeiColors.pureBlack, size: 20),
                       ],
                     ),
                   ),
@@ -859,15 +898,14 @@ class QuickAuthSettingsSection extends ConsumerStatefulWidget {
   const QuickAuthSettingsSection({super.key, required this.userId});
 
   @override
-  ConsumerState<QuickAuthSettingsSection> createState() => _QuickAuthSettingsSectionState();
+  ConsumerState<QuickAuthSettingsSection> createState() =>
+      _QuickAuthSettingsSectionState();
 }
 
-class _QuickAuthSettingsSectionState extends ConsumerState<QuickAuthSettingsSection> {
+class _QuickAuthSettingsSectionState
+    extends ConsumerState<QuickAuthSettingsSection> {
   bool _isLoadingPinStatus = true;
-  bool _isLoadingBiometricStatus = true;
   bool _hasPinSetup = false;
-  bool _isBiometricEnabled = false;
-  bool _canUseBiometric = false;
 
   @override
   void initState() {
@@ -877,22 +915,16 @@ class _QuickAuthSettingsSectionState extends ConsumerState<QuickAuthSettingsSect
 
   Future<void> _loadQuickAuthStatus() async {
     final quickAuthService = ref.read(quickAuthServiceProvider);
-    
+
     setState(() {
       _isLoadingPinStatus = true;
-      _isLoadingBiometricStatus = true;
     });
 
     final hasPin = await quickAuthService.hasPinSetup(widget.userId);
-    final hasBiometric = await quickAuthService.isBiometricEnabled(widget.userId);
-    final canBiometric = await quickAuthService.canUseBiometric();
 
     setState(() {
       _hasPinSetup = hasPin;
-      _isBiometricEnabled = hasBiometric;
-      _canUseBiometric = canBiometric;
       _isLoadingPinStatus = false;
-      _isLoadingBiometricStatus = false;
     });
   }
 
@@ -901,135 +933,17 @@ class _QuickAuthSettingsSectionState extends ConsumerState<QuickAuthSettingsSect
     return ProfileSection(
       title: 'Security Settings',
       children: [
-        // PIN Authentication Status
         ProfileActionItem(
           icon: Icons.pin_outlined,
           label: 'PIN Authentication',
-          subtitle: _isLoadingPinStatus 
-              ? 'Loading...' 
-              : _hasPinSetup ? 'Enabled' : 'Disabled',
+          subtitle: _isLoadingPinStatus
+              ? 'Loading...'
+              : _hasPinSetup
+                  ? 'Enabled'
+                  : 'Disabled',
           onTap: null,
         ),
-        // Biometric Authentication Toggle
-        if (_canUseBiometric)
-          BiometricToggleItem(
-            userId: widget.userId,
-            isEnabled: _isBiometricEnabled,
-            isLoading: _isLoadingBiometricStatus,
-            hasPinSetup: _hasPinSetup,
-            onChanged: (enabled) async {
-              await _loadQuickAuthStatus();
-            },
-          ),
       ],
-    );
-  }
-
-}
-
-class BiometricToggleItem extends ConsumerStatefulWidget {
-  final String userId;
-  final bool isEnabled;
-  final bool isLoading;
-  final bool hasPinSetup;
-  final Function(bool) onChanged;
-
-  const BiometricToggleItem({
-    super.key,
-    required this.userId,
-    required this.isEnabled,
-    required this.isLoading,
-    required this.hasPinSetup,
-    required this.onChanged,
-  });
-
-  @override
-  ConsumerState<BiometricToggleItem> createState() => _BiometricToggleItemState();
-}
-
-class _BiometricToggleItemState extends ConsumerState<BiometricToggleItem> {
-  bool _isToggling = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        children: [
-          const Icon(Icons.fingerprint, color: OpeiColors.grey600, size: 20),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Biometric Login',
-                  style: context.textStyles.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  widget.isLoading 
-                      ? 'Loading...' 
-                      : widget.isEnabled ? 'Enabled' : 'Disabled',
-                  style: context.textStyles.bodySmall?.copyWith(color: OpeiColors.grey600),
-                ),
-              ],
-            ),
-          ),
-          if (_isToggling || widget.isLoading)
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: OpeiColors.pureBlack),
-            )
-          else
-            Switch(
-              value: widget.isEnabled,
-              activeColor: OpeiColors.pureBlack,
-              onChanged: !widget.hasPinSetup ? null : (value) async {
-                if (!widget.hasPinSetup) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Set up a PIN first')),
-                  );
-                  return;
-                }
-
-                setState(() => _isToggling = true);
-
-                final quickAuthService = ref.read(quickAuthServiceProvider);
-
-                if (value) {
-                  // Enable biometric
-                  final authenticated = await quickAuthService.authenticateWithBiometric(
-                    'Authenticate to enable biometric login',
-                  );
-
-                  if (authenticated) {
-                    await quickAuthService.enableBiometric(widget.userId);
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Biometric login enabled')),
-                      );
-                    }
-                  }
-                } else {
-                  // Disable biometric
-                  await quickAuthService.disableBiometric(widget.userId);
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Biometric login disabled')),
-                    );
-                  }
-                }
-
-                setState(() => _isToggling = false);
-                widget.onChanged(value);
-              },
-            ),
-        ],
-      ),
     );
   }
 }
