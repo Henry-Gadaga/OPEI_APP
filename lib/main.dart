@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tt1/core/navigation/opei_page_transitions.dart';
 import 'package:tt1/core/utils/asset_preloader.dart';
@@ -618,13 +617,10 @@ class _SplashScreenState extends ConsumerState<_SplashScreen> {
     return Scaffold(
       backgroundColor: OpeiColors.pureWhite,
       body: Center(
-        child: SizedBox(
-          width: 160,
-          height: 160,
-          child: SvgPicture.asset(
-            'assets/images/opei.svg',
-            fit: BoxFit.contain,
-          ),
+        child: Image.asset(
+          'assets/icons/splash1.png',
+          width: MediaQuery.of(context).size.width * 0.7,
+          fit: BoxFit.contain,
         ),
       ),
     );

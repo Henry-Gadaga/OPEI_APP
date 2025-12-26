@@ -642,15 +642,17 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 20),
+          icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 18),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Deposit Address',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 17,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
+                letterSpacing: -0.3,
               ),
         ),
         centerTitle: true,
@@ -658,7 +660,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           physics: disableScroll
               ? const NeverScrollableScrollPhysics()
               : const ClampingScrollPhysics(),
@@ -667,32 +669,25 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
             Text(
               'Scan to deposit',
               style: textTheme.titleLarge?.copyWith(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: -0.3,
+                    letterSpacing: -0.4,
                   ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
-              'Use your wallet app to send ${displayCurrency.toUpperCase()} on $networkLabel to this address.',
+              'Send ${displayCurrency.toUpperCase()} on $networkLabel',
               style: textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
+                    fontSize: 13,
                     color: OpeiColors.iosLabelSecondary,
                   ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: OpeiColors.pureWhite,
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  BoxShadow(
-                    color: OpeiColors.pureBlack.withValues(alpha: 0.04),
-                    blurRadius: 26,
-                    offset: const Offset(0, 12),
-                  ),
-                ],
+                color: OpeiColors.iosSurfaceMuted.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -702,24 +697,17 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                     child: hasAddress
                         ? Container(
                             key: const ValueKey('qr_ready'),
-                            padding: const EdgeInsets.all(14),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: OpeiColors.pureWhite,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: OpeiColors.pureBlack.withValues(alpha: 0.05),
-                                  blurRadius: 22,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
+                              borderRadius: BorderRadius.circular(16),
                             ),
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
                                 SizedBox(
-                                  width: 192,
-                                  height: 192,
+                                  width: 160,
+                                  height: 160,
                                   child: BarcodeWidget(
                                     data: addressValue,
                                     barcode: Barcode.qrCode(),
@@ -740,32 +728,21 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                                   ),
                                 ),
                                 Container(
-                                  width: 36,
-                                  height: 36,
+                                  width: 30,
+                                  height: 30,
                                   decoration: BoxDecoration(
                                     color: OpeiColors.pureWhite,
                                     shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: OpeiColors.iosSeparator.withValues(alpha: 0.35),
-                                      width: 0.6,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: OpeiColors.pureBlack.withValues(alpha: 0.06),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(6),
+                                    padding: const EdgeInsets.all(5),
                                     child: networkIcon != null
                                         ? SvgPicture.asset(networkIcon, fit: BoxFit.contain)
                                         : Center(
                                             child: Text(
                                               networkLabel.isNotEmpty ? networkLabel[0].toUpperCase() : '',
                                               style: textTheme.titleMedium?.copyWith(
-                                                    fontSize: 14,
+                                                    fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                             ),
@@ -777,25 +754,26 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                           )
                         : const SizedBox(
                             key: ValueKey('qr_loading'),
-                            height: 190,
-                            child: Center(child: CupertinoActivityIndicator(radius: 14)),
+                            height: 160,
+                            child: Center(child: CupertinoActivityIndicator(radius: 12)),
                           ),
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 14),
                   Text(
-                    '${displayCurrency.toUpperCase()} on $networkLabel',
+                    '${displayCurrency.toUpperCase()} • $networkLabel',
                     style: textTheme.titleMedium?.copyWith(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
                         ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: OpeiColors.iosSurfaceMuted,
-                      borderRadius: BorderRadius.circular(14),
+                      color: OpeiColors.iosSurfaceMuted.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
@@ -803,26 +781,27 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                           child: SelectableText(
                             hasAddress ? addressValue : '— — —',
                             style: textTheme.bodyMedium?.copyWith(
-                                  fontSize: 13,
-                                  height: 1.4,
+                                  fontSize: 12,
+                                  height: 1.3,
                                   fontFamily: 'monospace',
                                   color: OpeiColors.pureBlack,
                                 ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
                         CupertinoButton(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          borderRadius: BorderRadius.circular(12),
-                          color: OpeiColors.pureWhite,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          minSize: 0,
+                          borderRadius: BorderRadius.circular(8),
+                          color: OpeiColors.pureBlack.withOpacity(0.04),
                           onPressed: hasAddress
                               ? () {
                                   Clipboard.setData(ClipboardData(text: addressValue));
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                      content: Text('Address copied to clipboard'),
+                                      content: Text('Address copied'),
                                       behavior: SnackBarBehavior.floating,
-                                      duration: Duration(seconds: 2),
+                                      duration: Duration(seconds: 1),
                                     ),
                                   );
                                 }
@@ -832,14 +811,14 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                             children: [
                               Icon(
                                 CupertinoIcons.doc_on_doc,
-                                size: 16,
+                                size: 14,
                                 color: hasAddress ? OpeiColors.pureBlack : OpeiColors.iosLabelSecondary,
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 3),
                               Text(
                                 'Copy',
                                 style: textTheme.bodyMedium?.copyWith(
-                                      fontSize: 13,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                       color: hasAddress ? OpeiColors.pureBlack : OpeiColors.iosLabelSecondary,
                                     ),
@@ -853,69 +832,63 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: OpeiColors.pureWhite,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: OpeiColors.pureBlack.withValues(alpha: 0.04),
-                    blurRadius: 22,
-                    offset: const Offset(0, 12),
-                  ),
-                ],
+                color: OpeiColors.iosSurfaceMuted.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(CupertinoIcons.info, color: OpeiColors.iosLabelSecondary, size: 18),
-                      const SizedBox(width: 8),
+                      const Icon(CupertinoIcons.info_circle, color: OpeiColors.iosLabelSecondary, size: 16),
+                      const SizedBox(width: 6),
                       Text(
-                        'Before you send',
+                        'Important',
                         style: textTheme.titleMedium?.copyWith(
-                              fontSize: 15,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  InfoItem(text: 'Only send ${displayCurrency.toUpperCase()} to this address on the $networkLabel network'),
                   const SizedBox(height: 10),
-                  InfoItem(text: 'Using another asset or network can result in permanent loss'),
-                  const SizedBox(height: 10),
-                  InfoItem(text: 'Your balance updates automatically after confirmations'),
+                  InfoItem(text: 'Only send ${displayCurrency.toUpperCase()} on $networkLabel network'),
+                  const SizedBox(height: 7),
+                  InfoItem(text: 'Other assets or networks will cause permanent loss'),
+                  const SizedBox(height: 7),
+                  InfoItem(text: 'Balance updates after network confirmations'),
                 ],
               ),
             ),
-            const SizedBox(height: 28),
+            const SizedBox(height: 20),
             Padding(
               padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewPadding.bottom + 16,
+                bottom: MediaQuery.of(context).viewPadding.bottom + 12,
               ),
               child: Align(
                 alignment: Alignment.center,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width >= 400
-                      ? 320
-                      : double.infinity,
-              child: CupertinoButton.filled(
-                    borderRadius: BorderRadius.circular(12),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                onPressed: () => context.go('/dashboard'),
-                child: Text(
-                  'Done',
-                      style: textTheme.bodyMedium?.copyWith(
-                            fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.pureWhite,
-                          ),
-                    ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 340),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: CupertinoButton.filled(
+                      borderRadius: BorderRadius.circular(12),
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      onPressed: () => context.go('/dashboard'),
+                      child: Text(
+                        'Done',
+                        style: textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: OpeiColors.pureWhite,
+                        ),
                       ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -937,20 +910,21 @@ class InfoItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.only(top: 6),
-          width: 4,
-          height: 4,
+          margin: const EdgeInsets.only(top: 5),
+          width: 3.5,
+          height: 3.5,
           decoration: const BoxDecoration(
             color: OpeiColors.iosLabelSecondary,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         Expanded(
           child: Text(
             text,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 14,
+                  fontSize: 12,
+                  height: 1.35,
                   color: OpeiColors.iosLabelSecondary,
                 ),
           ),
