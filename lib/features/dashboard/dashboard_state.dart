@@ -14,6 +14,7 @@ class DashboardState {
   final List<WalletTransaction> recentTransactions;
   final String? transactionsError;
   final bool hasAttemptedTransactionsLoad;
+  final bool transactionsHydrated;
 
   const DashboardState({
     this.isLoading = false,
@@ -28,11 +29,14 @@ class DashboardState {
     this.recentTransactions = const [],
     this.transactionsError,
     this.hasAttemptedTransactionsLoad = false,
+    this.transactionsHydrated = false,
   });
 
   bool get showSkeleton => isLoading && wallet == null && !isRefreshing;
   bool get showTransactionsSkeleton =>
-      isLoadingTransactions && recentTransactions.isEmpty && !isRefreshingTransactions;
+      isLoadingTransactions &&
+      recentTransactions.isEmpty &&
+      !isRefreshingTransactions;
 
   DashboardState copyWith({
     bool? isLoading,
@@ -51,6 +55,7 @@ class DashboardState {
     bool? hasAttemptedTransactionsLoad,
     bool clearTransactionsError = false,
     bool clearRecentTransactions = false,
+    bool? transactionsHydrated,
   }) {
     return DashboardState(
       isLoading: isLoading ?? this.isLoading,
@@ -59,15 +64,21 @@ class DashboardState {
       error: clearError ? null : (error ?? this.error),
       lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       lastFetchedUserId: lastFetchedUserId ?? this.lastFetchedUserId,
-      hasAttemptedInitialLoad: hasAttemptedInitialLoad ?? this.hasAttemptedInitialLoad,
-      isLoadingTransactions: isLoadingTransactions ?? this.isLoadingTransactions,
-      isRefreshingTransactions: isRefreshingTransactions ?? this.isRefreshingTransactions,
-      recentTransactions:
-          clearRecentTransactions ? const [] : (recentTransactions ?? this.recentTransactions),
-      transactionsError:
-          clearTransactionsError ? null : (transactionsError ?? this.transactionsError),
+      hasAttemptedInitialLoad:
+          hasAttemptedInitialLoad ?? this.hasAttemptedInitialLoad,
+      isLoadingTransactions:
+          isLoadingTransactions ?? this.isLoadingTransactions,
+      isRefreshingTransactions:
+          isRefreshingTransactions ?? this.isRefreshingTransactions,
+      recentTransactions: clearRecentTransactions
+          ? const []
+          : (recentTransactions ?? this.recentTransactions),
+      transactionsError: clearTransactionsError
+          ? null
+          : (transactionsError ?? this.transactionsError),
       hasAttemptedTransactionsLoad:
           hasAttemptedTransactionsLoad ?? this.hasAttemptedTransactionsLoad,
+      transactionsHydrated: transactionsHydrated ?? this.transactionsHydrated,
     );
   }
 }

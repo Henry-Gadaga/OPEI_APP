@@ -56,7 +56,8 @@ class DashboardController extends Notifier<DashboardState> {
     ]);
   }
 
-  Future<void> _fetchBalance({required bool force, bool asRefresh = false}) async {
+  Future<void> _fetchBalance(
+      {required bool force, bool asRefresh = false}) async {
     final userId = await _resolveActiveUserId();
     if (userId == null) {
       debugPrint('⚠️ Cannot fetch balance: user id is unavailable');
@@ -67,7 +68,8 @@ class DashboardController extends Notifier<DashboardState> {
       if (force) {
         _pendingForcedRefresh = true;
       }
-      debugPrint('⏳ Wallet fetch already in progress. Skipping duplicate call.');
+      debugPrint(
+          '⏳ Wallet fetch already in progress. Skipping duplicate call.');
       return;
     }
 
@@ -82,11 +84,13 @@ class DashboardController extends Notifier<DashboardState> {
 
     _isFetching = true;
 
-    final isInitialLoad =
-        !currentState.hasAttemptedInitialLoad || currentState.lastFetchedUserId != userId;
+    final isInitialLoad = !currentState.hasAttemptedInitialLoad ||
+        currentState.lastFetchedUserId != userId;
 
     state = currentState.copyWith(
-      isLoading: asRefresh ? currentState.isLoading : (isInitialLoad ? true : currentState.isLoading),
+      isLoading: asRefresh
+          ? currentState.isLoading
+          : (isInitialLoad ? true : currentState.isLoading),
       isRefreshing: asRefresh,
       hasAttemptedInitialLoad: true,
       clearError: true,
@@ -105,7 +109,8 @@ class DashboardController extends Notifier<DashboardState> {
         lastSyncedAt: DateTime.now(),
       );
 
-      debugPrint('💼 Wallet synced for $userId: ${wallet?.formattedAvailableBalance ?? 'no wallet'}');
+      debugPrint(
+          '💼 Wallet synced for $userId: ${wallet?.formattedAvailableBalance ?? 'no wallet'}');
     } catch (error) {
       final friendly = ErrorHelper.getErrorMessage(error);
       debugPrint('❌ Failed to sync wallet for $userId: $friendly');
@@ -126,7 +131,8 @@ class DashboardController extends Notifier<DashboardState> {
     }
   }
 
-  Future<void> _fetchRecentTransactions({required bool force, bool asRefresh = false}) async {
+  Future<void> _fetchRecentTransactions(
+      {required bool force, bool asRefresh = false}) async {
     final userId = await _resolveActiveUserId();
     if (userId == null) {
       debugPrint('⚠️ Cannot fetch transactions: user id is unavailable');
@@ -137,18 +143,19 @@ class DashboardController extends Notifier<DashboardState> {
       if (force) {
         _pendingTransactionsForcedRefresh = true;
       }
-      debugPrint('⏳ Transactions fetch already in flight. Skipping duplicate call.');
+      debugPrint(
+          '⏳ Transactions fetch already in flight. Skipping duplicate call.');
       return;
     }
 
     final currentState = state;
-    final alreadyLoaded =
-        currentState.recentTransactions.isNotEmpty &&
+    final alreadyLoaded = currentState.recentTransactions.isNotEmpty &&
         currentState.lastFetchedUserId == userId &&
         currentState.hasAttemptedTransactionsLoad;
 
     if (!force && alreadyLoaded) {
-      debugPrint('✅ Recent transactions already loaded for $userId. Skipping fetch.');
+      debugPrint(
+          '✅ Recent transactions already loaded for $userId. Skipping fetch.');
       return;
     }
 
@@ -165,19 +172,27 @@ class DashboardController extends Notifier<DashboardState> {
       hasAttemptedTransactionsLoad: true,
       lastFetchedUserId: userId,
       clearTransactionsError: true,
+      clearRecentTransactions: isInitialLoad,
+      transactionsHydrated:
+          isInitialLoad ? false : currentState.transactionsHydrated,
     );
 
     try {
-      final transactions = await _transactionRepository.getRecentTransactions(userId);
+      final transactions =
+          await _transactionRepository.getRecentTransactions(userId);
+
+      await Future.delayed(const Duration(milliseconds: 120));
 
       state = state.copyWith(
         recentTransactions: transactions,
         isLoadingTransactions: false,
         isRefreshingTransactions: false,
         clearTransactionsError: true,
+        transactionsHydrated: true,
       );
 
-      debugPrint('🧾 Loaded ${transactions.length} recent transactions for $userId');
+      debugPrint(
+          '🧾 Loaded ${transactions.length} recent transactions for $userId');
     } catch (error) {
       final friendly = ErrorHelper.getErrorMessage(error);
       debugPrint('❌ Failed to load recent transactions for $userId: $friendly');
@@ -215,7 +230,8 @@ class DashboardController extends Notifier<DashboardState> {
     _lastSessionNonce = next.sessionNonce;
 
     if (previousUserId != nextUserId) {
-      debugPrint('👤 Active user changed from $previousUserId to $nextUserId. Forcing reload.');
+      debugPrint(
+          '👤 Active user changed from $previousUserId to $nextUserId. Forcing reload.');
       state = const DashboardState();
       scheduleMicrotask(() {
         _fetchBalance(force: true);
@@ -225,6 +241,11 @@ class DashboardController extends Notifier<DashboardState> {
     }
 
     if (!state.hasAttemptedInitialLoad || sessionNonceChanged) {
+      if (sessionNonceChanged) {
+        debugPrint(
+            '🔐 Session nonce changed for $_activeUserId. Resetting dashboard state.');
+        state = const DashboardState();
+      }
       scheduleMicrotask(() {
         _fetchBalance(force: true);
         _fetchRecentTransactions(force: true);
@@ -269,7 +290,8 @@ class DashboardController extends Notifier<DashboardState> {
     final wallet = state.wallet;
     if (wallet == null) return;
 
-    final delta = Money.fromCents(amountInCents, currency: wallet.balance.currency);
+    final delta =
+        Money.fromCents(amountInCents, currency: wallet.balance.currency);
     final updated = wallet.copyWith(
       balance: wallet.balance + delta,
     );

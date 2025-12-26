@@ -64,7 +64,8 @@ class DashboardHomeScreen extends ConsumerWidget {
     );
     final walletReady =
         dashboardState.wallet != null && !dashboardState.showSkeleton;
-    final transactionsReady = !dashboardState.showTransactionsSkeleton;
+    final transactionsReady = dashboardState.transactionsHydrated &&
+        !dashboardState.showTransactionsSkeleton;
     final showFullContent = walletReady && transactionsReady;
 
     if (!dashboardState.hasAttemptedInitialLoad) {
