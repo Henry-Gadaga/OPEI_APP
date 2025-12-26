@@ -209,7 +209,7 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       name: 'login',
       pageBuilder: (context, state) => buildOpeiTransitionPage(
         state: state,
-        child: const LoginScreen(),
+        child: LoginScreen(),
       ),
     ),
     GoRoute(

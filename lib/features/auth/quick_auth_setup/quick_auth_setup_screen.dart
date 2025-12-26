@@ -22,7 +22,7 @@ class QuickAuthSetupScreen extends ConsumerWidget {
         if (popOnComplete) {
           context.pop(true);
         } else {
-          context.go('/dashboard');
+          context.go('/quick-auth');
         }
       } else if (next is QuickAuthSetupError) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -102,11 +102,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       // First time login on this device → show quick auth setup
       debugPrint('➡️ Navigating to quick-auth-setup');
       context.go('/quick-auth-setup');
-    } else {
-      // Setup already completed → go to dashboard
-      debugPrint('➡️ Navigating to dashboard');
-      context.go('/dashboard');
+      return;
     }
+
+    // Setup already completed → require quick-auth PIN before dashboard
+    debugPrint('➡️ Navigating to quick-auth');
+    context.go('/quick-auth');
   }
 
   @override
