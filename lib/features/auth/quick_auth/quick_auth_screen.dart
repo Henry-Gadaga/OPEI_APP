@@ -179,6 +179,18 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                         ),
                   ),
                 ),
+                TextButton(
+                  onPressed: () => ref
+                      .read(quickAuthControllerProvider.notifier)
+                      .logoutAndResetPin(),
+                  child: Text(
+                    'Forgot PIN?',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: OpeiColors.errorRed,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ),
                 const SizedBox(height: 32),
               ],
             ),

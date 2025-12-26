@@ -4,6 +4,9 @@ import 'package:tt1/core/providers/providers.dart';
 import 'package:tt1/features/auth/quick_auth/quick_auth_state.dart';
 
 class QuickAuthController extends Notifier<QuickAuthState> {
+  static const int _maxPinAttempts = 5;
+  int _failedPinAttempts = 0;
+
   @override
   QuickAuthState build() => QuickAuthPinEntry();
 
@@ -31,6 +34,10 @@ class QuickAuthController extends Notifier<QuickAuthState> {
     state = currentState.copyWith(pin: newPin, errorMessage: null);
   }
 
+  void _resetFailedAttempts() {
+    _failedPinAttempts = 0;
+  }
+
   Future<void> _verifyPin(String pin) async {
     state = QuickAuthLoading();
     final quickAuthStatusNotifier = ref.read(quickAuthStatusProvider.notifier);
@@ -55,13 +62,11 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       final isValid = await quickAuthService.verifyPin(userIdentifier, pin);
 
       if (!isValid) {
-        quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
-        state =
-            QuickAuthPinEntry(errorMessage: 'Invalid PIN. Please try again.');
-        await Future.delayed(const Duration(milliseconds: 1500));
-        state = QuickAuthPinEntry();
+        await _handleInvalidPinAttempt();
         return;
       }
+
+      _resetFailedAttempts();
 
       final refreshToken = await storage.getRefreshToken();
 
@@ -89,6 +94,7 @@ class QuickAuthController extends Notifier<QuickAuthState> {
     } catch (e) {
       debugPrint('❌ Quick auth failed: $e');
       quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
+      _resetFailedAttempts();
       state = QuickAuthFailed('Authentication failed. Please login again.');
     }
   }
@@ -147,7 +153,61 @@ class QuickAuthController extends Notifier<QuickAuthState> {
   }
 
   void reset() {
+    _resetFailedAttempts();
     state = QuickAuthPinEntry();
+  }
+
+  Future<void> logoutAndResetPin() async {
+    state = QuickAuthLoading();
+    try {
+      await ref.read(authRepositoryProvider).logout();
+    } catch (e) {
+      debugPrint('⚠️ Logout during Forgot PIN failed: $e');
+    } finally {
+      ref.read(authSessionProvider.notifier).clearSession();
+      _resetFailedAttempts();
+      state = QuickAuthFailed(
+        'Logged out. Please sign in to create a new PIN.',
+      );
+    }
+  }
+
+  Future<void> _handleInvalidPinAttempt() async {
+    _failedPinAttempts += 1;
+    final remainingAttempts = _maxPinAttempts - _failedPinAttempts;
+
+    if (_failedPinAttempts >= _maxPinAttempts) {
+      await _forceLogoutAfterTooManyAttempts();
+      return;
+    }
+
+    final attemptMessage = remainingAttempts == 1
+        ? 'Invalid PIN. 1 attempt remaining.'
+        : 'Invalid PIN. $remainingAttempts attempts remaining.';
+
+    ref.read(quickAuthStatusProvider.notifier).setStatus(
+          QuickAuthStatus.requiresVerification,
+        );
+
+    state = QuickAuthPinEntry(errorMessage: attemptMessage);
+    await Future.delayed(const Duration(milliseconds: 1500));
+    state = QuickAuthPinEntry();
+  }
+
+  Future<void> _forceLogoutAfterTooManyAttempts() async {
+    debugPrint(
+        '🔐 Exceeded max PIN attempts ($_maxPinAttempts). Forcing logout.');
+    try {
+      await ref.read(authRepositoryProvider).logout();
+    } catch (e) {
+      debugPrint('⚠️ Forced logout encountered an error: $e');
+    } finally {
+      ref.read(authSessionProvider.notifier).clearSession();
+      _resetFailedAttempts();
+      state = QuickAuthFailed(
+        'Too many incorrect PIN attempts. Please log in again to set a new PIN.',
+      );
+    }
   }
 }
 
