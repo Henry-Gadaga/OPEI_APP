@@ -32,11 +32,11 @@ class DashboardState {
     this.transactionsHydrated = false,
   });
 
-  bool get showSkeleton => isLoading && wallet == null && !isRefreshing;
+  bool get showSkeleton =>
+      wallet == null || (!transactionsHydrated && transactionsError == null);
+
   bool get showTransactionsSkeleton =>
-      isLoadingTransactions &&
-      recentTransactions.isEmpty &&
-      !isRefreshingTransactions;
+      !transactionsHydrated && transactionsError == null;
 
   DashboardState copyWith({
     bool? isLoading,

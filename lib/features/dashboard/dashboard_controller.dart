@@ -200,6 +200,7 @@ class DashboardController extends Notifier<DashboardState> {
         isLoadingTransactions: false,
         isRefreshingTransactions: false,
         transactionsError: friendly,
+        transactionsHydrated: true,
       );
     } finally {
       _isFetchingTransactions = false;
