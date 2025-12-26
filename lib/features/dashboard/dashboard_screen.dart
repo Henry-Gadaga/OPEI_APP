@@ -72,7 +72,7 @@ class DashboardHomeScreen extends ConsumerWidget {
             children: [
               const SizedBox(height: 12),
               WalletHeader(onProfileTap: onProfileTap),
-              const SizedBox(height: 40),
+              const SizedBox(height: 60),
               BalanceCard(state: dashboardState),
               const SizedBox(height: 28),
               QuickActions(onCardsTap: onCardsTap),
@@ -128,6 +128,7 @@ class WalletHeader extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
+                letterSpacing: -0.3,
               ),
         ),
         GestureDetector(
