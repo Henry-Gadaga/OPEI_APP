@@ -43,7 +43,7 @@ class TransactionDetailSheet extends StatelessWidget {
     ];
 
     return FractionallySizedBox(
-      heightFactor: 0.85,
+      heightFactor: 0.78,
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(28),
@@ -51,22 +51,35 @@ class TransactionDetailSheet extends StatelessWidget {
         ),
         child: Material(
           color: OpeiColors.pureWhite,
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSurfaceMuted,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-                  children: [
+          child: SafeArea(
+            top: false,
+            bottom: true,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+                final scrollPadding = EdgeInsets.fromLTRB(
+                  24,
+                  18,
+                  24,
+                  bottomInset > 0 ? bottomInset : 12,
+                );
+
+                return SingleChildScrollView(
+                  padding: scrollPadding,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 14),
+                          decoration: BoxDecoration(
+                            color: OpeiColors.iosSurfaceMuted,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
                     Text(
                       transaction.listTitle,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -116,11 +129,13 @@ class TransactionDetailSheet extends StatelessWidget {
                           ),
                     ),
                     const SizedBox(height: 24),
-                    ...entries.map((entry) => _DetailRow(entry: entry)).toList(),
-                  ],
-                ),
-              ),
-            ],
+                      ...entries.map((entry) => _DetailRow(entry: entry)).toList(),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
