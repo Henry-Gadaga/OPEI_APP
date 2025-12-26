@@ -56,15 +56,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         case 'PENDING_EMAIL':
           // Auto-send verification code when coming from login
           context.go('/verify-email?autoSend=true');
+          return;
         case 'PENDING_ADDRESS':
           context.go('/address');
+          return;
         case 'PENDING_KYC':
           context.go('/kyc');
+          return;
         case 'VERIFIED':
           await _handleVerifiedUserNavigation();
+          return;
         default:
           // Unknown stage - default to verify-email with auto-send
           context.go('/verify-email?autoSend=true');
+          return;
       }
     }
   }
@@ -72,10 +77,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _handleVerifiedUserNavigation() async {
     final quickAuthService = ref.read(quickAuthServiceProvider);
     final storage = ref.read(secureStorageServiceProvider);
+    final session = ref.read(authSessionProvider);
     
     // Get user identifier
     final user = await storage.getUser();
     var userIdentifier = user?.id;
+    userIdentifier ??= session.userId;
     userIdentifier ??= await quickAuthService.getRegisteredUserId();
 
     if (userIdentifier == null) {

@@ -26,6 +26,7 @@ import 'package:tt1/features/p2p/p2p_screen.dart';
 import 'package:tt1/features/p2p/p2p_rating_screen.dart';
 import 'package:tt1/data/models/p2p_trade.dart';
 import 'package:tt1/data/models/p2p_ad.dart';
+import 'package:tt1/data/models/user_model.dart';
 import 'package:tt1/theme.dart';
 import 'package:tt1/widgets/keyboard_dismiss_on_tap.dart';
 
@@ -564,25 +565,44 @@ class _SplashScreenState extends ConsumerState<_SplashScreen> {
     var userIdentifier = storedUser?.id;
     userIdentifier ??= await quickAuthService.getRegisteredUserId();
 
-    final hasPinSetup = userIdentifier != null
-        ? await quickAuthService.hasPinSetup(userIdentifier)
+    final quickAuthReady = userIdentifier != null
+        ? await quickAuthService.isSetupCompleted(userIdentifier)
         : false;
 
-    if (hasPinSetup) {
+    if (quickAuthReady) {
       if (mounted) context.go('/quick-auth');
       return;
+    }
+
+    Future<void> completeSessionBootstrap(
+      UserModel user,
+      String effectiveAccessToken,
+    ) async {
+      await storage.saveUser(user);
+      ref.read(authSessionProvider.notifier).setSession(
+        userId: user.id,
+        accessToken: effectiveAccessToken,
+        userStage: user.userStage,
+      );
+
+      final hasCompletedSetup = await quickAuthService.isSetupCompleted(user.id);
+      final isVerified = (user.userStage ?? '').toUpperCase() == 'VERIFIED';
+
+      if (isVerified && !hasCompletedSetup) {
+        if (mounted) context.go('/quick-auth-setup');
+        return;
+      }
+
+      final nextRoute = _stageRouteFor(user.userStage);
+      if (mounted) {
+        context.go(nextRoute ?? '/dashboard');
+      }
     }
 
     try {
       if (accessToken != null) {
         final user = await userRepo.getCurrentUser();
-        await storage.saveUser(user);
-        ref.read(authSessionProvider.notifier).setSession(
-          userId: user.id,
-          accessToken: accessToken,
-          userStage: user.userStage,
-        );
-        if (mounted) context.go('/dashboard');
+        await completeSessionBootstrap(user, accessToken);
         return;
       }
     } catch (e) {
@@ -591,13 +611,7 @@ class _SplashScreenState extends ConsumerState<_SplashScreen> {
 
     try {
       final response = await authRepo.refreshAccessToken(refreshToken);
-      await storage.saveUser(response.user);
-      ref.read(authSessionProvider.notifier).setSession(
-        userId: response.user.id,
-        accessToken: response.accessToken,
-        userStage: response.user.userStage,
-      );
-      if (mounted) context.go('/dashboard');
+      await completeSessionBootstrap(response.user, response.accessToken);
       return;
     } catch (e) {
       debugPrint('❌ Unable to refresh session at launch: $e');
@@ -609,6 +623,21 @@ class _SplashScreenState extends ConsumerState<_SplashScreen> {
         await quickAuthService.clearUserData(registeredUserId, removeSetupFlag: true);
       }
       if (mounted) context.go('/login');
+    }
+  }
+
+  String? _stageRouteFor(String? stage) {
+    switch ((stage ?? '').toUpperCase()) {
+      case 'PENDING_EMAIL':
+        return '/verify-email?autoSend=true';
+      case 'PENDING_ADDRESS':
+        return '/address';
+      case 'PENDING_KYC':
+        return '/kyc';
+      case 'VERIFIED':
+        return '/dashboard';
+      default:
+        return '/kyc';
     }
   }
 

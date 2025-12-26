@@ -16,6 +16,7 @@ class QuickAuthScreen extends ConsumerStatefulWidget {
 class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   bool _hasPinSetup = false;
   String _userName = '';
+  bool _isReady = false;
 
   @override
   void initState() {
@@ -31,18 +32,22 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     userIdentifier ??= await quickAuthService.getRegisteredUserId();
 
     if (userIdentifier == null) {
+      if (!mounted) return;
       setState(() {
         _hasPinSetup = false;
         _userName = 'User';
+        _isReady = true;
       });
       return;
     }
     
     final hasPin = await quickAuthService.hasPinSetup(userIdentifier);
     
+    if (!mounted) return;
     setState(() {
       _hasPinSetup = hasPin;
       _userName = user?.email.split('@').first ?? 'User';
+      _isReady = true;
     });
   }
 
@@ -78,67 +83,77 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     return Scaffold(
       backgroundColor: OpeiColors.pureWhite,
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 48),
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: const Color(0xFFF5F5F7),
-              child: Text(
-                _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: OpeiColors.pureBlack,
-                  fontWeight: FontWeight.w600,
+        child: AnimatedOpacity(
+          opacity: _isReady ? 1 : 0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          child: AnimatedSlide(
+            offset: _isReady ? Offset.zero : const Offset(0, 0.04),
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOutCubic,
+            child: Column(
+              children: [
+                const SizedBox(height: 48),
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: const Color(0xFFF5F5F7),
+                  child: Text(
+                    _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: OpeiColors.pureBlack,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Welcome back',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _userName,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: OpeiColors.grey600,
-              ),
-            ),
-            if (pinState.errorMessage != null) ...[
-              const SizedBox(height: 16),
-              Text(
-                pinState.errorMessage!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: OpeiColors.errorRed,
+                const SizedBox(height: 16),
+                Text(
+                  'Welcome back',
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
-              ),
-            ],
-            const SizedBox(height: 48),
-            if (_hasPinSetup) ...[
-              _buildPinDots(pinState.pin),
-              const Spacer(),
-              _buildNumericKeypad(context),
-            ] else ...[
-              const Spacer(),
-              Text(
-                'No quick PIN set up for quick login',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
+                const SizedBox(height: 4),
+                Text(
+                  _userName,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: OpeiColors.grey600,
+                  ),
                 ),
-              ),
-              const Spacer(),
-            ],
-            TextButton(
-              onPressed: () => context.go('/login'),
-              child: Text(
-                'Use Password Instead',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
+                if (pinState.errorMessage != null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    pinState.errorMessage!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: OpeiColors.errorRed,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 48),
+                if (_hasPinSetup) ...[
+                  _buildPinDots(pinState.pin),
+                  const Spacer(),
+                  _buildNumericKeypad(context),
+                ] else ...[
+                  const Spacer(),
+                  Text(
+                    'No quick PIN set up for quick login',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: OpeiColors.grey600,
+                    ),
+                  ),
+                  const Spacer(),
+                ],
+                TextButton(
+                  onPressed: () => context.go('/login'),
+                  child: Text(
+                    'Use Password Instead',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: OpeiColors.grey600,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 32),
+              ],
             ),
-            const SizedBox(height: 32),
-          ],
+          ),
         ),
       ),
     );
