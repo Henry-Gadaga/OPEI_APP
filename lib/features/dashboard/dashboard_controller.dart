@@ -261,6 +261,10 @@ class DashboardController extends Notifier<DashboardState> {
     state = state.copyWith(lastSyncedAt: null);
   }
 
+  void prepareForFreshLaunch() {
+    state = const DashboardState(isLoading: true);
+  }
+
   void applyOptimisticDelta(int amountInCents) {
     final wallet = state.wallet;
     if (wallet == null) return;

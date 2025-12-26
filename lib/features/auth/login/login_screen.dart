@@ -39,7 +39,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     if (result == null) {
       final loginState = ref.read(loginControllerProvider);
-      if (loginState.errorMessage == 'Invalid email or password. Please try again.') {
+      if (loginState.errorMessage ==
+          'Invalid email or password. Please try again.') {
         _passwordController.clear();
         ref.read(loginControllerProvider.notifier).resetPasswordField();
         _passwordFocusNode.requestFocus();
@@ -50,11 +51,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (result['success'] == true) {
       final userStage = result['userStage'] as String?;
 
-      // Navigate based on user stage
-      // Backend stages: PENDING_EMAIL, PENDING_ADDRESS, PENDING_KYC, VERIFIED
       switch (userStage) {
         case 'PENDING_EMAIL':
-          // Auto-send verification code when coming from login
           context.go('/verify-email?autoSend=true');
           return;
         case 'PENDING_ADDRESS':
@@ -67,47 +65,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           await _handleVerifiedUserNavigation();
           return;
         default:
-          // Unknown stage - default to verify-email with auto-send
           context.go('/verify-email?autoSend=true');
           return;
       }
     }
   }
-  
+
   Future<void> _handleVerifiedUserNavigation() async {
     final quickAuthService = ref.read(quickAuthServiceProvider);
     final storage = ref.read(secureStorageServiceProvider);
-    final session = ref.read(authSessionProvider);
-    
-    // Get user identifier
+    final quickAuthStatusNotifier = ref.read(quickAuthStatusProvider.notifier);
+
     final user = await storage.getUser();
     var userIdentifier = user?.id;
-    userIdentifier ??= session.userId;
     userIdentifier ??= await quickAuthService.getRegisteredUserId();
 
     if (userIdentifier == null) {
       debugPrint('⚠️ No user identifier found for quick auth setup check');
+      if (!mounted) return;
       context.go('/dashboard');
       return;
     }
-    
-    debugPrint('🔍 Checking quick auth setup for user: $userIdentifier');
-    
-    // Check if quick auth setup has been completed (or skipped)
-    final setupCompleted = await quickAuthService.isSetupCompleted(userIdentifier);
-    
-    debugPrint('🔍 Setup completed? $setupCompleted');
-    
-    if (!setupCompleted) {
-      // First time login on this device → show quick auth setup
-      debugPrint('➡️ Navigating to quick-auth-setup');
-      context.go('/quick-auth-setup');
-      return;
-    }
 
-    // Setup already completed → require quick-auth PIN before dashboard
-    debugPrint('➡️ Navigating to quick-auth');
-    context.go('/quick-auth');
+    debugPrint('🔍 Checking quick auth setup for user: $userIdentifier');
+
+    final setupCompleted =
+        await quickAuthService.isSetupCompleted(userIdentifier);
+
+    debugPrint('🔍 Setup completed? $setupCompleted');
+
+    debugPrint('➡️ Navigating to quick-auth-setup');
+    quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresSetup);
+    if (!mounted) return;
+    context.go('/quick-auth-setup');
   }
 
   @override
@@ -118,7 +108,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       backgroundColor: OpeiColors.pureWhite,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 32),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: 32,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -138,7 +131,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               if (state.errorMessage != null) ...[
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: OpeiColors.errorRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -154,9 +150,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Expanded(
                         child: Text(
                           state.errorMessage!,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: OpeiColors.errorRed,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: OpeiColors.errorRed,
+                                  ),
                         ),
                       ),
                     ],
@@ -182,7 +179,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 obscureText: _obscurePassword,
                 errorText: state.passwordError,
                 onChanged: (value) {
-                  ref.read(loginControllerProvider.notifier).updatePassword(value);
+                  ref
+                      .read(loginControllerProvider.notifier)
+                      .updatePassword(value);
                 },
                 onToggleVisibility: () {
                   setState(() => _obscurePassword = !_obscurePassword);
@@ -305,7 +304,8 @@ class _EmailField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: 'Enter your email',
             isDense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             prefixIcon: const Icon(
               Icons.email_outlined,
               size: 20,
@@ -362,7 +362,8 @@ class _PasswordField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: 'Enter your password',
             isDense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             prefixIcon: const Icon(
               Icons.lock_outline,
               size: 20,
@@ -370,7 +371,9 @@ class _PasswordField extends StatelessWidget {
             prefixIconConstraints: const BoxConstraints(minWidth: 44),
             suffixIcon: IconButton(
               icon: Icon(
-                obscureText ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                obscureText
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
               ),
               onPressed: onToggleVisibility,
             ),

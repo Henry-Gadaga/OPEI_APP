@@ -8,7 +8,7 @@ import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
 class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
   @override
   QuickAuthSetupState build() => QuickAuthSetupPinEntry();
-  
+
   String? _userIdentifier;
 
   Future<String> _resolveUserIdentifier(
@@ -28,13 +28,13 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
 
   void addDigit(String digit) {
     if (state is! QuickAuthSetupPinEntry) return;
-    
+
     final currentState = state as QuickAuthSetupPinEntry;
     if (currentState.pin.length >= 6) return;
-    
+
     final newPin = currentState.pin + digit;
     state = currentState.copyWith(pin: newPin, errorMessage: null);
-    
+
     if (newPin.length == 6) {
       if (currentState.isConfirming) {
         _confirmPin(newPin, currentState.firstPin!);
@@ -46,10 +46,10 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
 
   void removeDigit() {
     if (state is! QuickAuthSetupPinEntry) return;
-    
+
     final currentState = state as QuickAuthSetupPinEntry;
     if (currentState.pin.isEmpty) return;
-    
+
     final newPin = currentState.pin.substring(0, currentState.pin.length - 1);
     state = currentState.copyWith(pin: newPin, errorMessage: null);
   }
@@ -77,15 +77,19 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
     try {
       final quickAuthService = ref.read(quickAuthServiceProvider);
       final storage = ref.read(secureStorageServiceProvider);
-      
-      final userIdentifier = await _resolveUserIdentifier(quickAuthService, storage);
-      
+
+      final userIdentifier =
+          await _resolveUserIdentifier(quickAuthService, storage);
+
       // Setup PIN using the new service
       await quickAuthService.setupPin(userIdentifier, confirmPin);
-      
+
       // Mark setup as completed
       await quickAuthService.markSetupCompleted(userIdentifier);
-      
+      ref.read(quickAuthStatusProvider.notifier).setStatus(
+            QuickAuthStatus.satisfied,
+          );
+
       debugPrint('✅ PIN saved successfully');
       state = QuickAuthSetupSuccess('PIN setup complete');
     } catch (e) {
@@ -100,12 +104,13 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
     try {
       final quickAuthService = ref.read(quickAuthServiceProvider);
       final storage = ref.read(secureStorageServiceProvider);
-      
+
       // Check if device supports biometric
       final canUseBiometric = await quickAuthService.canUseBiometric();
-      
+
       if (!canUseBiometric) {
-        state = QuickAuthSetupError('Biometric authentication is not available on this device');
+        state = QuickAuthSetupError(
+            'Biometric authentication is not available on this device');
         return;
       }
 
@@ -115,14 +120,18 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
       );
 
       if (authenticated) {
-        final userIdentifier = await _resolveUserIdentifier(quickAuthService, storage);
-        
+        final userIdentifier =
+            await _resolveUserIdentifier(quickAuthService, storage);
+
         // Enable biometric
         await quickAuthService.enableBiometric(userIdentifier);
-        
+
         // Mark setup as completed
         await quickAuthService.markSetupCompleted(userIdentifier);
-        
+        ref.read(quickAuthStatusProvider.notifier).setStatus(
+              QuickAuthStatus.satisfied,
+            );
+
         debugPrint('✅ Biometric enabled successfully');
         state = QuickAuthSetupSuccess('Biometric authentication enabled');
       } else {

@@ -25,6 +25,13 @@ export 'package:tt1/features/kyc/kyc_controller.dart';
 export 'package:tt1/features/profile/profile_controller.dart';
 
 // Auth Session State to track login/logout changes
+enum QuickAuthStatus {
+  unknown,
+  requiresSetup,
+  requiresVerification,
+  satisfied,
+}
+
 class AuthSession {
   final String? userId;
   final String? accessToken;
@@ -54,6 +61,20 @@ class AuthSession {
     );
   }
 }
+
+class QuickAuthStatusNotifier extends Notifier<QuickAuthStatus> {
+  @override
+  QuickAuthStatus build() => QuickAuthStatus.unknown;
+
+  void setStatus(QuickAuthStatus status) => state = status;
+
+  void reset() => setStatus(QuickAuthStatus.unknown);
+}
+
+final quickAuthStatusProvider =
+    NotifierProvider<QuickAuthStatusNotifier, QuickAuthStatus>(
+  QuickAuthStatusNotifier.new,
+);
 
 class AuthSessionNotifier extends Notifier<AuthSession> {
   @override
@@ -87,6 +108,7 @@ class AuthSessionNotifier extends Notifier<AuthSession> {
       userStage: null,
       sessionNonce: state.sessionNonce + 1,
     );
+    ref.read(quickAuthStatusProvider.notifier).reset();
   }
 }
 
@@ -144,7 +166,8 @@ final kycRepositoryProvider = Provider<KycRepository>((ref) {
   return KycRepository(apiClient);
 });
 
-final passwordResetRepositoryProvider = Provider<PasswordResetRepository>((ref) {
+final passwordResetRepositoryProvider =
+    Provider<PasswordResetRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return PasswordResetRepository(apiClient);
 });
@@ -185,6 +208,7 @@ final cardRepositoryProvider = Provider<CardRepository>((ref) {
   return CardRepository(apiClient);
 });
 
-final profileControllerProvider = NotifierProvider<ProfileController, ProfileState>(
+final profileControllerProvider =
+    NotifierProvider<ProfileController, ProfileState>(
   ProfileController.new,
 );

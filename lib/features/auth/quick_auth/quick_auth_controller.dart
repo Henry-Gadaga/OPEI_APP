@@ -9,13 +9,13 @@ class QuickAuthController extends Notifier<QuickAuthState> {
 
   void addDigit(String digit) {
     if (state is! QuickAuthPinEntry) return;
-    
+
     final currentState = state as QuickAuthPinEntry;
     if (currentState.pin.length >= 6) return;
-    
+
     final newPin = currentState.pin + digit;
     state = currentState.copyWith(pin: newPin, errorMessage: null);
-    
+
     if (newPin.length == 6) {
       _verifyPin(newPin);
     }
@@ -23,22 +23,24 @@ class QuickAuthController extends Notifier<QuickAuthState> {
 
   void removeDigit() {
     if (state is! QuickAuthPinEntry) return;
-    
+
     final currentState = state as QuickAuthPinEntry;
     if (currentState.pin.isEmpty) return;
-    
+
     final newPin = currentState.pin.substring(0, currentState.pin.length - 1);
     state = currentState.copyWith(pin: newPin, errorMessage: null);
   }
 
   Future<void> _verifyPin(String pin) async {
     state = QuickAuthLoading();
+    final quickAuthStatusNotifier = ref.read(quickAuthStatusProvider.notifier);
+    quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
 
     try {
       final quickAuthService = ref.read(quickAuthServiceProvider);
       final authRepository = ref.read(authRepositoryProvider);
       final storage = ref.read(secureStorageServiceProvider);
-      
+
       // Get user identifier
       final user = await storage.getUser();
       var userIdentifier = user?.id;
@@ -48,19 +50,21 @@ class QuickAuthController extends Notifier<QuickAuthState> {
         state = QuickAuthFailed('Session expired. Please login again.');
         return;
       }
-      
+
       // Verify PIN using the new service
       final isValid = await quickAuthService.verifyPin(userIdentifier, pin);
-      
+
       if (!isValid) {
-        state = QuickAuthPinEntry(errorMessage: 'Invalid PIN. Please try again.');
+        quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
+        state =
+            QuickAuthPinEntry(errorMessage: 'Invalid PIN. Please try again.');
         await Future.delayed(const Duration(milliseconds: 1500));
         state = QuickAuthPinEntry();
         return;
       }
 
       final refreshToken = await storage.getRefreshToken();
-      
+
       if (refreshToken == null) {
         state = QuickAuthFailed('Session expired. Please login again.');
         return;
@@ -68,47 +72,52 @@ class QuickAuthController extends Notifier<QuickAuthState> {
 
       debugPrint('🔄 Refreshing tokens with stored refresh token...');
       final response = await authRepository.refreshAccessToken(refreshToken);
-      
+
       debugPrint('✅ Tokens refreshed successfully');
       await storage.saveUser(response.user);
-      
+
       // Set auth session - this will trigger dependent providers to refresh
       ref.read(authSessionProvider.notifier).setSession(
-        userId: response.user.id,
-        accessToken: response.accessToken,
-        userStage: response.user.userStage,
-      );
+            userId: response.user.id,
+            accessToken: response.accessToken,
+            userStage: response.user.userStage,
+          );
       debugPrint('✅ Auth session set via quick auth PIN');
-      
+
+      quickAuthStatusNotifier.setStatus(QuickAuthStatus.satisfied);
       state = QuickAuthSuccess();
     } catch (e) {
       debugPrint('❌ Quick auth failed: $e');
+      quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
       state = QuickAuthFailed('Authentication failed. Please login again.');
     }
   }
 
   Future<void> verifyBiometric() async {
     state = QuickAuthLoading();
+    final quickAuthStatusNotifier = ref.read(quickAuthStatusProvider.notifier);
+    quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
 
     try {
       final quickAuthService = ref.read(quickAuthServiceProvider);
       final authRepository = ref.read(authRepositoryProvider);
       final storage = ref.read(secureStorageServiceProvider);
-      
+
       // Authenticate with biometric
       final isAuthenticated = await quickAuthService.authenticateWithBiometric(
         'Unlock Opei with biometric',
       );
-      
+
       if (!isAuthenticated) {
-        state = QuickAuthPinEntry(errorMessage: 'Biometric authentication failed');
+        state =
+            QuickAuthPinEntry(errorMessage: 'Biometric authentication failed');
         await Future.delayed(const Duration(seconds: 2));
         state = QuickAuthPinEntry();
         return;
       }
 
       final refreshToken = await storage.getRefreshToken();
-      
+
       if (refreshToken == null) {
         state = QuickAuthFailed('Session expired. Please login again.');
         return;
@@ -116,21 +125,23 @@ class QuickAuthController extends Notifier<QuickAuthState> {
 
       debugPrint('🔄 Refreshing tokens with stored refresh token...');
       final response = await authRepository.refreshAccessToken(refreshToken);
-      
+
       debugPrint('✅ Tokens refreshed successfully');
       await storage.saveUser(response.user);
-      
+
       // Set auth session - this will trigger dependent providers to refresh
       ref.read(authSessionProvider.notifier).setSession(
-        userId: response.user.id,
-        accessToken: response.accessToken,
-        userStage: response.user.userStage,
-      );
+            userId: response.user.id,
+            accessToken: response.accessToken,
+            userStage: response.user.userStage,
+          );
       debugPrint('✅ Auth session set via biometric auth');
-      
+
+      quickAuthStatusNotifier.setStatus(QuickAuthStatus.satisfied);
       state = QuickAuthSuccess();
     } catch (e) {
       debugPrint('❌ Biometric auth failed: $e');
+      quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
       state = QuickAuthFailed('Authentication failed. Please login again.');
     }
   }

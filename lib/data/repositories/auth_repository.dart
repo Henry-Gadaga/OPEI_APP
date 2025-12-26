@@ -31,10 +31,14 @@ class AuthRepository {
     }
 
     final authResponse = apiResponse.data!;
-    
+
     await _storage.saveToken(authResponse.accessToken);
     await _storage.saveRefreshToken(authResponse.refreshToken);
     await _storage.saveUser(authResponse.user);
+    await _quickAuthService.clearUserData(
+      authResponse.user.id,
+      removeSetupFlag: true,
+    );
     await _quickAuthService.registerUserContext(authResponse.user.id);
     await _storage.clearSessionLockTimestamp(authResponse.user.id);
 
@@ -57,7 +61,7 @@ class AuthRepository {
     }
 
     final authResponse = apiResponse.data!;
-    
+
     await _storage.saveToken(authResponse.accessToken);
     await _storage.saveRefreshToken(authResponse.refreshToken);
     await _storage.saveUser(authResponse.user);
@@ -123,7 +127,7 @@ class AuthRepository {
     }
 
     final authResponse = apiResponse.data!;
-    
+
     await _storage.saveToken(authResponse.accessToken);
     await _storage.saveRefreshToken(authResponse.refreshToken);
 
@@ -138,9 +142,11 @@ class AuthRepository {
     } finally {
       var userId = await _quickAuthService.getRegisteredUserId();
       userId ??= (await _storage.getUser())?.id;
-
       if (userId != null) {
-        await _quickAuthService.clearUserData(userId, removeSetupFlag: true);
+        await _quickAuthService.clearUserData(
+          userId,
+          removeSetupFlag: true,
+        );
         await _quickAuthService.clearRegisteredUserContextIfMatch(userId);
         await _storage.clearSessionLockTimestamp(userId);
       } else {

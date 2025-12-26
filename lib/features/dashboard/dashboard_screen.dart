@@ -47,18 +47,25 @@ class DashboardHomeScreen extends ConsumerWidget {
   final VoidCallback onProfileTap;
   final VoidCallback onCardsTap;
 
-  const DashboardHomeScreen({super.key, required this.onProfileTap, required this.onCardsTap});
+  const DashboardHomeScreen(
+      {super.key, required this.onProfileTap, required this.onCardsTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dashboardState = ref.watch(dashboardControllerProvider);
     final controller = ref.read(dashboardControllerProvider.notifier);
     final platform = Theme.of(context).platform;
-    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final isCupertino =
+        platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
     final scrollPhysics = AlwaysScrollableScrollPhysics(
-      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+      parent: isCupertino
+          ? const BouncingScrollPhysics()
+          : const ClampingScrollPhysics(),
     );
-    final isSkeleton = dashboardState.showSkeleton;
+    final walletReady =
+        dashboardState.wallet != null && !dashboardState.showSkeleton;
+    final transactionsReady = !dashboardState.showTransactionsSkeleton;
+    final showFullContent = walletReady && transactionsReady;
 
     if (!dashboardState.hasAttemptedInitialLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -66,29 +73,27 @@ class DashboardHomeScreen extends ConsumerWidget {
       });
     }
 
-    final Widget content = isSkeleton
-        ? const DashboardHomeSkeleton()
-        : Column(
-            children: [
-              const SizedBox(height: 12),
-              WalletHeader(onProfileTap: onProfileTap),
-              const SizedBox(height: 60),
-              BalanceCard(state: dashboardState),
-              const SizedBox(height: 28),
-              QuickActions(onCardsTap: onCardsTap),
-              const SizedBox(height: 28),
-              TransactionsList(
-                state: dashboardState,
-                onViewAll: () {
-                  context.push('/transactions');
-                },
-                onRetry: () {
-                  controller.refreshBalance(showSpinner: false);
-                },
-              ),
-              const SizedBox(height: 24),
-            ],
-          );
+    final Widget content = Column(
+      children: [
+        const SizedBox(height: 12),
+        WalletHeader(onProfileTap: onProfileTap),
+        const SizedBox(height: 60),
+        BalanceCard(state: dashboardState),
+        const SizedBox(height: 28),
+        QuickActions(onCardsTap: onCardsTap),
+        const SizedBox(height: 28),
+        TransactionsList(
+          state: dashboardState,
+          onViewAll: () {
+            context.push('/transactions');
+          },
+          onRetry: () {
+            controller.refreshBalance(showSpinner: false);
+          },
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
 
     return SafeArea(
       child: RefreshIndicator(
@@ -97,16 +102,50 @@ class DashboardHomeScreen extends ConsumerWidget {
         displacement: 25,
         triggerMode: RefreshIndicatorTriggerMode.onEdge,
         onRefresh: () => controller.refreshBalance(),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          child: SingleChildScrollView(
-            key: ValueKey(isSkeleton ? 'dashboard-skeleton' : 'dashboard-content'),
-            physics: scrollPhysics,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: content,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              key:
+                  ValueKey(showFullContent ? 'dashboard-content' : 'dashboard'),
+              physics: scrollPhysics,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Opacity(
+                  opacity: showFullContent ? 1 : 0,
+                  child: content,
+                ),
+              ),
             ),
-          ),
+            Positioned.fill(
+              child: IgnorePointer(
+                ignoring: showFullContent,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeOutCubic,
+                  opacity: showFullContent ? 0 : 1,
+                  child: Container(
+                    color: OpeiColors.pureWhite,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          physics: const NeverScrollableScrollPhysics(),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              child: DashboardHomeSkeleton(),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -140,7 +179,8 @@ class WalletHeader extends StatelessWidget {
               color: OpeiColors.grey200,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.person_outline, color: OpeiColors.pureBlack, size: 18),
+            child: const Icon(Icons.person_outline,
+                color: OpeiColors.pureBlack, size: 18),
           ),
         ),
       ],
@@ -242,7 +282,10 @@ class QuickActions extends StatelessWidget {
             );
           },
         ),
-        ActionButton(icon: Icons.arrow_upward, label: 'Send', onTap: () => context.push('/send-money')),
+        ActionButton(
+            icon: Icons.arrow_upward,
+            label: 'Send',
+            onTap: () => context.push('/send-money')),
         ActionButton(
           icon: Icons.arrow_downward,
           label: 'Withdraw',
@@ -255,7 +298,8 @@ class QuickActions extends StatelessWidget {
             );
           },
         ),
-        ActionButton(icon: Icons.credit_card, label: 'Cards', onTap: onCardsTap),
+        ActionButton(
+            icon: Icons.credit_card, label: 'Cards', onTap: onCardsTap),
       ],
     );
   }
@@ -266,21 +310,28 @@ class ActionButton extends StatefulWidget {
   final String label;
   final VoidCallback onTap;
 
-  const ActionButton({super.key, required this.icon, required this.label, required this.onTap});
+  const ActionButton(
+      {super.key,
+      required this.icon,
+      required this.label,
+      required this.onTap});
 
   @override
   State<ActionButton> createState() => _ActionButtonState();
 }
 
-class _ActionButtonState extends State<ActionButton> with SingleTickerProviderStateMixin {
+class _ActionButtonState extends State<ActionButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.90).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 100));
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.90)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -332,7 +383,11 @@ class TransactionsList extends StatelessWidget {
   final VoidCallback onViewAll;
   final VoidCallback onRetry;
 
-  const TransactionsList({super.key, required this.state, required this.onViewAll, required this.onRetry});
+  const TransactionsList(
+      {super.key,
+      required this.state,
+      required this.onViewAll,
+      required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -356,7 +411,8 @@ class TransactionsList extends StatelessWidget {
               Text(
                 state.transactionsError!,
                 textAlign: TextAlign.center,
-                style: subtitleStyle?.copyWith(color: OpeiColors.errorRed, fontSize: 13),
+                style: subtitleStyle?.copyWith(
+                    color: OpeiColors.errorRed, fontSize: 13),
               ),
               const SizedBox(height: 12),
               TextButton(
@@ -371,11 +427,15 @@ class TransactionsList extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             children: [
-              Icon(Icons.receipt_long, size: 28, color: OpeiColors.iosLabelTertiary),
+              Icon(Icons.receipt_long,
+                  size: 28, color: OpeiColors.iosLabelTertiary),
               const SizedBox(height: 12),
               Text(
                 'No transactions yet',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(fontSize: 15, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 4),
               Text(
@@ -417,7 +477,8 @@ class TransactionsList extends StatelessWidget {
               onPressed: onViewAll,
               style: TextButton.styleFrom(
                 foregroundColor: OpeiColors.iosLabelSecondary,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -473,6 +534,14 @@ class DashboardHomeSkeleton extends StatelessWidget {
         const SizedBox(height: 28),
         const _QuickActionsSkeleton(),
         const SizedBox(height: 28),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            _SkeletonBox(width: 120, height: 18, radius: 8),
+            _SkeletonBox(width: 68, height: 14, radius: 8),
+          ],
+        ),
+        const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
             color: OpeiColors.pureWhite,
@@ -545,7 +614,8 @@ class _SkeletonBox extends StatefulWidget {
   State<_SkeletonBox> createState() => _SkeletonBoxState();
 }
 
-class _SkeletonBoxState extends State<_SkeletonBox> with SingleTickerProviderStateMixin {
+class _SkeletonBoxState extends State<_SkeletonBox>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _pulse;
 
@@ -594,7 +664,8 @@ class _SkeletonCircle extends StatefulWidget {
   State<_SkeletonCircle> createState() => _SkeletonCircleState();
 }
 
-class _SkeletonCircleState extends State<_SkeletonCircle> with SingleTickerProviderStateMixin {
+class _SkeletonCircleState extends State<_SkeletonCircle>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _pulse;
 
@@ -638,7 +709,8 @@ class WalletBottomNav extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
 
-  const WalletBottomNav({super.key, required this.selectedIndex, required this.onItemTapped});
+  const WalletBottomNav(
+      {super.key, required this.selectedIndex, required this.onItemTapped});
 
   @override
   Widget build(BuildContext context) {

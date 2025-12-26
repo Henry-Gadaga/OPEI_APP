@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:tt1/core/providers/providers.dart';
 import 'package:tt1/features/auth/quick_auth/quick_auth_controller.dart';
 import 'package:tt1/features/auth/quick_auth/quick_auth_state.dart';
+import 'package:tt1/features/dashboard/dashboard_controller.dart';
 import 'package:tt1/theme.dart';
+import 'package:tt1/widgets/bouncing_dots.dart';
 
 class QuickAuthScreen extends ConsumerStatefulWidget {
   const QuickAuthScreen({super.key});
@@ -40,9 +42,9 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
       });
       return;
     }
-    
+
     final hasPin = await quickAuthService.hasPinSetup(userIdentifier);
-    
+
     if (!mounted) return;
     setState(() {
       _hasPinSetup = hasPin;
@@ -54,9 +56,13 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(quickAuthControllerProvider);
-    
+
     ref.listen(quickAuthControllerProvider, (previous, next) {
       if (next is QuickAuthSuccess) {
+        final dashboardController =
+            ref.read(dashboardControllerProvider.notifier);
+        dashboardController.prepareForFreshLaunch();
+        dashboardController.refreshBalance(showSpinner: true);
         context.go('/dashboard');
       } else if (next is QuickAuthFailed) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -71,10 +77,33 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
       }
     });
 
-    if (state is QuickAuthLoading) {
-      return const Scaffold(
+    if (state is QuickAuthLoading || state is QuickAuthSuccess) {
+      return Scaffold(
         backgroundColor: OpeiColors.pureWhite,
-        body: Center(child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Verifying your PIN',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Hang tight, just a moment...',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
+                ),
+                const SizedBox(height: 28),
+                const BouncingDots(),
+              ],
+            ),
+          ),
+        ),
       );
     }
 
@@ -100,9 +129,9 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                   child: Text(
                     _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: OpeiColors.pureBlack,
-                      fontWeight: FontWeight.w600,
-                    ),
+                          color: OpeiColors.pureBlack,
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -114,16 +143,16 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                 Text(
                   _userName,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: OpeiColors.grey600,
-                  ),
+                        color: OpeiColors.grey600,
+                      ),
                 ),
                 if (pinState.errorMessage != null) ...[
                   const SizedBox(height: 16),
                   Text(
                     pinState.errorMessage!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: OpeiColors.errorRed,
-                    ),
+                          color: OpeiColors.errorRed,
+                        ),
                   ),
                 ],
                 const SizedBox(height: 48),
@@ -136,8 +165,8 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                   Text(
                     'No quick PIN set up for quick login',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: OpeiColors.grey600,
-                    ),
+                          color: OpeiColors.grey600,
+                        ),
                   ),
                   const Spacer(),
                 ],
@@ -146,8 +175,8 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                   child: Text(
                     'Use Password Instead',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: OpeiColors.grey600,
-                    ),
+                          color: OpeiColors.grey600,
+                        ),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -168,9 +197,13 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
             height: 16,
             margin: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
-              color: index < pin.length ? OpeiColors.pureBlack : Colors.transparent,
+              color: index < pin.length
+                  ? OpeiColors.pureBlack
+                  : Colors.transparent,
               border: Border.all(
-                color: index < pin.length ? OpeiColors.pureBlack : OpeiColors.grey300,
+                color: index < pin.length
+                    ? OpeiColors.pureBlack
+                    : OpeiColors.grey300,
                 width: 2,
               ),
               shape: BoxShape.circle,
@@ -188,41 +221,54 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     ];
 
     return Column(
-      children: buttons.map((row) => Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: row.map((button) {
-              if (button.isEmpty) return const SizedBox(width: 80, height: 80);
-              
-              return GestureDetector(
-                onTap: () {
-                  if (button == 'del') {
-                    ref.read(quickAuthControllerProvider.notifier).removeDigit();
-                  } else {
-                    ref.read(quickAuthControllerProvider.notifier).addDigit(button);
-                  }
-                },
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: button == 'del' ? Colors.transparent : const Color(0xFFF5F5F7),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: button == 'del'
-                        ? const Icon(Icons.backspace_outlined, size: 24, color: OpeiColors.pureBlack)
-                        : Text(
-                            button,
-                            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                  ),
-                ),
-              );
-            }).toList(),
-          )).toList(),
+      children: buttons
+          .map((row) => Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: row.map((button) {
+                  if (button.isEmpty)
+                    return const SizedBox(width: 80, height: 80);
+
+                  return GestureDetector(
+                    onTap: () {
+                      if (button == 'del') {
+                        ref
+                            .read(quickAuthControllerProvider.notifier)
+                            .removeDigit();
+                      } else {
+                        ref
+                            .read(quickAuthControllerProvider.notifier)
+                            .addDigit(button);
+                      }
+                    },
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: button == 'del'
+                            ? Colors.transparent
+                            : const Color(0xFFF5F5F7),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: button == 'del'
+                            ? const Icon(Icons.backspace_outlined,
+                                size: 24, color: OpeiColors.pureBlack)
+                            : Text(
+                                button,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                              ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ))
+          .toList(),
     );
   }
 }
