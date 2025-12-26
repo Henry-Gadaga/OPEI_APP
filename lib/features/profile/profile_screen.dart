@@ -27,69 +27,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           : const ClampingScrollPhysics(),
     );
 
-    if (state.isLoading && profile == null) {
+    if (profile == null) {
+      if (state.error != null) {
+        return _buildErrorState(context, controller, state.error!);
+      }
       return const Scaffold(
         body: Center(
             child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
-      );
-    }
-
-    // Show error state if profile failed to load
-    if (state.error != null && profile == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Profile'),
-          automaticallyImplyLeading: false,
-        ),
-        body: Center(
-          child: Padding(
-            padding: AppSpacing.horizontalMd,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.error_outline, size: 64, color: OpeiColors.grey400),
-                const SizedBox(height: 16),
-                Text(
-                  'Unable to load profile',
-                  style: context.textStyles.titleLarge?.copyWith(
-                    color: OpeiColors.pureBlack,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  state.error!,
-                  style: context.textStyles.bodyMedium?.copyWith(
-                    color: OpeiColors.grey600,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => controller.refreshProfile(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: OpeiColors.pureBlack,
-                      foregroundColor: OpeiColors.pureWhite,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text('Retry'),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextButton(
-                  onPressed: () => _handleLogout(context, controller),
-                  child: const Text(
-                    'Log Out',
-                    style: TextStyle(color: OpeiColors.errorRed),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       );
     }
 
@@ -319,6 +263,68 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     onTap: () => _handleLogout(context, controller),
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(
+    BuildContext context,
+    ProfileController controller,
+    String errorMessage,
+  ) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+        automaticallyImplyLeading: false,
+      ),
+      body: Center(
+        child: Padding(
+          padding: AppSpacing.horizontalMd,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: OpeiColors.grey400),
+              const SizedBox(height: 16),
+              Text(
+                'Unable to load profile',
+                style: context.textStyles.titleLarge?.copyWith(
+                  color: OpeiColors.pureBlack,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                errorMessage,
+                style: context.textStyles.bodyMedium?.copyWith(
+                  color: OpeiColors.grey600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => controller.refreshProfile(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: OpeiColors.pureBlack,
+                    foregroundColor: OpeiColors.pureWhite,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                  child: const Text('Retry'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => _handleLogout(context, controller),
+                child: const Text(
+                  'Log Out',
+                  style: TextStyle(color: OpeiColors.errorRed),
+                ),
               ),
             ],
           ),

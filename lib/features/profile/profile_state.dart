@@ -7,7 +7,7 @@ class ProfileState {
   final String? error;
   final String selectedLanguage;
 
-  ProfileState({
+  const ProfileState({
     this.isLoading = false,
     this.isLoggingOut = false,
     this.profile,
