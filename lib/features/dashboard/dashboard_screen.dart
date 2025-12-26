@@ -732,26 +732,32 @@ class WalletBottomNav extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              NavItem(
-                icon: Icons.home_outlined,
-                activeIcon: Icons.home,
-                label: 'Home',
-                isActive: selectedIndex == 0,
-                onTap: () => onItemTapped(0),
+              Expanded(
+                child: NavItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Home',
+                  isActive: selectedIndex == 0,
+                  onTap: () => onItemTapped(0),
+                ),
               ),
-              NavItem(
-                icon: Icons.credit_card_outlined,
-                activeIcon: Icons.credit_card,
-                label: 'Cards',
-                isActive: selectedIndex == 1,
-                onTap: () => onItemTapped(1),
+              Expanded(
+                child: NavItem(
+                  icon: Icons.credit_card_outlined,
+                  activeIcon: Icons.credit_card,
+                  label: 'Cards',
+                  isActive: selectedIndex == 1,
+                  onTap: () => onItemTapped(1),
+                ),
               ),
-              NavItem(
-                icon: Icons.person_outline,
-                activeIcon: Icons.person,
-                label: 'Profile',
-                isActive: selectedIndex == 2,
-                onTap: () => onItemTapped(2),
+              Expanded(
+                child: NavItem(
+                  icon: Icons.person_outline,
+                  activeIcon: Icons.person,
+                  label: 'Profile',
+                  isActive: selectedIndex == 2,
+                  onTap: () => onItemTapped(2),
+                ),
               ),
             ],
           ),
@@ -816,6 +822,7 @@ class _NavItemState extends State<NavItem> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) {
         _controller.reverse();
