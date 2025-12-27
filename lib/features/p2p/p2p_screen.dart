@@ -2816,6 +2816,25 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
     }
   }
 
+  Future<void> _handleEditMethod(P2PUserPaymentMethod method) async {
+    final updated = await showModalBottomSheet<P2PUserPaymentMethod>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: OpeiColors.pureWhite,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => _AddPaymentMethodSheet(
+        currency: method.currency,
+        initialMethod: method,
+      ),
+    );
+
+    if (updated != null) {
+      await _loadMethods(asRefresh: true);
+    }
+  }
+
   Map<String, List<P2PUserPaymentMethod>> _groupByCurrency(List<P2PUserPaymentMethod> methods) {
     final map = <String, List<P2PUserPaymentMethod>>{};
     for (final method in methods) {
@@ -2991,6 +3010,7 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                             child: _PaymentMethodCurrencySection(
                               currency: currency,
                               methods: items,
+                              onEdit: _handleEditMethod,
                             ),
                           );
                         }),
@@ -3008,8 +3028,13 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
 class _PaymentMethodCurrencySection extends StatelessWidget {
   final String currency;
   final List<P2PUserPaymentMethod> methods;
+  final ValueChanged<P2PUserPaymentMethod> onEdit;
 
-  const _PaymentMethodCurrencySection({required this.currency, required this.methods});
+  const _PaymentMethodCurrencySection({
+    required this.currency,
+    required this.methods,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -3047,7 +3072,10 @@ class _PaymentMethodCurrencySection extends StatelessWidget {
         const SizedBox(height: 10),
         ...methods.map((method) => Padding(
               padding: EdgeInsets.only(bottom: method == methods.last ? 0 : 12),
-              child: _PaymentMethodTile(method: method),
+              child: _PaymentMethodTile(
+                method: method,
+                onEdit: () => onEdit(method),
+              ),
             )),
       ],
     );
@@ -3177,15 +3205,21 @@ class _SelectAdPaymentMethodSheetState extends State<_SelectAdPaymentMethodSheet
 
 class _PaymentMethodTile extends StatelessWidget {
   final P2PUserPaymentMethod method;
+  final VoidCallback onEdit;
 
-  const _PaymentMethodTile({required this.method});
+  const _PaymentMethodTile({required this.method, required this.onEdit});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final accountLabel = method.accountNumberMasked.trim().isNotEmpty
-        ? method.accountNumberMasked
-        : 'Account details unavailable';
+    final accountLabel = method.accountNumber.trim().isNotEmpty
+        ? method.accountNumber.trim()
+        : (method.accountNumberMasked.trim().isNotEmpty
+            ? method.accountNumberMasked.trim()
+            : 'Account details unavailable');
+    final addedLabel = method.createdAt != null
+        ? DateFormat('MMM d, y').format(method.createdAt!.toLocal())
+        : null;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -3260,38 +3294,48 @@ class _PaymentMethodTile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            method.accountName,
-            style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
+          _PaymentDetailRow(
+            label: 'Account name',
+            value: method.accountName,
+            textTheme: theme.textTheme,
           ),
-          const SizedBox(height: 4),
-          Text(
-            accountLabel,
-            style: theme.textTheme.bodySmall?.copyWith(
-                  fontSize: 12,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+          const SizedBox(height: 6),
+          _PaymentDetailRow(
+            label: 'Account number',
+            value: accountLabel,
+            textTheme: theme.textTheme,
+            isMonospace: true,
           ),
           if (method.extraDetails != null && method.extraDetails!.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: OpeiColors.iosSurfaceMuted,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                method.extraDetails!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
-              ),
+            const SizedBox(height: 6),
+            _PaymentDetailRow(
+              label: 'Extra details',
+              value: method.extraDetails!,
+              textTheme: theme.textTheme,
             ),
           ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              if (addedLabel != null)
+                Text(
+                  'Added $addedLabel',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 11,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
+                ),
+              const Spacer(),
+              TextButton.icon(
+                onPressed: onEdit,
+                icon: const Icon(Icons.edit_outlined, size: 16),
+                label: const Text('Edit'),
+                style: TextButton.styleFrom(
+                  foregroundColor: OpeiColors.pureBlack,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -3887,15 +3931,19 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                 _InfoRow(
                   label: 'Payment',
                   value: method.providerName,
-                  trailing: method.accountNumberMasked != null
-                      ? Text(
-                          method.accountNumberMasked!,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                                fontSize: 12,
-                                color: OpeiColors.iosLabelTertiary,
-                              ),
-                        )
-                      : null,
+                  trailing: () {
+                    final accountNumber = method.accountNumber.isNotEmpty
+                        ? method.accountNumber
+                        : (method.accountNumberMasked ?? '');
+                    if (accountNumber.isEmpty) return null;
+                    return Text(
+                      accountNumber,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                            fontSize: 12,
+                            color: OpeiColors.iosLabelTertiary,
+                          ),
+                    );
+                  }(),
                 ),
               ],
               const SizedBox(height: 10),
@@ -7107,9 +7155,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         node: _formFocusScope,
         child: FocusTraversalGroup(
           policy: OrderedTraversalPolicy(),
-          child: SingleChildScrollView(
+      child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
-            child: Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -7278,8 +7326,11 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
       if (method.currency.isNotEmpty) {
         detailBits.add(method.currency);
       }
-      if (method.accountNumberMasked.isNotEmpty) {
-        detailBits.add(method.accountNumberMasked);
+      final numberLabel = method.accountNumber.isNotEmpty
+          ? method.accountNumber
+          : method.accountNumberMasked;
+      if (numberLabel.isNotEmpty) {
+        detailBits.add(numberLabel);
       }
 
       return CheckboxListTile(
@@ -8171,7 +8222,11 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                         style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
                       ),
                       subtitle: Text(
-                        '${m.methodType} · ${m.currency} · ${m.accountNumberMasked}',
+                        () {
+                          final summary = m.accountNumber.isNotEmpty ? m.accountNumber : m.accountNumberMasked;
+                          final suffix = summary.isNotEmpty ? ' · $summary' : '';
+                          return '${m.methodType} · ${m.currency}$suffix';
+                        }(),
                         style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, color: OpeiColors.iosLabelSecondary),
                       ),
                     )),
@@ -8512,8 +8567,9 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
 
 class _AddPaymentMethodSheet extends ConsumerStatefulWidget {
   final String currency;
+  final P2PUserPaymentMethod? initialMethod;
 
-  const _AddPaymentMethodSheet({required this.currency});
+  const _AddPaymentMethodSheet({required this.currency, this.initialMethod});
 
   @override
   ConsumerState<_AddPaymentMethodSheet> createState() => _AddPaymentMethodSheetState();
@@ -8530,9 +8586,17 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
   final _extraDetails = TextEditingController();
   bool _isSubmitting = false;
 
+  bool get _isEditing => widget.initialMethod != null;
+
   @override
   void initState() {
     super.initState();
+    if (widget.initialMethod != null) {
+      _selectedTypeId = widget.initialMethod!.paymentMethodTypeId;
+      _accountName.text = widget.initialMethod!.accountName;
+      _accountNumber.text = widget.initialMethod!.accountNumber;
+      _extraDetails.text = widget.initialMethod!.extraDetails ?? '';
+    }
     _loadTypes();
   }
 
@@ -8553,7 +8617,10 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
       final repo = ref.read(p2pRepositoryProvider);
       final list = await repo.fetchPaymentMethodTypes(widget.currency);
       if (!mounted) return;
-      setState(() => _types = list);
+      setState(() {
+        _types = list;
+        _selectedTypeId ??= widget.initialMethod?.paymentMethodTypeId;
+      });
     } catch (e) {
       debugPrint('❌ Failed to load payment method types: $e');
       if (!mounted) return;
@@ -8588,14 +8655,22 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
     });
     try {
       final repo = ref.read(p2pRepositoryProvider);
-      final created = await repo.createUserPaymentMethod(
-        paymentMethodTypeId: _selectedTypeId!,
-        accountName: _accountName.text.trim(),
-        accountNumber: _accountNumber.text.trim(),
-        extraDetails: _extraDetails.text.trim().isEmpty ? null : _extraDetails.text.trim(),
-      );
+      final payload = _isEditing
+          ? await repo.updateUserPaymentMethod(
+              paymentMethodId: widget.initialMethod!.id,
+              paymentMethodTypeId: _selectedTypeId!,
+              accountName: _accountName.text.trim(),
+              accountNumber: _accountNumber.text.trim(),
+              extraDetails: _extraDetails.text.trim().isEmpty ? null : _extraDetails.text.trim(),
+            )
+          : await repo.createUserPaymentMethod(
+              paymentMethodTypeId: _selectedTypeId!,
+              accountName: _accountName.text.trim(),
+              accountNumber: _accountNumber.text.trim(),
+              extraDetails: _extraDetails.text.trim().isEmpty ? null : _extraDetails.text.trim(),
+            );
       if (!mounted) return;
-      Navigator.of(context).pop(created);
+      Navigator.of(context).pop(payload);
     } catch (e) {
       debugPrint('❌ Add payment method failed: $e');
       if (!mounted) return;
@@ -8629,10 +8704,15 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
               ),
             ),
             const SizedBox(height: 18),
-            Text('Add payment method',
-                style: theme.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+            Text(
+              _isEditing ? 'Edit payment method' : 'Add payment method',
+              style: theme.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 6),
-            Text('Choose a provider and add your account details.',
+            Text(
+                _isEditing
+                    ? 'Update the details for this payment method.'
+                    : 'Choose a provider and add your account details.',
                 style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
             if (_errorMessage != null) ...[
               const SizedBox(height: 12),
@@ -8669,7 +8749,7 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
               const SizedBox(height: 12),
               _TextField(label: 'Account name', controller: _accountName, hintText: 'Name on account'),
               const SizedBox(height: 10),
-              _TextField(label: 'Account number', controller: _accountNumber, hintText: '••••••••••'),
+              _TextField(label: 'Account number', controller: _accountNumber, hintText: 'Account number'),
               const SizedBox(height: 10),
               _TextField(label: 'Extra details (optional)', controller: _extraDetails, hintText: 'Branch, reference', maxLines: 2),
               const SizedBox(height: 16),
@@ -8678,7 +8758,7 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
                   style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 13)),
-                  child: Text(_isSubmitting ? 'Saving…' : 'Save method',
+                  child: Text(_isSubmitting ? 'Saving…' : _isEditing ? 'Update method' : 'Save method',
                       style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15, fontWeight: FontWeight.w600, color: OpeiColors.pureWhite)),
                 ),
               ),

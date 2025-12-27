@@ -16,7 +16,7 @@ class QuickAuthSetupScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(quickAuthSetupControllerProvider);
-
+    
     ref.listen(quickAuthSetupControllerProvider, (previous, next) {
       if (next is QuickAuthSetupSuccess) {
         Future.microtask(
@@ -72,7 +72,7 @@ class _VerifyingPinView extends StatelessWidget {
                 'Hang tight, just a moment...',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: OpeiColors.iosLabelSecondary,
-                    ),
+                ),
               ),
               const SizedBox(height: 28),
               const BouncingDots(),
@@ -86,7 +86,7 @@ class _VerifyingPinView extends StatelessWidget {
 
 class _PinEntryScreen extends ConsumerWidget {
   final QuickAuthSetupPinEntry state;
-
+  
   const _PinEntryScreen({required this.state});
 
   @override
@@ -120,16 +120,16 @@ class _PinEntryScreen extends ConsumerWidget {
                   ? 'Enter your PIN again to confirm'
                   : 'Create a 6-digit PIN',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: OpeiColors.grey600,
-                  ),
+                color: OpeiColors.grey600,
+              ),
             ),
             if (state.errorMessage != null) ...[
               const SizedBox(height: 16),
               Text(
                 state.errorMessage!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: OpeiColors.errorRed,
-                    ),
+                  color: OpeiColors.errorRed,
+                ),
               ),
             ],
             const SizedBox(height: 48),
@@ -178,50 +178,50 @@ class _PinEntryScreen extends ConsumerWidget {
     return Column(
       children: buttons
           .map((row) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: row.map((button) {
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: row.map((button) {
                   if (button.isEmpty)
                     return const SizedBox(width: 80, height: 80);
-
-                  return GestureDetector(
-                    onTap: () {
-                      if (button == 'del') {
+              
+              return GestureDetector(
+                onTap: () {
+                  if (button == 'del') {
                         ref
                             .read(quickAuthSetupControllerProvider.notifier)
                             .removeDigit();
-                      } else {
+                  } else {
                         ref
                             .read(quickAuthSetupControllerProvider.notifier)
                             .addDigit(button);
-                      }
-                    },
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      margin: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
+                  }
+                },
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
                         color: button == 'del'
                             ? Colors.transparent
                             : const Color(0xFFF5F5F7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: button == 'del'
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: button == 'del'
                             ? const Icon(Icons.backspace_outlined,
                                 size: 24, color: OpeiColors.pureBlack)
-                            : Text(
-                                button,
+                        : Text(
+                            button,
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineMedium
                                     ?.copyWith(
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                              ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                  ),
+                ),
+              );
+            }).toList(),
               ))
           .toList(),
     );

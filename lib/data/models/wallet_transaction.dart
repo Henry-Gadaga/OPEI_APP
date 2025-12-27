@@ -148,8 +148,8 @@ class WalletTransaction {
     if (value.isEmpty) return '';
     final lower = value.toLowerCase();
     return lower.split(' ').map((word) {
-      if (word.isEmpty) return word;
-      return word[0].toUpperCase() + word.substring(1);
+          if (word.isEmpty) return word;
+          return word[0].toUpperCase() + word.substring(1);
     }).join(' ');
   }
 

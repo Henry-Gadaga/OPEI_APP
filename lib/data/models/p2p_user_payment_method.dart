@@ -5,6 +5,7 @@ class P2PUserPaymentMethod {
   final String methodType;
   final String providerName;
   final String accountName;
+  final String accountNumber;
   final String accountNumberMasked;
   final String? extraDetails;
   final bool isVerified;
@@ -17,6 +18,7 @@ class P2PUserPaymentMethod {
     required this.methodType,
     required this.providerName,
     required this.accountName,
+    required this.accountNumber,
     required this.accountNumberMasked,
     this.extraDetails,
     required this.isVerified,
@@ -37,12 +39,26 @@ class P2PUserPaymentMethod {
       methodType: (json['methodType'] ?? '').toString().toUpperCase(),
       providerName: (json['providerName'] ?? '').toString(),
       accountName: (json['accountName'] ?? '').toString(),
-      accountNumberMasked: (json['accountNumberMasked'] ?? '').toString(),
+      accountNumber: (json['accountNumber'] ?? '').toString(),
+      accountNumberMasked: _resolveMasked(json),
       extraDetails: (json['extraDetails'] ?? '').toString().trim().isEmpty
           ? null
           : (json['extraDetails'] ?? '').toString(),
       isVerified: json['isVerified'] == true,
       createdAt: parseDate(json['createdAt']),
     );
+  }
+
+  static String _resolveMasked(Map<String, dynamic> json) {
+    final masked = (json['accountNumberMasked'] ?? '').toString();
+    if (masked.isNotEmpty) {
+      return masked;
+    }
+    final raw = (json['accountNumber'] ?? '').toString();
+    if (raw.length <= 4) {
+      return raw;
+    }
+    final hidden = '*' * (raw.length - 4);
+    return '$hidden${raw.substring(raw.length - 4)}';
   }
 }
