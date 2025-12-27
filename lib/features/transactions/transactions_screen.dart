@@ -43,10 +43,12 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     );
   }
 
-  Widget _buildContent(BuildContext context, TransactionsState state, TransactionsController controller) {
+  Widget _buildContent(BuildContext context, TransactionsState state,
+      TransactionsController controller) {
     if (state.showSkeleton) {
       return ListView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
         children: [
           Container(
@@ -67,17 +69,22 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
     if (state.error != null && state.transactions.isEmpty) {
       return ListView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         children: [
           Column(
             children: [
-              Icon(Icons.error_outline, size: 48, color: OpeiColors.errorRed.withValues(alpha: 0.85)),
+              Icon(Icons.error_outline,
+                  size: 48, color: OpeiColors.errorRed.withValues(alpha: 0.85)),
               const SizedBox(height: 16),
               Text(
                 state.error!,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15, color: OpeiColors.errorRed),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(fontSize: 15, color: OpeiColors.errorRed),
               ),
               const SizedBox(height: 16),
               FilledButton.tonal(
@@ -94,16 +101,21 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
     if (state.transactions.isEmpty) {
       return ListView(
-        physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+        physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics()),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         children: [
           Column(
             children: [
-              Icon(Icons.receipt_long, size: 48, color: OpeiColors.iosLabelTertiary),
+              Icon(Icons.receipt_long,
+                  size: 48, color: OpeiColors.iosLabelTertiary),
               const SizedBox(height: 16),
               Text(
                 'No transactions yet',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Text(
@@ -123,7 +135,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final transactions = state.transactions;
 
     return ListView(
-      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+      physics:
+          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
       children: [
         Container(
@@ -133,15 +146,10 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             border: Border.all(color: OpeiColors.iosSeparator, width: 0.7),
           ),
           clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              for (var i = 0; i < transactions.length; i++)
-                WalletTransactionTile(
-                  transaction: transactions[i],
-                  showDivider: i != transactions.length - 1,
-                  onTap: () => showTransactionDetailSheet(context, transactions[i]),
-                ),
-            ],
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
+          child: TransactionGroupsView(
+            transactions: transactions,
+            onTransactionTap: (tx) => showTransactionDetailSheet(context, tx),
           ),
         ),
         const SizedBox(height: 8),

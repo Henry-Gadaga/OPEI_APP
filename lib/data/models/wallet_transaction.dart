@@ -81,6 +81,17 @@ class WalletTransaction {
     return value.isEmpty ? '—' : value;
   }
 
+  bool get isPending => (status?.trim().toUpperCase() == 'PENDING');
+
+  bool get isCompleted => (status?.trim().toUpperCase() == 'COMPLETED');
+
+  bool get isIncoming {
+    final normalized = direction?.trim().toUpperCase();
+    if (normalized == 'IN') return true;
+    if (normalized == 'OUT') return false;
+    return isCredit;
+  }
+
   String get displayReference {
     final value = reference?.trim() ?? '';
     return value.isEmpty ? '—' : value;
@@ -127,13 +138,10 @@ class WalletTransaction {
     final value = status?.trim() ?? '';
     if (value.isEmpty) return '';
     final lower = value.toLowerCase();
-    return lower
-        .split(' ')
-        .map((word) {
-          if (word.isEmpty) return word;
-          return word[0].toUpperCase() + word.substring(1);
-        })
-        .join(' ');
+    return lower.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1);
+    }).join(' ');
   }
 
   String get subtitleLabel {
@@ -234,15 +242,19 @@ class WalletTransaction {
           if (json.containsKey(key)) {
             final value = json[key];
             if (value is int) {
-              return DateTime.fromMillisecondsSinceEpoch(value, isUtc: true).toLocal();
+              return DateTime.fromMillisecondsSinceEpoch(value, isUtc: true)
+                  .toLocal();
             }
             if (value is num) {
-              return DateTime.fromMillisecondsSinceEpoch(value.toInt(), isUtc: true).toLocal();
+              return DateTime.fromMillisecondsSinceEpoch(value.toInt(),
+                      isUtc: true)
+                  .toLocal();
             }
             if (value is String) {
               final parsed = int.tryParse(value);
               if (parsed != null) {
-                return DateTime.fromMillisecondsSinceEpoch(parsed, isUtc: true).toLocal();
+                return DateTime.fromMillisecondsSinceEpoch(parsed, isUtc: true)
+                    .toLocal();
               }
             }
           }
@@ -319,10 +331,21 @@ class WalletTransaction {
         if (direction.contains('p2p') && direction.contains('receive')) {
           return true;
         }
-        if (['credit', 'cr', 'incoming', 'in', 'deposit', 'receive', 'received'].contains(direction)) {
+        if (['credit', 'cr', 'incoming', 'in', 'deposit', 'receive', 'received']
+            .contains(direction)) {
           return true;
         }
-        if (['debit', 'dr', 'outgoing', 'out', 'withdraw', 'withdrawal', 'send', 'sent', 'transfer'].contains(direction)) {
+        if ([
+          'debit',
+          'dr',
+          'outgoing',
+          'out',
+          'withdraw',
+          'withdrawal',
+          'send',
+          'sent',
+          'transfer'
+        ].contains(direction)) {
           return false;
         }
       }
@@ -371,7 +394,8 @@ class WalletTransaction {
       'currency',
       'currencyCode',
       'currency_code',
-    ], fallback: 'USD').toUpperCase();
+    ], fallback: 'USD')
+        .toUpperCase();
 
     final status = readString([
       'status',
@@ -450,7 +474,8 @@ class WalletTransaction {
     var title = rawTitle.isEmpty ? 'Transaction' : rawTitle;
 
     if (rawType.toUpperCase().startsWith('P2P')) {
-      final derived = _derivePeerToPeerName(rawDescription.isNotEmpty ? rawDescription : rawTitle);
+      final derived = _derivePeerToPeerName(
+          rawDescription.isNotEmpty ? rawDescription : rawTitle);
       if (derived != null && derived.isNotEmpty) {
         title = derived;
       }
@@ -557,10 +582,14 @@ class WalletTransaction {
 
     if (!working.contains(' ') && working.length >= 8) {
       final midpoint = (working.length / 2).floor();
-      working = '${working.substring(0, midpoint)} ${working.substring(midpoint)}';
+      working =
+          '${working.substring(0, midpoint)} ${working.substring(midpoint)}';
     }
 
-    final parts = working.split(' ').where((segment) => segment.trim().isNotEmpty).map((segment) {
+    final parts = working
+        .split(' ')
+        .where((segment) => segment.trim().isNotEmpty)
+        .map((segment) {
       final lowerSegment = segment.toLowerCase();
       return lowerSegment[0].toUpperCase() + lowerSegment.substring(1);
     }).toList();

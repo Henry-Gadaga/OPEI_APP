@@ -449,16 +449,9 @@ class TransactionsList extends StatelessWidget {
         );
       }
     } else {
-      content = Column(
-        children: transactions.asMap().entries.map((entry) {
-          final isLast = entry.key == transactions.length - 1;
-          final transaction = entry.value;
-          return WalletTransactionTile(
-            transaction: transaction,
-            showDivider: !isLast,
-            onTap: () => showTransactionDetailSheet(context, transaction),
-          );
-        }).toList(),
+      content = TransactionGroupsView(
+        transactions: transactions,
+        onTransactionTap: (tx) => showTransactionDetailSheet(context, tx),
       );
     }
 
