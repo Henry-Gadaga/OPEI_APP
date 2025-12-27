@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
 import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
 import 'package:tt1/theme.dart';
+import 'package:tt1/widgets/bouncing_dots.dart';
 
 class QuickAuthSetupScreen extends ConsumerWidget {
   final bool popOnComplete;
@@ -41,17 +42,44 @@ class QuickAuthSetupScreen extends ConsumerWidget {
     }
 
     if (state is QuickAuthSetupLoading) {
-      return const Scaffold(
-        backgroundColor: OpeiColors.pureWhite,
-        body: Center(
-            child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
-      );
+      return const _VerifyingPinView();
     }
 
-    return const Scaffold(
+    return const _VerifyingPinView();
+  }
+}
+
+class _VerifyingPinView extends StatelessWidget {
+  const _VerifyingPinView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
       backgroundColor: OpeiColors.pureWhite,
-      body:
-          Center(child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Verifying your PIN',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Hang tight, just a moment...',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
+              ),
+              const SizedBox(height: 28),
+              const BouncingDots(),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
