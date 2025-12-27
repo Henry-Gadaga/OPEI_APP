@@ -62,86 +62,86 @@ class TransactionDetailSheet extends StatelessWidget {
 
                 return SingleChildScrollView(
                   padding: scrollPadding,
-                  child: Column(
+          child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+            children: [
                       Center(
                         child: Container(
-                          width: 40,
-                          height: 4,
+                width: 40,
+                height: 4,
                           margin: const EdgeInsets.only(bottom: 14),
-                          decoration: BoxDecoration(
-                            color: OpeiColors.iosSurfaceMuted,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
+                decoration: BoxDecoration(
+                  color: OpeiColors.iosSurfaceMuted,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
                       ),
-                      Text(
-                        transaction.listTitle,
+                    Text(
+                      transaction.listTitle,
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.5,
-                                ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            transaction.formattedAmount,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          transaction.formattedAmount,
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall
                                 ?.copyWith(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                  color: transaction.isCredit
-                                      ? OpeiColors.successGreen
-                                      : OpeiColors.errorRed,
-                                ),
-                          ),
-                          const SizedBox(width: 12),
-                          if (transaction.normalizedStatus.isNotEmpty)
-                            Container(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                color: transaction.isCredit
+                                    ? OpeiColors.successGreen
+                                    : OpeiColors.errorRed,
+                              ),
+                        ),
+                        const SizedBox(width: 12),
+                        if (transaction.normalizedStatus.isNotEmpty)
+                          Container(
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: OpeiColors.iosSurfaceMuted,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                transaction.normalizedStatus,
+                            decoration: BoxDecoration(
+                              color: OpeiColors.iosSurfaceMuted,
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              transaction.normalizedStatus,
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelSmall
                                     ?.copyWith(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: 0.2,
-                                    ),
-                              ),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 0.2,
+                                  ),
                             ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        transaction.formattedCreatedDateTime,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 12,
-                              color: OpeiColors.iosLabelSecondary,
-                            ),
-                      ),
-                      const SizedBox(height: 24),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      transaction.formattedCreatedDateTime,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 12,
+                            color: OpeiColors.iosLabelSecondary,
+                          ),
+                    ),
+                    const SizedBox(height: 24),
                       ...entries
                           .map((entry) => _DetailRow(entry: entry))
                           .toList(),
                       const SizedBox(height: 8),
-                    ],
-                  ),
+                  ],
+                ),
                 );
               },
-            ),
+              ),
           ),
         ),
       ),

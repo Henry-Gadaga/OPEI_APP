@@ -67,6 +67,9 @@ class WalletTransaction {
   }
 
   String get listTitle {
+    if (_hasTrdReferencePrefix) {
+      return isIncoming ? 'Deposit' : 'Withdrawal';
+    }
     if (isPeerToPeer) {
       final derived = _derivePeerToPeerName(description ?? title);
       if (derived != null && derived.isNotEmpty) {
@@ -90,6 +93,12 @@ class WalletTransaction {
     if (normalized == 'IN') return true;
     if (normalized == 'OUT') return false;
     return isCredit;
+  }
+
+  bool get _hasTrdReferencePrefix {
+    final value = reference?.trim();
+    if (value == null || value.length < 3) return false;
+    return value.substring(0, 3).toUpperCase() == 'TRD';
   }
 
   String get displayReference {

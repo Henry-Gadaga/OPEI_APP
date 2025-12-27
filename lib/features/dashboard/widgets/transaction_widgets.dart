@@ -57,6 +57,9 @@ class TransactionGroupsView extends StatelessWidget {
   }
 }
 
+const _transactionIconDark = Color(0xFF111111);
+const _transactionIconStroke = Color(0xFF1F1F1F);
+
 bool _shouldSuppressLabel(String label) =>
     label.trim().toLowerCase() == 'today';
 
@@ -185,10 +188,10 @@ class WalletTransactionTile extends StatelessWidget {
       duration: const Duration(milliseconds: 200),
       opacity: viewModel.opacity,
       child: Material(
-        color: Colors.transparent,
-        child: InkWell(
+      color: Colors.transparent,
+      child: InkWell(
           onTap: viewModel.isPending ? null : onTap,
-          child: Container(
+        child: Container(
             decoration: BoxDecoration(border: border),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             child: Row(
@@ -204,7 +207,7 @@ class WalletTransactionTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
+                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
@@ -236,8 +239,8 @@ class WalletTransactionTile extends StatelessWidget {
                                 ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 3),
+                       ),
+                       const SizedBox(height: 3),
                       Row(
                         children: [
                           Expanded(
@@ -250,7 +253,7 @@ class WalletTransactionTile extends StatelessWidget {
                                     fontSize: 11,
                                     color: OpeiColors.iosLabelSecondary,
                                   ),
-                              overflow: TextOverflow.ellipsis,
+                        overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -281,15 +284,18 @@ class _TransactionIconCircle extends StatelessWidget {
       width: 32,
       height: 32,
       decoration: BoxDecoration(
-        color: filled ? OpeiColors.pureBlack : OpeiColors.pureWhite,
+        color: filled ? _transactionIconDark : OpeiColors.pureWhite,
         shape: BoxShape.circle,
-        border: Border.all(color: OpeiColors.pureBlack, width: 1),
+        border: Border.all(color: _transactionIconStroke, width: 0.8),
       ),
       alignment: Alignment.center,
-      child: Icon(
-        icon,
-        color: filled ? OpeiColors.pureWhite : OpeiColors.pureBlack,
-        size: 16,
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: Icon(
+          icon,
+          color: filled ? OpeiColors.pureWhite : _transactionIconDark,
+          size: 14,
+        ),
       ),
     );
   }
@@ -499,13 +505,13 @@ class _SkeletonCircleState extends State<_SkeletonCircle>
       animation: _pulse,
       builder: (context, child) {
         final opacity = 0.35 + (0.25 * _pulse.value);
-        return Container(
+    return Container(
           width: 32,
           height: 32,
-          decoration: BoxDecoration(
+      decoration: BoxDecoration(
             color: baseColor.withOpacity(opacity),
             borderRadius: BorderRadius.circular(16),
-          ),
+      ),
         );
       },
     );
@@ -550,13 +556,13 @@ class _SkeletonLineState extends State<_SkeletonLine>
       animation: _pulse,
       builder: (context, child) {
         final opacity = 0.35 + (0.25 * _pulse.value);
-        return Container(
+    return Container(
           width: widget.width,
           height: widget.height,
-          decoration: BoxDecoration(
+      decoration: BoxDecoration(
             color: baseColor.withOpacity(opacity),
-            borderRadius: BorderRadius.circular(12),
-          ),
+        borderRadius: BorderRadius.circular(12),
+      ),
         );
       },
     );

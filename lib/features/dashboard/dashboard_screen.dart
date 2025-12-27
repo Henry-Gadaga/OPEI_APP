@@ -78,11 +78,11 @@ class DashboardHomeScreen extends ConsumerWidget {
       children: [
         const SizedBox(height: 12),
         WalletHeader(onProfileTap: onProfileTap),
-        const SizedBox(height: 75),
+        const SizedBox(height: 85),
         BalanceCard(state: dashboardState),
-        const SizedBox(height: 28),
+        const SizedBox(height: 40),
         QuickActions(onCardsTap: onCardsTap),
-        const SizedBox(height: 28),
+        const SizedBox(height: 10),
         TransactionsList(
           state: dashboardState,
           onViewAll: () {
