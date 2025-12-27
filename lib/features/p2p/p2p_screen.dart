@@ -4280,6 +4280,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       child: SafeArea(
         top: false,
         child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -6490,6 +6492,8 @@ class _MyAdDetailSheet extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -7083,6 +7087,8 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomInset),
       child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -8219,6 +8225,8 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomInset),
       child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -8555,6 +8563,8 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottom),
       child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -9791,6 +9801,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(24, 16, 24, bottomPadding),
+      physics: const ClampingScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -10065,6 +10077,8 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(20, 16, 20, bottomPadding),
+      physics: const ClampingScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -10505,6 +10519,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(24, 20, 24, bottomPadding),
+      physics: const ClampingScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -11990,6 +12006,8 @@ class _UploadProofSheet extends StatelessWidget {
       ),
       padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + bottomInset),
       child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
