@@ -25,7 +25,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       parent: isCupertino
           ? const BouncingScrollPhysics()
           : const ClampingScrollPhysics(),
-    );
+      );
 
     if (profile == null) {
       if (state.error != null) {
@@ -814,7 +814,7 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
                                     fontWeight: isSelected
                                         ? FontWeight.w600
                                         : FontWeight.w400,
-                                  ),
+                              ),
                         ),
                         if (isSelected)
                           const Icon(Icons.check,
@@ -921,7 +921,7 @@ class _QuickAuthSettingsSectionState
 
   Future<void> _loadQuickAuthStatus() async {
     final quickAuthService = ref.read(quickAuthServiceProvider);
-
+    
     setState(() {
       _isLoadingPinStatus = true;
     });
@@ -942,13 +942,13 @@ class _QuickAuthSettingsSectionState
         ProfileActionItem(
           icon: Icons.pin_outlined,
           label: 'PIN Authentication',
-          subtitle: _isLoadingPinStatus
-              ? 'Loading...'
+          subtitle: _isLoadingPinStatus 
+              ? 'Loading...' 
               : _hasPinSetup
                   ? 'Enabled'
                   : 'Disabled',
           onTap: null,
-        ),
+          ),
       ],
     );
   }
