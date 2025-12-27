@@ -392,6 +392,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       return await showModalBottomSheet<T>(
         context: context,
         isScrollControlled: true,
+        enableDrag: false,
         backgroundColor: OpeiColors.pureWhite,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -6826,6 +6827,12 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
   late final TextEditingController _maxOrder;
   late final TextEditingController _rate;
   late final TextEditingController _instructions;
+
+  late final FocusNode _totalFocus;
+  late final FocusNode _priceFocus;
+  late final FocusNode _minFocus;
+  late final FocusNode _maxFocus;
+  late final FocusScopeNode _formFocusScope;
   
   List<P2PUserPaymentMethod> _methods = const [];
   final Set<String> _selectedMethodIds = <String>{};
@@ -6843,6 +6850,11 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     _maxOrder = TextEditingController();
     _rate = TextEditingController();
     _instructions = TextEditingController();
+    _totalFocus = FocusNode();
+    _priceFocus = FocusNode();
+    _minFocus = FocusNode();
+    _maxFocus = FocusNode();
+    _formFocusScope = FocusScopeNode(debugLabel: 'createAdForm');
   }
 
   @override
@@ -6852,6 +6864,11 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     _maxOrder.dispose();
     _rate.dispose();
     _instructions.dispose();
+    _totalFocus.dispose();
+    _priceFocus.dispose();
+    _minFocus.dispose();
+    _maxFocus.dispose();
+    _formFocusScope.dispose();
     super.dispose();
   }
 
@@ -7086,10 +7103,13 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     // Multi-step form for sell or buy
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomInset),
-      child: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        child: Column(
+      child: FocusScope(
+        node: _formFocusScope,
+        child: FocusTraversalGroup(
+          policy: OrderedTraversalPolicy(),
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -7138,7 +7158,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
               _MessageBanner(message: _errorMessage!, isError: true),
             ],
             const SizedBox(height: 14),
-            _buildStepContent(theme),
+            _buildStepContent(context, theme),
             const SizedBox(height: 18),
             Row(
               children: [
@@ -7177,11 +7197,13 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
             ),
           ],
         ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildStepContent(ThemeData theme) {
+  Widget _buildStepContent(BuildContext context, ThemeData theme) {
     if (_selectedType == P2PAdType.sell) {
       switch (_step) {
         case 1:
@@ -7189,7 +7211,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         case 2:
           return _buildPaymentMethodsStep(theme, isBuy: false);
         case 3:
-          return _buildDetailsStep(theme);
+          return _buildDetailsStep(context, theme);
       }
     } else {
       switch (_step) {
@@ -7198,7 +7220,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         case 2:
           return _buildPaymentMethodsStep(theme, isBuy: true);
         case 3:
-          return _buildDetailsStep(theme);
+          return _buildDetailsStep(context, theme);
       }
     }
     return const SizedBox.shrink();
@@ -7344,7 +7366,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     );
   }
 
-  Widget _buildDetailsStep(ThemeData theme) {
+  Widget _buildDetailsStep(BuildContext context, ThemeData theme) {
     // Amounts and limits are captured in USD regardless of the fiat rail
     const String amountCurrencyLabel = 'USD';
     const String priceCurrencyLabel = 'USD';
@@ -7358,6 +7380,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                 label: 'Total amount (USD)',
                 currency: amountCurrencyLabel,
                 controller: _totalAmount,
+                focusNode: _totalFocus,
+                textInputAction: TextInputAction.next,
+                onSubmitted: (_) => _formFocusScope.requestFocus(_priceFocus),
               ),
             ),
             const SizedBox(width: 10),
@@ -7366,6 +7391,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                 label: 'Price (USD)',
                 currency: priceCurrencyLabel,
                 controller: _rate,
+                focusNode: _priceFocus,
+                textInputAction: TextInputAction.next,
+                onSubmitted: (_) => _formFocusScope.requestFocus(_minFocus),
               ),
             ),
           ],
@@ -7378,6 +7406,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                 label: 'Min order (USD)',
                 currency: amountCurrencyLabel,
                 controller: _minOrder,
+                focusNode: _minFocus,
+                textInputAction: TextInputAction.next,
+                onSubmitted: (_) => _formFocusScope.requestFocus(_maxFocus),
               ),
             ),
             const SizedBox(width: 10),
@@ -7386,12 +7417,21 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                 label: 'Max order (USD)',
                 currency: amountCurrencyLabel,
                 controller: _maxOrder,
+                focusNode: _maxFocus,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _formFocusScope.unfocus(),
               ),
             ),
           ],
         ),
         const SizedBox(height: 10),
-        _TextField(label: 'Instructions (optional)', controller: _instructions, hintText: 'e.g., Proof of transfer required'),
+        _TextField(
+          label: 'Instructions (optional)',
+          controller: _instructions,
+          hintText: 'e.g., Proof of transfer required',
+          maxLines: 3,
+          textInputAction: TextInputAction.newline,
+        ),
       ],
     );
   }
@@ -7553,12 +7593,18 @@ class _TextField extends StatelessWidget {
   final TextEditingController controller;
   final String? hintText;
   final int maxLines;
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
 
   const _TextField({
     required this.label,
     required this.controller,
     this.hintText,
     this.maxLines = 1,
+    this.focusNode,
+    this.textInputAction,
+    this.onSubmitted,
   });
 
   @override
@@ -7576,8 +7622,11 @@ class _TextField extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         TextField(
+          focusNode: focusNode,
           controller: controller,
           maxLines: maxLines,
+          textInputAction: textInputAction,
+          onSubmitted: onSubmitted,
           style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15),
           decoration: InputDecoration(
             hintText: hintText,
@@ -9221,11 +9270,17 @@ class _AmountField extends StatelessWidget {
   final String label;
   final String currency;
   final TextEditingController controller;
+  final FocusNode? focusNode;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
 
   const _AmountField({
     required this.label,
     required this.currency,
     required this.controller,
+    this.focusNode,
+    this.textInputAction,
+    this.onSubmitted,
   });
 
   @override
@@ -9243,8 +9298,11 @@ class _AmountField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         TextField(
+          focusNode: focusNode,
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          textInputAction: textInputAction,
+          onSubmitted: onSubmitted,
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
           ],
