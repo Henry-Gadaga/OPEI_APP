@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tt1/core/providers/providers.dart';
 import 'package:tt1/features/auth/quick_auth/quick_auth_controller.dart';
 import 'package:tt1/features/auth/quick_auth/quick_auth_state.dart';
+import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
 import 'package:tt1/features/dashboard/dashboard_controller.dart';
 import 'package:tt1/theme.dart';
 import 'package:tt1/widgets/bouncing_dots.dart';
@@ -57,7 +58,7 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(quickAuthControllerProvider);
 
-    ref.listen(quickAuthControllerProvider, (previous, next) {
+    ref.listen(quickAuthControllerProvider, (previous, next) async {
       if (next is QuickAuthSuccess) {
         final dashboardController =
             ref.read(dashboardControllerProvider.notifier);
@@ -65,15 +66,19 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
         dashboardController.refreshBalance(showSpinner: true);
         context.go('/dashboard');
       } else if (next is QuickAuthFailed) {
+        await ref.read(authRepositoryProvider).logout();
+        ref.read(authSessionProvider.notifier).clearSession();
+        ref
+            .read(quickAuthSetupControllerProvider.notifier)
+            .reset();
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.message),
             backgroundColor: OpeiColors.errorRed,
           ),
         );
-        Future.delayed(const Duration(seconds: 1), () {
-          context.go('/login');
-        });
+        context.go('/login');
       }
     });
 
