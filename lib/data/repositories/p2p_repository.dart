@@ -233,22 +233,27 @@ class P2PRepository {
 
   Future<P2PUserPaymentMethod> updateUserPaymentMethod({
     required String paymentMethodId,
-    required String paymentMethodTypeId,
-    required String accountName,
-    required String accountNumber,
+    String? accountName,
+    String? accountNumber,
     String? extraDetails,
   }) async {
+    final data = <String, dynamic>{};
+    if (accountName != null) {
+      data['accountName'] = accountName;
+    }
+    if (accountNumber != null) {
+      data['accountNumber'] = accountNumber;
+    }
+    if (extraDetails != null) {
+      data['extraDetails'] = extraDetails;
+    }
+
     final payload = await _apiClient.patch<Map<String, dynamic>>(
       '/p2p/user-payment-methods/$paymentMethodId',
-      data: {
-        'paymentMethodTypeId': paymentMethodTypeId,
-        'accountName': accountName,
-        'accountNumber': accountNumber,
-        if (extraDetails != null && extraDetails.trim().isNotEmpty) 'extraDetails': extraDetails.trim(),
-      },
+      data: data,
     );
-    final data = payload['data'] as Map<String, dynamic>?;
-    return P2PUserPaymentMethod.fromJson(data ?? <String, dynamic>{});
+    final body = payload['data'] as Map<String, dynamic>?;
+    return P2PUserPaymentMethod.fromJson(body ?? <String, dynamic>{});
   }
 
   // --- Create ad (BUY/SELL) ---

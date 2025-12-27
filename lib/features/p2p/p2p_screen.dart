@@ -8592,7 +8592,6 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
   void initState() {
     super.initState();
     if (widget.initialMethod != null) {
-      _selectedTypeId = widget.initialMethod!.paymentMethodTypeId;
       _accountName.text = widget.initialMethod!.accountName;
       _accountNumber.text = widget.initialMethod!.accountNumber;
       _extraDetails.text = widget.initialMethod!.extraDetails ?? '';
@@ -8631,12 +8630,29 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
   }
 
   String _mapError(Object error) {
-    final msg = error.toString().toLowerCase();
+    String msg = error.toString().toLowerCase();
+    int? statusCode;
+    if (error is ApiError) {
+      statusCode = error.statusCode;
+      msg = (error.message).toLowerCase();
+    }
     if (msg.contains('missing x-user-id')) return 'Please sign in again to continue.';
     if (msg.contains('inactive')) return 'Payment provider is currently inactive.';
+    if (msg.contains('payment method not found')) return 'Payment method no longer exists.';
+    if (msg.contains('active ad')) return 'This payment method is attached to an active ad and can’t be edited.';
+    if (msg.contains('ongoing trade')) return 'This payment method is being used in an ongoing trade.';
     if (msg.contains('not available') || msg.contains('not found')) return 'Payment provider is not available.';
-    if (msg.contains('already exists')) return 'Account number already exists for this user.';
+    if (msg.contains('already exists') || msg.contains('account number')) {
+      return 'Account number already exists for this user.';
+    }
     if (msg.contains('maximum number')) return 'Maximum payment methods reached for this currency.';
+    if (statusCode == 404) return 'Payment method no longer exists.';
+    if (statusCode == 400 && msg.contains('active ad')) {
+      return 'This payment method is attached to an active ad and can’t be edited.';
+    }
+    if (statusCode == 400 && msg.contains('ongoing')) {
+      return 'This payment method is being used in an ongoing trade.';
+    }
     if (msg.contains('validation') || msg.contains('bad request')) {
       return 'Please check your details and try again.';
     }
@@ -8645,7 +8661,7 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
 
   Future<void> _submit() async {
     if (_isSubmitting) return;
-    if (_selectedTypeId == null) {
+    if (!_isEditing && _selectedTypeId == null) {
       setState(() => _errorMessage = 'Select a payment provider.');
       return;
     }
@@ -8655,22 +8671,46 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
     });
     try {
       final repo = ref.read(p2pRepositoryProvider);
-      final payload = _isEditing
-          ? await repo.updateUserPaymentMethod(
-              paymentMethodId: widget.initialMethod!.id,
-              paymentMethodTypeId: _selectedTypeId!,
-              accountName: _accountName.text.trim(),
-              accountNumber: _accountNumber.text.trim(),
-              extraDetails: _extraDetails.text.trim().isEmpty ? null : _extraDetails.text.trim(),
-            )
-          : await repo.createUserPaymentMethod(
-              paymentMethodTypeId: _selectedTypeId!,
-              accountName: _accountName.text.trim(),
-              accountNumber: _accountNumber.text.trim(),
-              extraDetails: _extraDetails.text.trim().isEmpty ? null : _extraDetails.text.trim(),
-            );
-      if (!mounted) return;
-      Navigator.of(context).pop(payload);
+      final trimmedName = _accountName.text.trim();
+      final trimmedNumber = _accountNumber.text.trim();
+      final trimmedExtra = _extraDetails.text.trim();
+      if (_isEditing) {
+        final initial = widget.initialMethod!;
+        final changedName = trimmedName != initial.accountName ? trimmedName : null;
+        final changedNumber = trimmedNumber != initial.accountNumber ? trimmedNumber : null;
+        final String? changedExtra;
+        if ((initial.extraDetails ?? '').trim() != trimmedExtra) {
+          changedExtra = trimmedExtra.isEmpty ? '' : trimmedExtra;
+        } else {
+          changedExtra = null;
+        }
+        if (changedName == null && changedNumber == null && changedExtra == null) {
+          if (mounted) {
+            setState(() {
+              _isSubmitting = false;
+              _errorMessage = 'No changes detected.';
+            });
+          }
+          return;
+        }
+        final updated = await repo.updateUserPaymentMethod(
+          paymentMethodId: initial.id,
+          accountName: changedName,
+          accountNumber: changedNumber,
+          extraDetails: changedExtra,
+        );
+        if (!mounted) return;
+        Navigator.of(context).pop(updated);
+      } else {
+        final created = await repo.createUserPaymentMethod(
+          paymentMethodTypeId: _selectedTypeId!,
+          accountName: trimmedName,
+          accountNumber: trimmedNumber,
+          extraDetails: trimmedExtra.isEmpty ? null : trimmedExtra,
+        );
+        if (!mounted) return;
+        Navigator.of(context).pop(created);
+      }
     } catch (e) {
       debugPrint('❌ Add payment method failed: $e');
       if (!mounted) return;
@@ -8725,27 +8765,51 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
               Text('Provider',
                   style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
               const SizedBox(height: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSurfaceMuted,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
+              if (_isEditing)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: OpeiColors.iosSurfaceMuted,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.initialMethod!.providerName,
+                        style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${widget.initialMethod!.methodType} · ${widget.initialMethod!.currency}',
+                        style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, color: OpeiColors.iosLabelSecondary),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: OpeiColors.iosSurfaceMuted,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
+                  ),
+                  child: DropdownButton<String>(
+                    value: _selectedTypeId,
+                    isExpanded: true,
+                    underline: const SizedBox.shrink(),
+                    hint: const Text('Select provider…'),
+                    items: _types
+                        .map((t) => DropdownMenuItem<String>(
+                              value: t.id,
+                              child: Text('${t.providerName} · ${t.methodType}'),
+                            ))
+                        .toList(),
+                    onChanged: (v) => setState(() => _selectedTypeId = v),
+                  ),
                 ),
-                child: DropdownButton<String>(
-                  value: _selectedTypeId,
-                  isExpanded: true,
-                  underline: const SizedBox.shrink(),
-                  hint: const Text('Select provider…'),
-                  items: _types
-                      .map((t) => DropdownMenuItem<String>(
-                            value: t.id,
-                            child: Text('${t.providerName} · ${t.methodType}'),
-                          ))
-                      .toList(),
-                  onChanged: (v) => setState(() => _selectedTypeId = v),
-                ),
-              ),
               const SizedBox(height: 12),
               _TextField(label: 'Account name', controller: _accountName, hintText: 'Name on account'),
               const SizedBox(height: 10),
