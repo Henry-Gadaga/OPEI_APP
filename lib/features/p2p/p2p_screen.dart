@@ -11573,8 +11573,11 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
               }
             }
           },
-          onPickImages: () {
-            _handlePickProofs();
+          onPickImages: () async {
+            final pickFuture = _handlePickProofs();
+            setModalState(() {});
+            await pickFuture;
+            if (!mounted) return;
             setModalState(() {});
           },
           pickedImages: _pickedImages,
@@ -12156,6 +12159,33 @@ class _ProofThumb extends StatelessWidget {
   }
 }
 
+class _ProofThumbLoading extends StatelessWidget {
+  const _ProofThumbLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 88,
+      height: 88,
+      decoration: BoxDecoration(
+        color: OpeiColors.iosSurfaceMuted,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+      ),
+      child: const Center(
+        child: SizedBox(
+          width: 26,
+          height: 26,
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureBlack),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ProofUploadCandidate {
   final String fileName;
   final String contentType;
@@ -12318,7 +12348,7 @@ class _UploadProofSheet extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 20),
-            if (hasImages) ...[
+            if (hasImages || isPicking) ...[
               Wrap(
                 spacing: 10,
                 runSpacing: 10,
@@ -12328,40 +12358,8 @@ class _UploadProofSheet extends StatelessWidget {
                       file: pickedImages[i],
                       onRemove: isSubmitting ? null : () => onRemoveImage(i),
                     ),
+                  if (isPicking) const _ProofThumbLoading(),
                 ],
-              ),
-              const SizedBox(height: 16),
-            ],
-            if (isPicking) ...[
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSurfaceMuted,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureBlack),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Loading your proof...',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                              fontSize: 12,
-                              color: OpeiColors.iosLabelSecondary,
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
               const SizedBox(height: 16),
             ],
