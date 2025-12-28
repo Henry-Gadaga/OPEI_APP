@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tt1/core/network/api_error.dart';
 import 'package:tt1/core/providers/providers.dart';
+import 'package:tt1/core/utils/retry_helper.dart';
 import 'package:tt1/features/auth/forgot_password/forgot_password_state.dart';
 
 class ForgotPasswordController extends Notifier<ForgotPasswordState> {
@@ -65,6 +66,14 @@ class ForgotPasswordController extends Notifier<ForgotPasswordState> {
       return false;
     } on ApiError catch (e) {
       debugPrint('❌ Password reset request API error: ${e.statusCode} - ${e.message}');
+      if (e.statusCode == 429) {
+        final retryInfo = parseRetryInfo(e.errors);
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: buildRetryMessage(e.message, retryInfo),
+        );
+        return false;
+      }
       state = state.copyWith(
         isLoading: false,
         errorMessage: e.message,

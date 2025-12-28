@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tt1/core/providers/providers.dart';
@@ -412,43 +411,172 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  void _handleLogout(BuildContext context, controller) {
-    showCupertinoModalPopup(
+  Future<void> _handleLogout(BuildContext context, controller) async {
+    final success = await showModalBottomSheet<bool>(
       context: context,
-      builder: (dialogContext) {
-        return CupertinoActionSheet(
-          title: const Text('Log Out'),
-          message: const Text(
-              "You’ll need to sign in again to access your account."),
-          actions: [
-            CupertinoActionSheetAction(
-              onPressed: () async {
-                context.pop();
-                debugPrint('🔄 Starting logout process...');
-                final success = await controller.logout();
-                debugPrint('🔄 Logout result: $success');
-                debugPrint('🔄 Context mounted: ${context.mounted}');
-                if (success && context.mounted) {
-                  debugPrint('🔄 Navigating to login screen...');
-                  context.go('/login');
-                  debugPrint('✅ Navigation command sent');
-                } else {
-                  debugPrint(
-                      '❌ Navigation cancelled - success: $success, mounted: ${context.mounted}');
-                }
-              },
-              isDestructiveAction: true,
-              child: const Text('Log Out'),
-            ),
-          ],
-          cancelButton: CupertinoActionSheetAction(
-            onPressed: () => context.pop(),
-            isDefaultAction: true,
-            child: const Text('Cancel'),
-          ),
-        );
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return _LogoutConfirmationSheet(controller: controller);
       },
     );
+
+    if (success == true && mounted) {
+      context.go('/login');
+    }
+  }
+}
+
+class _LogoutConfirmationSheet extends StatefulWidget {
+  final ProfileController controller;
+
+  const _LogoutConfirmationSheet({required this.controller});
+
+  @override
+  State<_LogoutConfirmationSheet> createState() =>
+      _LogoutConfirmationSheetState();
+}
+
+class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
+  bool _isProcessing = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 0, 20, bottomInset + 20),
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
+          decoration: BoxDecoration(
+            color: OpeiColors.pureWhite,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 30,
+                offset: const Offset(0, 16),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: OpeiColors.grey300,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: OpeiColors.pureBlack.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.logout_rounded,
+                  size: 32,
+                  color: OpeiColors.pureBlack,
+                ),
+              ),
+              const SizedBox(height: 18),
+              Text(
+                'Sign out of Opei?',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  letterSpacing: -0.2,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'You’ll need to enter your email and PIN again next time.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: OpeiColors.iosLabelSecondary,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _isProcessing
+                          ? null
+                          : () => Navigator.of(context).pop(false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        side: BorderSide(
+                          color: OpeiColors.pureBlack.withValues(alpha: 0.15),
+                        ),
+                      ),
+                      child: Text(
+                        'Stay signed in',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isProcessing ? null : _confirmLogout,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: OpeiColors.pureBlack,
+                        foregroundColor: OpeiColors.pureWhite,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: _isProcessing
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: OpeiColors.pureWhite,
+                              ),
+                            )
+                          : Text(
+                              'Log out',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: OpeiColors.pureWhite,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmLogout() async {
+    setState(() => _isProcessing = true);
+    final success = await widget.controller.logout();
+    if (!mounted) return;
+    Navigator.of(context).pop(success);
   }
 }
 

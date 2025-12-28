@@ -3,22 +3,24 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tt1/core/network/api_error.dart';
 import 'package:tt1/core/providers/providers.dart';
+import 'package:tt1/core/utils/retry_helper.dart';
 import 'package:tt1/features/auth/verify_email/verify_email_state.dart';
 
 class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
   Timer? _countdownTimer;
+  static DateTime? _sharedThrottleExpiry;
 
   /// Initializes the verify email screen with the provided email.
   /// If [autoSendCode] is true, automatically sends a verification code (useful for login flow).
   Future<void> initialize(String email, {bool autoSendCode = false}) async {
     debugPrint('🚀 Initializing verify email with: $email (autoSendCode: $autoSendCode)');
     state = VerifyEmailState.initial(email);
-    
-    if (autoSendCode) {
+
+    final restored = _restorePendingCooldown();
+
+    if (autoSendCode && !restored) {
       debugPrint('📤 Auto-sending verification code...');
       await _sendCodeImmediately();
-    } else {
-      _startCountdown();
     }
   }
 
@@ -34,22 +36,26 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
         debugPrint('✅ Verification code sent');
         state = state.copyWith(
           isResending: false,
-          resendCountdown: 120,
+          resendCountdown: 0,
         );
-        _startCountdown();
         return true;
-      } else {
-        state = state.copyWith(
-          isResending: false,
-          errorMessage: response.message,
-        );
-        return false;
       }
+
+      state = state.copyWith(
+        isResending: false,
+        errorMessage: response.message,
+        resendCountdown: 0,
+      );
+      return false;
     } on ApiError catch (e) {
       debugPrint('❌ Send error: ${e.message}');
+      if (_handleThrottle(e)) {
+        return false;
+      }
       state = state.copyWith(
         isResending: false,
         errorMessage: e.message,
+        resendCountdown: 0,
       );
       return false;
     } catch (e) {
@@ -57,6 +63,7 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
       state = state.copyWith(
         isResending: false,
         errorMessage: 'Failed to send code',
+        resendCountdown: 0,
       );
       return false;
     }
@@ -157,30 +164,27 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
         debugPrint('✅ Verification code resent');
         state = state.copyWith(
           isResending: false,
-          resendCountdown: 120,
+          resendCountdown: 0,
         );
-        _startCountdown();
         return true;
-      } else {
-        state = state.copyWith(
-          isResending: false,
-          errorMessage: response.message,
-        );
-        return false;
-      }
-    } on ApiError catch (e) {
-      debugPrint('❌ Resend error: ${e.message}');
-
-      String errorMessage;
-      if (e.statusCode == 429) {
-        errorMessage = 'Too many requests. Try again later';
-      } else {
-        errorMessage = e.message;
       }
 
       state = state.copyWith(
         isResending: false,
-        errorMessage: errorMessage,
+        errorMessage: response.message,
+        resendCountdown: 0,
+      );
+      return false;
+    } on ApiError catch (e) {
+      debugPrint('❌ Resend error: ${e.message}');
+      if (_handleThrottle(e)) {
+        return false;
+      }
+
+      state = state.copyWith(
+        isResending: false,
+        errorMessage: e.message,
+        resendCountdown: 0,
       );
 
       return false;
@@ -189,15 +193,24 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
       state = state.copyWith(
         isResending: false,
         errorMessage: 'Failed to resend code',
+        resendCountdown: 0,
       );
       return false;
     }
   }
 
-  void _startCountdown() {
+  void _startCountdownWithSeconds(int seconds) {
     _countdownTimer?.cancel();
-    
-    debugPrint('🔔 Starting countdown from ${state.resendCountdown} seconds');
+
+    if (seconds <= 0) {
+      state = state.copyWith(resendCountdown: 0);
+      _sharedThrottleExpiry = null;
+      return;
+    }
+
+    _sharedThrottleExpiry = DateTime.now().add(Duration(seconds: seconds));
+    debugPrint('🔔 Starting countdown from $seconds seconds');
+    state = state.copyWith(resendCountdown: seconds);
 
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.resendCountdown > 0) {
@@ -206,11 +219,46 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
         state = state.copyWith(resendCountdown: newCount);
       } else {
         debugPrint('✅ Countdown finished - resend enabled');
+        _sharedThrottleExpiry = null;
         timer.cancel();
       }
     });
   }
 
+  bool _handleThrottle(ApiError error) {
+    if (error.statusCode != 429) {
+      return false;
+    }
+
+    final retryInfo = parseRetryInfo(error.errors);
+    final countdown = deriveRetrySeconds(retryInfo, fallbackSeconds: 120);
+
+    state = state.copyWith(
+      isResending: false,
+      errorMessage: buildRetryMessage(error.message, retryInfo),
+    );
+
+    _startCountdownWithSeconds(countdown);
+
+    return true;
+  }
+
+  bool _restorePendingCooldown() {
+    final expiry = _sharedThrottleExpiry;
+    if (expiry == null) {
+      return false;
+    }
+
+    final remaining = expiry.difference(DateTime.now()).inSeconds;
+    if (remaining <= 0) {
+      _sharedThrottleExpiry = null;
+      state = state.copyWith(resendCountdown: 0);
+      return false;
+    }
+
+    _startCountdownWithSeconds(remaining);
+    return true;
+  }
 }
 
 final verifyEmailControllerProvider = NotifierProvider<VerifyEmailNotifier, VerifyEmailState>(

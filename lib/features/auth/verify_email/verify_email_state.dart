@@ -20,7 +20,7 @@ class VerifyEmailState {
         isVerifying: false,
         isResending: false,
         errorMessage: null,
-        resendCountdown: 5,
+        resendCountdown: 0,
         email: email,
       );
 

@@ -24,6 +24,43 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   String? _emailError;
   String? _phoneError;
   String? _passwordError;
+  InputDecoration _buildInputDecoration({
+    required String hint,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      isDense: true,
+      filled: true,
+      fillColor: OpeiColors.pureWhite,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      prefixIcon: Icon(icon, size: 18, color: OpeiColors.grey600),
+      prefixIconConstraints: const BoxConstraints(minWidth: 44),
+      suffixIcon: suffix,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: OpeiColors.grey200, width: 1.2),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: OpeiColors.grey200, width: 1.2),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: OpeiColors.pureBlack, width: 1.5),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: OpeiColors.errorRed, width: 1.4),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: OpeiColors.errorRed, width: 1.4),
+      ),
+    );
+  }
+
 
   @override
   void dispose() {
@@ -142,43 +179,42 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
     });
 
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: OpeiColors.pureWhite,
       body: SafeArea(
         child: Stack(
           children: [
             SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 28),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: 32,
+              ),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 36),
-                    
+                    const SizedBox(height: 24),
                     Text(
-                      'Create Account',
-                      style: Theme.of(context).textTheme.displayLarge,
-                      textAlign: TextAlign.center,
+                      'Create account',
+                      style: theme.textTheme.displayLarge,
                     ),
-                    
                     const SizedBox(height: 8),
-                    
                     Text(
-                      'Join Opei to start managing your finances',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: OpeiColors.grey600,
+                      'Create your Opei profile to unlock seamless USD tools.',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: OpeiColors.iosLabelSecondary,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                    
-                    const SizedBox(height: 32),
-                    
+                    const SizedBox(height: 28),
                     Text(
                       'Email',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: OpeiColors.grey700,
-                          ),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: OpeiColors.grey700,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
@@ -186,10 +222,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       enabled: signupState is! SignupLoading,
-                      decoration: const InputDecoration(
-                        hintText: 'name@example.com',
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: _buildInputDecoration(
+                        hint: 'name@example.com',
+                        icon: Icons.email_outlined,
                       ),
                       validator: _validateEmail,
                       onChanged: (_) {
@@ -199,15 +234,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         }
                       },
                     ),
-                    
-                    const SizedBox(height: 20),
-                    
+                    const SizedBox(height: 18),
                     Text(
-                      'Phone Number',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: OpeiColors.grey700,
-                          ),
+                      'Phone number',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: OpeiColors.grey700,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
@@ -215,10 +248,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
                       enabled: signupState is! SignupLoading,
-                      decoration: const InputDecoration(
-                        hintText: '+1 234 567 8900',
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      decoration: _buildInputDecoration(
+                        hint: '+1 234 567 8900',
+                        icon: Icons.phone_outlined,
                       ),
                       validator: _validatePhone,
                       onChanged: (_) {
@@ -228,15 +260,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         }
                       },
                     ),
-                    
-                    const SizedBox(height: 20),
-                    
+                    const SizedBox(height: 18),
                     Text(
                       'Password',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: OpeiColors.grey700,
-                          ),
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: OpeiColors.grey700,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     TextFormField(
@@ -244,11 +274,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.done,
                       enabled: signupState is! SignupLoading,
-                      decoration: InputDecoration(
-                        hintText: 'Enter your password',
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        suffixIcon: IconButton(
+                      decoration: _buildInputDecoration(
+                        hint: 'Create a password',
+                        icon: Icons.lock_outline,
+                        suffix: IconButton(
                           icon: Icon(
                             _obscurePassword
                                 ? Icons.visibility_off_outlined
@@ -256,9 +285,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             color: OpeiColors.grey600,
                           ),
                           onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
+                            setState(() => _obscurePassword = !_obscurePassword);
                           },
                         ),
                       ),
@@ -271,63 +298,64 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       },
                       onFieldSubmitted: (_) => _handleSignup(),
                     ),
-                    
                     const SizedBox(height: 10),
-                    
                     Text(
-                      'Must be at least 8 characters with uppercase, lowercase, number, and special character',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: OpeiColors.grey600,
+                      'Min. 8 characters with upper/lowercase, number and symbol.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: OpeiColors.iosLabelSecondary,
                       ),
                     ),
-                    
-                    const SizedBox(height: 32),
-                    
+                    const SizedBox(height: 28),
                     SizedBox(
-                      height: 52,
+                      width: double.infinity,
+                      height: 48,
                       child: ElevatedButton(
-                        onPressed: signupState is SignupLoading
-                            ? null
-                            : _handleSignup,
-                        child: const Text('Continue'),
+                        onPressed:
+                            signupState is SignupLoading ? null : _handleSignup,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text('Create account'),
                       ),
                     ),
-                    
-                    const SizedBox(height: 26),
-                    
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Already have an account? ',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: OpeiColors.grey600,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () => context.go('/login'),
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: const Size(0, 0),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          ),
-                          child: Text(
-                            'Login',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: OpeiColors.pureBlack,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 16),
+                    Text(
+                      'Already have an account?',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
-                    
-                    const SizedBox(height: 32),
+                    TextButton(
+                      onPressed: () => context.go('/login'),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 0),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        alignment: Alignment.centerLeft,
+                      ),
+                      child: Text(
+                        'Sign in instead',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: OpeiColors.pureBlack,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'By continuing you agree to Opei’s Terms & Privacy Policy.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
-            
             if (signupState is SignupLoading)
               Container(
                 color: OpeiColors.pureBlack.withValues(alpha: 0.3),
@@ -348,7 +376,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         const SizedBox(height: 16),
                         Text(
                           'Creating your account...',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ],
                     ),

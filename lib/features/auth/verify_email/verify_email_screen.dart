@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,10 +24,13 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   String? _email;
   bool _isInitialized = false;
+  bool _isPasting = false;
+  bool _isLoggingOut = false;
 
   @override
   void initState() {
     super.initState();
+    RawKeyboard.instance.addListener(_handleKeyEvent);
     _initializeEmail();
   }
 
@@ -63,6 +68,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
   @override
   void dispose() {
+    RawKeyboard.instance.removeListener(_handleKeyEvent);
     for (var controller in _controllers) {
       controller.dispose();
     }
@@ -74,29 +80,117 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
   void _onDigitChanged(int index, String value) {
     if (!_isInitialized || _email == null) return;
+    if (_isPasting) return;
 
     final controller = ref.read(verifyEmailControllerProvider.notifier);
+    final sanitized = value.replaceAll(RegExp(r'[^0-9]'), '');
 
-    if (value.isNotEmpty) {
-      controller.updateDigit(index, value);
-      
-      if (index < 5) {
-        _focusNodes[index + 1].requestFocus();
-      } else {
-        _focusNodes[index].unfocus();
-      }
+    if (sanitized.length > 1) {
+      _applyPastedDigits(index, sanitized);
+      return;
+    }
+
+    if (sanitized.isEmpty) {
+      controller.clearDigit(index);
+      return;
+    }
+
+    controller.updateDigit(index, sanitized);
+
+    if (index < 5) {
+      _focusNodes[index + 1].requestFocus();
+      _controllers[index + 1].selection = TextSelection.collapsed(
+        offset: _controllers[index + 1].text.length,
+      );
+    } else {
+      _focusNodes[index].unfocus();
     }
   }
 
-  void _onDigitDeleted(int index) {
-    if (!_isInitialized || _email == null) return;
+  void _applyPastedDigits(int startIndex, String digits) {
+    if (digits.isEmpty) return;
+    final cappedDigits = digits.substring(
+      0,
+      min(digits.length, 6 - startIndex),
+    );
+    final notifier = ref.read(verifyEmailControllerProvider.notifier);
+    _isPasting = true;
 
-    final controller = ref.read(verifyEmailControllerProvider.notifier);
-    controller.clearDigit(index);
-
-    if (index > 0 && _controllers[index].text.isEmpty) {
-      _focusNodes[index - 1].requestFocus();
+    for (var i = 0; i < 6; i++) {
+      final targetIndex = startIndex + i;
+      if (targetIndex >= 6) break;
+      final char = i < cappedDigits.length ? cappedDigits[i] : '';
+      _controllers[targetIndex].text = char;
+      if (char.isNotEmpty) {
+        notifier.updateDigit(targetIndex, char);
+      } else {
+        notifier.clearDigit(targetIndex);
+      }
     }
+
+    final insertionEnd = startIndex + cappedDigits.length;
+    if (insertionEnd >= 6) {
+      _focusNodes[5].unfocus();
+    } else {
+      _focusNodes[insertionEnd].requestFocus();
+      _controllers[insertionEnd].selection = TextSelection.collapsed(
+        offset: _controllers[insertionEnd].text.length,
+      );
+    }
+
+    _isPasting = false;
+  }
+
+  void _handleKeyEvent(RawKeyEvent event) {
+    if (!_isInitialized || _email == null) return;
+    if (event is! RawKeyDownEvent) return;
+    if (event.logicalKey != LogicalKeyboardKey.backspace) return;
+
+    final activeIndex = _focusNodes.indexWhere((node) => node.hasFocus);
+    if (activeIndex == -1) return;
+
+    if (_controllers[activeIndex].text.isEmpty) {
+      _handleEmptyBackspace(activeIndex);
+    }
+  }
+
+  void _handleEmptyBackspace(int index) {
+    if (index == 0) {
+      _focusNodes[0].requestFocus();
+      return;
+    }
+    final previous = index - 1;
+    final notifier = ref.read(verifyEmailControllerProvider.notifier);
+    _focusNodes[previous].requestFocus();
+    _controllers[previous].clear();
+    notifier.clearDigit(previous);
+  }
+
+  Future<void> _handleBackNavigation() async {
+    if (_isLoggingOut) return;
+    setState(() {
+      _isLoggingOut = true;
+    });
+
+    final authRepository = ref.read(authRepositoryProvider);
+    final sessionNotifier = ref.read(authSessionProvider.notifier);
+    final storage = ref.read(secureStorageServiceProvider);
+
+    try {
+      await authRepository.logout();
+    } catch (e, stackTrace) {
+      debugPrint('❌ Logout during verify-email failed: $e');
+      debugPrint('$stackTrace');
+    } finally {
+      sessionNotifier.clearSession();
+      await storage.clearEmail();
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    context.go('/login');
   }
 
   Future<void> _handleResend() async {
@@ -152,22 +246,30 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       }
     });
 
-    return Scaffold(
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: AppSpacing.horizontalLg,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+    return WillPopScope(
+      onWillPop: () async {
+        if (state.isLoading || _isLoggingOut) return false;
+        await _handleBackNavigation();
+        return false;
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: AppSpacing.horizontalLg,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                   const SizedBox(height: 24),
                   
                   Align(
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back_ios, size: 20),
-                      onPressed: state.isLoading ? null : () => context.go('/login'),
+                      onPressed: state.isLoading || _isLoggingOut ? null : () {
+                        _handleBackNavigation();
+                      },
                       padding: EdgeInsets.zero,
                     ),
                   ),
@@ -203,21 +305,20 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                   const SizedBox(height: 48),
                   
                   IgnorePointer(
-                    ignoring: state.isLoading,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(6, (index) {
-                        return CodeInputBox(
-                          controller: _controllers[index],
-                          focusNode: _focusNodes[index],
-                          onChanged: (value) => _onDigitChanged(index, value),
-                          onBackspace: () => _onDigitDeleted(index),
-                          hasError: state.errorMessage != null,
-                          isDisabled: state.isLoading,
-                        );
-                      }),
+                    ignoring: state.isLoading || _isLoggingOut,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(6, (index) {
+                          return CodeInputBox(
+                            controller: _controllers[index],
+                            focusNode: _focusNodes[index],
+                            onChanged: (value) => _onDigitChanged(index, value),
+                            hasError: state.errorMessage != null,
+                            isDisabled: state.isLoading,
+                          );
+                        }),
+                      ),
                     ),
-                  ),
                   
                   const SizedBox(height: 16),
                   
@@ -272,34 +373,39 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
               ),
             ),
             
-            if (state.isLoading)
-              Container(
-                color: OpeiColors.pureBlack.withValues(alpha: 0.3),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
+            if (state.isLoading || _isLoggingOut)
+                Container(
+                  color: OpeiColors.pureBlack.withValues(alpha: 0.3),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
                         const CircularProgressIndicator(
-                          strokeWidth: 3,
-                          color: OpeiColors.pureBlack,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          state.isVerifying ? 'Verifying...' : 'Sending code...',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                      ],
+                            strokeWidth: 3,
+                            color: OpeiColors.pureBlack,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                          _isLoggingOut
+                              ? 'Signing out...'
+                              : state.isVerifying
+                                  ? 'Verifying...'
+                                  : 'Sending code...',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -310,7 +416,6 @@ class CodeInputBox extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final ValueChanged<String> onChanged;
-  final VoidCallback onBackspace;
   final bool hasError;
   final bool isDisabled;
 
@@ -318,7 +423,6 @@ class CodeInputBox extends StatelessWidget {
     required this.controller,
     required this.focusNode,
     required this.onChanged,
-    required this.onBackspace,
     this.hasError = false,
     this.isDisabled = false,
     super.key,
@@ -371,16 +475,7 @@ class CodeInputBox extends StatelessWidget {
               ? OpeiColors.grey100 
               : OpeiColors.pureWhite,
         ),
-        onChanged: (value) {
-          if (value.isNotEmpty) {
-            onChanged(value);
-          }
-        },
-        onFieldSubmitted: (_) {
-          if (controller.text.isEmpty) {
-            onBackspace();
-          }
-        },
+        onChanged: (value) => onChanged(value),
         onTap: () {
           controller.selection = TextSelection.fromPosition(
             TextPosition(offset: controller.text.length),
