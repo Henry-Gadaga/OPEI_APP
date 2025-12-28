@@ -407,12 +407,25 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       name: 'deposit-crypto-address',
       pageBuilder: (context, state) {
         final params = state.extra as Map<String, String>;
-        return buildOpeiTransitionPage(
-          state: state,
+        return CustomTransitionPage(
+          key: state.pageKey,
           child: CryptoAddressDisplayScreen(
             currency: params['currency']!,
             network: params['network']!,
           ),
+          transitionDuration: kOpeiForwardTransitionDuration,
+          reverseTransitionDuration: kOpeiReverseTransitionDuration,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            final fadeCurve = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeInCubic,
+            );
+            return FadeTransition(
+              opacity: fadeCurve,
+              child: child,
+            );
+          },
         );
       },
     ),

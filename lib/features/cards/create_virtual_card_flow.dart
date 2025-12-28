@@ -150,62 +150,66 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
         ? 'Check the message below and try again.'
         : "We're preparing your card details. This usually takes a few seconds.";
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const SizedBox(height: 20),
-        Container(
-          width: 84,
-          height: 84,
-          decoration: BoxDecoration(
-            color: OpeiColors.grey100,
-            shape: BoxShape.circle,
-          ),
-          child: Center(
-            child: isLoading
-                ? const CupertinoActivityIndicator(radius: 14)
-                : Icon(
-                    hasError ? Icons.error_outline_rounded : Icons.hourglass_empty_rounded,
-                    color: OpeiColors.pureBlack,
-                    size: 34,
-                  ),
-          ),
-        ),
-        const SizedBox(height: 24),
-        Text(
-          titleText,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            fontSize: 19,
-            letterSpacing: -0.2,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          subtitleText,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: OpeiColors.iosLabelSecondary,
-            height: 1.38,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        if (state.errorMessage?.isNotEmpty == true) ...[
-          const SizedBox(height: 24),
-          _MessageBanner(message: state.errorMessage!, isError: true),
-          const SizedBox(height: 20),
-          FilledButton(
-            onPressed: () => controller.startRegistration(),
-            style: FilledButton.styleFrom(
-              backgroundColor: OpeiColors.pureBlack,
-              foregroundColor: OpeiColors.pureWhite,
-              minimumSize: const Size(0, 50),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 360),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: OpeiColors.grey100,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: isLoading
+                    ? const CupertinoActivityIndicator(radius: 14)
+                    : Icon(
+                        hasError ? Icons.error_outline_rounded : Icons.hourglass_empty_rounded,
+                        color: OpeiColors.pureBlack,
+                        size: 34,
+                      ),
+              ),
             ),
-            child: const Text('Try again'),
-          ),
-        ],
-      ],
+            const SizedBox(height: 24),
+            Text(
+              titleText,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 19,
+                letterSpacing: -0.2,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              subtitleText,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: OpeiColors.iosLabelSecondary,
+                height: 1.38,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            if (state.errorMessage?.isNotEmpty == true) ...[
+              const SizedBox(height: 24),
+              _MessageBanner(message: state.errorMessage!, isError: true),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: () => controller.startRegistration(),
+                style: FilledButton.styleFrom(
+                  backgroundColor: OpeiColors.pureBlack,
+                  foregroundColor: OpeiColors.pureWhite,
+                  minimumSize: const Size(0, 50),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: const Text('Try again'),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
