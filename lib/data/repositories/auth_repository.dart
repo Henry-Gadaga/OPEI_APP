@@ -31,7 +31,7 @@ class AuthRepository {
     }
 
     final authResponse = apiResponse.data!;
-
+    
     await _storage.saveToken(authResponse.accessToken);
     await _storage.saveRefreshToken(authResponse.refreshToken);
     await _storage.saveUser(authResponse.user);
@@ -61,7 +61,7 @@ class AuthRepository {
     }
 
     final authResponse = apiResponse.data!;
-
+    
     await _storage.saveToken(authResponse.accessToken);
     await _storage.saveRefreshToken(authResponse.refreshToken);
     await _storage.saveUser(authResponse.user);
@@ -127,7 +127,7 @@ class AuthRepository {
     }
 
     final authResponse = apiResponse.data!;
-
+    
     await _storage.saveToken(authResponse.accessToken);
     await _storage.saveRefreshToken(authResponse.refreshToken);
 

@@ -874,21 +874,21 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 340),
                   child: SizedBox(
-                    width: double.infinity,
-                    child: CupertinoButton.filled(
+              width: double.infinity,
+              child: CupertinoButton.filled(
                       borderRadius: BorderRadius.circular(12),
                       padding: const EdgeInsets.symmetric(vertical: 13),
-                      onPressed: () => context.go('/dashboard'),
-                      child: Text(
-                        'Done',
+                onPressed: () => context.go('/dashboard'),
+                child: Text(
+                  'Done',
                         style: textTheme.bodyMedium?.copyWith(
                           fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: OpeiColors.pureWhite,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiColors.pureWhite,
                         ),
                       ),
                     ),
-                  ),
+                      ),
                 ),
               ),
             ),

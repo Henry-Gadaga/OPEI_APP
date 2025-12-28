@@ -423,7 +423,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
 
     if (success == true && mounted) {
-      context.go('/login');
+                  context.go('/login');
     }
   }
 }
@@ -568,8 +568,8 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
             ],
           ),
         ),
-      ),
-    );
+          ),
+        );
   }
 
   Future<void> _confirmLogout() async {

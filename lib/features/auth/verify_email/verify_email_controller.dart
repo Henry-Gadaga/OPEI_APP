@@ -16,7 +16,7 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
   Future<void> initialize(String email, {bool autoSendCode = false}) async {
     debugPrint('🚀 Initializing verify email with: $email (autoSendCode: $autoSendCode)');
     state = VerifyEmailState.initial(email);
-
+    
     final restored = await _restorePendingCountdown();
 
     if (autoSendCode && !restored) {
@@ -42,12 +42,12 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
         return true;
       }
 
-      state = state.copyWith(
-        isResending: false,
-        errorMessage: response.message,
+        state = state.copyWith(
+          isResending: false,
+          errorMessage: response.message,
         resendCountdown: 0,
-      );
-      return false;
+        );
+        return false;
     } on ApiError catch (e) {
       debugPrint('❌ Send error: ${e.message}');
       if (_handleThrottle(e)) {
@@ -170,12 +170,12 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
         return true;
       }
 
-      state = state.copyWith(
-        isResending: false,
-        errorMessage: response.message,
+        state = state.copyWith(
+          isResending: false,
+          errorMessage: response.message,
         resendCountdown: 0,
-      );
-      return false;
+        );
+        return false;
     } on ApiError catch (e) {
       debugPrint('❌ Resend error: ${e.message}');
       if (_handleThrottle(e)) {
@@ -290,7 +290,7 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
     final secureStorage = ref.read(secureStorageServiceProvider).storage;
     if (expiry == null) {
       await secureStorage.delete(key: _throttleStorageKey);
-    } else {
+      } else {
       await secureStorage.write(
         key: _throttleStorageKey,
         value: expiry.toUtc().toIso8601String(),
@@ -305,7 +305,7 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
       return null;
     }
     return DateTime.tryParse(value)?.toLocal();
-  }
+      }
 }
 
 final verifyEmailControllerProvider = NotifierProvider<VerifyEmailNotifier, VerifyEmailState>(

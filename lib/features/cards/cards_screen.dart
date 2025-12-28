@@ -188,8 +188,11 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                      const _CardsLoadingPlaceholder(),
                      const SizedBox(height: 24),
                   ] else if (showEmptyState) ...[
-                    const VirtualCardHero(),
-                    const SizedBox(height: 28),
+                    SizedBox(
+                      height: 220,
+                      child: const VirtualCardHero(),
+                    ),
+                    const SizedBox(height: 18),
                     Center(
                       child: Container(
                         width: double.infinity,
@@ -204,20 +207,11 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'A simple way to spend online.',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontSize: 13,
-                                    color: OpeiColors.iosLabelSecondary,
-                                    height: 1.35,
-                                  ),
-                            ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 10),
                     Center(
                       child: Container(
                         width: double.infinity,
@@ -225,32 +219,35 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                         child: const CardUseCasesList(),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     Center(
-                      child: CupertinoButton(
-                        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 10),
-                        color: OpeiColors.pureBlack,
-                        borderRadius: BorderRadius.circular(12),
-                        onPressed: _startCardCreationFlow,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.add, color: OpeiColors.pureWhite, size: 16),
-                            SizedBox(width: 6),
-                            Text(
-                              'Create Card',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: OpeiColors.pureWhite,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: CupertinoButton(
+                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
+                          color: OpeiColors.pureBlack,
+                          borderRadius: BorderRadius.circular(14),
+                          onPressed: _startCardCreationFlow,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.add, color: OpeiColors.pureWhite, size: 16),
+                              SizedBox(width: 8),
+                              Text(
+                                'Create Card',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: OpeiColors.pureWhite,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 20),
                   ] else ...[
                     const SizedBox(height: 12),
                   ],
@@ -1821,7 +1818,7 @@ class VirtualCardHero extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Opei Wallet',
+                            'Opei',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -1907,7 +1904,7 @@ class CardUseCasesList extends StatelessWidget {
         final useCase = entry.value;
         final isLast = index == useCases.length - 1;
         return Padding(
-          padding: EdgeInsets.only(bottom: isLast ? 0 : 10),
+          padding: EdgeInsets.only(bottom: isLast ? 0 : 6),
           child: UseCaseTile(useCase: useCase),
         );
       }).toList(),
@@ -1943,7 +1940,7 @@ class UseCaseTile extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
           children: [
             Container(
