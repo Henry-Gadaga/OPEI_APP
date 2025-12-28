@@ -54,6 +54,9 @@ class WalletTransaction {
     if (isCryptoTransfer) {
       return isIncoming ? 'USD Deposit' : 'USD Withdrawal';
     }
+    if (_hasTrdReferencePrefix) {
+      return isIncoming ? 'Buy USD' : 'Sell USD';
+    }
 
     final type = rawType?.trim();
     if (type == null || type.isEmpty) {
@@ -78,7 +81,7 @@ class WalletTransaction {
       return isIncoming ? 'USD Deposit' : 'USD Withdrawal';
     }
     if (_hasTrdReferencePrefix) {
-      return isIncoming ? 'Deposit' : 'Withdrawal';
+      return isIncoming ? 'Buy USD' : 'Sell USD';
     }
     if (isPeerToPeer) {
       final derived = _derivePeerToPeerName(description ?? title);
