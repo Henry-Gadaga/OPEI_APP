@@ -9,6 +9,7 @@ import 'package:tt1/features/auth/verify_email/verify_email_state.dart';
 class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
   Timer? _countdownTimer;
   static DateTime? _sharedThrottleExpiry;
+  static const String _throttleStorageKey = 'verify_email_throttle_expiry';
 
   /// Initializes the verify email screen with the provided email.
   /// If [autoSendCode] is true, automatically sends a verification code (useful for login flow).
@@ -16,7 +17,7 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
     debugPrint('🚀 Initializing verify email with: $email (autoSendCode: $autoSendCode)');
     state = VerifyEmailState.initial(email);
 
-    final restored = _restorePendingCooldown();
+    final restored = await _restorePendingCountdown();
 
     if (autoSendCode && !restored) {
       debugPrint('📤 Auto-sending verification code...');
@@ -200,29 +201,44 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
   }
 
   void _startCountdownWithSeconds(int seconds) {
-    _countdownTimer?.cancel();
-
     if (seconds <= 0) {
+      _clearThrottleState();
+      return;
+    }
+    final expiry = DateTime.now().add(Duration(seconds: seconds));
+    _applyThrottleExpiry(expiry);
+  }
+
+  void _applyThrottleExpiry(DateTime? expiry) {
+    _countdownTimer?.cancel();
+    _sharedThrottleExpiry = expiry;
+    unawaited(_persistThrottleExpiry(expiry));
+
+    if (expiry == null) {
       state = state.copyWith(resendCountdown: 0);
-      _sharedThrottleExpiry = null;
       return;
     }
 
-    _sharedThrottleExpiry = DateTime.now().add(Duration(seconds: seconds));
-    debugPrint('🔔 Starting countdown from $seconds seconds');
-    state = state.copyWith(resendCountdown: seconds);
-
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.resendCountdown > 0) {
-        final newCount = state.resendCountdown - 1;
-        debugPrint('⏱️ Countdown: $newCount seconds remaining');
-        state = state.copyWith(resendCountdown: newCount);
-      } else {
-        debugPrint('✅ Countdown finished - resend enabled');
-        _sharedThrottleExpiry = null;
-        timer.cancel();
-      }
+    _tickRemainingTime();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _tickRemainingTime();
     });
+  }
+
+  void _tickRemainingTime() {
+    final expiry = _sharedThrottleExpiry;
+    if (expiry == null) {
+      _countdownTimer?.cancel();
+      state = state.copyWith(resendCountdown: 0);
+      return;
+    }
+
+    final remaining = expiry.difference(DateTime.now()).inSeconds;
+    if (remaining <= 0) {
+      _clearThrottleState();
+    } else {
+      state = state.copyWith(resendCountdown: remaining);
+    }
   }
 
   bool _handleThrottle(ApiError error) {
@@ -238,26 +254,57 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
       errorMessage: buildRetryMessage(error.message, retryInfo),
     );
 
-    _startCountdownWithSeconds(countdown);
+    final expiry = retryInfo.retryAt?.toLocal() ??
+        DateTime.now().add(Duration(seconds: countdown));
+    _applyThrottleExpiry(expiry);
 
     return true;
   }
 
-  bool _restorePendingCooldown() {
-    final expiry = _sharedThrottleExpiry;
-    if (expiry == null) {
+  Future<bool> _restorePendingCountdown() async {
+    final inMemory = _sharedThrottleExpiry;
+    final stored = inMemory ?? await _loadThrottleExpiryFromStorage();
+    if (stored == null) {
+      _clearThrottleState();
       return false;
     }
 
-    final remaining = expiry.difference(DateTime.now()).inSeconds;
+    final remaining = stored.difference(DateTime.now()).inSeconds;
     if (remaining <= 0) {
-      _sharedThrottleExpiry = null;
-      state = state.copyWith(resendCountdown: 0);
+      _clearThrottleState();
       return false;
     }
 
-    _startCountdownWithSeconds(remaining);
+    _applyThrottleExpiry(stored);
     return true;
+  }
+
+  void _clearThrottleState() {
+    _countdownTimer?.cancel();
+    _sharedThrottleExpiry = null;
+    unawaited(_persistThrottleExpiry(null));
+    state = state.copyWith(resendCountdown: 0);
+  }
+
+  Future<void> _persistThrottleExpiry(DateTime? expiry) async {
+    final secureStorage = ref.read(secureStorageServiceProvider).storage;
+    if (expiry == null) {
+      await secureStorage.delete(key: _throttleStorageKey);
+    } else {
+      await secureStorage.write(
+        key: _throttleStorageKey,
+        value: expiry.toUtc().toIso8601String(),
+      );
+    }
+  }
+
+  Future<DateTime?> _loadThrottleExpiryFromStorage() async {
+    final secureStorage = ref.read(secureStorageServiceProvider).storage;
+    final value = await secureStorage.read(key: _throttleStorageKey);
+    if (value == null || value.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(value)?.toLocal();
   }
 }
 
