@@ -27,7 +27,7 @@ class TransactionGroupsView extends StatelessWidget {
         for (var gIndex = 0; gIndex < groups.length; gIndex++) ...[
           if (!_shouldSuppressLabel(groups[gIndex].label))
             Padding(
-              padding: const EdgeInsets.only(left: 12, bottom: 4),
+              padding: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
               child: Text(
                 groups[gIndex].label.toUpperCase(),
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
