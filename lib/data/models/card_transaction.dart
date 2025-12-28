@@ -569,9 +569,14 @@ class CardTransaction {
   }) {
     final trimmedDirection = directionLabel.trim();
     final normalizedTransactionType = transactionType.trim().toLowerCase();
+    final hasExplicitDirection = _hasExplicitDirection(trimmedDirection);
 
     if (normalizedTransactionType.isEmpty) {
       return trimmedDirection;
+    }
+
+    if (_looksLikeSettlement(normalizedTransactionType) && !hasExplicitDirection) {
+      return 'debit';
     }
 
     if (_looksLikeAuthorizationHold(normalizedTransactionType)) {
@@ -609,5 +614,23 @@ class CardTransaction {
     return transactionType.contains('reversal') ||
         transactionType.contains('reverse') ||
         transactionType.contains('release');
+  }
+
+  static bool _looksLikeSettlement(String transactionType) {
+    if (transactionType.isEmpty) {
+      return false;
+    }
+    return transactionType.contains('settlement');
+  }
+
+  static bool _hasExplicitDirection(String label) {
+    if (label.isEmpty) {
+      return false;
+    }
+    final lower = label.toLowerCase();
+    if (lower == 'dr' || lower == 'cr') {
+      return true;
+    }
+    return lower.contains('debit') || lower.contains('credit');
   }
 }
