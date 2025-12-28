@@ -65,7 +65,6 @@ const Set<String> _publicPaths = {
 
 const Set<String> _onboardingPaths = {
   '/verify-email',
-  '/address',
   '/kyc',
 };
 

@@ -789,9 +789,14 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     final theme = Theme.of(context);
     final isLoading = state.isLoading;
     final scrollPhysics = _defaultScrollPhysics();
+    final bool isInitialState = !state.hasLoaded &&
+        !state.isLoading &&
+        state.trades.isEmpty &&
+        state.errorMessage == null &&
+        state.infoMessage == null;
 
     Widget buildContent() {
-      if (isLoading && !state.hasLoaded) {
+      if ((isLoading && !state.hasLoaded) || isInitialState) {
         return ListView(
           key: ValueKey('orders-loading-${state.selectedFilter.name}'),
           physics: scrollPhysics,
@@ -922,9 +927,14 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     final isLoading = state.isLoading;
     final isCreateAdButtonLoading = _isOpeningCreateAd && !_isCreateAdOverlayVisible;
     final scrollPhysics = _defaultScrollPhysics();
+    final bool isInitialState = !state.hasLoaded &&
+        !state.isLoading &&
+        state.ads.isEmpty &&
+        state.errorMessage == null &&
+        state.infoMessage == null;
 
     Widget buildContent() {
-      if (isLoading && !state.hasLoaded) {
+      if ((isLoading && !state.hasLoaded) || isInitialState) {
         return ListView(
           key: ValueKey('my-ads-loading-${state.selectedFilter.name}'),
           physics: scrollPhysics,
@@ -1059,8 +1069,14 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   Widget _buildProfileTab(P2PProfileState state) {
     final theme = Theme.of(context);
     
+    final bool isInitialState = !state.hasLoaded &&
+        !state.isLoading &&
+        state.profile == null &&
+        !state.isMissingProfile &&
+        state.errorMessage == null;
+
     Widget content;
-    if (state.isLoading && !state.hasLoaded) {
+    if ((state.isLoading && !state.hasLoaded) || isInitialState) {
       content = const Center(child: _ProfileLoadingCard());
     } else if (state.profile != null) {
       content = _ProfileContentView(
@@ -2094,70 +2110,129 @@ class _ProfileEmptyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 26, 24, 26),
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
       decoration: BoxDecoration(
-        color: OpeiColors.iosSurfaceMuted,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.8),
+        color: OpeiColors.pureWhite,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.6),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 30,
+            offset: const Offset(0, 18),
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 70,
-            height: 70,
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: OpeiColors.pureWhite,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 18,
-                  offset: const Offset(0, 10),
-                ),
-              ],
+              gradient: const LinearGradient(
+                colors: [Color(0xFF111111), Color(0xFF303030)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(Icons.person_add_alt_1_rounded, size: 34, color: OpeiColors.pureBlack),
+            child: const Icon(
+              Icons.person_add_alt_1_rounded,
+              size: 32,
+              color: OpeiColors.pureWhite,
+            ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           Text(
-            'Introduce yourself to other traders',
+            'Set up your P2P profile',
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: 17,
+                  fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
+                  letterSpacing: -0.4,
                 ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Text(
-            'Set up your P2P profile so buyers and sellers know who they’re dealing with.',
+            'Let buyers and sellers know who they’re dealing with. A verified profile speeds up trust checks and trade approvals.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 13,
-                  color: OpeiColors.iosLabelSecondary,
                   height: 1.5,
+                  color: OpeiColors.iosLabelSecondary,
                 ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 18),
+          Column(
+            children: const [
+              _ProfileHighlightRow(
+                icon: Icons.check_circle_outline,
+                text: 'Share a friendly name and short bio',
+              ),
+              SizedBox(height: 6),
+              _ProfileHighlightRow(
+                icon: Icons.lock_open_rounded,
+                text: 'Unlock higher limits with verified details',
+              ),
+            ],
+          ),
+          const SizedBox(height: 22),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: onCreate,
               style: ElevatedButton.styleFrom(
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 14),
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
-                padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text(
-                'Create profile',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Text(
+                    'Create profile',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(width: 8),
+                  Icon(Icons.arrow_forward_rounded, size: 18),
+                ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ProfileHighlightRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _ProfileHighlightRow({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 18, color: OpeiColors.pureBlack),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 13,
+                  color: OpeiColors.iosLabelSecondary,
+                ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -6150,7 +6225,7 @@ class _MyAdCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final typeLabel = ad.type.displayLabel;
-    final actionLabel = ad.type == P2PAdType.buy ? 'Buying USD' : 'Selling USD';
+    final actionLabel = ad.type == P2PAdType.sell ? 'Selling USD' : 'Buying USD';
     final remaining = _formatUsdAmount(ad.remainingAmount);
     final rateLabel = '1 USD = ${_formatMoneyWithCode(ad.rate)}';
     final createdAt = ad.updatedAt ?? ad.createdAt;
@@ -6206,7 +6281,7 @@ class _MyAdCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _MyAdMetricCompact(
-                    label: 'Amount',
+                    label: 'Remaining',
                     value: remaining,
                   ),
                 ),
@@ -6463,7 +6538,8 @@ class _MyAdDetailSheet extends ConsumerWidget {
       orElse: () => ad,
     );
 
-    final actionLabel = latest.type == P2PAdType.buy ? 'Buying USD' : 'Selling USD';
+    final isSelling = latest.type == P2PAdType.sell;
+    final actionLabel = isSelling ? 'Selling USD' : 'Buying USD';
     final remaining = _formatUsdAmount(latest.remainingAmount);
     final total = _formatUsdAmount(latest.totalAmount);
     final rate = '1 USD = ${_formatMoneyWithCode(latest.rate)}';
@@ -6588,7 +6664,7 @@ class _MyAdDetailSheet extends ConsumerWidget {
                   ),
             ),
             const SizedBox(height: 20),
-            _MyAdDetailRow(label: 'Amount', value: remaining),
+            _MyAdDetailRow(label: 'Remaining', value: remaining),
             const SizedBox(height: 12),
             _MyAdDetailRow(label: 'Total amount', value: total),
             const SizedBox(height: 12),

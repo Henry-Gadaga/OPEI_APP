@@ -43,9 +43,9 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
       });
       return;
     }
-
+    
     final hasPin = await quickAuthService.hasPinSetup(userIdentifier);
-
+    
     if (!mounted) return;
     setState(() {
       _hasPinSetup = hasPin;
@@ -57,7 +57,7 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(quickAuthControllerProvider);
-
+    
     ref.listen(quickAuthControllerProvider, (previous, next) async {
       if (next is QuickAuthSuccess) {
         final dashboardController =
@@ -78,7 +78,7 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
             backgroundColor: OpeiColors.errorRed,
           ),
         );
-        context.go('/login');
+          context.go('/login');
       }
     });
 
@@ -125,65 +125,65 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
             offset: _isReady ? Offset.zero : const Offset(0, 0.04),
             duration: const Duration(milliseconds: 350),
             curve: Curves.easeOutCubic,
-            child: Column(
-              children: [
-                const SizedBox(height: 48),
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: const Color(0xFFF5F5F7),
-                  child: Text(
-                    _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: OpeiColors.pureBlack,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
+        child: Column(
+          children: [
+            const SizedBox(height: 48),
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: const Color(0xFFF5F5F7),
+              child: Text(
+                _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: OpeiColors.pureBlack,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Welcome back',
-                  style: Theme.of(context).textTheme.headlineMedium,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Welcome back',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              _userName,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: OpeiColors.grey600,
+              ),
+            ),
+            if (pinState.errorMessage != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                pinState.errorMessage!,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: OpeiColors.errorRed,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _userName,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: OpeiColors.grey600,
-                      ),
+              ),
+            ],
+            const SizedBox(height: 48),
+            if (_hasPinSetup) ...[
+              _buildPinDots(pinState.pin),
+              const Spacer(),
+              _buildNumericKeypad(context),
+            ] else ...[
+              const Spacer(),
+              Text(
+                'No quick PIN set up for quick login',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: OpeiColors.grey600,
                 ),
-                if (pinState.errorMessage != null) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    pinState.errorMessage!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: OpeiColors.errorRed,
-                        ),
-                  ),
-                ],
-                const SizedBox(height: 48),
-                if (_hasPinSetup) ...[
-                  _buildPinDots(pinState.pin),
-                  const Spacer(),
-                  _buildNumericKeypad(context),
-                ] else ...[
-                  const Spacer(),
-                  Text(
-                    'No quick PIN set up for quick login',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.grey600,
-                        ),
-                  ),
-                  const Spacer(),
-                ],
-                TextButton(
-                  onPressed: () => context.go('/login'),
-                  child: Text(
-                    'Use Password Instead',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.grey600,
-                        ),
-                  ),
+              ),
+              const Spacer(),
+            ],
+            TextButton(
+              onPressed: () => context.go('/login'),
+              child: Text(
+                'Use Password Instead',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: OpeiColors.grey600,
                 ),
+              ),
+            ),
                 TextButton(
                   onPressed: () => ref
                       .read(quickAuthControllerProvider.notifier)
@@ -196,8 +196,8 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                         ),
                   ),
                 ),
-                const SizedBox(height: 32),
-              ],
+            const SizedBox(height: 32),
+          ],
             ),
           ),
         ),
@@ -240,50 +240,50 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     return Column(
       children: buttons
           .map((row) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: row.map((button) {
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: row.map((button) {
                   if (button.isEmpty)
                     return const SizedBox(width: 80, height: 80);
-
-                  return GestureDetector(
-                    onTap: () {
-                      if (button == 'del') {
+              
+              return GestureDetector(
+                onTap: () {
+                  if (button == 'del') {
                         ref
                             .read(quickAuthControllerProvider.notifier)
                             .removeDigit();
-                      } else {
+                  } else {
                         ref
                             .read(quickAuthControllerProvider.notifier)
                             .addDigit(button);
-                      }
-                    },
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      margin: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
+                  }
+                },
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
                         color: button == 'del'
                             ? Colors.transparent
                             : const Color(0xFFF5F5F7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: button == 'del'
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: button == 'del'
                             ? const Icon(Icons.backspace_outlined,
                                 size: 24, color: OpeiColors.pureBlack)
-                            : Text(
-                                button,
+                        : Text(
+                            button,
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineMedium
                                     ?.copyWith(
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                              ),
-                      ),
-                    ),
-                  );
-                }).toList(),
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                  ),
+                ),
+              );
+            }).toList(),
               ))
           .toList(),
     );
