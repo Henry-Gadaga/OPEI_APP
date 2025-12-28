@@ -27,7 +27,7 @@ class TransactionGroupsView extends StatelessWidget {
         for (var gIndex = 0; gIndex < groups.length; gIndex++) ...[
           if (!_shouldSuppressLabel(groups[gIndex].label))
             Padding(
-              padding: const EdgeInsets.only(bottom: 6),
+              padding: const EdgeInsets.only(left: 12, bottom: 4),
               child: Text(
                 groups[gIndex].label.toUpperCase(),
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -60,8 +60,7 @@ class TransactionGroupsView extends StatelessWidget {
 const _transactionIconDark = Color(0xFF111111);
 const _transactionIconStroke = Color(0xFF1F1F1F);
 
-bool _shouldSuppressLabel(String label) =>
-    label.trim().toLowerCase() == 'today';
+bool _shouldSuppressLabel(String label) => false;
 
 class _TransactionGroup {
   final String label;
@@ -366,12 +365,11 @@ class _TransactionTileViewModel {
     final rawType = transaction.rawType?.toUpperCase() ?? '';
     final typeVisual = _transactionTypeVisuals[rawType];
     final isIncoming = transaction.isIncoming;
-    final icon = typeVisual?.icon ??
-        (isIncoming ? Icons.call_received : Icons.call_made);
-    final resolvedTitle =
-        transaction.isPeerToPeer && transaction.listTitle.isNotEmpty
-            ? transaction.listTitle
-            : (typeVisual?.label ?? transaction.listTitle);
+    final isCrypto = transaction.isCryptoTransfer;
+    final icon = isCrypto
+        ? Icons.attach_money
+        : (typeVisual?.icon ?? (isIncoming ? Icons.call_received : Icons.call_made));
+    final resolvedTitle = transaction.listTitle;
     final amount = Money.fromCents(transaction.amountCents.abs(),
         currency: transaction.currency);
     final amountLabel =

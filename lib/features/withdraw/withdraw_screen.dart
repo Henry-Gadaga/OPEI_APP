@@ -45,6 +45,7 @@ class WithdrawOptionsSheet extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Withdraw',
@@ -53,16 +54,15 @@ class WithdrawOptionsSheet extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(
                     'Choose how you want to move funds out of your wallet',
-                    textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontSize: 15,
                           color: OpeiColors.iosLabelSecondary,
                         ),
                   ),
-                    const SizedBox(height: 24),
+                  const SizedBox(height: 28),
                   WithdrawOptionCard(
                     iconAsset: 'assets/images/exchange.svg',
                     title: 'P2P Exchange',
@@ -142,9 +142,10 @@ class _WithdrawOptionCardState extends State<WithdrawOptionCard> with SingleTick
       child: ScaleTransition(
         scale: _scaleAnimation,
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: 18),
           decoration: const BoxDecoration(
             border: Border(
+              top: BorderSide(color: OpeiColors.iosSeparator, width: 0.6),
               bottom: BorderSide(color: OpeiColors.iosSeparator, width: 0.6),
             ),
           ),

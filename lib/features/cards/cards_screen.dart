@@ -333,11 +333,21 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
 
   void _openTransactions(List<VirtualCard> cards, int initialIndex) {
     Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (_) => CardTransactionsScreen(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 320),
+        reverseTransitionDuration: const Duration(milliseconds: 220),
+        pageBuilder: (context, animation, secondaryAnimation) => CardTransactionsScreen(
           cards: cards,
           initialIndex: initialIndex,
         ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return FadeTransition(opacity: curved, child: child);
+        },
       ),
     );
   }

@@ -47,7 +47,14 @@ class WalletTransaction {
 
   bool get isPeerToPeer => rawType?.toUpperCase().startsWith('P2P') == true;
 
+  bool get isCryptoTransfer =>
+      (rawType?.trim().toUpperCase() ?? '').startsWith('CRYPTO');
+
   String get humanizedTransactionType {
+    if (isCryptoTransfer) {
+      return isIncoming ? 'USD Deposit' : 'USD Withdrawal';
+    }
+
     final type = rawType?.trim();
     if (type == null || type.isEmpty) {
       return 'Deposit / Withdraw';
@@ -67,6 +74,9 @@ class WalletTransaction {
   }
 
   String get listTitle {
+    if (isCryptoTransfer) {
+      return isIncoming ? 'USD Deposit' : 'USD Withdrawal';
+    }
     if (_hasTrdReferencePrefix) {
       return isIncoming ? 'Deposit' : 'Withdrawal';
     }

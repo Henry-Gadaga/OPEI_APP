@@ -318,9 +318,23 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     GoRoute(
       path: '/transactions',
       name: 'transactions',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        key: state.pageKey,
         child: const TransactionsScreen(),
+        transitionDuration: kOpeiForwardTransitionDuration,
+        reverseTransitionDuration: kOpeiReverseTransitionDuration,
+        transitionsBuilder:
+            (context, animation, secondaryAnimation, child) {
+          final fadeCurve = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return FadeTransition(
+            opacity: fadeCurve,
+            child: child,
+          );
+        },
       ),
     ),
     GoRoute(

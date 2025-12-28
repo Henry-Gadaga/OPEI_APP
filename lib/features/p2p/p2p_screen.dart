@@ -1074,7 +1074,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         state.profile == null &&
         !state.isMissingProfile &&
         state.errorMessage == null;
-
+    
     Widget content;
     if ((state.isLoading && !state.hasLoaded) || isInitialState) {
       content = const Center(child: _ProfileLoadingCard());
@@ -2194,8 +2194,8 @@ class _ProfileEmptyCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: const [
                   Text(
-                    'Create profile',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                'Create profile',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   SizedBox(width: 8),
                   Icon(Icons.arrow_forward_rounded, size: 18),
@@ -3407,7 +3407,7 @@ class _PaymentMethodTile extends StatelessWidget {
                 label: const Text('Edit'),
                 style: TextButton.styleFrom(
                   foregroundColor: OpeiColors.pureBlack,
-                ),
+              ),
             ),
           ],
           ),
