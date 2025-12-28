@@ -4983,7 +4983,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Upload clear payment proof so the seller can release escrow.',
+            'Upload clear payment proof so the seller can release the funds.',
             style: textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: OpeiColors.iosLabelSecondary,
@@ -5046,7 +5046,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Confirm the funds have arrived in your account, then release escrow to complete the trade.',
+            'Confirm the funds have arrived in your account, then release the funds to complete the trade.',
             style: textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: OpeiColors.iosLabelSecondary,
@@ -5537,7 +5537,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         return 'We couldn’t verify your session. Please sign in again.';
       }
       if (status == 403) {
-        return 'Only the seller assigned to this trade can release escrow.';
+        return 'Only the seller assigned to this trade can release the funds.';
       }
       if (status == 404) {
         return 'We couldn’t find this trade. It may have been closed already.';
@@ -5871,53 +5871,81 @@ class _ProofNetworkThumb extends StatelessWidget {
               child: SizedBox(
                 width: size.width * 0.92,
                 height: size.height * 0.92,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 4,
-                      right: 4,
-                      child: IconButton(
-                        icon: const Icon(Icons.close_rounded, color: Colors.white),
-                        onPressed: () => Navigator.of(ctx).pop(),
-                      ),
-                    ),
-                    Center(
-                      child: InteractiveViewer(
-                        minScale: 0.8,
-                        maxScale: 4,
-                        child: Image.network(
-                          url,
-                          fit: BoxFit.contain,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            final expected = loadingProgress.expectedTotalBytes;
-                            final loaded = loadingProgress.cumulativeBytesLoaded;
-                            final value = expected != null && expected > 0 ? loaded / expected : null;
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const CircularProgressIndicator(color: Colors.white),
-                                const SizedBox(height: 12),
-                                if (value != null)
-                                  Text('${(value * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white)),
-                              ],
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            debugPrint('🖼️ Error loading proof image: $error');
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.broken_image_outlined, color: Colors.white70, size: 40),
-                                SizedBox(height: 8),
-                                Text('Image unavailable', style: TextStyle(color: Colors.white70)),
-                              ],
-                            );
-                          },
+                child: SafeArea(
+                  child: Stack(
+                    children: [
+                      Center(
+                        child: InteractiveViewer(
+                          minScale: 0.8,
+                          maxScale: 4,
+                          child: Image.network(
+                            url,
+                            fit: BoxFit.contain,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              final expected = loadingProgress.expectedTotalBytes;
+                              final loaded = loadingProgress.cumulativeBytesLoaded;
+                              final value = expected != null && expected > 0 ? loaded / expected : null;
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const CircularProgressIndicator(color: Colors.white),
+                                  const SizedBox(height: 12),
+                                  if (value != null)
+                                    Text('${(value * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white)),
+                                ],
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              debugPrint('🖼️ Error loading proof image: $error');
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.broken_image_outlined, color: Colors.white70, size: 40),
+                                  SizedBox(height: 8),
+                                  Text('Image unavailable', style: TextStyle(color: Colors.white70)),
+                                ],
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: IconButton(
+                          icon: const Icon(Icons.close_rounded, color: Colors.white),
+                          tooltip: 'Close',
+                          onPressed: () => Navigator.of(ctx).pop(),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 16,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: TextButton.icon(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.white.withValues(alpha: 0.12),
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                            ),
+                            icon: const Icon(Icons.close_rounded, color: Colors.white),
+                            label: const Text(
+                              'Close',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -10534,7 +10562,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
               ),
               child: Text(
-                'We’ll notify you once the buyer marks payment as sent. Go to Orders to review proof and release the escrow.',
+                'We’ll notify you once the buyer marks payment as sent. Go to Orders to review proof and release the funds.',
                 style: textTheme.bodySmall?.copyWith(
                   fontSize: 12,
                   color: OpeiColors.iosLabelSecondary,
@@ -10714,7 +10742,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
       case P2PTradeStatus.initiated:
         return 'Active trade.';
       case P2PTradeStatus.paidByBuyer:
-        return 'Buyer marked the trade as paid. Review the proof before releasing escrow.';
+        return 'Buyer marked the trade as paid. Review the proof before releasing the funds.';
       case P2PTradeStatus.releasedBySeller:
         return 'You released this trade. Funds are on the way to the buyer.';
       case P2PTradeStatus.completed:
@@ -11916,7 +11944,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
   String _statusDescription(P2PTradeStatus status) {
     switch (status) {
       case P2PTradeStatus.paidByBuyer:
-        return 'Payment sent. The seller has been notified. You’ll receive funds once they release the escrow.';
+        return 'Payment sent. The seller has been notified. You’ll receive funds once they release the funds.';
       case P2PTradeStatus.releasedBySeller:
         return 'Seller confirmed payment. We’re releasing your funds shortly.';
       case P2PTradeStatus.completed:
@@ -12257,7 +12285,7 @@ class ProofSubmittedScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'We’ve notified the seller. They’ll review your proof and release escrow once they confirm payment.',
+                'We’ve notified the seller. They’ll review your proof and release the funds once they confirm payment.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
@@ -12303,7 +12331,7 @@ class ProofSubmittedScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     _ProofSubmittedBullet(
-                      label: 'Once confirmed, escrow is released automatically.',
+                      label: 'Once confirmed, the funds are released automatically.',
                     ),
                     const SizedBox(height: 6),
                     _ProofSubmittedBullet(

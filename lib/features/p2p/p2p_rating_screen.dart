@@ -7,7 +7,7 @@ import 'package:tt1/data/models/p2p_trade.dart';
 import 'package:tt1/data/models/p2p_ad.dart';
 import 'package:tt1/theme.dart';
 
-/// A clean, Apple-style rating screen that appears after releasing escrow.
+/// A clean, Apple-style rating screen that appears after releasing the funds.
 /// User can rate the counterparty, then either submit or dismiss.
 class P2PRatingScreen extends ConsumerStatefulWidget {
   final P2PTrade trade;
