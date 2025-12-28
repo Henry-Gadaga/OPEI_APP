@@ -55,22 +55,22 @@ class DepositOptionsSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
                   DepositOptionCard(
-                    iconAsset: 'assets/images/btc.svg',
-                    title: 'Crypto Deposit',
-                    description: 'USDT or USDC on supported networks',
-                    onTap: () {
-                      context.pop();
-                      context.push('/deposit/crypto-currency');
-                    },
-                  ),
-                  const SizedBox(height: 4),
-                  DepositOptionCard(
                     iconAsset: 'assets/images/exchange.svg',
-                    title: 'Exchange',
+                    title: 'P2P Exchange',
                     description: 'Bank transfer, Mobile Payments and more',
                     onTap: () {
                       context.pop();
                       context.push('/p2p?intent=buy');
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  DepositOptionCard(
+                    iconAsset: 'assets/icons/usdicon.svg',
+                    title: 'USD Deposit',
+                    description: 'Fund your wallet with on-chain USD stablecoins',
+                    onTap: () {
+                      context.pop();
+                      context.push('/deposit/crypto-currency');
                     },
                   ),
                 ],
@@ -200,7 +200,7 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Select Currency',
+          'Select Method',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -215,7 +215,7 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Choose the cryptocurrency you want to deposit',
+                'Choose the method you want to deposit with',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 15,
                       color: OpeiColors.iosLabelSecondary,

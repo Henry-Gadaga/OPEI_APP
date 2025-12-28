@@ -64,22 +64,22 @@ class WithdrawOptionsSheet extends StatelessWidget {
                   ),
                     const SizedBox(height: 24),
                   WithdrawOptionCard(
-                    iconAsset: 'assets/images/btc.svg',
-                    title: 'Crypto Withdrawal',
-                    description: 'Send USDT or USDC to your crypto wallet',
-                    onTap: () {
-                      context.pop();
-                      context.push('/withdraw/crypto-currency');
-                    },
-                  ),
-                  const SizedBox(height: 4),
-                  WithdrawOptionCard(
                     iconAsset: 'assets/images/exchange.svg',
-                    title: 'Exchange',
+                    title: 'P2P Exchange',
                     description: 'Bank transfer, Mobile Payments and more',
                     onTap: () {
                       context.pop();
                       context.push('/p2p?intent=sell');
+                    },
+                  ),
+                  const SizedBox(height: 4),
+                  WithdrawOptionCard(
+                    iconAsset: 'assets/icons/usdicon.svg',
+                    title: 'USD Withdrawal',
+                    description: 'Move USD stablecoins back to your own wallet',
+                    onTap: () {
+                      context.pop();
+                      context.push('/withdraw/crypto-currency');
                     },
                   ),
                 ],
@@ -209,7 +209,7 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Select Currency',
+          'Select Method',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontSize: 17,
                 fontWeight: FontWeight.w600,
@@ -224,7 +224,7 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Choose the cryptocurrency you want to withdraw',
+                'Choose the method you want to withdraw with',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 15,
                       color: OpeiColors.iosLabelSecondary,
