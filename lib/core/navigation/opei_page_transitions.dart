@@ -14,6 +14,7 @@ Widget buildOpeiPageTransition(
   final theme = Theme.of(context);
 
   final direction = Directionality.of(context) == TextDirection.rtl ? -1.0 : 1.0;
+  final bool isReversing = animation.status == AnimationStatus.reverse;
 
   final slideCurve = CurvedAnimation(
     parent: animation,
@@ -32,12 +33,13 @@ Widget buildOpeiPageTransition(
 
   return Stack(
     children: [
-      // Keep a solid backdrop so the previous screen never peeks through.
-      Positioned.fill(
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
+      // Keep a solid backdrop while pushing so previous screen never peeks through.
+      if (!isReversing)
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
+          ),
         ),
-      ),
       ClipRect(
         child: SlideTransition(
           position: slideAnimation,
