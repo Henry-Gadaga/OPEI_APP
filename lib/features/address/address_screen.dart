@@ -31,8 +31,14 @@ class AddressScreen extends ConsumerWidget {
     );
 
     if (result == true) {
-      await ref.read(profileControllerProvider.notifier).refreshProfile();
-      router.go('/profile');
+      final refreshFuture =
+          ref.read(profileControllerProvider.notifier).refreshProfile();
+      if (router.canPop()) {
+        router.pop();
+      } else {
+        router.go('/dashboard');
+      }
+      unawaited(refreshFuture);
     }
   }
 
@@ -226,7 +232,11 @@ class AddressScreen extends ConsumerWidget {
                         SizedBox(
                           height: 56,
                           child: ElevatedButton(
-                            onPressed: state.isValid ? () => controller.submitAddress() : null,
+                            onPressed: state.isValid
+                                ? () => controller.submitAddress(
+                                      fromProfile: isFromProfile,
+                                    )
+                                : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: state.isValid ? OpeiColors.pureBlack : OpeiColors.grey300,
                               foregroundColor: OpeiColors.pureWhite,

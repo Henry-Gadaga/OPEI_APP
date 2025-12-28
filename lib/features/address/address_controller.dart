@@ -127,7 +127,7 @@ class AddressNotifier extends Notifier<AddressState> {
     return null;
   }
 
-  Future<bool> submitAddress() async {
+  Future<bool> submitAddress({bool fromProfile = false}) async {
     final validationErrors = _validateForm();
     if (validationErrors.isNotEmpty) {
       debugPrint('❌ Form validation failed');
@@ -161,7 +161,9 @@ class AddressNotifier extends Notifier<AddressState> {
 
       if (response.success) {
         debugPrint('✅ Address submission successful');
-        ref.read(authSessionProvider.notifier).updateUserStage('PENDING_KYC');
+        if (!fromProfile) {
+          ref.read(authSessionProvider.notifier).updateUserStage('PENDING_KYC');
+        }
         state = state.copyWith(isLoading: false);
         return true;
       } else {
