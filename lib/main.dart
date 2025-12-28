@@ -566,10 +566,23 @@ class _SplashScreen extends ConsumerStatefulWidget {
   ConsumerState<_SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<_SplashScreen> {
+class _SplashScreenState extends ConsumerState<_SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _fadeController;
+  late final Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 550),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeOutCubic,
+    );
+    _fadeController.forward();
     _determineInitialRoute();
   }
 
@@ -690,16 +703,25 @@ class _SplashScreenState extends ConsumerState<_SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: OpeiColors.pureWhite,
         body: Center(
-        child: Image.asset(
-          'assets/icons/splash1.png',
-          width: MediaQuery.of(context).size.width * 0.7,
-          fit: BoxFit.contain,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Image.asset(
+            'assets/icons/splash1.png',
+            width: MediaQuery.of(context).size.width * 0.7,
+            fit: BoxFit.contain,
+          ),
         ),
-        ),
-      );
+      ),
+    );
   }
 }

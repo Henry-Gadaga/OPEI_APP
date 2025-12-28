@@ -3320,11 +3320,11 @@ class _PaymentMethodTile extends StatelessWidget {
               if (addedLabel != null)
                 Text(
                   'Added $addedLabel',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 11,
-                        color: OpeiColors.iosLabelSecondary,
-                      ),
-                ),
+                style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 11,
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
+              ),
               const Spacer(),
               TextButton.icon(
                 onPressed: onEdit,
@@ -3333,8 +3333,8 @@ class _PaymentMethodTile extends StatelessWidget {
                 style: TextButton.styleFrom(
                   foregroundColor: OpeiColors.pureBlack,
                 ),
-              ),
-            ],
+            ),
+          ],
           ),
         ],
       ),
@@ -3938,10 +3938,10 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                     if (accountNumber.isEmpty) return null;
                     return Text(
                       accountNumber,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 12,
-                            color: OpeiColors.iosLabelTertiary,
-                          ),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                                fontSize: 12,
+                                color: OpeiColors.iosLabelTertiary,
+                              ),
                     );
                   }(),
                 ),
@@ -8702,14 +8702,14 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
         if (!mounted) return;
         Navigator.of(context).pop(updated);
       } else {
-        final created = await repo.createUserPaymentMethod(
-          paymentMethodTypeId: _selectedTypeId!,
+      final created = await repo.createUserPaymentMethod(
+        paymentMethodTypeId: _selectedTypeId!,
           accountName: trimmedName,
           accountNumber: trimmedNumber,
           extraDetails: trimmedExtra.isEmpty ? null : trimmedExtra,
-        );
-        if (!mounted) return;
-        Navigator.of(context).pop(created);
+      );
+      if (!mounted) return;
+      Navigator.of(context).pop(created);
       }
     } catch (e) {
       debugPrint('❌ Add payment method failed: $e');
@@ -8789,27 +8789,27 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
                   ),
                 )
               else
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: OpeiColors.iosSurfaceMuted,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
-                  ),
-                  child: DropdownButton<String>(
-                    value: _selectedTypeId,
-                    isExpanded: true,
-                    underline: const SizedBox.shrink(),
-                    hint: const Text('Select provider…'),
-                    items: _types
-                        .map((t) => DropdownMenuItem<String>(
-                              value: t.id,
-                              child: Text('${t.providerName} · ${t.methodType}'),
-                            ))
-                        .toList(),
-                    onChanged: (v) => setState(() => _selectedTypeId = v),
-                  ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: OpeiColors.iosSurfaceMuted,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
                 ),
+                child: DropdownButton<String>(
+                  value: _selectedTypeId,
+                  isExpanded: true,
+                  underline: const SizedBox.shrink(),
+                  hint: const Text('Select provider…'),
+                  items: _types
+                      .map((t) => DropdownMenuItem<String>(
+                            value: t.id,
+                            child: Text('${t.providerName} · ${t.methodType}'),
+                          ))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedTypeId = v),
+                ),
+              ),
               const SizedBox(height: 12),
               _TextField(label: 'Account name', controller: _accountName, hintText: 'Name on account'),
               const SizedBox(height: 10),
