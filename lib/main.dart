@@ -365,10 +365,32 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
         } else if (intentParam == 'buy') {
           initialType = P2PAdType.buy;
         }
+        final tabParam = state.uri.queryParameters['tab']?.toLowerCase().trim();
+        int? initialTabIndex;
+        switch (tabParam) {
+          case 'orders':
+            initialTabIndex = 1;
+            break;
+          case 'my-ads':
+            initialTabIndex = 2;
+            break;
+          case 'profile':
+            initialTabIndex = 3;
+            break;
+          case 'exchange':
+          case 'ads':
+            initialTabIndex = 0;
+            break;
+          default:
+            initialTabIndex = null;
+        }
 
         return buildOpeiTransitionPage(
           state: state,
-          child: P2PExchangeScreen(initialType: initialType),
+          child: P2PExchangeScreen(
+            initialType: initialType,
+            initialTabIndex: initialTabIndex,
+          ),
         );
       },
     ),

@@ -95,15 +95,16 @@ String _resolveSendCurrency({
 
 class P2PExchangeScreen extends ConsumerStatefulWidget {
   final P2PAdType? initialType;
+  final int? initialTabIndex;
 
-  const P2PExchangeScreen({super.key, this.initialType});
+  const P2PExchangeScreen({super.key, this.initialType, this.initialTabIndex});
 
   @override
   ConsumerState<P2PExchangeScreen> createState() => _P2PExchangeScreenState();
 }
 
 class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
-  int _selectedTab = 0;
+  late int _selectedTab;
   late final PageController _pageController;
   bool _hasSyncedInitialIntent = false;
   bool _isOpeningCreateAd = false;
@@ -134,6 +135,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   @override
   void initState() {
     super.initState();
+    final initialTab = widget.initialTabIndex;
+    _selectedTab = (initialTab != null && initialTab >= 0 && initialTab <= 3) ? initialTab : 0;
     _pageController = PageController(initialPage: _selectedTab);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _hasSyncedInitialIntent) return;
@@ -148,6 +151,10 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       } else {
         unawaited(adsController.reload());
       }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _runTabEntryTasks(_selectedTab);
     });
   }
 
@@ -192,6 +199,11 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   }
 
   Future<void> _handleCancelTrade(P2PTrade trade) async {
+    final confirmed = await showP2PCancelTradeWarningDialog(context);
+    if (!confirmed) {
+      return;
+    }
+
     final controller = ref.read(p2pOrdersControllerProvider.notifier);
     final messenger = ScaffoldMessenger.maybeOf(context);
 
@@ -5114,6 +5126,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
             setModalState(() {});
             if (_proofSubmissionSuccess) {
               Navigator.of(context).pop();
+              await _presentProofSubmittedScreen(context);
             }
           },
           onPickImages: () async {
@@ -5201,12 +5214,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       });
 
       _proofNoteController.clear();
-      await _refreshOrdersSilently();
+      unawaited(_refreshOrdersSilently());
 
-      final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger?.showSnackBar(
-        const SnackBar(content: Text('Payment sent. Seller notified.')),
-      );
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -5223,7 +5232,6 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
 
   Future<void> _handlePickProofs() async {
     setState(() {
-      _isProofPicking = true;
       _proofPickError = null;
       _proofSubmissionError = null;
       _proofSubmissionSuccess = false;
@@ -5233,7 +5241,6 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     if (remainingSlots <= 0) {
       setState(() {
         _proofPickError = 'You can upload up to $_maxProofImages images.';
-        _isProofPicking = false;
       });
       return;
     }
@@ -5245,11 +5252,11 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         withData: true,
       );
       if (result == null) {
-        setState(() {
-          _isProofPicking = false;
-        });
         return;
       }
+      setState(() {
+        _isProofPicking = true;
+      });
 
       final selected = result.files;
       final List<PlatformFile> accepted = [];
@@ -5291,13 +5298,17 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         } else {
           _proofPickError = null;
         }
-        _isProofPicking = false;
       });
     } catch (_) {
       setState(() {
         _proofPickError = 'Couldn’t pick images. Please try again.';
-        _isProofPicking = false;
       });
+    } finally {
+      if (mounted && _isProofPicking) {
+        setState(() {
+          _isProofPicking = false;
+        });
+      }
     }
   }
 
@@ -5427,12 +5438,12 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Don't release until you receive money from the user.",
-                    style: textTheme.bodyMedium?.copyWith(height: 1.45),
+                    'Do not release funds before receiving payment.',
+                    style: textTheme.bodyMedium?.copyWith(height: 1.45, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Never accept any request from anyone to release before you receive money. This is irreversible.',
+                    'Releasing funds without confirmed payment may cause irreversible loss. Opei is not responsible for losses resulting from releasing funds before payment is received.',
                     style: textTheme.bodySmall?.copyWith(
                       height: 1.5,
                       color: const Color(0xFFD62E1F),
@@ -5691,6 +5702,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   }
 
   Future<void> _handleCancelTrade() async {
+    if (!await showP2PCancelTradeWarningDialog(context)) {
+      return;
+    }
+
     try {
       final controller = ref.read(p2pOrdersControllerProvider.notifier);
       final updated = await controller.cancelTrade(_trade);
@@ -10582,6 +10597,11 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
       return;
     }
 
+    final confirmed = await showP2PCancelTradeWarningDialog(context);
+    if (!confirmed) {
+      return;
+    }
+
     setState(() {
       _isCancelling = true;
       _cancelError = null;
@@ -11565,12 +11585,14 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setModalState) => _UploadProofSheet(
           onConfirm: () async {
-            await _handleConfirmPaid();
-            if (mounted) {
-              setModalState(() {});
-              if (_submissionSuccess) {
-                Navigator.of(context).pop();
-              }
+            final submitFuture = _handleConfirmPaid();
+            setModalState(() {});
+            await submitFuture;
+            if (!mounted) return;
+            setModalState(() {});
+            if (_submissionSuccess) {
+              Navigator.of(context).pop();
+              await _presentProofSubmittedScreen(context);
             }
           },
           onPickImages: () async {
@@ -11615,6 +11637,11 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
   Future<void> _handleCancelTrade() async {
     if (_isCancelling) {
+      return;
+    }
+
+    final confirmed = await showP2PCancelTradeWarningDialog(context);
+    if (!confirmed) {
       return;
     }
 
@@ -11768,14 +11795,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       });
 
       _noteController.clear();
-      await _refreshOrdersSilently();
+      unawaited(_refreshOrdersSilently());
 
-      if (mounted) {
-        final messenger = ScaffoldMessenger.maybeOf(context);
-        messenger?.showSnackBar(
-          const SnackBar(content: Text('Payment sent. Seller notified.')),
-        );
-      }
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -11928,7 +11949,6 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
   Future<void> _handlePickProofs() async {
     setState(() {
-      _isPickingProofs = true;
       _pickError = null;
       _submissionError = null;
       _submissionSuccess = false;
@@ -11938,7 +11958,6 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
     if (remainingSlots <= 0) {
       setState(() {
         _pickError = 'You can upload up to $_maxImages images.';
-        _isPickingProofs = false;
       });
       return;
     }
@@ -11950,11 +11969,11 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         withData: true,
       );
       if (result == null) {
-        setState(() {
-          _isPickingProofs = false;
-        });
         return; // user cancelled
       }
+      setState(() {
+        _isPickingProofs = true;
+      });
 
       final selected = result.files;
       final List<PlatformFile> accepted = [];
@@ -11981,7 +12000,6 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           _pickError = skippedLarge > 0
               ? 'Some images exceed 5 MB and were skipped.'
               : 'Couldn’t read selected files. Please try different images.';
-          _isPickingProofs = false;
         });
         return;
       }
@@ -11995,12 +12013,10 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
             if (skippedNoData > 0) 'Skipped $skippedNoData unreadable files',
           ].join(' • ');
         }
-        _isPickingProofs = false;
       });
     } catch (e) {
       setState(() {
         _pickError = 'Couldn’t pick images. Please try again.';
-        _isPickingProofs = false;
       });
     } finally {
       if (mounted && _isPickingProofs) {
@@ -12157,6 +12173,271 @@ class _ProofThumb extends StatelessWidget {
       ],
     );
   }
+}
+
+Future<void> _presentProofSubmittedScreen(BuildContext context) {
+  return Navigator.of(context).push(_buildProofSubmittedRoute());
+}
+
+PageRouteBuilder<void> _buildProofSubmittedRoute() {
+  return PageRouteBuilder<void>(
+    transitionDuration: const Duration(milliseconds: 320),
+    reverseTransitionDuration: const Duration(milliseconds: 220),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      final fade = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      );
+      return FadeTransition(
+        opacity: fade,
+        child: const ProofSubmittedScreen(),
+      );
+    },
+  );
+}
+
+class ProofSubmittedScreen extends StatelessWidget {
+  const ProofSubmittedScreen({super.key});
+
+  void _handleDone(BuildContext context) {
+    context.go('/p2p?tab=orders');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final mediaPadding = MediaQuery.of(context).padding;
+    return Scaffold(
+      backgroundColor: OpeiColors.pureWhite,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(24, 12, 24, 12 + mediaPadding.bottom),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.close_rounded, size: 22, color: OpeiColors.pureBlack),
+                  tooltip: 'Back to orders',
+                  onPressed: () => _handleDone(context),
+                ),
+              ),
+              const Spacer(),
+              Container(
+                width: 96,
+                height: 96,
+                decoration: BoxDecoration(
+                  color: OpeiColors.iosSurfaceMuted,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 18,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  size: 44,
+                  color: OpeiColors.pureBlack,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Proof submitted',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'We’ve notified the seller. They’ll review your proof and release escrow once they confirm payment.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  color: OpeiColors.iosLabelSecondary,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 28,
+                          height: 28,
+                          decoration: const BoxDecoration(
+                            color: OpeiColors.pureWhite,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: const Icon(Icons.schedule_rounded, size: 16, color: OpeiColors.pureBlack),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          'What happens next?',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _ProofSubmittedBullet(
+                      label: 'Seller reviews your payment proof.',
+                    ),
+                    const SizedBox(height: 6),
+                    _ProofSubmittedBullet(
+                      label: 'Once confirmed, escrow is released automatically.',
+                    ),
+                    const SizedBox(height: 6),
+                    _ProofSubmittedBullet(
+                      label: 'You’ll receive a notification for every update.',
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => _handleDone(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: OpeiColors.pureBlack,
+                    foregroundColor: OpeiColors.pureWhite,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Done',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: OpeiColors.pureWhite,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProofSubmittedBullet extends StatelessWidget {
+  final String label;
+
+  const _ProofSubmittedBullet({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(
+          width: 18,
+          child: Text(
+            '•',
+            style: TextStyle(
+              fontSize: 16,
+              height: 1.2,
+              color: OpeiColors.pureBlack,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            label,
+            style: textTheme.bodySmall?.copyWith(
+              fontSize: 12.5,
+              color: OpeiColors.iosLabelSecondary,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Future<bool> showP2PCancelTradeWarningDialog(BuildContext context) async {
+  return await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          final theme = Theme.of(dialogContext);
+          final textTheme = theme.textTheme;
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            title: Text(
+              'Cancel this trade?',
+              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Do not cancel after sending money.',
+                  style: textTheme.bodyMedium?.copyWith(
+                    height: 1.45,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Canceling after payment may cause irreversible loss. Opei is not responsible for losses resulting from user cancellation after payment.',
+                  style: textTheme.bodySmall?.copyWith(
+                    height: 1.5,
+                    color: const Color(0xFFD62E1F),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Go back'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: OpeiColors.pureBlack,
+                  foregroundColor: OpeiColors.pureWhite,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+                child: const Text('I understand'),
+              ),
+            ],
+          );
+        },
+      ) ??
+      false;
 }
 
 class _ProofThumbLoading extends StatelessWidget {
