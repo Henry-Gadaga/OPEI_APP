@@ -4403,7 +4403,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     final proofs = trade.proofs;
     final isBuyer = widget.isBuyer ?? false;
     final isSeller = widget.isBuyer == false;
-    final showDisputeButton = isBuyer && _isTradeEligibleForDispute(trade.status);
+    final showDisputeButton = _isTradeEligibleForDispute(trade.status);
     final alreadyDisputed = trade.status == P2PTradeStatus.disputed;
     final ratingSection = _buildRatingSection(trade, currentUserId);
     final canCancelTrade = _canCurrentUserCancelTrade(trade: trade, currentUserId: currentUserId);
@@ -5850,107 +5850,7 @@ class _ProofNetworkThumb extends StatelessWidget {
           debugPrint('🖼️ Proof tapped but URL is empty; ignoring.');
           return;
         }
-        // On web, opening cross-origin images inside CanvasKit requires proper CORS response headers.
-        // If the R2 bucket doesn't include "access-control-allow-origin", Image.network will fail with status 0.
-        // To guarantee the user can view proofs now, open the public URL in a new browser tab on web.
-        if (kIsWeb) {
-          debugPrint('🖼️ Opening proof in new tab (web fallback due to CORS): $url');
-          _openExternal(url);
-          return;
-        }
-
-        debugPrint('🖼️ Opening proof image viewer for URL: $url');
-        showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (ctx) {
-            final size = MediaQuery.of(ctx).size;
-            return Dialog(
-              insetPadding: const EdgeInsets.all(12),
-              backgroundColor: Colors.black,
-              child: SizedBox(
-                width: size.width * 0.92,
-                height: size.height * 0.92,
-                child: SafeArea(
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: InteractiveViewer(
-                          minScale: 0.8,
-                          maxScale: 4,
-                          child: Image.network(
-                            url,
-                            fit: BoxFit.contain,
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              final expected = loadingProgress.expectedTotalBytes;
-                              final loaded = loadingProgress.cumulativeBytesLoaded;
-                              final value = expected != null && expected > 0 ? loaded / expected : null;
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const CircularProgressIndicator(color: Colors.white),
-                                  const SizedBox(height: 12),
-                                  if (value != null)
-                                    Text('${(value * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white)),
-                                ],
-                              );
-                            },
-                            errorBuilder: (context, error, stackTrace) {
-                              debugPrint('🖼️ Error loading proof image: $error');
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Icon(Icons.broken_image_outlined, color: Colors.white70, size: 40),
-                                  SizedBox(height: 8),
-                                  Text('Image unavailable', style: TextStyle(color: Colors.white70)),
-                                ],
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: IconButton(
-                          icon: const Icon(Icons.close_rounded, color: Colors.white),
-                          tooltip: 'Close',
-                          onPressed: () => Navigator.of(ctx).pop(),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 16,
-                        left: 0,
-                        right: 0,
-                        child: Center(
-                          child: TextButton.icon(
-                            onPressed: () => Navigator.of(ctx).pop(),
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.white.withValues(alpha: 0.12),
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                            ),
-                            icon: const Icon(Icons.close_rounded, color: Colors.white),
-                            label: const Text(
-                              'Close',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.2,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
+        _showProofViewer(context, url);
       },
       child: Container(
         width: 88,
@@ -5974,6 +5874,87 @@ class _ProofNetworkThumb extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showProofViewer(BuildContext context, String url) {
+  if (kIsWeb) {
+    debugPrint('🖼️ Opening proof in new tab (web fallback due to CORS): $url');
+    _openExternal(url);
+    return;
+  }
+
+  showGeneralDialog(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'Close',
+    transitionDuration: const Duration(milliseconds: 220),
+    pageBuilder: (ctx, animation, secondaryAnimation) {
+      final size = MediaQuery.of(ctx).size;
+      return SafeArea(
+        child: GestureDetector(
+          onTap: () => Navigator.of(ctx).pop(),
+          child: Scaffold(
+            backgroundColor: Colors.black.withValues(alpha: 0.95),
+            body: Stack(
+              children: [
+                Center(
+                  child: InteractiveViewer(
+                    minScale: 0.8,
+                    maxScale: 4,
+                    child: Image.network(
+                      url,
+                      fit: BoxFit.contain,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        final expected = loadingProgress.expectedTotalBytes;
+                        final loaded = loadingProgress.cumulativeBytesLoaded;
+                        final value = expected != null && expected > 0 ? loaded / expected : null;
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const CircularProgressIndicator(color: Colors.white),
+                            const SizedBox(height: 12),
+                            if (value != null)
+                              Text('${(value * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white)),
+                          ],
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        debugPrint('🖼️ Error loading proof image: $error');
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.broken_image_outlined, color: Colors.white70, size: 40),
+                            SizedBox(height: 8),
+                            Text('Image unavailable', style: TextStyle(color: Colors.white70)),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Colors.white, size: 26),
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOutCubic),
+        child: child,
+      );
+    },
+  );
 }
 
 // Launch external URL (works on all platforms; on web opens a new tab)
@@ -12203,32 +12184,72 @@ class _ProofThumb extends StatelessWidget {
   }
 }
 
-Future<void> _presentProofSubmittedScreen(BuildContext context) {
-  return Navigator.of(context).push(_buildProofSubmittedRoute());
-}
-
-PageRouteBuilder<void> _buildProofSubmittedRoute() {
-  return PageRouteBuilder<void>(
-    transitionDuration: const Duration(milliseconds: 320),
-    reverseTransitionDuration: const Duration(milliseconds: 220),
-    pageBuilder: (context, animation, secondaryAnimation) {
-      final fade = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      );
-      return FadeTransition(
-        opacity: fade,
-        child: const ProofSubmittedScreen(),
-      );
-    },
+Future<void> _presentProofSubmittedScreen(BuildContext context) async {
+  await Navigator.of(context).push(
+    PageRouteBuilder<void>(
+      transitionDuration: const Duration(milliseconds: 380),
+      reverseTransitionDuration: const Duration(milliseconds: 260),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        final fade = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutCubic,
+          reverseCurve: Curves.easeInCubic,
+        );
+        return FadeTransition(
+          opacity: fade,
+          child: const ProofSubmittedScreen(),
+        );
+      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutExpo,
+            reverseCurve: Curves.easeInExpo,
+          ),
+          child: child,
+        );
+      },
+    ),
   );
 }
 
-class ProofSubmittedScreen extends StatelessWidget {
+class ProofSubmittedScreen extends StatefulWidget {
   const ProofSubmittedScreen({super.key});
 
-  void _handleDone(BuildContext context) {
+  @override
+  State<ProofSubmittedScreen> createState() => _ProofSubmittedScreenState();
+}
+
+class _ProofSubmittedScreenState extends State<ProofSubmittedScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+  bool _isNavigating = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleDone() async {
+    if (_isNavigating) return;
+    setState(() => _isNavigating = true);
+    if (!mounted) return;
     context.go('/p2p?tab=orders');
   }
 
@@ -12239,132 +12260,148 @@ class ProofSubmittedScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: OpeiColors.pureWhite,
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(24, 12, 24, 12 + mediaPadding.bottom),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  icon: const Icon(Icons.close_rounded, size: 22, color: OpeiColors.pureBlack),
-                  tooltip: 'Back to orders',
-                  onPressed: () => _handleDone(context),
-                ),
-              ),
-              const Spacer(),
-              Container(
-                width: 96,
-                height: 96,
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSurfaceMuted,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 18,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.check_rounded,
-                  size: 44,
-                  color: OpeiColors.pureBlack,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Proof submitted',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.4,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'We’ve notified the seller. They’ll review your proof and release the funds once they confirm payment.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 14,
-                  color: OpeiColors.iosLabelSecondary,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 28,
-                          height: 28,
-                          decoration: const BoxDecoration(
-                            color: OpeiColors.pureWhite,
-                            shape: BoxShape.circle,
-                          ),
-                          alignment: Alignment.center,
-                          child: const Icon(Icons.schedule_rounded, size: 16, color: OpeiColors.pureBlack),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'What happens next?',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _ProofSubmittedBullet(
-                      label: 'Seller reviews your payment proof.',
-                    ),
-                    const SizedBox(height: 6),
-                    _ProofSubmittedBullet(
-                      label: 'Once confirmed, the funds are released automatically.',
-                    ),
-                    const SizedBox(height: 6),
-                    _ProofSubmittedBullet(
-                      label: 'You’ll receive a notification for every update.',
-                    ),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => _handleDone(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: OpeiColors.pureBlack,
-                    foregroundColor: OpeiColors.pureWhite,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    'Done',
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: OpeiColors.pureWhite,
-                      letterSpacing: -0.2,
-                    ),
+        child: AnimatedBuilder(
+          animation: _fadeAnimation,
+          builder: (context, child) => Opacity(
+            opacity: _fadeAnimation.value,
+            child: child,
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(24, 12, 24, 12 + mediaPadding.bottom),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 22, color: OpeiColors.pureBlack),
+                    tooltip: 'Back to orders',
+                    onPressed: _handleDone,
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-            ],
+                const Spacer(),
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    color: OpeiColors.iosSurfaceMuted,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 18,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.check_rounded,
+                    size: 44,
+                    color: OpeiColors.pureBlack,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Proof submitted',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'We’ve notified the seller. They’ll review your proof and release the funds once they confirm payment.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 14,
+                    color: OpeiColors.iosLabelSecondary,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 28,
+                            height: 28,
+                            decoration: const BoxDecoration(
+                              color: OpeiColors.pureWhite,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.schedule_rounded, size: 16, color: OpeiColors.pureBlack),
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            'What happens next?',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _ProofSubmittedBullet(
+                        label: 'Seller reviews your payment proof.',
+                      ),
+                      const SizedBox(height: 6),
+                      _ProofSubmittedBullet(
+                        label: 'Once confirmed, the funds are released automatically.',
+                      ),
+                      const SizedBox(height: 6),
+                      _ProofSubmittedBullet(
+                        label: 'You’ll receive a notification for every update.',
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _handleDone,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: OpeiColors.pureBlack,
+                      foregroundColor: OpeiColors.pureWhite,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                      elevation: 0,
+                    ),
+                    child: _isNavigating
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                            ),
+                          )
+                        : Text(
+                            'Done',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: OpeiColors.pureWhite,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         ),
       ),

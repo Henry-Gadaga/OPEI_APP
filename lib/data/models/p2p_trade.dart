@@ -52,14 +52,23 @@ enum P2PTradeStatus {
   final String apiValue;
 
   String get displayLabel {
-    // Custom human labels. Keep INITIATED as “Active”. Others default to title case.
-     if (this == P2PTradeStatus.initiated) return 'Pending payment';
-    return apiValue
-        .split('_')
-        .map((segment) => segment.isEmpty
-            ? ''
-            : segment[0].toUpperCase() + segment.substring(1).toLowerCase())
-        .join(' ');
+    switch (this) {
+      case P2PTradeStatus.initiated:
+        return 'Pending payment';
+      case P2PTradeStatus.paidByBuyer:
+        return 'Pending release';
+      case P2PTradeStatus.releasedBySeller:
+        return 'Release confirmed';
+      default:
+        return apiValue
+            .split('_')
+            .map(
+              (segment) => segment.isEmpty
+                  ? ''
+                  : segment[0].toUpperCase() + segment.substring(1).toLowerCase(),
+            )
+            .join(' ');
+    }
   }
 
   bool get isTerminal {
