@@ -41,7 +41,10 @@ String _formatUsdAmount(Money value, {bool includeCode = true}) {
 
 String _formatMoneyWithCode(Money value) {
   final code = value.currency.toUpperCase();
-  final raw = value.format(includeCurrencySymbol: false).replaceAll('\u00A0', ' ').trim();
+  final raw = value
+      .format(includeCurrencySymbol: false)
+      .replaceAll('\u00A0', ' ')
+      .trim();
 
   if (raw.toUpperCase().startsWith(code)) {
     final remainder = raw.substring(code.length).trimLeft();
@@ -55,7 +58,8 @@ String _formatMoneyWithCode(Money value) {
   return '$code $raw';
 }
 
-String _formatLocalAmount(Money value) => value.format(includeCurrencySymbol: true);
+String _formatLocalAmount(Money value) =>
+    value.format(includeCurrencySymbol: true);
 
 Money _resolveSendFallback({
   required P2PTrade trade,
@@ -112,9 +116,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
   ScrollPhysics _defaultScrollPhysics() {
     final platform = Theme.of(context).platform;
-    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final isCupertino =
+        platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
     return AlwaysScrollableScrollPhysics(
-      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+      parent: isCupertino
+          ? const BouncingScrollPhysics()
+          : const ClampingScrollPhysics(),
     );
   }
 
@@ -136,7 +143,9 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   void initState() {
     super.initState();
     final initialTab = widget.initialTabIndex;
-    _selectedTab = (initialTab != null && initialTab >= 0 && initialTab <= 3) ? initialTab : 0;
+    _selectedTab = (initialTab != null && initialTab >= 0 && initialTab <= 3)
+        ? initialTab
+        : 0;
     _pageController = PageController(initialPage: _selectedTab);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _hasSyncedInitialIntent) return;
@@ -210,7 +219,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     try {
       await controller.cancelTrade(trade);
       if (!mounted) return;
-      messenger?.showSnackBar(const SnackBar(content: Text('Trade cancelled.')));
+      messenger
+          ?.showSnackBar(const SnackBar(content: Text('Trade cancelled.')));
     } catch (error) {
       if (!mounted) return;
       final friendly = error is String
@@ -233,7 +243,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   }
 
   Future<void> _openProfileSetup({String? suggestedCurrency}) async {
-    final currency = suggestedCurrency ?? ref.read(p2pAdsControllerProvider).selectedCurrencyCode;
+    final currency = suggestedCurrency ??
+        ref.read(p2pAdsControllerProvider).selectedCurrencyCode;
     final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -311,7 +322,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
           }
           break;
         case 3:
-          final profileNotifier = ref.read(p2pProfileControllerProvider.notifier);
+          final profileNotifier =
+              ref.read(p2pProfileControllerProvider.notifier);
           final profileState = ref.read(p2pProfileControllerProvider);
           if (profileState.hasLoaded) {
             unawaited(profileNotifier.refresh());
@@ -353,7 +365,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       setState(() => _isOpeningCreateAd = true);
     }
 
-    final selectedCurrency = ref.read(p2pAdsControllerProvider).selectedCurrencyCode;
+    final selectedCurrency =
+        ref.read(p2pAdsControllerProvider).selectedCurrencyCode;
 
     try {
       var hasProfile = _knownProfilePresence();
@@ -381,7 +394,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
       if (!mounted) return;
       await _presentCreateAdSheet<void>(
-        (_) => _CreateAdFlowSheet(initialCurrency: selectedCurrency, onCreated: _onAdCreated),
+        (_) => _CreateAdFlowSheet(
+            initialCurrency: selectedCurrency, onCreated: _onAdCreated),
       );
     } catch (e) {
       if (!mounted) return;
@@ -512,18 +526,22 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                           _CompactToggleButton(
                             label: 'Buy',
                             isSelected: state.selectedType == P2PAdType.buy,
-                            isLoading: state.isLoading && state.selectedType == P2PAdType.buy,
+                            isLoading: state.isLoading &&
+                                state.selectedType == P2PAdType.buy,
                             onTap: () => controller.updateType(P2PAdType.buy),
                           ),
                           const SizedBox(width: 8),
                           _CompactToggleButton(
                             label: 'Sell',
                             isSelected: state.selectedType == P2PAdType.sell,
-                            isLoading: state.isLoading && state.selectedType == P2PAdType.sell,
+                            isLoading: state.isLoading &&
+                                state.selectedType == P2PAdType.sell,
                             onTap: () => controller.updateType(P2PAdType.sell),
                           ),
                           const SizedBox(width: 12),
-                          _FilterButton(onTap: () => _showAmountFilterSheet(state, controller)),
+                          _FilterButton(
+                              onTap: () =>
+                                  _showAmountFilterSheet(state, controller)),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -537,7 +555,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _MessageBanner(message: state.errorMessage!, isError: true),
+                    child: _MessageBanner(
+                        message: state.errorMessage!, isError: true),
                   ),
                 ),
               _buildAdsSliver(state),
@@ -571,7 +590,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
               ),
             ),
             const SizedBox(width: 4),
-            Icon(Icons.keyboard_arrow_down, size: 16, color: OpeiColors.iosLabelSecondary),
+            Icon(Icons.keyboard_arrow_down,
+                size: 16, color: OpeiColors.iosLabelSecondary),
           ],
         ),
       ),
@@ -623,7 +643,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 ),
                 itemBuilder: (_, i) {
                   final currency = currencies[i];
-                  final isSelected = currency.code == state.selectedCurrencyCode;
+                  final isSelected =
+                      currency.code == state.selectedCurrencyCode;
                   return Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -632,7 +653,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                         controller.updateCurrency(currency.code);
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 14),
                         child: Row(
                           children: [
                             Expanded(
@@ -678,7 +700,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     );
   }
 
-  Widget _buildPaymentMethodFilters(P2PAdsState state, P2PAdsController controller) {
+  Widget _buildPaymentMethodFilters(
+      P2PAdsState state, P2PAdsController controller) {
     final paymentMethods = state.paymentMethods;
     final hasMin = state.minAmountCents != null;
     final hasMax = state.maxAmountCents != null;
@@ -717,7 +740,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
             children: [
               if (hasMin)
                 _ActiveFilterChip(
-                  label: 'Min ${_formatMoneyLabel(Money.fromCents(state.minAmountCents!, currency: currency))}',
+                  label:
+                      'Min ${_formatMoneyLabel(Money.fromCents(state.minAmountCents!, currency: currency))}',
                   onClear: () => controller.updateAmountBounds(
                     minAmountCents: null,
                     maxAmountCents: state.maxAmountCents,
@@ -725,7 +749,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 ),
               if (hasMax)
                 _ActiveFilterChip(
-                  label: 'Max ${_formatMoneyLabel(Money.fromCents(state.maxAmountCents!, currency: currency))}',
+                  label:
+                      'Max ${_formatMoneyLabel(Money.fromCents(state.maxAmountCents!, currency: currency))}',
                   onClear: () => controller.updateAmountBounds(
                     minAmountCents: state.minAmountCents,
                     maxAmountCents: null,
@@ -779,7 +804,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
           (context, index) {
             final ad = ads[index];
             return Padding(
-              padding: EdgeInsets.only(bottom: index == ads.length - 1 ? 0 : 10),
+              padding:
+                  EdgeInsets.only(bottom: index == ads.length - 1 ? 0 : 10),
               child: _AdSummaryCard(
                 ad: ad,
                 intentType: intentType,
@@ -850,15 +876,18 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       }
 
       return ListView.separated(
-        key: ValueKey('orders-${state.selectedFilter.name}-${state.trades.length}'),
+        key: ValueKey(
+            'orders-${state.selectedFilter.name}-${state.trades.length}'),
         physics: scrollPhysics,
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 26),
         itemCount: state.trades.length,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (_, index) {
           final trade = state.trades[index];
-          final bool? isBuyer = currentUserId == null ? null : currentUserId == trade.buyerId;
-          final canCancel = _canCurrentUserCancelTrade(trade: trade, currentUserId: currentUserId);
+          final bool? isBuyer =
+              currentUserId == null ? null : currentUserId == trade.buyerId;
+          final canCancel = _canCurrentUserCancelTrade(
+              trade: trade, currentUserId: currentUserId);
           final isCancelling = state.isTradeCancelling(trade.id);
           return _OrderCard(
             trade: trade,
@@ -894,10 +923,10 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                   Text(
                     'Orders',
                     style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.3,
-                        ),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                 ],
               ),
@@ -911,19 +940,22 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
             if (state.errorMessage != null && state.trades.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-                child: _MessageBanner(message: state.errorMessage!, isError: true),
+                child:
+                    _MessageBanner(message: state.errorMessage!, isError: true),
               )
             else if (state.infoMessage != null && state.trades.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-                child: _MessageBanner(message: state.infoMessage!, isError: false),
+                child:
+                    _MessageBanner(message: state.infoMessage!, isError: false),
               ),
             Expanded(
               child: _buildRefreshWrapper(
                 onRefresh: _handleOrdersRefresh,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
-                  layoutBuilder: (currentChild, previousChildren) => currentChild ?? const SizedBox.shrink(),
+                  layoutBuilder: (currentChild, previousChildren) =>
+                      currentChild ?? const SizedBox.shrink(),
                   child: list,
                 ),
               ),
@@ -937,7 +969,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   Widget _buildMyAdsTab(MyP2PAdsState state, MyP2PAdsController controller) {
     final theme = Theme.of(context);
     final isLoading = state.isLoading;
-    final isCreateAdButtonLoading = _isOpeningCreateAd && !_isCreateAdOverlayVisible;
+    final isCreateAdButtonLoading =
+        _isOpeningCreateAd && !_isCreateAdOverlayVisible;
     final scrollPhysics = _defaultScrollPhysics();
     final bool isInitialState = !state.hasLoaded &&
         !state.isLoading &&
@@ -992,7 +1025,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       }
 
       return ListView.separated(
-        key: ValueKey('my-ads-${state.selectedFilter.name}-${state.ads.length}'),
+        key:
+            ValueKey('my-ads-${state.selectedFilter.name}-${state.ads.length}'),
         physics: scrollPhysics,
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
         itemCount: state.ads.length,
@@ -1030,10 +1064,10 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                   Text(
                     'My Ads',
                     style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.3,
-                        ),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                   Align(
                     alignment: Alignment.centerRight,
@@ -1054,12 +1088,14 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
             if (state.errorMessage != null && state.ads.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: _MessageBanner(message: state.errorMessage!, isError: true),
+                child:
+                    _MessageBanner(message: state.errorMessage!, isError: true),
               )
             else if (state.infoMessage != null && state.ads.isEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: _MessageBanner(message: state.infoMessage!, isError: false),
+                child:
+                    _MessageBanner(message: state.infoMessage!, isError: false),
               ),
             const SizedBox(height: 8),
             Expanded(
@@ -1067,7 +1103,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 onRefresh: _handleMyAdsRefresh,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
-                  layoutBuilder: (child, previousChildren) => child ?? const SizedBox.shrink(),
+                  layoutBuilder: (child, previousChildren) =>
+                      child ?? const SizedBox.shrink(),
                   child: list,
                 ),
               ),
@@ -1080,13 +1117,13 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
   Widget _buildProfileTab(P2PProfileState state) {
     final theme = Theme.of(context);
-    
+
     final bool isInitialState = !state.hasLoaded &&
         !state.isLoading &&
         state.profile == null &&
         !state.isMissingProfile &&
         state.errorMessage == null;
-    
+
     Widget content;
     if ((state.isLoading && !state.hasLoaded) || isInitialState) {
       content = const Center(child: _ProfileLoadingCard());
@@ -1094,7 +1131,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       content = _ProfileContentView(
         profile: state.profile!,
         onRefresh: _handleProfileRefresh,
-        onEdit: () => _openProfileSetup(suggestedCurrency: state.profile!.preferredCurrency),
+        onEdit: () => _openProfileSetup(
+            suggestedCurrency: state.profile!.preferredCurrency),
         onManagePaymentMethods: _openPaymentMethodsManager,
       );
     } else if (state.isMissingProfile) {
@@ -1113,7 +1151,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     } else {
       content = Center(
         child: _ProfileErrorCard(
-          message: 'We could not load your profile right now. Please try again.',
+          message:
+              'We could not load your profile right now. Please try again.',
           onRetry: _handleProfileRefresh,
         ),
       );
@@ -1140,20 +1179,22 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                   Text(
                     'Profile',
                     style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.3,
-                        ),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 8),
             const SizedBox(height: 4),
-            if (state.errorMessage != null && (state.profile != null || state.isMissingProfile))
+            if (state.errorMessage != null &&
+                (state.profile != null || state.isMissingProfile))
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                child: _MessageBanner(message: state.errorMessage!, isError: true),
+                child:
+                    _MessageBanner(message: state.errorMessage!, isError: true),
               ),
             Expanded(child: content),
           ],
@@ -1161,7 +1202,6 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       ),
     );
   }
-
 
   Widget _buildBottomNav() {
     return Container(
@@ -1215,15 +1255,18 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     );
   }
 
-  void _showAmountFilterSheet(P2PAdsState state, P2PAdsController controller) async {
+  void _showAmountFilterSheet(
+      P2PAdsState state, P2PAdsController controller) async {
     final minController = TextEditingController(
       text: state.minAmountCents != null
-          ? _formatMajorAmount(state.minAmountCents!, state.selectedCurrencyCode)
+          ? _formatMajorAmount(
+              state.minAmountCents!, state.selectedCurrencyCode)
           : '',
     );
     final maxController = TextEditingController(
       text: state.maxAmountCents != null
-          ? _formatMajorAmount(state.maxAmountCents!, state.selectedCurrencyCode)
+          ? _formatMajorAmount(
+              state.maxAmountCents!, state.selectedCurrencyCode)
           : '',
     );
 
@@ -1303,7 +1346,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                           style: OutlinedButton.styleFrom(
                             foregroundColor: OpeiColors.pureBlack,
                             side: BorderSide(
-                              color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
+                              color: OpeiColors.iosSeparator
+                                  .withValues(alpha: 0.5),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 12),
                           ),
@@ -1314,12 +1358,17 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: () async {
-                            final minCents = _parseMajorToCents(minController.text);
-                            final maxCents = _parseMajorToCents(maxController.text);
+                            final minCents =
+                                _parseMajorToCents(minController.text);
+                            final maxCents =
+                                _parseMajorToCents(maxController.text);
 
-                            if (minCents != null && maxCents != null && minCents > maxCents) {
+                            if (minCents != null &&
+                                maxCents != null &&
+                                minCents > maxCents) {
                               setSheetState(() {
-                                validationError = 'The minimum amount can’t be higher than the maximum.';
+                                validationError =
+                                    'The minimum amount can’t be higher than the maximum.';
                               });
                               return;
                             }
@@ -1338,7 +1387,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                             backgroundColor: OpeiColors.pureBlack,
                             foregroundColor: OpeiColors.pureWhite,
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           child: const Text('Apply filters'),
                         ),
@@ -1443,8 +1493,8 @@ class _BackButtonState extends State<_BackButton>
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(milliseconds: 80));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 80));
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
@@ -1509,14 +1559,16 @@ class _NavItem extends StatefulWidget {
   State<_NavItem> createState() => _NavItemState();
 }
 
-class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin {
+class _NavItemState extends State<_NavItem>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 80));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 80));
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
@@ -1547,7 +1599,9 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
               Icon(
                 widget.isSelected ? widget.selectedIcon : widget.icon,
                 size: 22,
-                color: widget.isSelected ? OpeiColors.pureBlack : OpeiColors.iosLabelTertiary,
+                color: widget.isSelected
+                    ? OpeiColors.pureBlack
+                    : OpeiColors.iosLabelTertiary,
               ),
               const SizedBox(height: 2),
               Text(
@@ -1556,7 +1610,9 @@ class _NavItemState extends State<_NavItem> with SingleTickerProviderStateMixin 
                       fontSize: 10,
                       fontWeight:
                           widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: widget.isSelected ? OpeiColors.pureBlack : OpeiColors.iosLabelTertiary,
+                      color: widget.isSelected
+                          ? OpeiColors.pureBlack
+                          : OpeiColors.iosLabelTertiary,
                       letterSpacing: -0.1,
                     ),
               ),
@@ -1593,7 +1649,8 @@ class _CompactToggleButtonState extends State<_CompactToggleButton>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 80));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 80));
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
@@ -1619,7 +1676,9 @@ class _CompactToggleButtonState extends State<_CompactToggleButton>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
-            color: widget.isSelected ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted,
+            color: widget.isSelected
+                ? OpeiColors.pureBlack
+                : OpeiColors.iosSurfaceMuted,
             borderRadius: BorderRadius.circular(8),
           ),
           child: widget.isLoading
@@ -1628,7 +1687,9 @@ class _CompactToggleButtonState extends State<_CompactToggleButton>
                   height: 12,
                   child: CircularProgressIndicator(
                     strokeWidth: 1.6,
-                    color: widget.isSelected ? OpeiColors.pureWhite : OpeiColors.pureBlack,
+                    color: widget.isSelected
+                        ? OpeiColors.pureWhite
+                        : OpeiColors.pureBlack,
                   ),
                 )
               : Text(
@@ -1636,7 +1697,9 @@ class _CompactToggleButtonState extends State<_CompactToggleButton>
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: widget.isSelected ? OpeiColors.pureWhite : OpeiColors.pureBlack,
+                    color: widget.isSelected
+                        ? OpeiColors.pureWhite
+                        : OpeiColors.pureBlack,
                     fontFamily: '.SF Pro Text',
                     letterSpacing: -0.2,
                     height: 1.0,
@@ -1671,7 +1734,8 @@ class _PaymentMethodChipState extends State<_PaymentMethodChip>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 70));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 70));
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.94).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
@@ -1699,7 +1763,9 @@ class _PaymentMethodChipState extends State<_PaymentMethodChip>
           curve: Curves.easeOut,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
-            color: widget.isSelected ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted,
+            color: widget.isSelected
+                ? OpeiColors.pureBlack
+                : OpeiColors.iosSurfaceMuted,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: widget.isSelected
@@ -1713,7 +1779,9 @@ class _PaymentMethodChipState extends State<_PaymentMethodChip>
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: widget.isSelected ? OpeiColors.pureWhite : OpeiColors.pureBlack,
+                  color: widget.isSelected
+                      ? OpeiColors.pureWhite
+                      : OpeiColors.pureBlack,
                   letterSpacing: -0.1,
                 ),
           ),
@@ -1737,7 +1805,9 @@ class _FilterButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: OpeiColors.pureWhite,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.25), width: 0.5),
+          border: Border.all(
+              color: OpeiColors.iosSeparator.withValues(alpha: 0.25),
+              width: 0.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1770,14 +1840,16 @@ class _CreateAdButton extends StatefulWidget {
   State<_CreateAdButton> createState() => _CreateAdButtonState();
 }
 
-class _CreateAdButtonState extends State<_CreateAdButton> with SingleTickerProviderStateMixin {
+class _CreateAdButtonState extends State<_CreateAdButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 100));
     _scale = Tween<double>(begin: 1, end: 0.94).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
@@ -1831,19 +1903,21 @@ class _CreateAdButtonState extends State<_CreateAdButton> with SingleTickerProvi
                     height: 16,
                     child: CircularProgressIndicator(
                       strokeWidth: 1.6,
-                      valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
                     ),
                   )
                 else
-                  const Icon(Icons.add_rounded, size: 16, color: OpeiColors.pureWhite),
+                  const Icon(Icons.add_rounded,
+                      size: 16, color: OpeiColors.pureWhite),
                 SizedBox(width: widget.isLoading ? 8 : 6),
                 Text(
                   widget.isLoading ? 'Opening…' : 'Create Ad',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.pureWhite,
-                      ),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiColors.pureWhite,
+                  ),
                 ),
               ],
             ),
@@ -1882,7 +1956,8 @@ class _ActiveFilterChip extends StatelessWidget {
           const SizedBox(width: 6),
           GestureDetector(
             onTap: onClear,
-            child: const Icon(Icons.close, size: 12, color: OpeiColors.pureWhite),
+            child:
+                const Icon(Icons.close, size: 12, color: OpeiColors.pureWhite),
           ),
         ],
       ),
@@ -1901,7 +1976,8 @@ class _MessageBanner extends StatelessWidget {
     final background = isError
         ? const Color(0xFFFFF2F1)
         : OpeiColors.iosSurfaceMuted.withValues(alpha: 0.8);
-    final foreground = isError ? const Color(0xFFFF3B30) : OpeiColors.iosLabelSecondary;
+    final foreground =
+        isError ? const Color(0xFFFF3B30) : OpeiColors.iosLabelSecondary;
 
     return Container(
       width: double.infinity,
@@ -1910,7 +1986,8 @@ class _MessageBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: foreground.withValues(alpha: 0.3), width: 0.5),
+        border:
+            Border.all(color: foreground.withValues(alpha: 0.3), width: 0.5),
       ),
       child: Text(
         message,
@@ -1940,15 +2017,20 @@ class _ProfileContentView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final numberFormat = NumberFormat.compact();
-    final ratingLabel = profile.rating > 0 ? profile.rating.toStringAsFixed(1) : 'Not rated yet';
+    final ratingLabel = profile.rating > 0
+        ? profile.rating.toStringAsFixed(1)
+        : 'Not rated yet';
     final tradesLabel = numberFormat.format(profile.totalTrades);
     final joinedLabel = profile.createdAt != null
         ? DateFormat('d MMM yyyy').format(profile.createdAt!.toLocal())
         : null;
     final platform = Theme.of(context).platform;
-    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final isCupertino =
+        platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
     final scrollPhysics = AlwaysScrollableScrollPhysics(
-      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+      parent: isCupertino
+          ? const BouncingScrollPhysics()
+          : const ClampingScrollPhysics(),
     );
 
     return RefreshIndicator(
@@ -2011,10 +2093,10 @@ class _ProfileLoadingCard extends StatelessWidget {
         Text(
           'Loading profile…',
           style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: OpeiColors.iosLabelSecondary,
-              ),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: OpeiColors.iosLabelSecondary,
+          ),
         ),
       ],
     );
@@ -2031,7 +2113,8 @@ class _ProfileErrorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final normalized = message.toLowerCase();
-    final isSessionIssue = normalized.contains('session') || normalized.contains('sign in');
+    final isSessionIssue =
+        normalized.contains('session') || normalized.contains('sign in');
     final title = isSessionIssue
         ? 'You need to sign in again'
         : 'We couldn’t load your profile';
@@ -2075,20 +2158,20 @@ class _ProfileErrorCard extends StatelessWidget {
             title,
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.2,
-                ),
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+            ),
           ),
           const SizedBox(height: 10),
           Text(
             message,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  color: OpeiColors.iosLabelSecondary,
-                  height: 1.48,
-                ),
+              fontSize: 13,
+              color: OpeiColors.iosLabelSecondary,
+              height: 1.48,
+            ),
           ),
           const SizedBox(height: 20),
           SizedBox(
@@ -2099,7 +2182,8 @@ class _ProfileErrorCard extends StatelessWidget {
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
               child: const Text(
                 'Refresh session',
@@ -2126,7 +2210,8 @@ class _ProfileEmptyCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.6),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.6),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -2160,20 +2245,20 @@ class _ProfileEmptyCard extends StatelessWidget {
             'Set up your P2P profile',
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.4,
-                ),
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.4,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             'Let buyers and sellers know who they’re dealing with. A verified profile speeds up trust checks and trade approvals.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  height: 1.5,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 13,
+              height: 1.5,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
           const SizedBox(height: 18),
           Column(
@@ -2199,15 +2284,16 @@ class _ProfileEmptyCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: const [
                   Text(
-                'Create profile',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    'Create profile',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                   SizedBox(width: 8),
                   Icon(Icons.arrow_forward_rounded, size: 18),
@@ -2239,9 +2325,9 @@ class _ProfileHighlightRow extends StatelessWidget {
           child: Text(
             text,
             style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 13,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
         ),
       ],
@@ -2304,10 +2390,10 @@ class _ProfileHeroCard extends StatelessWidget {
                     Text(
                       profile.primaryName,
                       style: theme.textTheme.titleLarge?.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.3,
-                          ),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -2315,9 +2401,9 @@ class _ProfileHeroCard extends StatelessWidget {
                     Text(
                       profile.usernameLabel,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 11,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 11,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -2326,9 +2412,9 @@ class _ProfileHeroCard extends StatelessWidget {
                       Text(
                         'Since $sinceValue',
                         style: theme.textTheme.bodySmall?.copyWith(
-                              fontSize: 10,
-                              color: OpeiColors.iosLabelSecondary,
-                            ),
+                          fontSize: 10,
+                          color: OpeiColors.iosLabelSecondary,
+                        ),
                       ),
                     ],
                   ],
@@ -2338,11 +2424,15 @@ class _ProfileHeroCard extends StatelessWidget {
               TextButton(
                 onPressed: onEdit,
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   foregroundColor: OpeiColors.pureBlack,
-                  backgroundColor: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.8),
-                  textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  backgroundColor:
+                      OpeiColors.iosSurfaceMuted.withValues(alpha: 0.8),
+                  textStyle: const TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w600),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                   minimumSize: const Size(0, 0),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -2412,10 +2502,10 @@ class _ProfileAvatar extends StatelessWidget {
       child: Text(
         initials,
         style: theme.textTheme.titleLarge?.copyWith(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: OpeiColors.pureBlack,
-            ),
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: OpeiColors.pureBlack,
+        ),
       ),
     );
   }
@@ -2441,19 +2531,19 @@ class _ProfileMetric extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 9,
-                color: OpeiColors.iosLabelSecondary,
-                letterSpacing: 0.1,
-              ),
+            fontSize: 9,
+            color: OpeiColors.iosLabelSecondary,
+            letterSpacing: 0.1,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
           style: theme.textTheme.titleMedium?.copyWith(
-                fontSize: 13,
-                fontWeight: emphasize ? FontWeight.w700 : FontWeight.w600,
-                letterSpacing: -0.2,
-              ),
+            fontSize: 13,
+            fontWeight: emphasize ? FontWeight.w700 : FontWeight.w600,
+            letterSpacing: -0.2,
+          ),
         ),
       ],
     );
@@ -2487,7 +2577,8 @@ class _ProfileBioSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -2502,19 +2593,19 @@ class _ProfileBioSection extends StatelessWidget {
           Text(
             'About',
             style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.2,
-                ),
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -0.2,
+            ),
           ),
           const SizedBox(height: 6),
           Text(
             bio,
             style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: OpeiColors.pureBlack,
-                ),
+              fontSize: 14,
+              height: 1.5,
+              color: OpeiColors.pureBlack,
+            ),
           ),
         ],
       ),
@@ -2546,7 +2637,8 @@ class _ProfileDetailsSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -2563,10 +2655,10 @@ class _ProfileDetailsSection extends StatelessWidget {
             child: Text(
               'Profile details',
               style: theme.textTheme.titleMedium?.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
-                  ),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
+              ),
             ),
           ),
           const Divider(height: 1, thickness: 0.5, color: Color(0xFFE3E3E8)),
@@ -2576,7 +2668,8 @@ class _ProfileDetailsSection extends StatelessWidget {
               value: entries[i].value,
             ),
             if (i != entries.length - 1)
-              const Divider(height: 1, thickness: 0.5, color: Color(0xFFEDEDF1)),
+              const Divider(
+                  height: 1, thickness: 0.5, color: Color(0xFFEDEDF1)),
           ],
         ],
       ),
@@ -2604,9 +2697,9 @@ class _ProfileDetailRow extends StatelessWidget {
             child: Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 12,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 12,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -2615,9 +2708,9 @@ class _ProfileDetailRow extends StatelessWidget {
               value,
               textAlign: TextAlign.right,
               style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -2649,9 +2742,9 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 11,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
           ),
           const SizedBox(width: 10),
@@ -2659,10 +2752,10 @@ class _DetailRow extends StatelessWidget {
             child: Text(
               value,
               style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: OpeiColors.pureBlack,
-                  ),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: OpeiColors.pureBlack,
+              ),
             ),
           ),
         ],
@@ -2685,7 +2778,8 @@ class _ProfileQuickActions extends StatelessWidget {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.12), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -2702,10 +2796,10 @@ class _ProfileQuickActions extends StatelessWidget {
             child: Text(
               'Account tools',
               style: theme.textTheme.titleMedium?.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
-                  ),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
+              ),
             ),
           ),
           const Divider(height: 1, thickness: 0.5, color: Color(0xFFE3E3E8)),
@@ -2765,17 +2859,17 @@ class _ActionTile extends StatelessWidget {
                   Text(
                     title,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
+                      fontSize: 12,
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -2796,7 +2890,8 @@ class _PaymentMethodsSheet extends ConsumerStatefulWidget {
   const _PaymentMethodsSheet();
 
   @override
-  ConsumerState<_PaymentMethodsSheet> createState() => _PaymentMethodsSheetState();
+  ConsumerState<_PaymentMethodsSheet> createState() =>
+      _PaymentMethodsSheetState();
 }
 
 class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
@@ -2829,7 +2924,9 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
       list.sort((a, b) {
         final currencyCompare = a.currency.compareTo(b.currency);
         if (currencyCompare != 0) return currencyCompare;
-        return a.providerName.toLowerCase().compareTo(b.providerName.toLowerCase());
+        return a.providerName
+            .toLowerCase()
+            .compareTo(b.providerName.toLowerCase());
       });
       setState(() {
         _methods = list;
@@ -2922,10 +3019,13 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
     }
   }
 
-  Map<String, List<P2PUserPaymentMethod>> _groupByCurrency(List<P2PUserPaymentMethod> methods) {
+  Map<String, List<P2PUserPaymentMethod>> _groupByCurrency(
+      List<P2PUserPaymentMethod> methods) {
     final map = <String, List<P2PUserPaymentMethod>>{};
     for (final method in methods) {
-      map.putIfAbsent(method.currency, () => <P2PUserPaymentMethod>[]).add(method);
+      map
+          .putIfAbsent(method.currency, () => <P2PUserPaymentMethod>[])
+          .add(method);
     }
     return map;
   }
@@ -2962,10 +3062,10 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                   child: Text(
                     'Payment methods',
                     style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: '.SF Pro Display',
-                        ),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: '.SF Pro Display',
+                    ),
                   ),
                 ),
                 TextButton.icon(
@@ -2973,8 +3073,10 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                   style: TextButton.styleFrom(
                     backgroundColor: OpeiColors.pureBlack,
                     foregroundColor: OpeiColors.pureWhite,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
                   ),
                   icon: const Icon(Icons.add_rounded, size: 16),
                   label: const Text(
@@ -2988,9 +3090,9 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
             Text(
               'Manage the accounts you accept for trades. Each method is tied to a single currency.',
               style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 11,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
             const SizedBox(height: 16),
             if (_isLoading && !_isRefreshing)
@@ -3012,7 +3114,10 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF2F1),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFFF3B30).withValues(alpha: 0.25), width: 0.6),
+                      border: Border.all(
+                          color:
+                              const Color(0xFFFF3B30).withValues(alpha: 0.25),
+                          width: 0.6),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -3020,18 +3125,18 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                         Text(
                           'Something went wrong',
                           style: theme.textTheme.titleSmall?.copyWith(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                              ),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           _errorMessage!,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                                fontSize: 13,
-                                color: const Color(0xFFB3261E),
-                                height: 1.45,
-                              ),
+                            fontSize: 13,
+                            color: const Color(0xFFB3261E),
+                            height: 1.45,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         ElevatedButton(
@@ -3039,12 +3144,15 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: OpeiColors.pureBlack,
                             foregroundColor: OpeiColors.pureWhite,
-                            padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 18),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 11, horizontal: 18),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                           child: const Text(
                             'Try again',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
@@ -3058,7 +3166,8 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                   onRefresh: () => _loadMethods(asRefresh: true),
                   color: OpeiColors.pureBlack,
                   child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+                    physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics()),
                     children: [
                       if (_methods.isEmpty)
                         Container(
@@ -3073,25 +3182,26 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                               Text(
                                 'No payment methods yet',
                                 style: theme.textTheme.titleSmall?.copyWith(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                               const SizedBox(height: 6),
                               Text(
                                 'Add your first method to make it easier for buyers to pay you.',
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontSize: 12,
-                                      color: OpeiColors.iosLabelSecondary,
-                                      height: 1.45,
-                                    ),
+                                  fontSize: 12,
+                                  color: OpeiColors.iosLabelSecondary,
+                                  height: 1.45,
+                                ),
                               ),
                             ],
                           ),
                         )
                       else
                         ...currenciesSorted.map((currency) {
-                          final items = grouped[currency] ?? const <P2PUserPaymentMethod>[];
+                          final items = grouped[currency] ??
+                              const <P2PUserPaymentMethod>[];
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 18),
                             child: _PaymentMethodCurrencySection(
@@ -3134,10 +3244,10 @@ class _PaymentMethodCurrencySection extends StatelessWidget {
             Text(
               currency,
               style: theme.textTheme.titleSmall?.copyWith(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                  ),
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.4,
+              ),
             ),
             const SizedBox(width: 6),
             Container(
@@ -3149,9 +3259,9 @@ class _PaymentMethodCurrencySection extends StatelessWidget {
               child: Text(
                 '${methods.length}',
                 style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
@@ -3185,10 +3295,12 @@ class _SelectAdPaymentMethodSheet extends StatefulWidget {
   });
 
   @override
-  State<_SelectAdPaymentMethodSheet> createState() => _SelectAdPaymentMethodSheetState();
+  State<_SelectAdPaymentMethodSheet> createState() =>
+      _SelectAdPaymentMethodSheetState();
 }
 
-class _SelectAdPaymentMethodSheetState extends State<_SelectAdPaymentMethodSheet> {
+class _SelectAdPaymentMethodSheetState
+    extends State<_SelectAdPaymentMethodSheet> {
   String? _selectedId;
 
   @override
@@ -3244,7 +3356,9 @@ class _SelectAdPaymentMethodSheetState extends State<_SelectAdPaymentMethodSheet
                     decoration: BoxDecoration(
                       color: OpeiColors.pureWhite,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
+                      border: Border.all(
+                          color: OpeiColors.iosSeparator.withValues(alpha: 0.2),
+                          width: 0.5),
                     ),
                     child: RadioListTile<String>(
                       value: m.id,
@@ -3254,11 +3368,13 @@ class _SelectAdPaymentMethodSheetState extends State<_SelectAdPaymentMethodSheet
                       controlAffinity: ListTileControlAffinity.trailing,
                       title: Text(
                         m.providerName,
-                        style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.w700),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            fontSize: 14, fontWeight: FontWeight.w700),
                       ),
                       subtitle: Text(
                         subtitle,
-                        style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, color: OpeiColors.iosLabelSecondary),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 11, color: OpeiColors.iosLabelSecondary),
                       ),
                     ),
                   );
@@ -3278,7 +3394,8 @@ class _SelectAdPaymentMethodSheetState extends State<_SelectAdPaymentMethodSheet
                   backgroundColor: OpeiColors.pureBlack,
                   foregroundColor: OpeiColors.pureWhite,
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
                 child: Text(widget.actionLabel),
               ),
@@ -3313,7 +3430,8 @@ class _PaymentMethodTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.18), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.18), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -3334,7 +3452,8 @@ class _PaymentMethodTile extends StatelessWidget {
                   color: OpeiColors.iosSurfaceMuted,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.account_balance_outlined, size: 18, color: OpeiColors.pureBlack),
+                child: const Icon(Icons.account_balance_outlined,
+                    size: 18, color: OpeiColors.pureBlack),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -3344,24 +3463,25 @@ class _PaymentMethodTile extends StatelessWidget {
                     Text(
                       method.providerName,
                       style: theme.textTheme.titleSmall?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${method.methodType.toUpperCase()} · ${method.currency}',
                       style: theme.textTheme.bodySmall?.copyWith(
-                            fontSize: 11,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 11,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
               if (method.isVerified)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE7F9EF),
                     borderRadius: BorderRadius.circular(999),
@@ -3369,11 +3489,15 @@ class _PaymentMethodTile extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      Icon(Icons.verified_rounded, size: 14, color: Color(0xFF34C759)),
+                      Icon(Icons.verified_rounded,
+                          size: 14, color: Color(0xFF34C759)),
                       SizedBox(width: 4),
                       Text(
                         'Verified',
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF1F8A52)),
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1F8A52)),
                       ),
                     ],
                   ),
@@ -3393,7 +3517,8 @@ class _PaymentMethodTile extends StatelessWidget {
             textTheme: theme.textTheme,
             isMonospace: true,
           ),
-          if (method.extraDetails != null && method.extraDetails!.isNotEmpty) ...[
+          if (method.extraDetails != null &&
+              method.extraDetails!.isNotEmpty) ...[
             const SizedBox(height: 6),
             _PaymentDetailRow(
               label: 'Extra details',
@@ -3407,11 +3532,11 @@ class _PaymentMethodTile extends StatelessWidget {
               if (addedLabel != null)
                 Text(
                   'Added $addedLabel',
-                style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
-              ),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
+                ),
               const Spacer(),
               TextButton.icon(
                 onPressed: onEdit,
@@ -3419,9 +3544,9 @@ class _PaymentMethodTile extends StatelessWidget {
                 label: const Text('Edit'),
                 style: TextButton.styleFrom(
                   foregroundColor: OpeiColors.pureBlack,
+                ),
               ),
-            ),
-          ],
+            ],
           ),
         ],
       ),
@@ -3442,11 +3567,13 @@ class _CurrencySelectorSheetState extends State<_CurrencySelectorSheet> {
   @override
   Widget build(BuildContext context) {
     final filtered = currencies
-        .where((currency) => currency.code.toLowerCase().contains(_search.toLowerCase()))
+        .where((currency) =>
+            currency.code.toLowerCase().contains(_search.toLowerCase()))
         .toList(growable: false);
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.fromLTRB(
+          20, 16, 20, 20 + MediaQuery.of(context).viewInsets.bottom),
       child: SafeArea(
         top: false,
         child: Column(
@@ -3478,14 +3605,19 @@ class _CurrencySelectorSheetState extends State<_CurrencySelectorSheet> {
                 hintText: 'Search currency',
                 filled: true,
                 fillColor: OpeiColors.iosSurfaceMuted,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.25), width: 0.5),
+                  borderSide: BorderSide(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.25),
+                      width: 0.5),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.25), width: 0.5),
+                  borderSide: BorderSide(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.25),
+                      width: 0.5),
                 ),
               ),
               onChanged: (value) => setState(() => _search = value.trim()),
@@ -3529,7 +3661,8 @@ class _CurrencySelectorSheetState extends State<_CurrencySelectorSheet> {
                             color: OpeiColors.iosLabelSecondary,
                           ),
                     ),
-                    trailing: const Icon(Icons.chevron_right_rounded, color: OpeiColors.iosLabelTertiary),
+                    trailing: const Icon(Icons.chevron_right_rounded,
+                        color: OpeiColors.iosLabelTertiary),
                     onTap: () => Navigator.of(context).pop(currency.code),
                   );
                 },
@@ -3548,7 +3681,8 @@ class _MyAdsFilterRow extends StatelessWidget {
   final MyP2PAdStatusFilter selectedFilter;
   final ValueChanged<MyP2PAdStatusFilter> onSelected;
 
-  const _MyAdsFilterRow({required this.selectedFilter, required this.onSelected});
+  const _MyAdsFilterRow(
+      {required this.selectedFilter, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -3577,7 +3711,8 @@ class _OrdersFilterRow extends StatelessWidget {
   final P2POrderStatusFilter selectedFilter;
   final ValueChanged<P2POrderStatusFilter> onSelected;
 
-  const _OrdersFilterRow({required this.selectedFilter, required this.onSelected});
+  const _OrdersFilterRow(
+      {required this.selectedFilter, required this.onSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -3607,12 +3742,14 @@ class _OrdersFilterChip extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _OrdersFilterChip({required this.label, required this.isSelected, required this.onTap});
+  const _OrdersFilterChip(
+      {required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final background = isSelected ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted;
+    final background =
+        isSelected ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted;
     final foreground = isSelected ? OpeiColors.pureWhite : OpeiColors.pureBlack;
 
     return GestureDetector(
@@ -3632,11 +3769,11 @@ class _OrdersFilterChip extends StatelessWidget {
         child: Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: foreground,
-                letterSpacing: -0.1,
-              ),
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: foreground,
+            letterSpacing: -0.1,
+          ),
         ),
       ),
     );
@@ -3686,7 +3823,8 @@ class _RefreshDotsIndicatorState extends State<_RefreshDotsIndicator>
           mainAxisSize: MainAxisSize.min,
           children: List.generate(3, (index) {
             final progress = (_controller.value + index * 0.2) % 1.0;
-            final normalized = (math.sin((progress * 2 * math.pi) - (math.pi / 2)) + 1) / 2;
+            final normalized =
+                (math.sin((progress * 2 * math.pi) - (math.pi / 2)) + 1) / 2;
             final scale = 0.6 + (0.4 * normalized);
             final opacity = 0.5 + (0.5 * normalized);
 
@@ -3780,24 +3918,25 @@ class _OrdersEmptyState extends StatelessWidget {
             color: OpeiColors.iosSurfaceMuted,
             borderRadius: BorderRadius.circular(26),
           ),
-          child: const Icon(Icons.receipt_long_outlined, size: 40, color: OpeiColors.pureBlack),
+          child: const Icon(Icons.receipt_long_outlined,
+              size: 40, color: OpeiColors.pureBlack),
         ),
         const SizedBox(height: 20),
         Text(
           'No orders in this view',
           style: theme.textTheme.titleMedium?.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(height: 8),
         Text(
           info ?? 'Once you start trading, your activity will show here.',
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 13,
-                color: OpeiColors.iosLabelSecondary,
-              ),
+            fontSize: 13,
+            color: OpeiColors.iosLabelSecondary,
+          ),
         ),
       ],
     );
@@ -3809,7 +3948,8 @@ class _OrdersErrorState extends StatelessWidget {
   final Future<void> Function() onRetry;
   final String? title;
 
-  const _OrdersErrorState({required this.message, required this.onRetry, this.title});
+  const _OrdersErrorState(
+      {required this.message, required this.onRetry, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -3819,7 +3959,8 @@ class _OrdersErrorState extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFFFF2F1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFFF3B30).withValues(alpha: 0.25), width: 0.6),
+        border: Border.all(
+            color: const Color(0xFFFF3B30).withValues(alpha: 0.25), width: 0.6),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -3827,19 +3968,19 @@ class _OrdersErrorState extends StatelessWidget {
           Text(
             title ?? 'We couldn’t load your orders',
             style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: OpeiColors.pureBlack,
-                ),
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: OpeiColors.pureBlack,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             message,
             style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  color: const Color(0xFFB3261E),
-                  height: 1.45,
-                ),
+              fontSize: 13,
+              color: const Color(0xFFB3261E),
+              height: 1.45,
+            ),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -3850,7 +3991,8 @@ class _OrdersErrorState extends StatelessWidget {
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text(
                 'Try again',
@@ -3883,14 +4025,16 @@ class _OrderCard extends StatefulWidget {
   State<_OrderCard> createState() => _OrderCardState();
 }
 
-class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMixin {
+class _OrderCardState extends State<_OrderCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 90));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 90));
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
@@ -3910,7 +4054,8 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => _TradeDetailSheet(trade: widget.trade, isBuyer: widget.isBuyer),
+      builder: (ctx) =>
+          _TradeDetailSheet(trade: widget.trade, isBuyer: widget.isBuyer),
     );
   }
 
@@ -3934,15 +4079,20 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
     final expiresLabel = trade.expiresAt != null
         ? DateFormat('d MMM, HH:mm').format(trade.expiresAt!.toLocal())
         : null;
-    final shortId = (trade.id.length <= 8 ? trade.id : trade.id.substring(0, 8)).toUpperCase();
+    final shortId = (trade.id.length <= 8 ? trade.id : trade.id.substring(0, 8))
+        .toUpperCase();
 
     final method = trade.selectedPaymentMethod;
-    final bool showRatingCta = widget.isBuyer != null && trade.shouldOfferRating;
+    final bool showRatingCta =
+        widget.isBuyer != null && trade.shouldOfferRating;
     final String counterpartLabel = widget.isBuyer == true ? 'seller' : 'buyer';
-    final bool showSellerReleaseShortcut = widget.isBuyer == false && trade.status == P2PTradeStatus.paidByBuyer;
+    final bool showSellerReleaseShortcut =
+        widget.isBuyer == false && trade.status == P2PTradeStatus.paidByBuyer;
     final String amountLabel = widget.isBuyer == true
         ? (trade.status == P2PTradeStatus.completed ? 'Sent' : 'Send')
-        : (trade.status == P2PTradeStatus.completed ? 'Received' : "You'll receive");
+        : (trade.status == P2PTradeStatus.completed
+            ? 'Received'
+            : "You'll receive");
 
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
@@ -3958,7 +4108,9 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
           decoration: BoxDecoration(
             color: OpeiColors.pureWhite,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+            border: Border.all(
+                color: OpeiColors.iosSeparator.withValues(alpha: 0.15),
+                width: 0.5),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -3981,22 +4133,22 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                         TextSpan(
                           text: widget.isBuyer == true ? 'Buy' : 'Sell',
                           style: theme.textTheme.titleMedium?.copyWith(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.3,
-                                color: widget.isBuyer == true 
-                                    ? const Color(0xFF34C759) 
-                                    : const Color(0xFFFF3B30),
-                              ),
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.3,
+                            color: widget.isBuyer == true
+                                ? const Color(0xFF34C759)
+                                : const Color(0xFFFF3B30),
+                          ),
                         ),
                         TextSpan(
                           text: ' USD',
                           style: theme.textTheme.titleMedium?.copyWith(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.3,
-                                color: OpeiColors.pureBlack,
-                              ),
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.3,
+                            color: OpeiColors.pureBlack,
+                          ),
                         ),
                       ],
                     ),
@@ -4005,14 +4157,14 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                 ],
               ),
               const SizedBox(height: 12),
-               _InfoRow(label: 'Amount', value: usdAmount),
-               const SizedBox(height: 8),
-               _InfoRow(label: 'Rate', value: '1 USD = $rateLabel'),
-               const SizedBox(height: 8),
-               _InfoRow(
-                 label: amountLabel,
-                 value: localAmountLabel,
-               ),
+              _InfoRow(label: 'Amount', value: usdAmount),
+              const SizedBox(height: 8),
+              _InfoRow(label: 'Rate', value: '1 USD = $rateLabel'),
+              const SizedBox(height: 8),
+              _InfoRow(
+                label: amountLabel,
+                value: localAmountLabel,
+              ),
               if (method != null) ...[
                 const SizedBox(height: 8),
                 _InfoRow(
@@ -4025,16 +4177,18 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                     if (accountNumber.isEmpty) return null;
                     return Text(
                       accountNumber,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                                fontSize: 12,
-                                color: OpeiColors.iosLabelTertiary,
-                              ),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 12,
+                        color: OpeiColors.iosLabelTertiary,
+                      ),
                     );
                   }(),
                 ),
               ],
               const SizedBox(height: 10),
-              Divider(height: 1, color: OpeiColors.iosSeparator.withValues(alpha: 0.25)),
+              Divider(
+                  height: 1,
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.25)),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -4042,17 +4196,17 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                   Text(
                     'ID: $shortId',
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: OpeiColors.iosLabelSecondary,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      fontSize: 11,
+                      color: OpeiColors.iosLabelSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   Text(
                     createdLabel,
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: OpeiColors.iosLabelTertiary,
-                        ),
+                      fontSize: 11,
+                      color: OpeiColors.iosLabelTertiary,
+                    ),
                   ),
                 ],
               ),
@@ -4061,9 +4215,9 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                 Text(
                   'Expires $expiresLabel',
                   style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 10,
-                        color: OpeiColors.iosLabelTertiary,
-                      ),
+                    fontSize: 10,
+                    color: OpeiColors.iosLabelTertiary,
+                  ),
                 ),
               ],
               if (widget.canCancel || showRatingCta) ...[
@@ -4073,22 +4227,25 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                     if (widget.canCancel)
                       Expanded(
                         child: OutlinedButton(
-                          onPressed: widget.isCancelling || widget.onCancel == null
-                              ? null
-                              : () async {
-                                  await widget.onCancel!.call();
-                                },
+                          onPressed:
+                              widget.isCancelling || widget.onCancel == null
+                                  ? null
+                                  : () async {
+                                      await widget.onCancel!.call();
+                                    },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: widget.isCancelling
                                 ? OpeiColors.iosLabelSecondary
                                 : const Color(0xFFD62E1F),
                             side: BorderSide(
                               color: widget.isCancelling
-                                  ? OpeiColors.iosSeparator.withValues(alpha: 0.4)
+                                  ? OpeiColors.iosSeparator
+                                      .withValues(alpha: 0.4)
                                   : const Color(0xFFD62E1F),
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: widget.isCancelling
                               ? const SizedBox(
@@ -4096,35 +4253,40 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                                   width: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 1.8,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFD62E1F)),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Color(0xFFD62E1F)),
                                   ),
                                 )
                               : Text(
                                   'Cancel trade',
                                   style: theme.textTheme.bodyMedium?.copyWith(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                         ),
                       ),
-                    if (widget.canCancel && showRatingCta) const SizedBox(width: 10),
+                    if (widget.canCancel && showRatingCta)
+                      const SizedBox(width: 10),
                     if (showRatingCta)
                       Expanded(
                         child: OutlinedButton(
                           onPressed: _openDetails,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: OpeiColors.pureBlack,
-                            side: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.35)),
+                            side: BorderSide(
+                                color: OpeiColors.iosSeparator
+                                    .withValues(alpha: 0.35)),
                             padding: const EdgeInsets.symmetric(vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
                           ),
                           child: Text(
                             'Rate $counterpartLabel',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
@@ -4141,15 +4303,16 @@ class _OrderCardState extends State<_OrderCard> with SingleTickerProviderStateMi
                       backgroundColor: OpeiColors.pureBlack,
                       foregroundColor: OpeiColors.pureWhite,
                       padding: const EdgeInsets.symmetric(vertical: 11),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
                       'Confirm release',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: OpeiColors.pureWhite,
-                          ),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiColors.pureWhite,
+                      ),
                     ),
                   ),
                 ),
@@ -4179,10 +4342,10 @@ class _InfoRow extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 13,
-                color: OpeiColors.iosLabelSecondary,
-                fontWeight: FontWeight.w500,
-              ),
+            fontSize: 13,
+            color: OpeiColors.iosLabelSecondary,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(width: 8),
         Flexible(
@@ -4195,10 +4358,10 @@ class _InfoRow extends StatelessWidget {
                   value,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 13,
-                        color: OpeiColors.pureBlack,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    fontSize: 13,
+                    color: OpeiColors.pureBlack,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               if (trailing != null) ...[
@@ -4262,7 +4425,8 @@ class _OrderStatusPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: background,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
       ),
       child: Text(
         status.displayLabel,
@@ -4282,12 +4446,14 @@ class _MyAdsFilterChip extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _MyAdsFilterChip({required this.label, required this.isSelected, required this.onTap});
+  const _MyAdsFilterChip(
+      {required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final background = isSelected ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted;
+    final background =
+        isSelected ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted;
     final foreground = isSelected ? OpeiColors.pureWhite : OpeiColors.pureBlack;
 
     return GestureDetector(
@@ -4307,11 +4473,11 @@ class _MyAdsFilterChip extends StatelessWidget {
         child: Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: foreground,
-                letterSpacing: -0.1,
-              ),
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: foreground,
+            letterSpacing: -0.1,
+          ),
         ),
       ),
     );
@@ -4355,7 +4521,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     _trade = widget.trade;
     final rating = _trade.yourRating;
     _selectedRating = rating?.score ?? 0;
-    _ratingCommentController = TextEditingController(text: rating?.comment ?? '');
+    _ratingCommentController =
+        TextEditingController(text: rating?.comment ?? '');
     _proofNoteController = TextEditingController();
     if (rating != null && rating.tags.isNotEmpty) {
       _selectedRatingTags.addAll(rating.tags.map((tag) => tag.toLowerCase()));
@@ -4393,9 +4560,11 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         : null;
 
     final amountLabel = _formatUsdAmount(trade.amount);
-    final rateLabel = '1 USD = ${trade.ad.rate.format(includeCurrencySymbol: true)}';
+    final rateLabel =
+        '1 USD = ${trade.ad.rate.format(includeCurrencySymbol: true)}';
     final Money? sendAmount = trade.sendAmount;
-    final Money fallbackSend = _resolveSendFallback(trade: trade, sendAmount: sendAmount);
+    final Money fallbackSend =
+        _resolveSendFallback(trade: trade, sendAmount: sendAmount);
     final Money effectiveSend = sendAmount ?? fallbackSend;
     final String sendLabel = _formatLocalAmount(effectiveSend);
 
@@ -4406,10 +4575,13 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     final showDisputeButton = _isTradeEligibleForDispute(trade.status);
     final alreadyDisputed = trade.status == P2PTradeStatus.disputed;
     final ratingSection = _buildRatingSection(trade, currentUserId);
-    final canCancelTrade = _canCurrentUserCancelTrade(trade: trade, currentUserId: currentUserId);
+    final canCancelTrade =
+        _canCurrentUserCancelTrade(trade: trade, currentUserId: currentUserId);
     final isCancellingTrade = ordersState.isTradeCancelling(trade.id);
-    final showBuyerSubmitProof = isBuyer && trade.status == P2PTradeStatus.initiated;
-    final showSellerRelease = isSeller && trade.status == P2PTradeStatus.paidByBuyer;
+    final showBuyerSubmitProof =
+        isBuyer && trade.status == P2PTradeStatus.initiated;
+    final showSellerRelease =
+        isSeller && trade.status == P2PTradeStatus.paidByBuyer;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(18, 12, 18, 16 + bottomInset),
@@ -4446,7 +4618,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                         color: OpeiColors.iosSurfaceMuted,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.close_rounded, size: 16, color: OpeiColors.pureBlack),
+                      child: const Icon(Icons.close_rounded,
+                          size: 16, color: OpeiColors.pureBlack),
                     ),
                   ),
                 ],
@@ -4474,7 +4647,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 decoration: BoxDecoration(
                   color: OpeiColors.iosSurfaceMuted,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+                  border: Border.all(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.15),
+                      width: 0.5),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -4492,10 +4667,12 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                     if (trade.cancelledAt != null) ...[
                       _DetailRow(
                         label: 'Cancelled',
-                        value: DateFormat('d MMM yyyy, HH:mm').format(trade.cancelledAt!.toLocal()),
+                        value: DateFormat('d MMM yyyy, HH:mm')
+                            .format(trade.cancelledAt!.toLocal()),
                       ),
                       if ((trade.cancelReason ?? '').isNotEmpty)
-                        _DetailRow(label: 'Reason', value: trade.cancelReason ?? ''),
+                        _DetailRow(
+                            label: 'Reason', value: trade.cancelReason ?? ''),
                     ],
                     _DetailRow(label: 'Order ID', value: trade.id),
                   ],
@@ -4517,7 +4694,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                             : const Color(0xFFD62E1F),
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 11),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: isCancellingTrade
                         ? const SizedBox(
@@ -4525,12 +4703,14 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                             width: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 1.8,
-                              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFD62E1F)),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Color(0xFFD62E1F)),
                             ),
                           )
                         : const Text(
                             'Cancel trade',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.w600),
                           ),
                   ),
                 ),
@@ -4544,7 +4724,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                     decoration: BoxDecoration(
                       color: OpeiColors.pureWhite,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+                      border: Border.all(
+                          color:
+                              OpeiColors.iosSeparator.withValues(alpha: 0.15),
+                          width: 0.5),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.02),
@@ -4559,28 +4742,28 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                         Text(
                           'Send this amount',
                           style: theme.textTheme.bodySmall?.copyWith(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: OpeiColors.iosLabelSecondary,
-                              ),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: OpeiColors.iosLabelSecondary,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           sendLabel,
                           style: theme.textTheme.titleLarge?.copyWith(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.3,
-                              ),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           'Transfer $sendLabel to the seller before marking payment as sent.',
                           style: theme.textTheme.bodySmall?.copyWith(
-                                fontSize: 11.5,
-                                color: OpeiColors.iosLabelSecondary,
-                                height: 1.35,
-                              ),
+                            fontSize: 11.5,
+                            color: OpeiColors.iosLabelSecondary,
+                            height: 1.35,
+                          ),
                         ),
                       ],
                     ),
@@ -4588,12 +4771,14 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                   const SizedBox(height: 12),
                 ],
                 Text(
-                  isBuyer == true ? 'Seller payment details' : 'Buyer payment details',
+                  isBuyer == true
+                      ? 'Seller payment details'
+                      : 'Buyer payment details',
                   style: theme.textTheme.titleSmall?.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.iosLabelSecondary,
-                      ),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Container(
@@ -4602,7 +4787,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                   decoration: BoxDecoration(
                     color: OpeiColors.pureWhite,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+                    border: Border.all(
+                        color: OpeiColors.iosSeparator.withValues(alpha: 0.15),
+                        width: 0.5),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -4615,16 +4802,24 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                               color: OpeiColors.iosSurfaceMuted,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(Icons.account_balance_outlined, size: 16, color: OpeiColors.pureBlack),
+                            child: const Icon(Icons.account_balance_outlined,
+                                size: 16, color: OpeiColors.pureBlack),
                           ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(method.providerName, style: theme.textTheme.titleSmall?.copyWith(fontSize: 13, fontWeight: FontWeight.w700)),
+                                Text(method.providerName,
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700)),
                                 const SizedBox(height: 1),
-                                Text('${method.methodType} · ${method.currency}', style: theme.textTheme.bodySmall?.copyWith(fontSize: 10, color: OpeiColors.iosLabelSecondary)),
+                                Text(
+                                    '${method.methodType} · ${method.currency}',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                        fontSize: 10,
+                                        color: OpeiColors.iosLabelSecondary)),
                               ],
                             ),
                           ),
@@ -4632,14 +4827,24 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       ),
                       const SizedBox(height: 10),
                       if (method.accountName.isNotEmpty)
-                        _PaymentDetailRow(label: 'Account Name', value: method.accountName, textTheme: theme.textTheme),
+                        _PaymentDetailRow(
+                            label: 'Account Name',
+                            value: method.accountName,
+                            textTheme: theme.textTheme),
                       if (method.accountNumber.isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        _PaymentDetailRow(label: 'Account Number', value: method.accountNumber, textTheme: theme.textTheme, isMonospace: true),
+                        _PaymentDetailRow(
+                            label: 'Account Number',
+                            value: method.accountNumber,
+                            textTheme: theme.textTheme,
+                            isMonospace: true),
                       ],
                       if ((method.extraDetails ?? '').isNotEmpty) ...[
                         const SizedBox(height: 8),
-                        _PaymentDetailRow(label: 'Additional Details', value: method.extraDetails!, textTheme: theme.textTheme),
+                        _PaymentDetailRow(
+                            label: 'Additional Details',
+                            value: method.extraDetails!,
+                            textTheme: theme.textTheme),
                       ],
                     ],
                   ),
@@ -4650,10 +4855,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 Text(
                   'Proofs submitted',
                   style: theme.textTheme.titleSmall?.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.iosLabelSecondary,
-                      ),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Wrap(
@@ -4672,7 +4877,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               if (_proofSubmissionSuccess) ...[
                 const SizedBox(height: 12),
                 const _MessageBanner(
-                  message: 'Payment marked as paid. Waiting for seller confirmation.',
+                  message:
+                      'Payment marked as paid. Waiting for seller confirmation.',
                   isError: false,
                 ),
               ],
@@ -4695,7 +4901,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               if (_disputeSuccess) ...[
                 const SizedBox(height: 12),
                 const _MessageBanner(
-                  message: 'Dispute opened. Our support team will review it shortly.',
+                  message:
+                      'Dispute opened. Our support team will review it shortly.',
                   isError: false,
                 ),
               ],
@@ -4704,19 +4911,24 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed: alreadyDisputed || _isDisputing ? null : _handleRaiseDispute,
+                    onPressed: alreadyDisputed || _isDisputing
+                        ? null
+                        : _handleRaiseDispute,
                     style: OutlinedButton.styleFrom(
                       foregroundColor: OpeiColors.pureBlack,
-                      side: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.35)),
+                      side: BorderSide(
+                          color:
+                              OpeiColors.iosSeparator.withValues(alpha: 0.35)),
                       padding: const EdgeInsets.symmetric(vertical: 11),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
                       alreadyDisputed ? 'Dispute opened' : 'Raise dispute',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -4733,7 +4945,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       return null;
     }
 
-    final isParticipant = currentUserId == trade.buyerId || currentUserId == trade.sellerId;
+    final isParticipant =
+        currentUserId == trade.buyerId || currentUserId == trade.sellerId;
     if (!isParticipant) {
       return null;
     }
@@ -4745,7 +4958,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       return null;
     }
 
-    final counterpartLabel = currentUserId == trade.buyerId ? 'seller' : 'buyer';
+    final counterpartLabel =
+        currentUserId == trade.buyerId ? 'seller' : 'buyer';
 
     if (hasRated && trade.yourRating != null) {
       return _buildRatingSummaryCard(trade.yourRating!, counterpartLabel);
@@ -4754,7 +4968,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     return _buildRatingForm(counterpartLabel);
   }
 
-  Widget _buildRatingSummaryCard(P2PTradeRating rating, String counterpartLabel) {
+  Widget _buildRatingSummaryCard(
+      P2PTradeRating rating, String counterpartLabel) {
     final theme = Theme.of(context);
     final createdLabel = rating.createdAt != null
         ? DateFormat('d MMM yyyy, HH:mm').format(rating.createdAt!.toLocal())
@@ -4766,7 +4981,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       decoration: BoxDecoration(
         color: OpeiColors.iosSurfaceMuted,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -4774,10 +4990,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           Text(
             'You rated this $counterpartLabel',
             style: theme.textTheme.titleSmall?.copyWith(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.2,
-                ),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.2,
+            ),
           ),
           const SizedBox(height: 10),
           _buildStaticStarRow(rating.score),
@@ -4786,9 +5002,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
             Text(
               rating.comment!,
               style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
+                fontSize: 12,
+                height: 1.4,
+              ),
             ),
           ],
           if (rating.tags.isNotEmpty) ...[
@@ -4797,7 +5013,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               spacing: 6,
               runSpacing: 6,
               children: rating.tags
-                  .map((tag) => _buildTagPill(_formatRatingTag(tag), isActive: false))
+                  .map((tag) =>
+                      _buildTagPill(_formatRatingTag(tag), isActive: false))
                   .toList(growable: false),
             ),
           ],
@@ -4806,9 +5023,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
             Text(
               'Submitted $createdLabel',
               style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 10,
-                    color: OpeiColors.iosLabelTertiary,
-                  ),
+                fontSize: 10,
+                color: OpeiColors.iosLabelTertiary,
+              ),
             ),
           ],
         ],
@@ -4826,7 +5043,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -4841,17 +5059,17 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           Text(
             'Rate the $counterpartLabel',
             style: textTheme.titleSmall?.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             'Your feedback helps keep trades safe and respectful.',
             style: textTheme.bodySmall?.copyWith(
-                  fontSize: 11,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 11,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
           const SizedBox(height: 12),
           _buildInteractiveStarsRow(),
@@ -4859,9 +5077,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           Text(
             'Optional comment',
             style: textTheme.bodySmall?.copyWith(
-                  fontSize: 11,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 11,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
           const SizedBox(height: 5),
           TextField(
@@ -4880,18 +5098,24 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               hintStyle: TextStyle(fontSize: 12),
               filled: true,
               fillColor: OpeiColors.iosSurfaceMuted,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+                borderSide: BorderSide(
+                    color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                    width: 0.5),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+                borderSide: BorderSide(
+                    color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                    width: 0.5),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: OpeiColors.pureBlack, width: 0.8),
+                borderSide:
+                    const BorderSide(color: OpeiColors.pureBlack, width: 0.8),
               ),
             ),
             style: TextStyle(fontSize: 12),
@@ -4900,33 +5124,32 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           Text(
             'Tags (optional)',
             style: textTheme.bodySmall?.copyWith(
-                  fontSize: 11,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 11,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
           const SizedBox(height: 6),
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: _ratingTagSuggestions
-                .map((tag) {
-                  final normalized = tag.toLowerCase();
-                  final isSelected = _selectedRatingTags.contains(normalized);
-                  return GestureDetector(
-                    onTap: () => _toggleRatingTag(normalized),
-                    child: _buildTagPill(_formatRatingTag(tag), isActive: isSelected),
-                  );
-                })
-                .toList(growable: false),
+            children: _ratingTagSuggestions.map((tag) {
+              final normalized = tag.toLowerCase();
+              final isSelected = _selectedRatingTags.contains(normalized);
+              return GestureDetector(
+                onTap: () => _toggleRatingTag(normalized),
+                child:
+                    _buildTagPill(_formatRatingTag(tag), isActive: isSelected),
+              );
+            }).toList(growable: false),
           ),
           const SizedBox(height: 10),
           if (_ratingError != null) ...[
             Text(
               _ratingError!,
               style: textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
-                    color: const Color(0xFFFF3B30),
-                  ),
+                fontSize: 11,
+                color: const Color(0xFFFF3B30),
+              ),
             ),
             const SizedBox(height: 10),
           ],
@@ -4938,15 +5161,16 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 11),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: Text(
                 _isRatingSubmitting ? 'Submitting…' : 'Submit rating',
                 style: textTheme.bodyMedium?.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: OpeiColors.pureWhite,
-                    ),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: OpeiColors.pureWhite,
+                ),
               ),
             ),
           ),
@@ -4962,7 +5186,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -4999,7 +5224,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 11),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: _isProofSubmitting
                   ? const SizedBox(
@@ -5007,7 +5233,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       width: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 1.8,
-                        valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
                       ),
                     )
                   : Text(
@@ -5032,7 +5259,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       decoration: BoxDecoration(
         color: const Color(0xFFFFFBF5),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -5057,12 +5285,14 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _isReleaseSubmitting ? null : _promptReleaseConfirmation,
+              onPressed:
+                  _isReleaseSubmitting ? null : _promptReleaseConfirmation,
               style: ElevatedButton.styleFrom(
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 11),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: _isReleaseSubmitting
                   ? const SizedBox(
@@ -5070,7 +5300,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       width: 16,
                       child: CircularProgressIndicator(
                         strokeWidth: 1.8,
-                        valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
                       ),
                     )
                   : Text(
@@ -5095,7 +5326,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         color: isActive ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isActive ? OpeiColors.pureBlack : OpeiColors.iosSeparator.withValues(alpha: 0.25),
+          color: isActive
+              ? OpeiColors.pureBlack
+              : OpeiColors.iosSeparator.withValues(alpha: 0.25),
           width: isActive ? 0.8 : 0.5,
         ),
       ),
@@ -5189,12 +5422,14 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       );
 
       if (plans.length != candidates.length) {
-        throw ApiError(message: 'Couldn’t prepare proof uploads. Please try again.');
+        throw ApiError(
+            message: 'Couldn’t prepare proof uploads. Please try again.');
       }
 
       await _performProofUploads(candidates, plans);
 
-      final proofUrls = plans.map((plan) => plan.fileUrl).toList(growable: false);
+      final proofUrls =
+          plans.map((plan) => plan.fileUrl).toList(growable: false);
       final note = _proofNoteController.text.trim();
 
       final updatedTrade = await repository.markTradeAsPaid(
@@ -5215,7 +5450,6 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
 
       _proofNoteController.clear();
       unawaited(_refreshOrdersSilently());
-
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -5328,7 +5562,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       final file = _pickedProofImages[i];
       final bytes = file.bytes;
       if (bytes == null || bytes.isEmpty) {
-        throw ApiError(message: 'One of the selected images could not be read. Please re-upload.');
+        throw ApiError(
+            message:
+                'One of the selected images could not be read. Please re-upload.');
       }
 
       final extension = _resolvePreferredExtension(file);
@@ -5362,7 +5598,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     if (ext == 'jpeg' || ext == 'jpg') return 'jpg';
     if (ext == 'heic' || ext == 'heif') return 'jpg';
     if (file.name.toLowerCase().endsWith('.png')) return 'png';
-    if (file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg')) return 'jpg';
+    if (file.name.toLowerCase().endsWith('.jpg') ||
+        file.name.toLowerCase().endsWith('.jpeg')) return 'jpg';
     return 'jpg';
   }
 
@@ -5387,7 +5624,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         if (message.toLowerCase().contains('already marked')) {
           return 'You already confirmed payment for this trade.';
         }
-        return message.isNotEmpty ? message : 'We couldn’t submit those proofs. Please check and try again.';
+        return message.isNotEmpty
+            ? message
+            : 'We couldn’t submit those proofs. Please check and try again.';
       }
 
       if (status == 401 || status == 403) {
@@ -5402,11 +5641,14 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         return 'Server issue while submitting your proofs. Please try again in a moment.';
       }
 
-      return message.isNotEmpty ? message : 'We couldn’t submit your proofs right now.';
+      return message.isNotEmpty
+          ? message
+          : 'We couldn’t submit your proofs right now.';
     }
 
     if (error is DioException) {
-      if (error.type == DioExceptionType.connectionTimeout || error.type == DioExceptionType.connectionError) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.connectionError) {
         return 'Network issue while uploading. Check your connection and retry.';
       }
       return 'Upload failed. Please try again.';
@@ -5428,10 +5670,12 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
             final textTheme = theme.textTheme;
 
             return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
               title: Text(
                 'Confirm release',
-                style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                style: textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -5439,7 +5683,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 children: [
                   Text(
                     'Do not release funds before receiving payment.',
-                    style: textTheme.bodyMedium?.copyWith(height: 1.45, fontWeight: FontWeight.w600),
+                    style: textTheme.bodyMedium
+                        ?.copyWith(height: 1.45, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 10),
                   Text(
@@ -5463,8 +5708,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: OpeiColors.pureBlack,
                     foregroundColor: OpeiColors.pureWhite,
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 18, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   child: const Text('I understand'),
                 ),
@@ -5586,7 +5833,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           child: Icon(
             isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
             size: 22,
-            color: isFilled ? const Color(0xFFFFD60A) : OpeiColors.iosSeparator.withValues(alpha: 0.8),
+            color: isFilled
+                ? const Color(0xFFFFD60A)
+                : OpeiColors.iosSeparator.withValues(alpha: 0.8),
           ),
         );
       }),
@@ -5610,7 +5859,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
             child: Icon(
               isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
               size: 30,
-              color: isFilled ? const Color(0xFFFFD60A) : OpeiColors.iosSeparator.withValues(alpha: 0.6),
+              color: isFilled
+                  ? const Color(0xFFFFD60A)
+                  : OpeiColors.iosSeparator.withValues(alpha: 0.6),
             ),
           ),
         );
@@ -5674,10 +5925,12 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
 
       _ratingCommentController
         ..text = rating.comment ?? ''
-        ..selection = TextSelection.collapsed(offset: _ratingCommentController.text.length);
+        ..selection = TextSelection.collapsed(
+            offset: _ratingCommentController.text.length);
 
       final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger?.showSnackBar(const SnackBar(content: Text('Thanks for rating!')));
+      messenger
+          ?.showSnackBar(const SnackBar(content: Text('Thanks for rating!')));
 
       try {
         await ref.read(p2pOrdersControllerProvider.notifier).refresh();
@@ -5689,8 +5942,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       setState(() {
         final friendly = _mapRatingError(error);
         _ratingError = friendly;
-        if (!_trade.hasUserRating && friendly.toLowerCase().contains('already')) {
-          _trade = _trade.copyWith(canRate: false, ratingPending: false, isRatedByMe: true);
+        if (!_trade.hasUserRating &&
+            friendly.toLowerCase().contains('already')) {
+          _trade = _trade.copyWith(
+              canRate: false, ratingPending: false, isRatedByMe: true);
         }
       });
     } finally {
@@ -5716,7 +5971,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       });
 
       final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger?.showSnackBar(const SnackBar(content: Text('Trade cancelled.')));
+      messenger
+          ?.showSnackBar(const SnackBar(content: Text('Trade cancelled.')));
     } catch (error) {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.maybeOf(context);
@@ -5754,7 +6010,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         if (message.contains('completed') || message.contains('not finished')) {
           return 'You can rate once the trade is marked as completed.';
         }
-        return error.message.isEmpty ? 'We couldn’t submit your rating. Please try again.' : error.message;
+        return error.message.isEmpty
+            ? 'We couldn’t submit your rating. Please try again.'
+            : error.message;
       }
 
       if (status >= 500) {
@@ -5820,7 +6078,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
 
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
-        const SnackBar(content: Text('Dispute submitted. Support has been notified.')),
+        const SnackBar(
+            content: Text('Dispute submitted. Support has been notified.')),
       );
     } catch (error) {
       if (!mounted) return;
@@ -5858,7 +6117,9 @@ class _ProofNetworkThumb extends StatelessWidget {
         decoration: BoxDecoration(
           color: OpeiColors.iosSurfaceMuted,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+          border: Border.all(
+              color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+              width: 0.5),
         ),
         clipBehavior: Clip.antiAlias,
         child: Image.network(
@@ -5867,7 +6128,8 @@ class _ProofNetworkThumb extends StatelessWidget {
           errorBuilder: (context, error, stackTrace) {
             debugPrint('🖼️ Thumbnail failed to load: $error');
             return Center(
-              child: Icon(Icons.broken_image_outlined, color: OpeiColors.iosLabelTertiary, size: 28),
+              child: Icon(Icons.broken_image_outlined,
+                  color: OpeiColors.iosLabelTertiary, size: 28),
             );
           },
         ),
@@ -5908,14 +6170,18 @@ void _showProofViewer(BuildContext context, String url) {
                         if (loadingProgress == null) return child;
                         final expected = loadingProgress.expectedTotalBytes;
                         final loaded = loadingProgress.cumulativeBytesLoaded;
-                        final value = expected != null && expected > 0 ? loaded / expected : null;
+                        final value = expected != null && expected > 0
+                            ? loaded / expected
+                            : null;
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const CircularProgressIndicator(color: Colors.white),
+                            const CircularProgressIndicator(
+                                color: Colors.white),
                             const SizedBox(height: 12),
                             if (value != null)
-                              Text('${(value * 100).toStringAsFixed(0)}%', style: const TextStyle(color: Colors.white)),
+                              Text('${(value * 100).toStringAsFixed(0)}%',
+                                  style: const TextStyle(color: Colors.white)),
                           ],
                         );
                       },
@@ -5924,9 +6190,11 @@ void _showProofViewer(BuildContext context, String url) {
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
-                            Icon(Icons.broken_image_outlined, color: Colors.white70, size: 40),
+                            Icon(Icons.broken_image_outlined,
+                                color: Colors.white70, size: 40),
                             SizedBox(height: 8),
-                            Text('Image unavailable', style: TextStyle(color: Colors.white70)),
+                            Text('Image unavailable',
+                                style: TextStyle(color: Colors.white70)),
                           ],
                         );
                       },
@@ -5937,7 +6205,8 @@ void _showProofViewer(BuildContext context, String url) {
                   top: 16,
                   right: 16,
                   child: IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white, size: 26),
+                    icon: const Icon(Icons.close_rounded,
+                        color: Colors.white, size: 26),
                     tooltip: 'Close',
                     onPressed: () => Navigator.of(ctx).pop(),
                   ),
@@ -6002,144 +6271,178 @@ bool _canCurrentUserCancelTrade({
 }
 
 Future<String?> _promptDisputeReason(BuildContext context) async {
-  final controller = TextEditingController();
-  String? localError;
-
   final result = await showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: OpeiColors.pureWhite,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-    ),
+    backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (sheetContext) {
-      return StatefulBuilder(
-        builder: (ctx, setSheetState) {
-          final bottomInset = MediaQuery.of(ctx).viewInsets.bottom;
-          final textTheme = Theme.of(ctx).textTheme;
-
-          return Padding(
-            padding: EdgeInsets.fromLTRB(24, 20, 24, 20 + bottomInset),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Raise a dispute',
-                  style: textTheme.titleMedium?.copyWith(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    fontFamily: '.SF Pro Display',
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Tell us what went wrong so our support team can review it quickly.',
-                  style: textTheme.bodySmall?.copyWith(
-                    fontSize: 12,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: controller,
-                  autofocus: true,
-                  maxLines: 4,
-                  minLines: 3,
-                  textCapitalization: TextCapitalization.sentences,
-                  inputFormatters: [LengthLimitingTextInputFormatter(250)],
-                  onChanged: (_) {
-                    if (localError != null) {
-                      setSheetState(() => localError = null);
-                    }
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Seller never released after I sent funds',
-                    filled: true,
-                    fillColor: OpeiColors.iosSurfaceMuted,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: OpeiColors.pureBlack, width: 1),
-                    ),
-                  ),
-                ),
-                if (localError != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    localError!,
-                    style: textTheme.bodySmall?.copyWith(
-                      fontSize: 12,
-                      color: const Color(0xFFFF3B30),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.of(ctx).pop(),
-                        style: TextButton.styleFrom(
-                          foregroundColor: OpeiColors.iosLabelSecondary,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        child: const Text('Cancel'),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final reason = controller.text.trim();
-                          if (reason.length < 6) {
-                            setSheetState(() {
-                              localError = 'Give a short reason (at least 6 characters).';
-                            });
-                            return;
-                          }
-                          Navigator.of(ctx).pop(reason);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: OpeiColors.pureBlack,
-                          foregroundColor: OpeiColors.pureWhite,
-                          padding: const EdgeInsets.symmetric(vertical: 13),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: const Text('Submit dispute'),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
-      );
+      return const _DisputeReasonSheet();
     },
   );
 
-  controller.dispose();
   return result?.trim();
+}
+
+class _DisputeReasonSheet extends StatefulWidget {
+  const _DisputeReasonSheet();
+
+  @override
+  State<_DisputeReasonSheet> createState() => _DisputeReasonSheetState();
+}
+
+class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
+  late final TextEditingController _controller;
+  String? _localError;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleSubmit() {
+    final reason = _controller.text.trim();
+    if (reason.length < 6) {
+      setState(() {
+        _localError = 'Give a short reason (at least 6 characters).';
+      });
+      return;
+    }
+    Navigator.of(context).pop(reason);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    return SafeArea(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: OpeiColors.pureWhite,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: EdgeInsets.fromLTRB(24, 20, 24, 20 + bottomInset),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Raise a dispute',
+              style: textTheme.titleMedium?.copyWith(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+                fontFamily: '.SF Pro Display',
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Tell us what went wrong so our support team can review it quickly.',
+              style: textTheme.bodySmall?.copyWith(
+                fontSize: 12,
+                color: OpeiColors.iosLabelSecondary,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              maxLines: 4,
+              minLines: 3,
+              textCapitalization: TextCapitalization.sentences,
+              inputFormatters: [LengthLimitingTextInputFormatter(250)],
+              onChanged: (_) {
+                if (_localError != null) {
+                  setState(() => _localError = null);
+                }
+              },
+              decoration: InputDecoration(
+                hintText: 'Seller never released after I sent funds',
+                filled: true,
+                fillColor: OpeiColors.iosSurfaceMuted,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                      width: 0.5),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                      width: 0.5),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: OpeiColors.pureBlack, width: 1),
+                ),
+              ),
+            ),
+            if (_localError != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                _localError!,
+                style: textTheme.bodySmall?.copyWith(
+                  fontSize: 12,
+                  color: const Color(0xFFFF3B30),
+                ),
+              ),
+            ],
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      foregroundColor: OpeiColors.iosLabelSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: OpeiColors.pureBlack,
+                      foregroundColor: OpeiColors.pureWhite,
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Submit dispute'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 String _mapDisputeError(Object error) {
@@ -6160,7 +6463,8 @@ String _mapDisputeError(Object error) {
       if (normalized.contains('after payment')) {
         return 'You can only open a dispute after marking this trade as paid.';
       }
-      if (normalized.contains('already in dispute') || normalized.contains('already open')) {
+      if (normalized.contains('already in dispute') ||
+          normalized.contains('already open')) {
         return 'This trade already has an open dispute.';
       }
       return message.isEmpty
@@ -6207,24 +6511,25 @@ class _MyAdsEmptyState extends StatelessWidget {
             color: OpeiColors.iosSurfaceMuted,
             borderRadius: BorderRadius.circular(26),
           ),
-          child: const Icon(Icons.campaign_outlined, size: 40, color: OpeiColors.pureBlack),
+          child: const Icon(Icons.campaign_outlined,
+              size: 40, color: OpeiColors.pureBlack),
         ),
         const SizedBox(height: 20),
         Text(
           'No ads just yet',
           style: theme.textTheme.titleMedium?.copyWith(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         const SizedBox(height: 8),
         Text(
           'Launch your first buy or sell ad to start trading directly with other users.',
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 13,
-                color: OpeiColors.iosLabelSecondary,
-              ),
+            fontSize: 13,
+            color: OpeiColors.iosLabelSecondary,
+          ),
         ),
         const SizedBox(height: 24),
         _CreateAdButton(
@@ -6249,11 +6554,14 @@ class _MyAdCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final typeLabel = ad.type.displayLabel;
-    final actionLabel = ad.type == P2PAdType.sell ? 'Selling USD' : 'Buying USD';
+    final actionLabel =
+        ad.type == P2PAdType.sell ? 'Selling USD' : 'Buying USD';
     final remaining = _formatUsdAmount(ad.remainingAmount);
     final rateLabel = '1 USD = ${_formatMoneyWithCode(ad.rate)}';
     final createdAt = ad.updatedAt ?? ad.createdAt;
-    final createdLabel = createdAt != null ? DateFormat('d MMM').format(createdAt.toLocal()) : null;
+    final createdLabel = createdAt != null
+        ? DateFormat('d MMM').format(createdAt.toLocal())
+        : null;
 
     return GestureDetector(
       onTap: onTap,
@@ -6262,7 +6570,9 @@ class _MyAdCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: OpeiColors.pureWhite,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
+          border: Border.all(
+              color: OpeiColors.iosSeparator.withValues(alpha: 0.2),
+              width: 0.5),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -6284,10 +6594,10 @@ class _MyAdCard extends StatelessWidget {
                   Text(
                     createdLabel,
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
                   ),
               ],
             ),
@@ -6295,10 +6605,10 @@ class _MyAdCard extends StatelessWidget {
             Text(
               actionLabel,
               style: theme.textTheme.titleMedium?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.4,
-                  ),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.4,
+              ),
             ),
             const SizedBox(height: 12),
             Row(
@@ -6377,14 +6687,17 @@ class _DeactivateAdButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final background = isEnabled ? const Color(0xFFFFEBE9) : OpeiColors.iosSurfaceMuted;
-    final foreground = isEnabled ? const Color(0xFFD62E1F) : OpeiColors.iosLabelSecondary;
+    final background =
+        isEnabled ? const Color(0xFFFFEBE9) : OpeiColors.iosSurfaceMuted;
+    final foreground =
+        isEnabled ? const Color(0xFFD62E1F) : OpeiColors.iosLabelSecondary;
     final interactive = isEnabled && !isBusy;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 160),
       child: SizedBox(
-        key: ValueKey('${isBusy ? 'busy' : interactive ? 'enabled' : 'disabled'}-$isEnabled'),
+        key: ValueKey(
+            '${isBusy ? 'busy' : interactive ? 'enabled' : 'disabled'}-$isEnabled'),
         height: 44,
         width: double.infinity,
         child: Material(
@@ -6406,11 +6719,11 @@ class _DeactivateAdButton extends StatelessWidget {
                   : Text(
                       'Deactivate ad',
                       style: theme.textTheme.labelLarge?.copyWith(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: foreground,
-                            letterSpacing: -0.1,
-                          ),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: foreground,
+                        letterSpacing: -0.1,
+                      ),
                     ),
             ),
           ),
@@ -6494,19 +6807,19 @@ class _MyAdMetricCompact extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: OpeiColors.iosLabelSecondary,
-              ),
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: OpeiColors.iosLabelSecondary,
+          ),
         ),
         const SizedBox(height: 3),
         Text(
           value,
           style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.2,
-              ),
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            letterSpacing: -0.2,
+          ),
         ),
       ],
     );
@@ -6526,20 +6839,22 @@ class _MyAdPaymentPill extends StatelessWidget {
       decoration: BoxDecoration(
         color: OpeiColors.iosSurfaceMuted,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.account_balance_wallet_outlined, size: 10, color: OpeiColors.pureBlack),
+          const Icon(Icons.account_balance_wallet_outlined,
+              size: 10, color: OpeiColors.pureBlack),
           const SizedBox(width: 4),
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: OpeiColors.pureBlack,
-                ),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: OpeiColors.pureBlack,
+            ),
           ),
         ],
       ),
@@ -6570,7 +6885,8 @@ class _MyAdDetailSheet extends ConsumerWidget {
     final min = _formatUsdAmount(latest.minOrder);
     final max = _formatUsdAmount(latest.maxOrder);
     final normalizedStatus = latest.status.trim().toUpperCase();
-    final canDeactivate = normalizedStatus == 'ACTIVE' || normalizedStatus == 'PENDING_REVIEW';
+    final canDeactivate =
+        normalizedStatus == 'ACTIVE' || normalizedStatus == 'PENDING_REVIEW';
     final isBusy = myAdsState.isAdDeactivating(latest.id);
 
     Future<void> handleDeactivate() async {
@@ -6578,7 +6894,8 @@ class _MyAdDetailSheet extends ConsumerWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: OpeiColors.pureWhite,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             'Deactivate Ad',
             style: theme.textTheme.titleMedium?.copyWith(
@@ -6599,17 +6916,21 @@ class _MyAdDetailSheet extends ConsumerWidget {
               onPressed: () => Navigator.of(ctx).pop(false),
               style: TextButton.styleFrom(
                 foregroundColor: OpeiColors.pureBlack,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               ),
-              child: const Text('Cancel', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
+              child: const Text('Cancel',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
             ),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               style: TextButton.styleFrom(
                 foregroundColor: const Color(0xFFD62E1F),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               ),
-              child: const Text('Deactivate', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+              child: const Text('Deactivate',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -6622,14 +6943,18 @@ class _MyAdDetailSheet extends ConsumerWidget {
         if (!context.mounted) {
           return;
         }
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(message)));
+        ScaffoldMessenger.maybeOf(context)
+            ?.showSnackBar(SnackBar(content: Text(message)));
         Navigator.of(context).pop();
       } catch (error) {
         if (!context.mounted) {
           return;
         }
-        final friendly = error is String ? error : 'We couldn\'t deactivate this ad. Please try again.';
-        ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(friendly)));
+        final friendly = error is String
+            ? error
+            : 'We couldn\'t deactivate this ad. Please try again.';
+        ScaffoldMessenger.maybeOf(context)
+            ?.showSnackBar(SnackBar(content: Text(friendly)));
       }
     }
 
@@ -6645,144 +6970,148 @@ class _MyAdDetailSheet extends ConsumerWidget {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(2),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 20),
+                  decoration: BoxDecoration(
+                    color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            Row(
-              children: [
-                _MyAdTypeBadge(typeLabel: latest.type.displayLabel),
-                const SizedBox(width: 8),
-                _MyAdStatusBadge(status: latest.statusLabel, rawStatus: latest.status),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: OpeiColors.iosSurfaceMuted,
-                      shape: BoxShape.circle,
+              Row(
+                children: [
+                  _MyAdTypeBadge(typeLabel: latest.type.displayLabel),
+                  const SizedBox(width: 8),
+                  _MyAdStatusBadge(
+                      status: latest.statusLabel, rawStatus: latest.status),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: OpeiColors.iosSurfaceMuted,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.close,
+                          size: 18, color: OpeiColors.pureBlack),
                     ),
-                    child: const Icon(Icons.close, size: 18, color: OpeiColors.pureBlack),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              actionLabel,
-              style: theme.textTheme.titleLarge?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.4,
-                  ),
-            ),
-            const SizedBox(height: 20),
-            _MyAdDetailRow(label: 'Remaining', value: remaining),
-            const SizedBox(height: 12),
-            _MyAdDetailRow(label: 'Total amount', value: total),
-            const SizedBox(height: 12),
-            _MyAdDetailRow(label: 'Rate', value: rate),
-            const SizedBox(height: 12),
-            _MyAdDetailRow(label: 'Min order', value: min),
-            const SizedBox(height: 12),
-            _MyAdDetailRow(label: 'Max order', value: max),
-            if (latest.paymentMethods.isNotEmpty) ...[
-              const SizedBox(height: 20),
+                ],
+              ),
+              const SizedBox(height: 16),
               Text(
-                'Payment methods',
-                style: theme.textTheme.titleSmall?.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
+                actionLabel,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.4,
+                ),
               ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: latest.paymentMethods
-                    .map(
-                      (method) => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: OpeiColors.iosSurfaceMuted,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: OpeiColors.iosSeparator.withValues(alpha: 0.2),
-                            width: 0.5,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.account_balance_wallet_outlined,
-                              size: 14,
-                              color: OpeiColors.pureBlack,
+              const SizedBox(height: 20),
+              _MyAdDetailRow(label: 'Remaining', value: remaining),
+              const SizedBox(height: 12),
+              _MyAdDetailRow(label: 'Total amount', value: total),
+              const SizedBox(height: 12),
+              _MyAdDetailRow(label: 'Rate', value: rate),
+              const SizedBox(height: 12),
+              _MyAdDetailRow(label: 'Min order', value: min),
+              const SizedBox(height: 12),
+              _MyAdDetailRow(label: 'Max order', value: max),
+              if (latest.paymentMethods.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Text(
+                  'Payment methods',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: latest.paymentMethods
+                      .map(
+                        (method) => Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: OpeiColors.iosSurfaceMuted,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: OpeiColors.iosSeparator
+                                  .withValues(alpha: 0.2),
+                              width: 0.5,
                             ),
-                            const SizedBox(width: 6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.account_balance_wallet_outlined,
+                                size: 14,
+                                color: OpeiColors.pureBlack,
+                              ),
+                              const SizedBox(width: 6),
                               Text(
                                 method.displayLabel,
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    )
-                    .toList(growable: false),
-              ),
-            ],
-            if (latest.instructions.isNotEmpty) ...[
-              const SizedBox(height: 20),
-              Text(
-                'Instructions',
-                style: theme.textTheme.titleSmall?.copyWith(
+                      )
+                      .toList(growable: false),
+                ),
+              ],
+              if (latest.instructions.isNotEmpty) ...[
+                const SizedBox(height: 20),
+                Text(
+                  'Instructions',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    latest.instructions,
+                    style: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: OpeiColors.iosLabelSecondary,
+                      height: 1.5,
                     ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                child: Text(
-                  latest.instructions,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 13,
-                        height: 1.5,
-                      ),
+              ],
+              if (canDeactivate) ...[
+                const SizedBox(height: 24),
+                _DeactivateAdButton(
+                  isBusy: isBusy,
+                  isEnabled: canDeactivate,
+                  onPressed: handleDeactivate,
                 ),
-              ),
+              ],
             ],
-            if (canDeactivate) ...[
-              const SizedBox(height: 24),
-              _DeactivateAdButton(
-                isBusy: isBusy,
-                isEnabled: canDeactivate,
-                onPressed: handleDeactivate,
-              ),
-            ],
-          ],
-        ),
+          ),
         ),
       ),
     );
@@ -6807,17 +7136,17 @@ class _MyAdDetailRow extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: OpeiColors.iosLabelSecondary,
-              ),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: OpeiColors.iosLabelSecondary,
+          ),
         ),
         Text(
           value,
           style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
@@ -6828,7 +7157,8 @@ class _CreateAdFlowSheet extends ConsumerStatefulWidget {
   final String initialCurrency;
   final Future<void> Function() onCreated;
 
-  const _CreateAdFlowSheet({required this.initialCurrency, required this.onCreated});
+  const _CreateAdFlowSheet(
+      {required this.initialCurrency, required this.onCreated});
 
   @override
   ConsumerState<_CreateAdFlowSheet> createState() => _CreateAdFlowSheetState();
@@ -6847,7 +7177,9 @@ String _formatCreateAdError(Object error, {required P2PAdType adType}) {
     }
     fieldErrors = error.errors;
 
-    if ((rawMessage.isEmpty || rawMessage == 'null') && fieldErrors != null && fieldErrors.isNotEmpty) {
+    if ((rawMessage.isEmpty || rawMessage == 'null') &&
+        fieldErrors != null &&
+        fieldErrors.isNotEmpty) {
       final firstValue = fieldErrors.values.first;
       if (firstValue is String && firstValue.trim().isNotEmpty) {
         rawMessage = firstValue.trim();
@@ -6877,7 +7209,8 @@ String _formatCreateAdError(Object error, {required P2PAdType adType}) {
         : 'This ad is no longer available. Refresh and try again.';
   }
 
-  if (normalized.contains('sell') && normalized.contains('without userpaymentmethodids')) {
+  if (normalized.contains('sell') &&
+      normalized.contains('without userpaymentmethodids')) {
     return 'Add at least one payment method.';
   }
 
@@ -6897,7 +7230,8 @@ String _formatCreateAdError(Object error, {required P2PAdType adType}) {
     return 'Remove duplicate payment methods before submitting.';
   }
 
-  if (normalized.contains('payment provider') && normalized.contains('inactive')) {
+  if (normalized.contains('payment provider') &&
+      normalized.contains('inactive')) {
     return 'One of the payment providers is inactive right now. Please choose another option.';
   }
 
@@ -6905,11 +7239,13 @@ String _formatCreateAdError(Object error, {required P2PAdType adType}) {
     return 'Payment method currency must match your ad currency.';
   }
 
-  if (normalized.contains('don’t belong to user') || normalized.contains('dont belong to user')) {
+  if (normalized.contains('don’t belong to user') ||
+      normalized.contains('dont belong to user')) {
     return 'Selected payment methods belong to another account.';
   }
 
-  if (normalized.contains('selected payment methods') && normalized.contains('invalid')) {
+  if (normalized.contains('selected payment methods') &&
+      normalized.contains('invalid')) {
     return 'Selected payment methods are invalid for this ad.';
   }
 
@@ -6926,15 +7262,18 @@ String _formatCreateAdError(Object error, {required P2PAdType adType}) {
     return 'Use whole numbers when entering amounts.';
   }
 
-  if (normalized.contains('not numeric') || normalized.contains('not ordered')) {
+  if (normalized.contains('not numeric') ||
+      normalized.contains('not ordered')) {
     return 'Please review your amounts and limits.';
   }
 
-  if (normalized.contains('totalamountcents must be greater than or equal to minordercents')) {
+  if (normalized.contains(
+      'totalamountcents must be greater than or equal to minordercents')) {
     return 'Total amount must be at least your minimum order.';
   }
 
-  if (normalized.contains('maxordercents must be greater than or equal to minordercents')) {
+  if (normalized.contains(
+      'maxordercents must be greater than or equal to minordercents')) {
     return 'Max order must be greater than or equal to the minimum order.';
   }
 
@@ -6950,7 +7289,10 @@ String _formatCreateAdError(Object error, {required P2PAdType adType}) {
     return 'Server error. Please try again shortly.';
   }
 
-  if (rawMessage.isNotEmpty && statusCode != null && statusCode >= 400 && statusCode < 500) {
+  if (rawMessage.isNotEmpty &&
+      statusCode != null &&
+      statusCode >= 400 &&
+      statusCode < 500) {
     return rawMessage;
   }
 
@@ -6969,7 +7311,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
   int _step = 0; // 0: choose type, 1+: depends on type
   P2PAdType? _selectedType;
   late String _currency;
-  
+
   late final TextEditingController _totalAmount;
   late final TextEditingController _minOrder;
   late final TextEditingController _maxOrder;
@@ -6981,7 +7323,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
   late final FocusNode _minFocus;
   late final FocusNode _maxFocus;
   late final FocusScopeNode _formFocusScope;
-  
+
   List<P2PUserPaymentMethod> _methods = const [];
   final Set<String> _selectedMethodIds = <String>{};
   bool _loadingMethods = false;
@@ -7021,13 +7363,13 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
   }
 
   void _selectType(P2PAdType type) => setState(() {
-    _selectedType = type;
-    _step = 1;
-    _methods = const [];
-    _selectedMethodIds.clear();
-    _methodsCurrency = null;
-    _errorMessage = null;
-  });
+        _selectedType = type;
+        _step = 1;
+        _methods = const [];
+        _selectedMethodIds.clear();
+        _methodsCurrency = null;
+        _errorMessage = null;
+      });
 
   void _goToStep(int next) {
     if (_selectedType == null) return;
@@ -7112,7 +7454,8 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     setState(() {
       if (_selectedMethodIds.length < 5) {
         _selectedMethodIds.add(created.id);
-        if (_errorMessage != null && _errorMessage!.toLowerCase().contains('payment method')) {
+        if (_errorMessage != null &&
+            _errorMessage!.toLowerCase().contains('payment method')) {
           _errorMessage = null;
         }
       }
@@ -7169,7 +7512,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         minOrderCents: min,
         maxOrderCents: max,
         rateCents: rate,
-        instructions: _instructions.text.trim().isEmpty ? null : _instructions.text.trim(),
+        instructions: _instructions.text.trim().isEmpty
+            ? null
+            : _instructions.text.trim(),
         userPaymentMethodIds: _selectedMethodIds.toList(growable: false),
       );
       if (!mounted) return;
@@ -7221,13 +7566,19 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
             children: [
               Row(
                 children: [
-                  Text('Create P2P Ad', style: theme.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                  Text('Create P2P Ad',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                          fontSize: 17, fontWeight: FontWeight.w700)),
                   const Spacer(),
-                  IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close_rounded, size: 20)),
+                  IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close_rounded, size: 20)),
                 ],
               ),
               const SizedBox(height: 8),
-              Text('Choose ad type', style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13, color: OpeiColors.iosLabelSecondary)),
+              Text('Choose ad type',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 13, color: OpeiColors.iosLabelSecondary)),
               const SizedBox(height: 18),
               _CreateAdOptionTile(
                 icon: Icons.shopping_cart_checkout,
@@ -7255,96 +7606,130 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         node: _formFocusScope,
         child: FocusTraversalGroup(
           policy: OrderedTraversalPolicy(),
-      child: SingleChildScrollView(
+          child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _selectedType == P2PAdType.sell ? 'Create SELL ad' : 'Create BUY ad',
-                  style: theme.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
-                ),
-                const Spacer(),
-            if (_selectedType != null && _step >= 1)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
                     decoration: BoxDecoration(
-                      color: OpeiColors.iosSurfaceMuted,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
-                    ),
-                    child: Text(
-                  'Step $_step of 3',
-                      style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, fontWeight: FontWeight.w600, color: OpeiColors.iosLabelSecondary),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            Text(
-              _selectedType == P2PAdType.sell
-                  ? (_step == 1 ? 'Select payout currency' : _step == 2 ? 'Choose payment methods' : 'Set amount and price')
-                  : (_step == 1 ? 'Select payment currency' : _step == 2 ? 'Choose payment methods' : 'Set amount and price'),
-              style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary),
-            ),
-            if (_errorMessage != null) ...[
-              const SizedBox(height: 12),
-              _MessageBanner(message: _errorMessage!, isError: true),
-            ],
-            const SizedBox(height: 14),
-            _buildStepContent(context, theme),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                if (_step > 1)
-                  Expanded(
-                    child: SizedBox(
-                      height: 48,
-                      child: OutlinedButton(
-                        onPressed: () => _goToStep(_step - 1),
-                        style: OutlinedButton.styleFrom(
-                          side: BorderSide(color: OpeiColors.pureBlack.withValues(alpha: 0.3), width: 0.5),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: Text('Back', style: TextStyle(color: OpeiColors.pureBlack, fontWeight: FontWeight.w600)),
-                      ),
-                    ),
-                  ),
-                if (_step > 1) const SizedBox(width: 10),
-                Expanded(
-                  child: SizedBox(
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _buildNextAction(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: OpeiColors.pureBlack,
-                        foregroundColor: OpeiColors.pureWhite,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: _isSubmitting
-                          ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: OpeiColors.pureWhite))
-                          : Text(_buildNextLabel(), style: const TextStyle(fontWeight: FontWeight.w600)),
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Text(
+                      _selectedType == P2PAdType.sell
+                          ? 'Create SELL ad'
+                          : 'Create BUY ad',
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
+                    ),
+                    const Spacer(),
+                    if (_selectedType != null && _step >= 1)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: OpeiColors.iosSurfaceMuted,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                              color: OpeiColors.iosSeparator
+                                  .withValues(alpha: 0.3),
+                              width: 0.5),
+                        ),
+                        child: Text(
+                          'Step $_step of 3',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: OpeiColors.iosLabelSecondary),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _selectedType == P2PAdType.sell
+                      ? (_step == 1
+                          ? 'Select payout currency'
+                          : _step == 2
+                              ? 'Choose payment methods'
+                              : 'Set amount and price')
+                      : (_step == 1
+                          ? 'Select payment currency'
+                          : _step == 2
+                              ? 'Choose payment methods'
+                              : 'Set amount and price'),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 12, color: OpeiColors.iosLabelSecondary),
+                ),
+                if (_errorMessage != null) ...[
+                  const SizedBox(height: 12),
+                  _MessageBanner(message: _errorMessage!, isError: true),
+                ],
+                const SizedBox(height: 14),
+                _buildStepContent(context, theme),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    if (_step > 1)
+                      Expanded(
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton(
+                            onPressed: () => _goToStep(_step - 1),
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(
+                                  color: OpeiColors.pureBlack
+                                      .withValues(alpha: 0.3),
+                                  width: 0.5),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Text('Back',
+                                style: TextStyle(
+                                    color: OpeiColors.pureBlack,
+                                    fontWeight: FontWeight.w600)),
+                          ),
+                        ),
+                      ),
+                    if (_step > 1) const SizedBox(width: 10),
+                    Expanded(
+                      child: SizedBox(
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: _isSubmitting ? null : _buildNextAction(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: OpeiColors.pureBlack,
+                            foregroundColor: OpeiColors.pureWhite,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: OpeiColors.pureWhite))
+                              : Text(_buildNextLabel(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
           ),
         ),
       ),
@@ -7375,11 +7760,14 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
   }
 
   Widget _buildCurrencyStep(ThemeData theme, String label) {
-    final currentCurrency = currencies.firstWhere((c) => c.code == _currency, orElse: () => currencies.first);
+    final currentCurrency = currencies.firstWhere((c) => c.code == _currency,
+        orElse: () => currencies.first);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+        Text(label,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
         const SizedBox(height: 6),
         GestureDetector(
           onTap: _showCurrencyPicker,
@@ -7388,17 +7776,21 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
             decoration: BoxDecoration(
               color: OpeiColors.iosSurfaceMuted,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
+              border: Border.all(
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.35),
+                  width: 0.5),
             ),
             child: Row(
               children: [
                 Expanded(
                   child: Text(
                     '${currentCurrency.name} (${currentCurrency.code})',
-                    style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios_rounded, size: 14, color: OpeiColors.iosLabelSecondary),
+                Icon(Icons.arrow_forward_ios_rounded,
+                    size: 14, color: OpeiColors.iosLabelSecondary),
               ],
             ),
           ),
@@ -7417,7 +7809,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
 
     Widget buildTile(P2PUserPaymentMethod method) {
       final isSelected = _selectedMethodIds.contains(method.id);
-      final methodName = method.providerName.isNotEmpty ? method.providerName : _formatMethodType(method.methodType);
+      final methodName = method.providerName.isNotEmpty
+          ? method.providerName
+          : _formatMethodType(method.methodType);
       final detailBits = <String>[];
       final readableType = _formatMethodType(method.methodType);
       if (readableType.isNotEmpty) {
@@ -7442,7 +7836,8 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                 _errorMessage = 'You can attach up to five payment methods.';
               } else {
                 _selectedMethodIds.add(method.id);
-                if (_errorMessage != null && _errorMessage!.toLowerCase().contains('payment method')) {
+                if (_errorMessage != null &&
+                    _errorMessage!.toLowerCase().contains('payment method')) {
                   _errorMessage = null;
                 }
               }
@@ -7456,13 +7851,15 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         controlAffinity: ListTileControlAffinity.leading,
         title: Text(
           methodName,
-          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+          style: theme.textTheme.bodyMedium
+              ?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
         ),
         subtitle: detailBits.isEmpty
             ? null
             : Text(
                 detailBits.join(' · '),
-                style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, color: OpeiColors.iosLabelSecondary),
+                style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 11, color: OpeiColors.iosLabelSecondary),
               ),
       );
     }
@@ -7472,11 +7869,15 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
       children: [
         Text(
           helperText,
-          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary, height: 1.4),
+          style: theme.textTheme.bodyMedium?.copyWith(
+              fontSize: 12, color: OpeiColors.iosLabelSecondary, height: 1.4),
         ),
         const SizedBox(height: 12),
         if (_loadingMethods)
-          const LinearProgressIndicator(minHeight: 2, color: OpeiColors.pureBlack, backgroundColor: Color(0xFFE7E7E7))
+          const LinearProgressIndicator(
+              minHeight: 2,
+              color: OpeiColors.pureBlack,
+              backgroundColor: Color(0xFFE7E7E7))
         else if (_methods.isEmpty)
           Container(
             width: double.infinity,
@@ -7484,11 +7885,14 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
             decoration: BoxDecoration(
               color: OpeiColors.iosSurfaceMuted,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+              border: Border.all(
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                  width: 0.5),
             ),
             child: Text(
               emptyCopy,
-              style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary),
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary),
             ),
           )
         else
@@ -7498,20 +7902,26 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
           alignment: Alignment.centerLeft,
           child: TextButton.icon(
             onPressed: _loadingMethods ? null : _handleAddPaymentMethod,
-            icon: const Icon(Icons.add_rounded, size: 16, color: OpeiColors.pureWhite),
+            icon: const Icon(Icons.add_rounded,
+                size: 16, color: OpeiColors.pureWhite),
             style: TextButton.styleFrom(
               backgroundColor: OpeiColors.pureBlack,
               foregroundColor: OpeiColors.pureWhite,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
-            label: const Text('Add payment method', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+            label: const Text('Add payment method',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          limitReached ? 'Maximum of five payment methods per ad.' : 'You can attach up to five payment methods per ad.',
-          style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, color: OpeiColors.iosLabelTertiary),
+          limitReached
+              ? 'Maximum of five payment methods per ad.'
+              : 'You can attach up to five payment methods per ad.',
+          style: theme.textTheme.bodySmall
+              ?.copyWith(fontSize: 11, color: OpeiColors.iosLabelTertiary),
         ),
       ],
     );
@@ -7596,10 +8006,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         .split(RegExp(r'[ _]+'))
         .where((segment) => segment.isNotEmpty)
         .map((segment) {
-          final lower = segment.toLowerCase();
-          return lower[0].toUpperCase() + lower.substring(1);
-        })
-        .toList(growable: false);
+      final lower = segment.toLowerCase();
+      return lower[0].toUpperCase() + lower.substring(1);
+    }).toList(growable: false);
 
     return parts.join(' ');
   }
@@ -7639,9 +8048,13 @@ class _CurrencyPickerSheet extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
             child: Row(
               children: [
-                Text('Select Currency', style: theme.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                Text('Select Currency',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
                 const Spacer(),
-                IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.close_rounded, size: 20)),
+                IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_rounded, size: 20)),
               ],
             ),
           ),
@@ -7650,15 +8063,23 @@ class _CurrencyPickerSheet extends StatelessWidget {
               shrinkWrap: true,
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
               itemCount: currencies.length,
-              separatorBuilder: (_, __) => const Divider(height: 1, thickness: 0.5),
+              separatorBuilder: (_, __) =>
+                  const Divider(height: 1, thickness: 0.5),
               itemBuilder: (_, index) {
                 final currency = currencies[index];
                 final isSelected = currency.code == selectedCode;
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(vertical: 6),
-                  title: Text(currency.name, style: theme.textTheme.bodyMedium?.copyWith(fontSize: 14, fontWeight: FontWeight.w600)),
-                  subtitle: Text(currency.code, style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
-                  trailing: isSelected ? const Icon(Icons.check_rounded, color: OpeiColors.pureBlack, size: 20) : null,
+                  title: Text(currency.name,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 14, fontWeight: FontWeight.w600)),
+                  subtitle: Text(currency.code,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+                  trailing: isSelected
+                      ? const Icon(Icons.check_rounded,
+                          color: OpeiColors.pureBlack, size: 20)
+                      : null,
                   onTap: () => Navigator.of(context).pop(currency),
                 );
               },
@@ -7693,7 +8114,9 @@ class _CreateAdOptionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: OpeiColors.iosSurfaceMuted,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.25), width: 0.5),
+          border: Border.all(
+              color: OpeiColors.iosSeparator.withValues(alpha: 0.25),
+              width: 0.5),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -7715,23 +8138,24 @@ class _CreateAdOptionTile extends StatelessWidget {
                   Text(
                     title,
                     style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     subtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 12,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
+                      fontSize: 12,
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 12),
-            const Icon(Icons.chevron_right_rounded, color: OpeiColors.iosLabelSecondary),
+            const Icon(Icons.chevron_right_rounded,
+                color: OpeiColors.iosLabelSecondary),
           ],
         ),
       ),
@@ -7783,7 +8207,8 @@ class _TextField extends StatelessWidget {
             hintText: hintText,
             filled: true,
             fillColor: OpeiColors.iosSurfaceMuted,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
@@ -7800,7 +8225,8 @@ class _TextField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: OpeiColors.pureBlack, width: 1),
+              borderSide:
+                  const BorderSide(color: OpeiColors.pureBlack, width: 1),
             ),
           ),
         ),
@@ -7877,7 +8303,8 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
     if (message.contains('missing x-user-id') || message.contains('session')) {
       return 'Please sign in again to continue.';
     }
-    if (message.contains('displayname') && message.contains('longer than or equal to 3')) {
+    if (message.contains('displayname') &&
+        message.contains('longer than or equal to 3')) {
       return 'Your display name must be between 3 and 50 characters.';
     }
     if (message.contains('nickname') && message.contains('3-30')) {
@@ -7886,7 +8313,8 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
     if (message.contains('bio') && message.contains('500')) {
       return 'Your bio is too long. Please keep it under 500 characters.';
     }
-    if (message.contains('preferredlanguage') && message.contains('longer than')) {
+    if (message.contains('preferredlanguage') &&
+        message.contains('longer than')) {
       return 'Please select a valid language.';
     }
     if (message.contains('preferredcurrency') && message.contains('enum')) {
@@ -7898,7 +8326,8 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
     if (message.contains('unauthorized')) {
       return 'Please sign in again to continue.';
     }
-    if (message.contains('internal server error') || message.contains('server')) {
+    if (message.contains('internal server error') ||
+        message.contains('server')) {
       return 'We’re having trouble saving your profile right now. Please try again shortly.';
     }
     return 'Something went wrong. Please try again.';
@@ -7951,11 +8380,19 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
             _MessageBanner(message: _errorMessage!, isError: true),
           ],
           const SizedBox(height: 12),
-          _TextField(label: 'Display name', controller: _displayName, hintText: 'Johnex'),
+          _TextField(
+              label: 'Display name',
+              controller: _displayName,
+              hintText: 'Johnex'),
           const SizedBox(height: 10),
-          _TextField(label: 'Username', controller: _nickname, hintText: 'john_fx'),
+          _TextField(
+              label: 'Username', controller: _nickname, hintText: 'john_fx'),
           const SizedBox(height: 10),
-          _TextField(label: 'Bio', controller: _bio, hintText: '10 years trading USD/ZMW', maxLines: 3),
+          _TextField(
+              label: 'Bio',
+              controller: _bio,
+              hintText: '10 years trading USD/ZMW',
+              maxLines: 3),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -7975,7 +8412,8 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
                         color: OpeiColors.iosSurfaceMuted,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: OpeiColors.iosSeparator.withValues(alpha: 0.35),
+                          color:
+                              OpeiColors.iosSeparator.withValues(alpha: 0.35),
                           width: 0.5,
                         ),
                       ),
@@ -7985,10 +8423,12 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
                         isExpanded: true,
                         items: const [
                           DropdownMenuItem(value: 'en', child: Text('English')),
-                          DropdownMenuItem(value: 'pt', child: Text('Portuguese')),
+                          DropdownMenuItem(
+                              value: 'pt', child: Text('Portuguese')),
                           DropdownMenuItem(value: 'fr', child: Text('French')),
                         ],
-                        onChanged: (v) => setState(() => _preferredLanguage = v ?? 'en'),
+                        onChanged: (v) =>
+                            setState(() => _preferredLanguage = v ?? 'en'),
                       ),
                     ),
                   ],
@@ -8011,7 +8451,8 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
                         color: OpeiColors.iosSurfaceMuted,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: OpeiColors.iosSeparator.withValues(alpha: 0.35),
+                          color:
+                              OpeiColors.iosSeparator.withValues(alpha: 0.35),
                           width: 0.5,
                         ),
                       ),
@@ -8025,7 +8466,8 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
                                   child: Text(c.code),
                                 ))
                             .toList(),
-                        onChanged: (c) => setState(() => _preferredCurrency = c?.code ?? 'USD'),
+                        onChanged: (c) => setState(
+                            () => _preferredCurrency = c?.code ?? 'USD'),
                       ),
                     ),
                   ],
@@ -8038,7 +8480,8 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _isSubmitting ? null : _submit,
-              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 13)),
+              style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 13)),
               child: Text(
                 _isSubmitting ? 'Saving…' : 'Save profile',
                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -8059,7 +8502,8 @@ class _CreateSellAdSheet extends ConsumerStatefulWidget {
   final String initialCurrency;
   final Future<void> Function() onCreated;
 
-  const _CreateSellAdSheet({required this.initialCurrency, required this.onCreated});
+  const _CreateSellAdSheet(
+      {required this.initialCurrency, required this.onCreated});
 
   @override
   ConsumerState<_CreateSellAdSheet> createState() => _CreateSellAdSheetState();
@@ -8195,7 +8639,9 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
         minOrderCents: min,
         maxOrderCents: max,
         rateCents: rate,
-        instructions: _instructions.text.trim().isEmpty ? null : _instructions.text.trim(),
+        instructions: _instructions.text.trim().isEmpty
+            ? null
+            : _instructions.text.trim(),
         userPaymentMethodIds: _selectedMethodIds.toList(growable: false),
       );
       if (!mounted) return;
@@ -8224,7 +8670,8 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
         children: [
           Text(
             'Create SELL ad',
-            style: theme.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
+            style: theme.textTheme.titleMedium
+                ?.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
           ),
           const Spacer(),
           Container(
@@ -8232,11 +8679,16 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
             decoration: BoxDecoration(
               color: OpeiColors.iosSurfaceMuted,
               borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+              border: Border.all(
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                  width: 0.5),
             ),
             child: Text(
               'Step ${_step + 1} of 3',
-              style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, fontWeight: FontWeight.w600, color: OpeiColors.iosLabelSecondary),
+              style: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: OpeiColors.iosLabelSecondary),
             ),
           ),
         ],
@@ -8250,23 +8702,30 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Choose the currency you want to get paid in',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 12, color: OpeiColors.iosLabelSecondary)),
               const SizedBox(height: 12),
               Text('Payout currency',
-                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 12, color: OpeiColors.iosLabelSecondary)),
               const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: OpeiColors.iosSurfaceMuted,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
+                  border: Border.all(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.35),
+                      width: 0.5),
                 ),
                 child: DropdownButton<Currency>(
                   value: currentCurrency,
                   underline: const SizedBox.shrink(),
                   isExpanded: true,
-                  items: currencies.map((c) => DropdownMenuItem<Currency>(value: c, child: Text(c.code))).toList(),
+                  items: currencies
+                      .map((c) => DropdownMenuItem<Currency>(
+                          value: c, child: Text(c.code)))
+                      .toList(),
                   onChanged: (c) {
                     setState(() {
                       _currency = c?.code ?? _currency;
@@ -8282,10 +8741,14 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Select or add payment methods for $_currency',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 12, color: OpeiColors.iosLabelSecondary)),
               const SizedBox(height: 10),
               if (_loadingMethods)
-                const LinearProgressIndicator(minHeight: 2, color: OpeiColors.pureBlack, backgroundColor: Color(0xFFE7E7E7))
+                const LinearProgressIndicator(
+                    minHeight: 2,
+                    color: OpeiColors.pureBlack,
+                    backgroundColor: Color(0xFFE7E7E7))
               else if (_methods.isEmpty)
                 Container(
                   width: double.infinity,
@@ -8293,11 +8756,14 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                   decoration: BoxDecoration(
                     color: OpeiColors.iosSurfaceMuted,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+                    border: Border.all(
+                        color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                        width: 0.5),
                   ),
                   child: Text(
                     'No $_currency methods yet. Add one to continue.',
-                    style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 12, color: OpeiColors.iosLabelSecondary),
                   ),
                 )
               else ...[
@@ -8319,15 +8785,20 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                       controlAffinity: ListTileControlAffinity.leading,
                       title: Text(
                         m.providerName,
-                        style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            fontSize: 13, fontWeight: FontWeight.w600),
                       ),
                       subtitle: Text(
                         () {
-                          final summary = m.accountNumber.isNotEmpty ? m.accountNumber : m.accountNumberMasked;
-                          final suffix = summary.isNotEmpty ? ' · $summary' : '';
+                          final summary = m.accountNumber.isNotEmpty
+                              ? m.accountNumber
+                              : m.accountNumberMasked;
+                          final suffix =
+                              summary.isNotEmpty ? ' · $summary' : '';
                           return '${m.methodType} · ${m.currency}$suffix';
                         }(),
-                        style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, color: OpeiColors.iosLabelSecondary),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 11, color: OpeiColors.iosLabelSecondary),
                       ),
                     )),
               ],
@@ -8336,14 +8807,19 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   onPressed: _handleAddPaymentMethod,
-                  icon: const Icon(Icons.add_rounded, size: 16, color: OpeiColors.pureWhite),
+                  icon: const Icon(Icons.add_rounded,
+                      size: 16, color: OpeiColors.pureWhite),
                   style: TextButton.styleFrom(
                     backgroundColor: OpeiColors.pureBlack,
                     foregroundColor: OpeiColors.pureWhite,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
                   ),
-                  label: const Text('Add payment method', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  label: const Text('Add payment method',
+                      style:
+                          TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                 ),
               ),
             ],
@@ -8352,26 +8828,47 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Set the amount, limits, price, and instructions (optional).',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+              Text(
+                  'Set the amount, limits, price, and instructions (optional).',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 12, color: OpeiColors.iosLabelSecondary)),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _AmountField(label: 'Total amount', currency: _currency, controller: _totalAmount)),
+                  Expanded(
+                      child: _AmountField(
+                          label: 'Total amount',
+                          currency: _currency,
+                          controller: _totalAmount)),
                   const SizedBox(width: 10),
-                  Expanded(child: _AmountField(label: 'Price (rate)', currency: _currency, controller: _rate)),
+                  Expanded(
+                      child: _AmountField(
+                          label: 'Price (rate)',
+                          currency: _currency,
+                          controller: _rate)),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _AmountField(label: 'Min order', currency: _currency, controller: _minOrder)),
+                  Expanded(
+                      child: _AmountField(
+                          label: 'Min order',
+                          currency: _currency,
+                          controller: _minOrder)),
                   const SizedBox(width: 10),
-                  Expanded(child: _AmountField(label: 'Max order', currency: _currency, controller: _maxOrder)),
+                  Expanded(
+                      child: _AmountField(
+                          label: 'Max order',
+                          currency: _currency,
+                          controller: _maxOrder)),
                 ],
               ),
               const SizedBox(height: 10),
-              _TextField(label: 'Instructions (optional)', controller: _instructions, hintText: 'e.g., Available 08:00–21:00'),
+              _TextField(
+                  label: 'Instructions (optional)',
+                  controller: _instructions,
+                  hintText: 'e.g., Available 08:00–21:00'),
             ],
           );
       }
@@ -8387,7 +8884,8 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                 onPressed: () => _goToStep(_step - 1),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: OpeiColors.pureBlack,
-                  side: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.5)),
+                  side: BorderSide(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.5)),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
                 child: const Text('Back'),
@@ -8408,17 +8906,24 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                 }
                 if (_step == 1) {
                   if (_selectedMethodIds.isEmpty) {
-                    setState(() => _errorMessage = 'Select at least one payment method.');
+                    setState(() =>
+                        _errorMessage = 'Select at least one payment method.');
                     return;
                   }
                   setState(() => _errorMessage = null);
                   _goToStep(2);
                 }
               },
-              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 13)),
+              style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 13)),
               child: Text(
-                isLast ? (_isSubmitting ? 'Submitting…' : 'Submit for review') : 'Continue',
-                style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15, fontWeight: FontWeight.w600, color: OpeiColors.pureWhite),
+                isLast
+                    ? (_isSubmitting ? 'Submitting…' : 'Submit for review')
+                    : 'Continue',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiColors.pureWhite),
               ),
             ),
           ),
@@ -8466,7 +8971,8 @@ class _CreateBuyAdSheet extends ConsumerStatefulWidget {
   final String initialCurrency;
   final Future<void> Function() onCreated;
 
-  const _CreateBuyAdSheet({required this.initialCurrency, required this.onCreated});
+  const _CreateBuyAdSheet(
+      {required this.initialCurrency, required this.onCreated});
 
   @override
   ConsumerState<_CreateBuyAdSheet> createState() => _CreateBuyAdSheetState();
@@ -8546,7 +9052,9 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
         minOrderCents: min,
         maxOrderCents: max,
         rateCents: rate,
-        instructions: _instructions.text.trim().isEmpty ? null : _instructions.text.trim(),
+        instructions: _instructions.text.trim().isEmpty
+            ? null
+            : _instructions.text.trim(),
       );
       if (!mounted) return;
       Navigator.of(context).pop();
@@ -8588,10 +9096,12 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
             ),
             const SizedBox(height: 18),
             Text('Create BUY ad',
-                style: theme.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
             Text('Set the amount, limits and price you’re willing to pay.',
-                style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 12, color: OpeiColors.iosLabelSecondary)),
             if (_errorMessage != null) ...[
               const SizedBox(height: 12),
               _MessageBanner(message: _errorMessage!, isError: true),
@@ -8604,23 +9114,30 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Currency',
-                          style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                              fontSize: 12,
+                              color: OpeiColors.iosLabelSecondary)),
                       const SizedBox(height: 6),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
                           color: OpeiColors.iosSurfaceMuted,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
+                          border: Border.all(
+                              color: OpeiColors.iosSeparator
+                                  .withValues(alpha: 0.35),
+                              width: 0.5),
                         ),
                         child: DropdownButton<Currency>(
                           value: currentCurrency,
                           underline: const SizedBox.shrink(),
                           isExpanded: true,
                           items: currencies
-                              .map((c) => DropdownMenuItem<Currency>(value: c, child: Text(c.code)))
+                              .map((c) => DropdownMenuItem<Currency>(
+                                  value: c, child: Text(c.code)))
                               .toList(),
-                          onChanged: (c) => setState(() => _currency = c?.code ?? _currency),
+                          onChanged: (c) =>
+                              setState(() => _currency = c?.code ?? _currency),
                         ),
                       ),
                     ],
@@ -8631,30 +9148,53 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _AmountField(label: 'Total amount', currency: _currency, controller: _totalAmount)),
+                Expanded(
+                    child: _AmountField(
+                        label: 'Total amount',
+                        currency: _currency,
+                        controller: _totalAmount)),
                 const SizedBox(width: 10),
-                Expanded(child: _AmountField(label: 'Price (rate)', currency: _currency, controller: _rate)),
+                Expanded(
+                    child: _AmountField(
+                        label: 'Price (rate)',
+                        currency: _currency,
+                        controller: _rate)),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                Expanded(child: _AmountField(label: 'Min order', currency: _currency, controller: _minOrder)),
+                Expanded(
+                    child: _AmountField(
+                        label: 'Min order',
+                        currency: _currency,
+                        controller: _minOrder)),
                 const SizedBox(width: 10),
-                Expanded(child: _AmountField(label: 'Max order', currency: _currency, controller: _maxOrder)),
+                Expanded(
+                    child: _AmountField(
+                        label: 'Max order',
+                        currency: _currency,
+                        controller: _maxOrder)),
               ],
             ),
             const SizedBox(height: 10),
-            _TextField(label: 'Instructions (optional)', controller: _instructions, hintText: 'e.g., Need proof of transfer'),
+            _TextField(
+                label: 'Instructions (optional)',
+                controller: _instructions,
+                hintText: 'e.g., Need proof of transfer'),
             const SizedBox(height: 18),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _submit,
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 13)),
+                style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 13)),
                 child: Text(
                   _isSubmitting ? 'Submitting…' : 'Submit for review',
-                  style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15, fontWeight: FontWeight.w600, color: OpeiColors.pureWhite),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: OpeiColors.pureWhite),
                 ),
               ),
             ),
@@ -8672,10 +9212,12 @@ class _AddPaymentMethodSheet extends ConsumerStatefulWidget {
   const _AddPaymentMethodSheet({required this.currency, this.initialMethod});
 
   @override
-  ConsumerState<_AddPaymentMethodSheet> createState() => _AddPaymentMethodSheetState();
+  ConsumerState<_AddPaymentMethodSheet> createState() =>
+      _AddPaymentMethodSheetState();
 }
 
-class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> {
+class _AddPaymentMethodSheetState
+    extends ConsumerState<_AddPaymentMethodSheet> {
   List<P2PPaymentMethodType> _types = const [];
   String? _selectedTypeId;
   bool _loading = false;
@@ -8723,7 +9265,8 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
     } catch (e) {
       debugPrint('❌ Failed to load payment method types: $e');
       if (!mounted) return;
-      setState(() => _errorMessage = 'We couldn’t load payment options. Please try again.');
+      setState(() => _errorMessage =
+          'We couldn’t load payment options. Please try again.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -8736,16 +9279,23 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
       statusCode = error.statusCode;
       msg = (error.message).toLowerCase();
     }
-    if (msg.contains('missing x-user-id')) return 'Please sign in again to continue.';
-    if (msg.contains('inactive')) return 'Payment provider is currently inactive.';
-    if (msg.contains('payment method not found')) return 'Payment method no longer exists.';
-    if (msg.contains('active ad')) return 'This payment method is attached to an active ad and can’t be edited.';
-    if (msg.contains('ongoing trade')) return 'This payment method is being used in an ongoing trade.';
-    if (msg.contains('not available') || msg.contains('not found')) return 'Payment provider is not available.';
+    if (msg.contains('missing x-user-id'))
+      return 'Please sign in again to continue.';
+    if (msg.contains('inactive'))
+      return 'Payment provider is currently inactive.';
+    if (msg.contains('payment method not found'))
+      return 'Payment method no longer exists.';
+    if (msg.contains('active ad'))
+      return 'This payment method is attached to an active ad and can’t be edited.';
+    if (msg.contains('ongoing trade'))
+      return 'This payment method is being used in an ongoing trade.';
+    if (msg.contains('not available') || msg.contains('not found'))
+      return 'Payment provider is not available.';
     if (msg.contains('already exists') || msg.contains('account number')) {
       return 'Account number already exists for this user.';
     }
-    if (msg.contains('maximum number')) return 'Maximum payment methods reached for this currency.';
+    if (msg.contains('maximum number'))
+      return 'Maximum payment methods reached for this currency.';
     if (statusCode == 404) return 'Payment method no longer exists.';
     if (statusCode == 400 && msg.contains('active ad')) {
       return 'This payment method is attached to an active ad and can’t be edited.';
@@ -8776,15 +9326,19 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
       final trimmedExtra = _extraDetails.text.trim();
       if (_isEditing) {
         final initial = widget.initialMethod!;
-        final changedName = trimmedName != initial.accountName ? trimmedName : null;
-        final changedNumber = trimmedNumber != initial.accountNumber ? trimmedNumber : null;
+        final changedName =
+            trimmedName != initial.accountName ? trimmedName : null;
+        final changedNumber =
+            trimmedNumber != initial.accountNumber ? trimmedNumber : null;
         final String? changedExtra;
         if ((initial.extraDetails ?? '').trim() != trimmedExtra) {
           changedExtra = trimmedExtra.isEmpty ? '' : trimmedExtra;
         } else {
           changedExtra = null;
         }
-        if (changedName == null && changedNumber == null && changedExtra == null) {
+        if (changedName == null &&
+            changedNumber == null &&
+            changedExtra == null) {
           if (mounted) {
             setState(() {
               _isSubmitting = false;
@@ -8802,14 +9356,14 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
         if (!mounted) return;
         Navigator.of(context).pop(updated);
       } else {
-      final created = await repo.createUserPaymentMethod(
-        paymentMethodTypeId: _selectedTypeId!,
+        final created = await repo.createUserPaymentMethod(
+          paymentMethodTypeId: _selectedTypeId!,
           accountName: trimmedName,
           accountNumber: trimmedNumber,
           extraDetails: trimmedExtra.isEmpty ? null : trimmedExtra,
-      );
-      if (!mounted) return;
-      Navigator.of(context).pop(created);
+        );
+        if (!mounted) return;
+        Navigator.of(context).pop(created);
       }
     } catch (e) {
       debugPrint('❌ Add payment method failed: $e');
@@ -8846,24 +9400,30 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
             const SizedBox(height: 18),
             Text(
               _isEditing ? 'Edit payment method' : 'Add payment method',
-              style: theme.textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontSize: 17, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
             Text(
                 _isEditing
                     ? 'Update the details for this payment method.'
                     : 'Choose a provider and add your account details.',
-                style: theme.textTheme.bodyMedium?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 12, color: OpeiColors.iosLabelSecondary)),
             if (_errorMessage != null) ...[
               const SizedBox(height: 12),
               _MessageBanner(message: _errorMessage!, isError: true),
             ],
             const SizedBox(height: 12),
             if (_loading)
-              const LinearProgressIndicator(minHeight: 2, color: OpeiColors.pureBlack, backgroundColor: Color(0xFFE7E7E7))
+              const LinearProgressIndicator(
+                  minHeight: 2,
+                  color: OpeiColors.pureBlack,
+                  backgroundColor: Color(0xFFE7E7E7))
             else ...[
               Text('Provider',
-                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 12, color: OpeiColors.iosLabelSecondary)),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 12, color: OpeiColors.iosLabelSecondary)),
               const SizedBox(height: 6),
               if (_isEditing)
                 Container(
@@ -8871,59 +9431,85 @@ class _AddPaymentMethodSheetState extends ConsumerState<_AddPaymentMethodSheet> 
                   decoration: BoxDecoration(
                     color: OpeiColors.iosSurfaceMuted,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
+                    border: Border.all(
+                        color: OpeiColors.iosSeparator.withValues(alpha: 0.35),
+                        width: 0.5),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         widget.initialMethod!.providerName,
-                        style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            fontSize: 13, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${widget.initialMethod!.methodType} · ${widget.initialMethod!.currency}',
-                        style: theme.textTheme.bodySmall?.copyWith(fontSize: 11, color: OpeiColors.iosLabelSecondary),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 11, color: OpeiColors.iosLabelSecondary),
                       ),
                     ],
                   ),
                 )
               else
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSurfaceMuted,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.35), width: 0.5),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: OpeiColors.iosSurfaceMuted,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                        color: OpeiColors.iosSeparator.withValues(alpha: 0.35),
+                        width: 0.5),
+                  ),
+                  child: DropdownButton<String>(
+                    value: _selectedTypeId,
+                    isExpanded: true,
+                    underline: const SizedBox.shrink(),
+                    hint: const Text('Select provider…'),
+                    items: _types
+                        .map((t) => DropdownMenuItem<String>(
+                              value: t.id,
+                              child:
+                                  Text('${t.providerName} · ${t.methodType}'),
+                            ))
+                        .toList(),
+                    onChanged: (v) => setState(() => _selectedTypeId = v),
+                  ),
                 ),
-                child: DropdownButton<String>(
-                  value: _selectedTypeId,
-                  isExpanded: true,
-                  underline: const SizedBox.shrink(),
-                  hint: const Text('Select provider…'),
-                  items: _types
-                      .map((t) => DropdownMenuItem<String>(
-                            value: t.id,
-                            child: Text('${t.providerName} · ${t.methodType}'),
-                          ))
-                      .toList(),
-                  onChanged: (v) => setState(() => _selectedTypeId = v),
-                ),
-              ),
               const SizedBox(height: 12),
-              _TextField(label: 'Account name', controller: _accountName, hintText: 'Name on account'),
+              _TextField(
+                  label: 'Account name',
+                  controller: _accountName,
+                  hintText: 'Name on account'),
               const SizedBox(height: 10),
-              _TextField(label: 'Account number', controller: _accountNumber, hintText: 'Account number'),
+              _TextField(
+                  label: 'Account number',
+                  controller: _accountNumber,
+                  hintText: 'Account number'),
               const SizedBox(height: 10),
-              _TextField(label: 'Extra details (optional)', controller: _extraDetails, hintText: 'Branch, reference', maxLines: 2),
+              _TextField(
+                  label: 'Extra details (optional)',
+                  controller: _extraDetails,
+                  hintText: 'Branch, reference',
+                  maxLines: 2),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
-                  style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 13)),
-                  child: Text(_isSubmitting ? 'Saving…' : _isEditing ? 'Update method' : 'Save method',
-                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15, fontWeight: FontWeight.w600, color: OpeiColors.pureWhite)),
+                  style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 13)),
+                  child: Text(
+                      _isSubmitting
+                          ? 'Saving…'
+                          : _isEditing
+                              ? 'Update method'
+                              : 'Save method',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: OpeiColors.pureWhite)),
                 ),
               ),
             ],
@@ -8942,7 +9528,8 @@ class _CenteredMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isError ? const Color(0xFFFF3B30) : OpeiColors.iosLabelSecondary;
+    final color =
+        isError ? const Color(0xFFFF3B30) : OpeiColors.iosLabelSecondary;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -8984,14 +9571,16 @@ class _AdSummaryCard extends StatefulWidget {
   State<_AdSummaryCard> createState() => _AdSummaryCardState();
 }
 
-class _AdSummaryCardState extends State<_AdSummaryCard> with SingleTickerProviderStateMixin {
+class _AdSummaryCardState extends State<_AdSummaryCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 90));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 90));
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
@@ -9053,10 +9642,12 @@ class _AdSummaryCardState extends State<_AdSummaryCard> with SingleTickerProvide
                 style: TextButton.styleFrom(
                   backgroundColor: OpeiColors.pureBlack,
                   foregroundColor: OpeiColors.pureWhite,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   minimumSize: const Size(50, 32),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
                 ),
                 child: Text(
                   intentType.displayLabel,
@@ -9121,10 +9712,10 @@ class _CompactSellerRow extends StatelessWidget {
           child: Text(
             primaryName.isEmpty ? '?' : primaryName[0].toUpperCase(),
             style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: OpeiColors.pureBlack,
-                ),
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: OpeiColors.pureBlack,
+            ),
           ),
         ),
         const SizedBox(width: 10),
@@ -9136,42 +9727,46 @@ class _CompactSellerRow extends StatelessWidget {
               Text(
                 primaryName,
                 style: theme.textTheme.titleSmall?.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.3,
-                    ),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.3,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 3),
               Row(
                 children: [
-                  Icon(Icons.star_rounded, size: 11, color: isNewSeller ? OpeiColors.iosLabelTertiary : const Color(0xFFFFB800)),
+                  Icon(Icons.star_rounded,
+                      size: 11,
+                      color: isNewSeller
+                          ? OpeiColors.iosLabelTertiary
+                          : const Color(0xFFFFB800)),
                   const SizedBox(width: 3),
                   Text(
                     ratingDisplay,
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: OpeiColors.pureBlack,
-                        ),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: OpeiColors.pureBlack,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     '•',
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: OpeiColors.iosLabelTertiary,
-                        ),
+                      fontSize: 11,
+                      color: OpeiColors.iosLabelTertiary,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     '$tradesDisplay trades',
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -9223,40 +9818,44 @@ class _SellerIdentityRow extends StatelessWidget {
                     child: Text(
                       primaryName,
                       style: theme.textTheme.titleSmall?.copyWith(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.2,
-                          ),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.2,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Icon(Icons.star_rounded, size: 11, color: isNewSeller ? OpeiColors.iosLabelTertiary : const Color(0xFFFFD60A)),
+                  Icon(Icons.star_rounded,
+                      size: 11,
+                      color: isNewSeller
+                          ? OpeiColors.iosLabelTertiary
+                          : const Color(0xFFFFD60A)),
                   const SizedBox(width: 2),
                   Text(
                     ratingDisplay,
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     '•',
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 10,
-                          color: OpeiColors.iosLabelTertiary,
-                        ),
+                      fontSize: 10,
+                      color: OpeiColors.iosLabelTertiary,
+                    ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     '$tradesDisplay trades',
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -9267,7 +9866,6 @@ class _SellerIdentityRow extends StatelessWidget {
       ],
     );
   }
-
 }
 
 class _SellerAvatar extends StatelessWidget {
@@ -9348,9 +9946,12 @@ class _CompactAdInfo extends StatelessWidget {
     // Show price as a USD-to-local conversion, e.g. "1 USD = ₦1,500"
     final localRate = ad.rate.format(includeCurrencySymbol: true);
     final rateLabel = '1 USD = $localRate';
-    final remainingLabel = ad.remainingAmount.format(includeCurrencySymbol: true);
+    final remainingLabel =
+        ad.remainingAmount.format(includeCurrencySymbol: true);
     final minLabel = ad.minOrder.format(includeCurrencySymbol: true);
-    final maxLabel = ad.maxOrder.cents > 0 ? ad.maxOrder.format(includeCurrencySymbol: true) : 'No limit';
+    final maxLabel = ad.maxOrder.cents > 0
+        ? ad.maxOrder.format(includeCurrencySymbol: true)
+        : 'No limit';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -9366,19 +9967,19 @@ class _CompactAdInfo extends StatelessWidget {
                   Text(
                     'Price',
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w500,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
+                      fontSize: 9,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     rateLabel,
                     style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.2,
-                        ),
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                 ],
               ),
@@ -9392,19 +9993,19 @@ class _CompactAdInfo extends StatelessWidget {
                   Text(
                     'Available',
                     style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w500,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
+                      fontSize: 9,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiColors.iosLabelSecondary,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     remainingLabel,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.1,
-                        ),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.1,
+                    ),
                   ),
                 ],
               ),
@@ -9418,10 +10019,10 @@ class _CompactAdInfo extends StatelessWidget {
               child: Text(
                 'Min: $minLabel',
                 style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w500,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w500,
+                  color: OpeiColors.iosLabelSecondary,
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -9429,10 +10030,10 @@ class _CompactAdInfo extends StatelessWidget {
               child: Text(
                 'Max: $maxLabel',
                 style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 9,
-                      fontWeight: FontWeight.w500,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w500,
+                  color: OpeiColors.iosLabelSecondary,
+                ),
               ),
             ),
           ],
@@ -9456,11 +10057,11 @@ class _CompactAdInfo extends StatelessWidget {
                 child: Text(
                   method.displayLabel,
                   style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 8,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.iosLabelSecondary,
-                        letterSpacing: -0.1,
-                      ),
+                    fontSize: 8,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiColors.iosLabelSecondary,
+                    letterSpacing: -0.1,
+                  ),
                 ),
               );
             }).toList(),
@@ -9491,7 +10092,8 @@ class _PaymentPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.account_balance_wallet_outlined, size: 12, color: OpeiColors.pureBlack),
+          Icon(Icons.account_balance_wallet_outlined,
+              size: 12, color: OpeiColors.pureBlack),
           const SizedBox(width: 4),
           Flexible(
             child: Text(
@@ -9560,7 +10162,8 @@ class _AmountField extends StatelessWidget {
                 ),
             filled: true,
             fillColor: OpeiColors.iosSurfaceMuted,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
@@ -9577,7 +10180,8 @@ class _AmountField extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: OpeiColors.pureBlack, width: 1),
+              borderSide:
+                  const BorderSide(color: OpeiColors.pureBlack, width: 1),
             ),
             hintText: '0.00',
             hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -9649,7 +10253,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       final localCents = (usd.cents * rate.cents) ~/ 100;
       final local = Money.fromCents(localCents, currency: rate.currency);
       setState(() {
-        _costEstimate = 'You’ll pay ${local.format(includeCurrencySymbol: true)}';
+        _costEstimate =
+            'You’ll pay ${local.format(includeCurrencySymbol: true)}';
       });
       return;
     }
@@ -9664,7 +10269,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       final localCents = (usd.cents * rate.cents) ~/ 100;
       final local = Money.fromCents(localCents, currency: rate.currency);
       setState(() {
-        _costEstimate = 'Buyer will send ${local.format(includeCurrencySymbol: true)}';
+        _costEstimate =
+            'Buyer will send ${local.format(includeCurrencySymbol: true)}';
       });
       return;
     }
@@ -9769,7 +10375,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          builder: (_) => _ProfileSetupSheet(initialCurrency: widget.ad.currency),
+          builder: (_) =>
+              _ProfileSetupSheet(initialCurrency: widget.ad.currency),
         );
         if (created == true) {
           // Try to refresh profile state if parent is listening (best-effort)
@@ -9785,7 +10392,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       // 2) Let the buyer pick one of the seller's ad payment methods
       final methods = widget.ad.paymentMethods;
       if (methods.isEmpty) {
-        setState(() => _actionError = 'This ad can’t accept payments right now.');
+        setState(
+            () => _actionError = 'This ad can’t accept payments right now.');
         return;
       }
 
@@ -9799,7 +10407,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           methods: methods,
           currency: widget.ad.currency,
           title: 'Choose how you’ll pay',
-          subtitle: 'Select one of the seller’s payment methods for ${widget.ad.currency}.',
+          subtitle:
+              'Select one of the seller’s payment methods for ${widget.ad.currency}.',
           actionLabel: 'Continue',
         ),
       );
@@ -9825,7 +10434,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
 
       if (!mounted) return;
       final trade = P2PTrade.fromJson(tradePayload);
-      final tradeMethod = trade.selectedPaymentMethod ?? _mapAdMethodToTradeMethod(selectedMethod);
+      final tradeMethod = trade.selectedPaymentMethod ??
+          _mapAdMethodToTradeMethod(selectedMethod);
 
       FocusScope.of(context).unfocus();
       setState(() {
@@ -9870,7 +10480,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          builder: (_) => _ProfileSetupSheet(initialCurrency: widget.ad.currency),
+          builder: (_) =>
+              _ProfileSetupSheet(initialCurrency: widget.ad.currency),
         );
         if (created == true) {
           try {
@@ -9884,7 +10495,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
 
       final methods = widget.ad.paymentMethods;
       if (methods.isEmpty) {
-        setState(() => _actionError = 'Buyer has not provided any payment methods.');
+        setState(
+            () => _actionError = 'Buyer has not provided any payment methods.');
         return;
       }
 
@@ -9898,7 +10510,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           methods: methods,
           currency: widget.ad.currency,
           title: 'Select payout rail',
-          subtitle: 'Choose the payment method the buyer should use for ${widget.ad.currency}.',
+          subtitle:
+              'Choose the payment method the buyer should use for ${widget.ad.currency}.',
           actionLabel: 'Continue',
         ),
       );
@@ -9922,7 +10535,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
 
       if (!mounted) return;
       final trade = P2PTrade.fromJson(tradePayload);
-      final tradeMethod = trade.selectedPaymentMethod ?? _mapAdMethodToTradeMethod(selectedMethod);
+      final tradeMethod = trade.selectedPaymentMethod ??
+          _mapAdMethodToTradeMethod(selectedMethod);
 
       FocusScope.of(context).unfocus();
       setState(() {
@@ -9964,7 +10578,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       final message = error.message.trim();
       final messageLower = message.toLowerCase();
       if (status == 401) {
-        if (messageLower.contains('missing') && messageLower.contains('x-user-id')) {
+        if (messageLower.contains('missing') &&
+            messageLower.contains('x-user-id')) {
           return 'We couldn’t verify your session. Please sign in again.';
         }
         return 'Your session has expired. Please sign in and try again.';
@@ -9986,7 +10601,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
             messageLower.contains('remaining')) {
           return 'Enter an amount within the ad’s limits.';
         }
-        if (messageLower.contains('exceeds seller') || messageLower.contains('available balance')) {
+        if (messageLower.contains('exceeds seller') ||
+            messageLower.contains('available balance')) {
           return 'The seller doesn’t have enough available for that amount.';
         }
         if (messageLower.contains('without adpaymentmethodid') ||
@@ -9998,7 +10614,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
             messageLower.contains('supported payment methods')) {
           return 'Buyer has not shared any supported payment methods yet.';
         }
-        if (messageLower.contains('wallet') && messageLower.contains('reservation')) {
+        if (messageLower.contains('wallet') &&
+            messageLower.contains('reservation')) {
           return 'We couldn’t reserve funds right now. Please try again.';
         }
         return 'We couldn’t start this trade. Please review your input and try again.';
@@ -10092,8 +10709,10 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
     final minLabel = ad.minOrder.format(includeCurrencySymbol: true);
     final hasMaxOrder = ad.maxOrder.cents > 0;
     final maxLabel = ad.maxOrder.format(includeCurrencySymbol: true);
-    final limitsText = hasMaxOrder ? 'Min $minLabel · Max $maxLabel' : 'Min $minLabel';
-    final amountPrefix = (_isBuyerFlow || _isSellerFlow) ? 'USD ' : '${ad.currency} ';
+    final limitsText =
+        hasMaxOrder ? 'Min $minLabel · Max $maxLabel' : 'Min $minLabel';
+    final amountPrefix =
+        (_isBuyerFlow || _isSellerFlow) ? 'USD ' : '${ad.currency} ';
     final actionLabel = intentType == P2PAdType.buy
         ? 'Buy USD'
         : intentType == P2PAdType.sell
@@ -10167,7 +10786,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
               FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
             ],
             onChanged: _handleAmountChanged,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15),
+            style:
+                Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 15),
             decoration: InputDecoration(
               prefixText: amountPrefix,
               prefixStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -10177,7 +10797,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
                   ),
               filled: true,
               fillColor: OpeiColors.iosSurfaceMuted,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
@@ -10194,7 +10815,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: OpeiColors.pureBlack, width: 1),
+                borderSide:
+                    const BorderSide(color: OpeiColors.pureBlack, width: 1),
               ),
               hintText: '0.00',
               hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -10268,7 +10890,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            ad.instructions.isEmpty ? 'No instructions provided.' : ad.instructions,
+            ad.instructions.isEmpty
+                ? 'No instructions provided.'
+                : ad.instructions,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
                   color: OpeiColors.iosLabelSecondary,
@@ -10283,10 +10907,11 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
-                  primaryButtonLabel,
+                primaryButtonLabel,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -10321,7 +10946,8 @@ class BuyTradeSuccessView extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<BuyTradeSuccessView> createState() => _BuyTradeSuccessViewState();
+  ConsumerState<BuyTradeSuccessView> createState() =>
+      _BuyTradeSuccessViewState();
 }
 
 class SellTradeSuccessView extends ConsumerStatefulWidget {
@@ -10343,7 +10969,8 @@ class SellTradeSuccessView extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SellTradeSuccessView> createState() => _SellTradeSuccessViewState();
+  ConsumerState<SellTradeSuccessView> createState() =>
+      _SellTradeSuccessViewState();
 }
 
 class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
@@ -10361,18 +10988,22 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final bottomPadding = 24 + MediaQuery.of(context).padding.bottom;
-    final method = widget.paymentMethod ?? _fallbackAsTradeMethod(widget.fallbackMethod);
+    final method =
+        widget.paymentMethod ?? _fallbackAsTradeMethod(widget.fallbackMethod);
     final providerName = method?.providerName ?? 'Payment method';
     final methodTypeLabel = _humanizeType(method?.methodType ?? '');
-    final sendAmount = _resolveSendFallback(trade: _trade, sendAmount: _trade.sendAmount);
+    final sendAmount =
+        _resolveSendFallback(trade: _trade, sendAmount: _trade.sendAmount);
     final currency = ((method?.currency ?? '').trim().isNotEmpty
             ? method!.currency.trim()
             : _resolveSendCurrency(trade: _trade, preferred: sendAmount))
         .toUpperCase();
     final amountLabel = _formatLocalAmount(sendAmount);
-    final rateLabel = '1 USD = ${_trade.ad.rate.format(includeCurrencySymbol: true)}';
+    final rateLabel =
+        '1 USD = ${_trade.ad.rate.format(includeCurrencySymbol: true)}';
     final currentUserId = ref.watch(authSessionProvider).userId;
-    final canCancelTrade = _canCurrentUserCancelTrade(trade: _trade, currentUserId: currentUserId);
+    final canCancelTrade =
+        _canCurrentUserCancelTrade(trade: _trade, currentUserId: currentUserId);
     final heroDescription = _trade.status == P2PTradeStatus.initiated
         ? 'We reserved your USD. The buyer will pay using the method below.'
         : _statusDescription(_trade.status);
@@ -10443,7 +11074,9 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
             decoration: BoxDecoration(
               color: OpeiColors.pureWhite,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+              border: Border.all(
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.15),
+                  width: 0.5),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.04),
@@ -10520,7 +11153,10 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 children: [
                   Text(
                     'Ad instructions',
-                    style: textTheme.bodySmall?.copyWith(fontSize: 11, fontWeight: FontWeight.w600, color: OpeiColors.iosLabelSecondary),
+                    style: textTheme.bodySmall?.copyWith(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiColors.iosLabelSecondary),
                   ),
                   const SizedBox(height: 6),
                   Text(
@@ -10540,7 +11176,9 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
               decoration: BoxDecoration(
                 color: OpeiColors.pureWhite,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+                border: Border.all(
+                    color: OpeiColors.iosSeparator.withValues(alpha: 0.15),
+                    width: 0.5),
               ),
               child: Text(
                 'We’ll notify you once the buyer marks payment as sent. Go to Orders to review proof and release the funds.',
@@ -10569,7 +11207,8 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
                 'Done',
@@ -10627,7 +11266,8 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
       });
 
       final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger?.showSnackBar(const SnackBar(content: Text('Trade cancelled.')));
+      messenger
+          ?.showSnackBar(const SnackBar(content: Text('Trade cancelled.')));
     } catch (error) {
       if (!mounted) return;
       final friendly = error is String
@@ -10652,15 +11292,17 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
       child: OutlinedButton(
         onPressed: _isCancelling ? null : _handleCancelTrade,
         style: OutlinedButton.styleFrom(
-          foregroundColor:
-              _isCancelling ? OpeiColors.iosLabelSecondary : const Color(0xFFD62E1F),
+          foregroundColor: _isCancelling
+              ? OpeiColors.iosLabelSecondary
+              : const Color(0xFFD62E1F),
           side: BorderSide(
             color: _isCancelling
                 ? OpeiColors.iosSeparator.withValues(alpha: 0.4)
                 : const Color(0xFFD62E1F),
           ),
           padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
         child: _isCancelling
             ? const SizedBox(
@@ -10693,8 +11335,12 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
       color: OpeiColors.iosLabelSecondary,
     );
     final valueStyle = emphasizeValue
-        ? textTheme.bodyMedium?.copyWith(fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: -0.1)
-        : textTheme.bodySmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w500, color: OpeiColors.pureBlack);
+        ? textTheme.bodyMedium?.copyWith(
+            fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: -0.1)
+        : textTheme.bodySmall?.copyWith(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: OpeiColors.pureBlack);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -10737,7 +11383,8 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
     }
   }
 
-  static bool _isNotEmpty(String? value) => value != null && value.trim().isNotEmpty;
+  static bool _isNotEmpty(String? value) =>
+      value != null && value.trim().isNotEmpty;
 
   String _humanizeType(String raw) {
     final normalized = raw.trim();
@@ -10748,10 +11395,9 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
         .split(RegExp(r'[ _]+'))
         .where((segment) => segment.trim().isNotEmpty)
         .map((segment) {
-          final lower = segment.toLowerCase();
-          return lower[0].toUpperCase() + lower.substring(1);
-        })
-        .toList(growable: false);
+      final lower = segment.toLowerCase();
+      return lower[0].toUpperCase() + lower.substring(1);
+    }).toList(growable: false);
     return parts.join(' ');
   }
 
@@ -10809,20 +11455,25 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
     final method = widget.paymentMethod;
     final fallback = widget.fallbackMethod;
     final trade = _trade;
-    final providerName = (method?.providerName ?? fallback?.providerName ?? 'Payment method').toString();
+    final providerName =
+        (method?.providerName ?? fallback?.providerName ?? 'Payment method')
+            .toString();
     final methodType = (method?.methodType ?? fallback?.methodType)?.toString();
     final currency = (method?.currency ?? fallback?.currency)?.toString();
     final accountName = _safeString(method?.accountName);
     final accountNumber = _safeString(method?.accountNumber);
-    final extraDetails = method?.extraDetails != null ? _safeString(method!.extraDetails) : null;
-    final hasAccountDetails = accountName.isNotEmpty || accountNumber.isNotEmpty;
+    final extraDetails =
+        method?.extraDetails != null ? _safeString(method!.extraDetails) : null;
+    final hasAccountDetails =
+        accountName.isNotEmpty || accountNumber.isNotEmpty;
 
     final existingProofs = trade.proofs;
     final canSubmitProof = trade.status == P2PTradeStatus.initiated;
     final awaitingSeller = trade.status == P2PTradeStatus.paidByBuyer;
     final showDisputeButton = _isTradeEligibleForDispute(trade.status);
     final currentUserId = ref.watch(authSessionProvider).userId;
-    final canCancelTrade = _canCurrentUserCancelTrade(trade: trade, currentUserId: currentUserId);
+    final canCancelTrade =
+        _canCurrentUserCancelTrade(trade: trade, currentUserId: currentUserId);
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(24, 20, 24, bottomPadding),
@@ -10865,19 +11516,19 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 Text(
                   'Trade created',
                   style: textTheme.titleLarge?.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3,
-                      ),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Send payment using the details below.',
                   textAlign: TextAlign.center,
                   style: textTheme.bodyMedium?.copyWith(
-                        fontSize: 13,
-                        color: OpeiColors.iosLabelSecondary,
-                      ),
+                    fontSize: 13,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
                 ),
               ],
             ),
@@ -10907,10 +11558,10 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                   child: Text(
                     'Pay within 30 minutes & confirm, or this trade will be cancelled.',
                     style: textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: OpeiColors.iosLabelSecondary,
-                          height: 1.3,
-                        ),
+                      fontSize: 11,
+                      color: OpeiColors.iosLabelSecondary,
+                      height: 1.3,
+                    ),
                   ),
                 ),
               ],
@@ -11003,11 +11654,11 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         Text(
           'Seller Payment Details',
           style: textTheme.titleSmall?.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: OpeiColors.iosLabelSecondary,
-                letterSpacing: -0.2,
-              ),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: OpeiColors.iosLabelSecondary,
+            letterSpacing: -0.2,
+          ),
         ),
         const SizedBox(height: 10),
         Container(
@@ -11016,7 +11667,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           decoration: BoxDecoration(
             color: OpeiColors.pureWhite,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+            border: Border.all(
+                color: OpeiColors.iosSeparator.withValues(alpha: 0.15),
+                width: 0.5),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.03),
@@ -11051,19 +11704,20 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                               Text(
                                 providerName,
                                 style: textTheme.titleSmall?.copyWith(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      letterSpacing: -0.3,
-                                    ),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.3,
+                                ),
                               ),
-                              if (methodType != null && methodType.isNotEmpty) ...[
+                              if (methodType != null &&
+                                  methodType.isNotEmpty) ...[
                                 const SizedBox(height: 2),
                                 Text(
                                   methodType,
                                   style: textTheme.bodySmall?.copyWith(
-                                        fontSize: 11,
-                                        color: OpeiColors.iosLabelSecondary,
-                                      ),
+                                    fontSize: 11,
+                                    color: OpeiColors.iosLabelSecondary,
+                                  ),
                                 ),
                               ],
                             ],
@@ -11071,7 +11725,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                         ),
                         if (currency != null && currency.isNotEmpty)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: const Color(0xFFF2F2F7),
                               borderRadius: BorderRadius.circular(8),
@@ -11079,10 +11734,10 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                             child: Text(
                               currency,
                               style: textTheme.bodySmall?.copyWith(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: 0.3,
-                                  ),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.3,
+                              ),
                             ),
                           ),
                       ],
@@ -11131,9 +11786,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                       'Seller will share the final account details in chat.',
                       textAlign: TextAlign.center,
                       style: textTheme.bodySmall?.copyWith(
-                            fontSize: 13,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 13,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -11144,7 +11799,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
   Widget _buildAmountSummary(P2PTrade trade, TextTheme textTheme) {
     final Money? sendAmount = trade.sendAmount;
-    final Money fallbackSend = _resolveSendFallback(trade: trade, sendAmount: sendAmount);
+    final Money fallbackSend =
+        _resolveSendFallback(trade: trade, sendAmount: sendAmount);
     final Money effectiveSend = sendAmount ?? fallbackSend;
     final String sendLabel = _formatLocalAmount(effectiveSend);
     final String usdReservedLabel = _formatUsdAmount(trade.amount);
@@ -11155,7 +11811,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -11173,11 +11830,11 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
               Text(
                 'You send',
                 style: textTheme.bodyMedium?.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: OpeiColors.iosLabelSecondary,
-                      letterSpacing: -0.1,
-                    ),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: OpeiColors.iosLabelSecondary,
+                  letterSpacing: -0.1,
+                ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -11185,20 +11842,20 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                   Text(
                     sendLabel,
                     style: textTheme.titleLarge?.copyWith(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.4,
-                          color: OpeiColors.pureBlack,
-                        ),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.4,
+                      color: OpeiColors.pureBlack,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     effectiveSend.currency,
                     style: textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          color: OpeiColors.iosLabelSecondary,
-                          letterSpacing: 0.1,
-                        ),
+                      fontSize: 11,
+                      color: OpeiColors.iosLabelSecondary,
+                      letterSpacing: 0.1,
+                    ),
                   ),
                 ],
               ),
@@ -11217,20 +11874,20 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
               Text(
                 'You\'ll receive',
                 style: textTheme.bodyMedium?.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: OpeiColors.iosLabelSecondary,
-                      letterSpacing: -0.1,
-                    ),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: OpeiColors.iosLabelSecondary,
+                  letterSpacing: -0.1,
+                ),
               ),
               Text(
                 usdReservedLabel,
                 style: textTheme.titleLarge?.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.3,
-                      color: OpeiColors.pureBlack,
-                    ),
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                  color: OpeiColors.pureBlack,
+                ),
               ),
             ],
           ),
@@ -11249,11 +11906,11 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         Text(
           'Seller Instructions',
           style: textTheme.titleSmall?.copyWith(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: OpeiColors.iosLabelSecondary,
-                letterSpacing: -0.2,
-              ),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: OpeiColors.iosLabelSecondary,
+            letterSpacing: -0.2,
+          ),
         ),
         const SizedBox(height: 10),
         Container(
@@ -11262,7 +11919,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           decoration: BoxDecoration(
             color: OpeiColors.pureWhite,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.15), width: 0.5),
+            border: Border.all(
+                color: OpeiColors.iosSeparator.withValues(alpha: 0.15),
+                width: 0.5),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.03),
@@ -11291,11 +11950,13 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 child: Text(
                   hasCopy ? trimmed : 'No extra instructions provided.',
                   style: textTheme.bodyMedium?.copyWith(
-                        fontSize: 13,
-                        color: hasCopy ? OpeiColors.pureBlack : OpeiColors.iosLabelSecondary,
-                        height: 1.5,
-                        letterSpacing: -0.1,
-                      ),
+                    fontSize: 13,
+                    color: hasCopy
+                        ? OpeiColors.pureBlack
+                        : OpeiColors.iosLabelSecondary,
+                    height: 1.5,
+                    letterSpacing: -0.1,
+                  ),
                 ),
               ),
             ],
@@ -11307,7 +11968,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
   Widget _buildDisputeButton(TextTheme textTheme) {
     final isDisabled = _trade.status == P2PTradeStatus.disputed || _isDisputing;
-    final label = _trade.status == P2PTradeStatus.disputed ? 'Dispute opened' : 'Raise dispute';
+    final label = _trade.status == P2PTradeStatus.disputed
+        ? 'Dispute opened'
+        : 'Raise dispute';
 
     return SizedBox(
       width: double.infinity,
@@ -11315,16 +11978,18 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         onPressed: isDisabled ? null : _handleRaiseDispute,
         style: OutlinedButton.styleFrom(
           foregroundColor: OpeiColors.pureBlack,
-          side: BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.4)),
+          side:
+              BorderSide(color: OpeiColors.iosSeparator.withValues(alpha: 0.4)),
           padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
         child: Text(
           label,
           style: textTheme.bodyMedium?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
@@ -11336,15 +12001,17 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       child: OutlinedButton(
         onPressed: _isCancelling ? null : _handleCancelTrade,
         style: OutlinedButton.styleFrom(
-          foregroundColor:
-              _isCancelling ? OpeiColors.iosLabelSecondary : const Color(0xFFD62E1F),
+          foregroundColor: _isCancelling
+              ? OpeiColors.iosLabelSecondary
+              : const Color(0xFFD62E1F),
           side: BorderSide(
             color: _isCancelling
                 ? OpeiColors.iosSeparator.withValues(alpha: 0.4)
                 : const Color(0xFFD62E1F),
           ),
           padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
         child: _isCancelling
             ? const SizedBox(
@@ -11373,7 +12040,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       decoration: BoxDecoration(
         color: OpeiColors.iosSurfaceMuted,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -11387,18 +12055,21 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 decoration: BoxDecoration(
                   color: OpeiColors.pureWhite,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.25), width: 0.5),
+                  border: Border.all(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.25),
+                      width: 0.5),
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.hourglass_bottom_rounded, size: 16, color: OpeiColors.pureBlack),
+                child: const Icon(Icons.hourglass_bottom_rounded,
+                    size: 16, color: OpeiColors.pureBlack),
               ),
               const SizedBox(width: 10),
               Text(
                 'Waiting for the seller',
                 style: textTheme.titleSmall?.copyWith(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ],
           ),
@@ -11406,10 +12077,10 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           Text(
             'We\'ve notified the other party. Once they confirm payment, your USD will be released to your wallet. We\'ll let you know immediately.',
             style: textTheme.bodySmall?.copyWith(
-                  fontSize: 13,
-                  height: 1.45,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 13,
+              height: 1.45,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
           const SizedBox(height: 18),
           SizedBox(
@@ -11420,15 +12091,16 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 backgroundColor: OpeiColors.pureBlack,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
                 'Done',
                 style: textTheme.bodyMedium?.copyWith(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: OpeiColors.pureWhite,
-                    ),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: OpeiColors.pureWhite,
+                ),
               ),
             ),
           ),
@@ -11444,7 +12116,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.25), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.25), width: 0.5),
       ),
       child: Row(
         children: [
@@ -11461,9 +12134,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
             child: Text(
               'Adding your proof...',
               style: textTheme.bodySmall?.copyWith(
-                    fontSize: 12,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 12,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
           ),
         ],
@@ -11480,17 +12153,18 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           backgroundColor: OpeiColors.pureBlack,
           foregroundColor: OpeiColors.pureWhite,
           padding: const EdgeInsets.symmetric(vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           elevation: 0,
         ),
         child: Text(
           'I\'ve Paid',
           style: textTheme.bodyMedium?.copyWith(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: OpeiColors.pureWhite,
-                letterSpacing: -0.3,
-              ),
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: OpeiColors.pureWhite,
+            letterSpacing: -0.3,
+          ),
         ),
       ),
     );
@@ -11506,7 +12180,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.2), width: 0.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -11527,27 +12202,28 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
             child: Text(
               statusLabel,
               style: textTheme.bodySmall?.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.1,
-                  ),
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             description,
             style: textTheme.bodySmall?.copyWith(
-                  fontSize: 13,
-                  height: 1.45,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 13,
+              height: 1.45,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSubmittedProofs(List<P2PTradeProof> proofs, TextTheme textTheme) {
+  Widget _buildSubmittedProofs(
+      List<P2PTradeProof> proofs, TextTheme textTheme) {
     final thumbnails = proofs
         .where((proof) => proof.url.isNotEmpty)
         .map((proof) => _ProofNetworkThumb(url: proof.url))
@@ -11563,10 +12239,10 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         Text(
           'Submitted proofs',
           style: textTheme.titleSmall?.copyWith(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: OpeiColors.iosLabelSecondary,
-              ),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: OpeiColors.iosLabelSecondary,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -11578,9 +12254,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         Text(
           'Visible to the seller and support team.',
           style: textTheme.bodySmall?.copyWith(
-                fontSize: 11,
-                color: OpeiColors.iosLabelTertiary,
-              ),
+            fontSize: 11,
+            color: OpeiColors.iosLabelTertiary,
+          ),
         ),
       ],
     );
@@ -11635,9 +12311,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           foregroundColor: OpeiColors.iosLabelSecondary,
           padding: const EdgeInsets.symmetric(vertical: 12),
           textStyle: textTheme.bodyMedium?.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         child: const Text('Close'),
       ),
@@ -11670,7 +12346,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       });
 
       final messenger = ScaffoldMessenger.maybeOf(context);
-      messenger?.showSnackBar(const SnackBar(content: Text('Trade cancelled.')));
+      messenger
+          ?.showSnackBar(const SnackBar(content: Text('Trade cancelled.')));
     } catch (error) {
       if (!mounted) return;
       final friendly = error is String
@@ -11720,7 +12397,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
-        const SnackBar(content: Text('Dispute submitted. Support has been notified.')),
+        const SnackBar(
+            content: Text('Dispute submitted. Support has been notified.')),
       );
     } catch (error) {
       if (!mounted) return;
@@ -11761,7 +12439,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
     });
 
     try {
-      debugPrint('🔖 Confirm paid tapped for trade ${currentTrade.id} with ${_pickedImages.length} picked image(s)');
+      debugPrint(
+          '🔖 Confirm paid tapped for trade ${currentTrade.id} with ${_pickedImages.length} picked image(s)');
       final candidates = _prepareLocalProofs();
       final repository = ref.read(p2pRepositoryProvider);
       final plans = await repository.prepareTradeProofUploads(
@@ -11777,13 +12456,16 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       );
 
       if (plans.length != candidates.length) {
-        throw ApiError(message: 'Couldn’t prepare proof uploads. Please try again.');
+        throw ApiError(
+            message: 'Couldn’t prepare proof uploads. Please try again.');
       }
 
-      debugPrint('📝 Received ${plans.length} presigned upload plan(s). Starting uploads...');
+      debugPrint(
+          '📝 Received ${plans.length} presigned upload plan(s). Starting uploads...');
       await _performProofUploads(candidates, plans);
 
-      final proofUrls = plans.map((plan) => plan.fileUrl).toList(growable: false);
+      final proofUrls =
+          plans.map((plan) => plan.fileUrl).toList(growable: false);
       final message = _noteController.text.trim();
 
       final updatedTrade = await repository.markTradeAsPaid(
@@ -11805,7 +12487,6 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
       _noteController.clear();
       unawaited(_refreshOrdersSilently());
-
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -11835,7 +12516,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       final file = _pickedImages[i];
       final bytes = file.bytes;
       if (bytes == null || bytes.isEmpty) {
-        throw ApiError(message: 'One of the selected images could not be read. Please re-upload.');
+        throw ApiError(
+            message:
+                'One of the selected images could not be read. Please re-upload.');
       }
 
       final extension = _resolvePreferredExtension(file);
@@ -11869,7 +12552,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
     if (ext == 'jpeg' || ext == 'jpg') return 'jpg';
     if (ext == 'heic' || ext == 'heif') return 'jpg';
     if (file.name.toLowerCase().endsWith('.png')) return 'png';
-    if (file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg')) return 'jpg';
+    if (file.name.toLowerCase().endsWith('.jpg') ||
+        file.name.toLowerCase().endsWith('.jpeg')) return 'jpg';
     return 'jpg';
   }
 
@@ -11894,7 +12578,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         if (message.toLowerCase().contains('already marked')) {
           return 'You already confirmed payment for this trade.';
         }
-        return message.isNotEmpty ? message : 'We couldn’t submit those proofs. Please check and try again.';
+        return message.isNotEmpty
+            ? message
+            : 'We couldn’t submit those proofs. Please check and try again.';
       }
 
       if (status == 401 || status == 403) {
@@ -11909,11 +12595,14 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         return 'Server issue while submitting your proofs. Please try again in a moment.';
       }
 
-      return message.isNotEmpty ? message : 'We couldn’t submit your proofs right now.';
+      return message.isNotEmpty
+          ? message
+          : 'We couldn’t submit your proofs right now.';
     }
 
     if (error is DioException) {
-      if (error.type == DioExceptionType.connectionTimeout || error.type == DioExceptionType.connectionError) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.connectionError) {
         return 'Network issue while uploading. Check your connection and retry.';
       }
       return 'Upload failed. Please try again.';
@@ -12043,9 +12732,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         Text(
           'Proof of payment',
           style: textTheme.titleSmall?.copyWith(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -12072,9 +12761,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         Text(
           '${_pickedImages.length}/$_maxImages selected',
           style: textTheme.bodySmall?.copyWith(
-                fontSize: 11,
-                color: OpeiColors.iosLabelSecondary,
-              ),
+            fontSize: 11,
+            color: OpeiColors.iosLabelSecondary,
+          ),
         ),
       ],
     );
@@ -12104,23 +12793,23 @@ class _PaymentDetailRow extends StatelessWidget {
           child: Text(
             label,
             style: textTheme.bodyMedium?.copyWith(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w400,
-                  color: OpeiColors.iosLabelSecondary,
-                  letterSpacing: -0.1,
-                ),
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: OpeiColors.iosLabelSecondary,
+              letterSpacing: -0.1,
+            ),
           ),
         ),
         Expanded(
           child: SelectableText(
             value,
             style: textTheme.bodyMedium?.copyWith(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: isMonospace ? 0.2 : -0.2,
-                  fontFamily: isMonospace ? 'Courier' : null,
-                  color: OpeiColors.pureBlack,
-                ),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: isMonospace ? 0.2 : -0.2,
+              fontFamily: isMonospace ? 'Courier' : null,
+              color: OpeiColors.pureBlack,
+            ),
           ),
         ),
       ],
@@ -12146,7 +12835,9 @@ class _ProofThumb extends StatelessWidget {
           decoration: BoxDecoration(
             color: OpeiColors.iosSurfaceMuted,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+            border: Border.all(
+                color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                width: 0.5),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
@@ -12221,7 +12912,8 @@ class ProofSubmittedScreen extends StatefulWidget {
   State<ProofSubmittedScreen> createState() => _ProofSubmittedScreenState();
 }
 
-class _ProofSubmittedScreenState extends State<ProofSubmittedScreen> with SingleTickerProviderStateMixin {
+class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
   bool _isNavigating = false;
@@ -12274,7 +12966,8 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen> with Single
                 Align(
                   alignment: Alignment.centerLeft,
                   child: IconButton(
-                    icon: const Icon(Icons.close_rounded, size: 22, color: OpeiColors.pureBlack),
+                    icon: const Icon(Icons.close_rounded,
+                        size: 22, color: OpeiColors.pureBlack),
                     tooltip: 'Back to orders',
                     onPressed: _handleDone,
                   ),
@@ -12340,7 +13033,8 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen> with Single
                               shape: BoxShape.circle,
                             ),
                             alignment: Alignment.center,
-                            child: const Icon(Icons.schedule_rounded, size: 16, color: OpeiColors.pureBlack),
+                            child: const Icon(Icons.schedule_rounded,
+                                size: 16, color: OpeiColors.pureBlack),
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -12358,11 +13052,13 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen> with Single
                       ),
                       const SizedBox(height: 6),
                       _ProofSubmittedBullet(
-                        label: 'Once confirmed, the funds are released automatically.',
+                        label:
+                            'Once confirmed, the funds are released automatically.',
                       ),
                       const SizedBox(height: 6),
                       _ProofSubmittedBullet(
-                        label: 'You’ll receive a notification for every update.',
+                        label:
+                            'You’ll receive a notification for every update.',
                       ),
                     ],
                   ),
@@ -12376,7 +13072,8 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen> with Single
                       backgroundColor: OpeiColors.pureBlack,
                       foregroundColor: OpeiColors.pureWhite,
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18)),
                       elevation: 0,
                     ),
                     child: _isNavigating
@@ -12385,7 +13082,8 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen> with Single
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  OpeiColors.pureWhite),
                             ),
                           )
                         : Text(
@@ -12455,10 +13153,12 @@ Future<bool> showP2PCancelTradeWarningDialog(BuildContext context) async {
           final textTheme = theme.textTheme;
 
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: Text(
               'Cancel this trade?',
-              style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+              style:
+                  textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -12493,8 +13193,10 @@ Future<bool> showP2PCancelTradeWarningDialog(BuildContext context) async {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: OpeiColors.pureBlack,
                   foregroundColor: OpeiColors.pureWhite,
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: const Text('I understand'),
               ),
@@ -12516,7 +13218,8 @@ class _ProofThumbLoading extends StatelessWidget {
       decoration: BoxDecoration(
         color: OpeiColors.iosSurfaceMuted,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
+        border: Border.all(
+            color: OpeiColors.iosSeparator.withValues(alpha: 0.3), width: 0.5),
       ),
       child: const Center(
         child: SizedBox(
@@ -12570,7 +13273,8 @@ Future<void> _performProofUploads(
 
     final startTime = DateTime.now();
     try {
-      debugPrint('⏱️  Starting PUT request at ${startTime.toIso8601String()}...');
+      debugPrint(
+          '⏱️  Starting PUT request at ${startTime.toIso8601String()}...');
 
       final response = await dio.put<dynamic>(
         plan.uploadUrl,
@@ -12680,18 +13384,18 @@ class _UploadProofSheet extends StatelessWidget {
             Text(
               'Upload Proof',
               style: theme.textTheme.titleLarge?.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.5,
-                  ),
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.5,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               'Upload 1–3 clear images showing your payment confirmation',
               style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 14,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
             const SizedBox(height: 20),
             if (hasImages || isPicking) ...[
@@ -12720,17 +13424,20 @@ class _UploadProofSheet extends StatelessWidget {
                       color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
                       width: 1.5,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 14, horizontal: 18),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
                   ),
-                  icon: const Icon(Icons.add_photo_alternate_outlined, size: 22),
+                  icon:
+                      const Icon(Icons.add_photo_alternate_outlined, size: 22),
                   label: Text(
                     hasImages ? 'Add more' : 'Choose images',
                     style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.2,
-                        ),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                 ),
               ),
@@ -12741,9 +13448,9 @@ class _UploadProofSheet extends StatelessWidget {
                   'Up to 3 images • Max 5 MB each',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
-                        fontSize: 12,
-                        color: OpeiColors.iosLabelSecondary,
-                      ),
+                    fontSize: 12,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
                 ),
               ),
             if (pickError != null) ...[
@@ -12754,10 +13461,10 @@ class _UploadProofSheet extends StatelessWidget {
             Text(
               'Note (optional)',
               style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -12770,9 +13477,9 @@ class _UploadProofSheet extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Add any details the seller should know',
                 hintStyle: theme.textTheme.bodySmall?.copyWith(
-                      color: OpeiColors.iosLabelTertiary,
-                      fontSize: 14,
-                    ),
+                  color: OpeiColors.iosLabelTertiary,
+                  fontSize: 14,
+                ),
                 filled: true,
                 fillColor: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.5),
                 contentPadding: const EdgeInsets.all(14),
@@ -12786,13 +13493,14 @@ class _UploadProofSheet extends StatelessWidget {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: OpeiColors.pureBlack, width: 1.5),
+                  borderSide:
+                      const BorderSide(color: OpeiColors.pureBlack, width: 1.5),
                 ),
               ),
               style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
-                    height: 1.4,
-                  ),
+                fontSize: 14,
+                height: 1.4,
+              ),
             ),
             if (submissionError != null) ...[
               const SizedBox(height: 12),
@@ -12806,10 +13514,12 @@ class _UploadProofSheet extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: OpeiColors.pureBlack,
                   foregroundColor: OpeiColors.pureWhite,
-                  disabledBackgroundColor: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                  disabledBackgroundColor:
+                      OpeiColors.iosSeparator.withValues(alpha: 0.3),
                   disabledForegroundColor: OpeiColors.iosLabelTertiary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
                   elevation: 0,
                 ),
                 child: isSubmitting
@@ -12818,17 +13528,18 @@ class _UploadProofSheet extends StatelessWidget {
                         width: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              OpeiColors.pureWhite),
                         ),
                       )
                     : Text(
                         'Submit Proof',
                         style: theme.textTheme.bodyMedium?.copyWith(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                              color: OpeiColors.pureWhite,
-                              letterSpacing: -0.3,
-                            ),
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          color: OpeiColors.pureWhite,
+                          letterSpacing: -0.3,
+                        ),
                       ),
               ),
             ),
