@@ -98,4 +98,11 @@ Tokens will live in a new `responsive.dart` helper (Phase 2) and feed `ThemeData
 - `CardsScreen` (list + empty state) now uses responsive scaffolds, tokenized vertical rhythm, and max-width constraints for virtual-card hero + CTA. Card top-up/withdraw/address sheets also use `showResponsiveBottomSheet`.
 - Next up: deposits/withdrawals, P2P, and settings/profile per the Phase 3 rollout plan.
 
+### 12. Phase 3 Progress (Money Movement, P2P, Settings/Profile – Dec 30, 2025)
+
+- **Deposits & Withdrawals:** Crypto/fiat select flows, network pickers, address displays, and success screens now run inside `ResponsiveScaffold`. Every step uses token-based spacing, and their dialogs (select network, success states) are driven by `showResponsiveBottomSheet`.
+- **P2P Marketplace:** All four tabs (Home, Orders, My Ads, Profile) and their modals use responsive scaffolds/sheets. Tabs share the token gutters so large devices see centered columns, and every trade/ad sheet/proof upload/dispute dialog is capped by `showResponsiveBottomSheet`. Bottom nav now honors responsive padding.
+- **Settings/Profile:** The profile screen (header, KYC prompt, address cards, preferences, logout) is constrained by `ResponsiveScaffold` with token spacing. Language selector and logout confirmation both consume `showResponsiveBottomSheet`, keeping sheets centered on tablets. Error/loading states share the same responsive shell.
+- With these modules complete, the Phase 3 retrofit now covers all user-facing surfaces, and modules inherit consistent breakpoints, gutters, and centered sheets. Remaining work shifts to Phase 4 tasks.
+
 _Prepared for Opei App Flutter – Dec 29, 2025._

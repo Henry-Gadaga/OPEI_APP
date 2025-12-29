@@ -115,11 +115,13 @@ Future<T?> showResponsiveBottomSheet<T>({
   bool isScrollControlled = true,
   bool useRootNavigator = true,
   Color barrierColor = const Color(0x59000000),
+  bool enableDrag = true,
 }) {
   return showModalBottomSheet<T>(
     context: context,
     useRootNavigator: useRootNavigator,
     isScrollControlled: isScrollControlled,
+    enableDrag: enableDrag,
     backgroundColor: Colors.transparent,
     barrierColor: barrierColor,
     builder: (sheetContext) => ResponsiveSheet(child: builder(sheetContext)),

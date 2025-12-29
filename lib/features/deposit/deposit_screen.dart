@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tt1/features/deposit/deposit_controller.dart';
+import 'package:tt1/responsive/responsive_tokens.dart';
+import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
 
 class DepositOptionsSheet extends StatelessWidget {
@@ -190,8 +192,12 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: OpeiColors.pureWhite,
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
@@ -208,35 +214,33 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Choose the method you want to deposit with',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 15,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
-              ),
-              const SizedBox(height: 20),
-              CurrencyOption(
-                currency: 'USDT',
-                name: 'Tether',
-                networks: const ['Polygon', 'Ethereum', 'BSC', 'Tron'],
-                onTap: () => context.push('/deposit/crypto-network', extra: 'USDT'),
-              ),
-              const SizedBox(height: 4),
-              CurrencyOption(
-                currency: 'USDC',
-                name: 'USD Coin',
-                networks: const ['Polygon', 'Ethereum', 'BSC'],
-                onTap: () => context.push('/deposit/crypto-network', extra: 'USDC'),
-              ),
-            ],
-          ),
+      body: Padding(
+        padding: EdgeInsets.all(tokens.horizontalPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Choose the method you want to deposit with',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 15,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
+            ),
+            SizedBox(height: spacing * 2.5),
+            CurrencyOption(
+              currency: 'USDT',
+              name: 'Tether',
+              networks: const ['Polygon', 'Ethereum', 'BSC', 'Tron'],
+              onTap: () => context.push('/deposit/crypto-network', extra: 'USDT'),
+            ),
+            SizedBox(height: spacing * 0.5),
+            CurrencyOption(
+              currency: 'USDC',
+              name: 'USD Coin',
+              networks: const ['Polygon', 'Ethereum', 'BSC'],
+              onTap: () => context.push('/deposit/crypto-network', extra: 'USDC'),
+            ),
+          ],
         ),
       ),
     );
@@ -370,8 +374,12 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: OpeiColors.pureWhite,
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
@@ -388,52 +396,52 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Choose the network for your $currency deposit',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 15,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
-              ),
-              const SizedBox(height: 20),
-              ..._availableNetworks.map((network) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: NetworkOption(
+      body: Padding(
+        padding: EdgeInsets.all(tokens.horizontalPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Choose the network for your $currency deposit',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 15,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
+            ),
+            SizedBox(height: spacing * 2.5),
+            ..._availableNetworks.map(
+              (network) => Padding(
+                padding: EdgeInsets.only(bottom: spacing * 0.75),
+                child: NetworkOption(
+                  network: network,
+                  onTap: () async {
+                    final notifier = ref.read(depositControllerProvider.notifier);
+                    final success = await notifier.fetchDepositAddress(
+                      currency: currency,
                       network: network,
-                      onTap: () async {
-                        final notifier = ref.read(depositControllerProvider.notifier);
-                        final success = await notifier.fetchDepositAddress(
-                          currency: currency,
-                          network: network,
-                        );
+                    );
 
-                        if (success && context.mounted) {
-                          context.push('/deposit/crypto-address', extra: {'currency': currency, 'network': network});
-                        } else if (context.mounted) {
-                          final error = ref.read(depositControllerProvider).error;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(error ?? 'Failed to fetch deposit address'),
-                              backgroundColor: const Color(0xFFFF3B30),
-                              behavior: SnackBarBehavior.floating,
-                              margin: const EdgeInsets.all(16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  )),
-            ],
-          ),
+                    if (success && context.mounted) {
+                      context.push('/deposit/crypto-address', extra: {'currency': currency, 'network': network});
+                    } else if (context.mounted) {
+                      final error = ref.read(depositControllerProvider).error;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(error ?? 'Failed to fetch deposit address'),
+                          backgroundColor: const Color(0xFFFF3B30),
+                          behavior: SnackBarBehavior.floating,
+                          margin: const EdgeInsets.all(16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -636,8 +644,12 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
 
     final textTheme = Theme.of(context).textTheme;
     final disableScroll = normalizedNetwork == 'polygon' || normalizedNetwork == 'ethereum';
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
 
-    return Scaffold(
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       backgroundColor: OpeiColors.pureWhite,
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
@@ -660,7 +672,10 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: tokens.horizontalPadding,
+            vertical: spacing * 1.5,
+          ),
           physics: disableScroll
               ? const NeverScrollableScrollPhysics()
               : const ClampingScrollPhysics(),
@@ -686,7 +701,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: OpeiColors.iosSurfaceMuted.withOpacity(0.3),
+                color: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -772,7 +787,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: OpeiColors.iosSurfaceMuted.withOpacity(0.5),
+                      color: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -793,7 +808,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           minSize: 0,
                           borderRadius: BorderRadius.circular(8),
-                          color: OpeiColors.pureBlack.withOpacity(0.04),
+                          color: OpeiColors.pureBlack.withValues(alpha: 0.04),
                           onPressed: hasAddress
                               ? () {
                                   Clipboard.setData(ClipboardData(text: addressValue));
@@ -836,7 +851,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: OpeiColors.iosSurfaceMuted.withOpacity(0.3),
+                color: OpeiColors.iosSurfaceMuted.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(

@@ -23,6 +23,9 @@ import 'package:tt1/data/models/p2p_user_profile.dart';
 import 'package:tt1/core/network/api_error.dart';
 import 'package:tt1/data/models/p2p_trade.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tt1/responsive/responsive_breakpoints.dart';
+import 'package:tt1/responsive/responsive_tokens.dart';
+import 'package:tt1/responsive/responsive_widgets.dart';
 // Removed SuccessBadge usage in favor of a custom asset checkmark
 
 const List<String> _ratingTagSuggestions = <String>[
@@ -231,13 +234,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   }
 
   Future<void> _openPaymentMethodsManager() async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: OpeiColors.pureWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    await _showResponsiveSheet<void>(
       builder: (_) => const _PaymentMethodsSheet(),
     );
   }
@@ -245,13 +242,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   Future<void> _openProfileSetup({String? suggestedCurrency}) async {
     final currency = suggestedCurrency ??
         ref.read(p2pAdsControllerProvider).selectedCurrencyCode;
-    final result = await showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: OpeiColors.pureWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    final result = await _showResponsiveSheet<bool>(
       builder: (_) => _ProfileSetupSheet(initialCurrency: currency),
     );
 
@@ -415,21 +406,28 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     setState(() => _isCreateAdOverlayVisible = true);
 
     try {
-      return await showModalBottomSheet<T>(
-        context: context,
-        isScrollControlled: true,
-        enableDrag: false,
-        backgroundColor: OpeiColors.pureWhite,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
+      return await _showResponsiveSheet<T>(
         builder: builder,
+        enableDrag: false,
       );
     } finally {
       if (mounted) {
         setState(() => _isCreateAdOverlayVisible = false);
       }
     }
+  }
+
+  Future<T?> _showResponsiveSheet<T>({
+    required WidgetBuilder builder,
+    bool enableDrag = true,
+  }) {
+    return showResponsiveBottomSheet<T>(
+      context: context,
+      builder: builder,
+      isScrollControlled: true,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+      enableDrag: enableDrag,
+    );
   }
 
   String _friendlyGenericError(Object e) {
@@ -465,18 +463,27 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     final profileState = ref.watch(p2pProfileControllerProvider);
     final authSession = ref.watch(authSessionProvider);
 
-    return Scaffold(
+    final spacing = context.responsiveSpacingUnit;
+
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       backgroundColor: OpeiColors.pureWhite,
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        onPageChanged: _handlePageChanged,
-        children: [
-          _buildHomeTab(adsState, controller),
-          _buildOrdersTab(ordersState, ordersController, authSession.userId),
-          _buildMyAdsTab(myAdsState, myAdsController),
-          _buildProfileTab(profileState),
-        ],
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.only(top: spacing),
+          child: PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            onPageChanged: _handlePageChanged,
+            children: [
+              _buildHomeTab(adsState, controller),
+              _buildOrdersTab(ordersState, ordersController, authSession.userId),
+              _buildMyAdsTab(myAdsState, myAdsController),
+              _buildProfileTab(profileState),
+            ],
+          ),
+        ),
       ),
       bottomNavigationBar: _buildBottomNav(),
     );
@@ -485,6 +492,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   Widget _buildHomeTab(P2PAdsState state, P2PAdsController controller) {
     final bool showOverlay = state.isRefreshing && state.hasLoaded;
     final bool blockInteractions = !state.hasLoaded;
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
 
     return SafeArea(
       child: _LoadingShield(
@@ -497,14 +506,19 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
             slivers: [
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                  padding: EdgeInsets.fromLTRB(
+                    tokens.horizontalPadding,
+                    spacing * 1.5,
+                    tokens.horizontalPadding,
+                    0,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           _BackButton(onTap: () => context.go('/dashboard')),
-                          const SizedBox(width: 8),
+                          SizedBox(width: spacing),
                           Text(
                             'P2P',
                             style: TextStyle(
@@ -520,7 +534,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                           _buildCurrencyPicker(state, controller),
                         ],
                       ),
-                      const SizedBox(height: 14),
+                      SizedBox(height: spacing * 1.75),
                       Row(
                         children: [
                           _CompactToggleButton(
@@ -538,15 +552,15 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                                 state.selectedType == P2PAdType.sell,
                             onTap: () => controller.updateType(P2PAdType.sell),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: spacing * 1.5),
                           _FilterButton(
                               onTap: () =>
                                   _showAmountFilterSheet(state, controller)),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: spacing * 1.5),
                       _buildPaymentMethodFilters(state, controller),
-                      const SizedBox(height: 12),
+                      SizedBox(height: spacing * 1.5),
                     ],
                   ),
                 ),
@@ -554,7 +568,9 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
               if (state.errorMessage != null && state.filteredAds.isNotEmpty)
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: tokens.horizontalPadding,
+                    ),
                     child: _MessageBanner(
                         message: state.errorMessage!, isError: true),
                   ),
@@ -599,12 +615,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   }
 
   void _showCurrencyPicker(P2PAdsState state, P2PAdsController controller) {
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: OpeiColors.pureWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    _showResponsiveSheet<void>(
       builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -797,8 +808,16 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     final ads = state.filteredAds;
     final intentType = state.selectedType;
 
+    final tokens = context.responsiveTokens;
+    final spacing = context.responsiveSpacingUnit;
+
     return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: EdgeInsets.fromLTRB(
+        tokens.horizontalPadding,
+        0,
+        tokens.horizontalPadding,
+        spacing * 2,
+      ),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -833,6 +852,9 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         state.errorMessage == null &&
         state.infoMessage == null;
 
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
     Widget buildContent() {
       if ((isLoading && !state.hasLoaded) || isInitialState) {
         return ListView(
@@ -854,7 +876,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         return ListView(
           key: ValueKey('orders-error-${state.selectedFilter.name}'),
           physics: scrollPhysics,
-          padding: const EdgeInsets.fromLTRB(16, 80, 16, 40),
+          padding: EdgeInsets.fromLTRB(
+            tokens.horizontalPadding,
+            80,
+            tokens.horizontalPadding,
+            40,
+          ),
           children: [
             _OrdersErrorState(
               message: state.errorMessage!,
@@ -868,7 +895,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         return ListView(
           key: ValueKey('orders-empty-${state.selectedFilter.name}'),
           physics: scrollPhysics,
-          padding: const EdgeInsets.fromLTRB(24, 80, 24, 40),
+          padding: EdgeInsets.fromLTRB(
+            tokens.horizontalPadding + spacing,
+            80,
+            tokens.horizontalPadding + spacing,
+            40,
+          ),
           children: [
             _OrdersEmptyState(info: state.infoMessage),
           ],
@@ -879,7 +911,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         key: ValueKey(
             'orders-${state.selectedFilter.name}-${state.trades.length}'),
         physics: scrollPhysics,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 26),
+        padding: EdgeInsets.fromLTRB(
+          tokens.horizontalPadding,
+          spacing * 1.5,
+          tokens.horizontalPadding,
+          26,
+        ),
         itemCount: state.trades.length,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (_, index) {
@@ -912,7 +949,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(
+                tokens.horizontalPadding,
+                spacing * 1.5,
+                tokens.horizontalPadding,
+                0,
+              ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -931,21 +973,31 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: spacing),
             _OrdersFilterRow(
               selectedFilter: state.selectedFilter,
               onSelected: controller.updateFilter,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: spacing),
             if (state.errorMessage != null && state.trades.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                padding: EdgeInsets.fromLTRB(
+                  tokens.horizontalPadding,
+                  0,
+                  tokens.horizontalPadding,
+                  spacing * 0.5,
+                ),
                 child:
                     _MessageBanner(message: state.errorMessage!, isError: true),
               )
             else if (state.infoMessage != null && state.trades.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                padding: EdgeInsets.fromLTRB(
+                  tokens.horizontalPadding,
+                  0,
+                  tokens.horizontalPadding,
+                  spacing * 0.5,
+                ),
                 child:
                     _MessageBanner(message: state.infoMessage!, isError: false),
               ),
@@ -972,6 +1024,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     final isCreateAdButtonLoading =
         _isOpeningCreateAd && !_isCreateAdOverlayVisible;
     final scrollPhysics = _defaultScrollPhysics();
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
     final bool isInitialState = !state.hasLoaded &&
         !state.isLoading &&
         state.ads.isEmpty &&
@@ -999,7 +1053,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         return ListView(
           key: ValueKey('my-ads-error-${state.selectedFilter.name}'),
           physics: scrollPhysics,
-          padding: const EdgeInsets.fromLTRB(16, 80, 16, 40),
+          padding: EdgeInsets.fromLTRB(
+            tokens.horizontalPadding,
+            80,
+            tokens.horizontalPadding,
+            40,
+          ),
           children: [
             _OrdersErrorState(
               message: state.errorMessage!,
@@ -1014,7 +1073,10 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         return ListView(
           key: ValueKey('my-ads-empty-${state.selectedFilter.name}'),
           physics: scrollPhysics,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+          padding: EdgeInsets.symmetric(
+            horizontal: tokens.horizontalPadding + spacing,
+            vertical: 40,
+          ),
           children: [
             _MyAdsEmptyState(
               onCreateAd: _openCreateAdFlow,
@@ -1028,7 +1090,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         key:
             ValueKey('my-ads-${state.selectedFilter.name}-${state.ads.length}'),
         physics: scrollPhysics,
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        padding: EdgeInsets.fromLTRB(
+          tokens.horizontalPadding,
+          spacing * 2,
+          tokens.horizontalPadding,
+          32,
+        ),
         itemCount: state.ads.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (_, index) {
@@ -1053,7 +1120,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(
+                tokens.horizontalPadding,
+                spacing * 1.5,
+                tokens.horizontalPadding,
+                0,
+              ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -1079,25 +1151,35 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: spacing * 1.5),
             _MyAdsFilterRow(
               selectedFilter: state.selectedFilter,
               onSelected: controller.updateFilter,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: spacing),
             if (state.errorMessage != null && state.ads.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                padding: EdgeInsets.fromLTRB(
+                  tokens.horizontalPadding,
+                  spacing * 1.5,
+                  tokens.horizontalPadding,
+                  0,
+                ),
                 child:
                     _MessageBanner(message: state.errorMessage!, isError: true),
               )
             else if (state.infoMessage != null && state.ads.isEmpty)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                padding: EdgeInsets.fromLTRB(
+                  tokens.horizontalPadding,
+                  spacing * 1.5,
+                  tokens.horizontalPadding,
+                  0,
+                ),
                 child:
                     _MessageBanner(message: state.infoMessage!, isError: false),
               ),
-            const SizedBox(height: 8),
+            SizedBox(height: spacing),
             Expanded(
               child: _buildRefreshWrapper(
                 onRefresh: _handleMyAdsRefresh,
@@ -1117,6 +1199,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
   Widget _buildProfileTab(P2PProfileState state) {
     final theme = Theme.of(context);
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
 
     final bool isInitialState = !state.hasLoaded &&
         !state.isLoading &&
@@ -1168,7 +1252,12 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              padding: EdgeInsets.fromLTRB(
+                tokens.horizontalPadding,
+                spacing * 1.5,
+                tokens.horizontalPadding,
+                0,
+              ),
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -1187,12 +1276,17 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 8),
-            const SizedBox(height: 4),
+            SizedBox(height: spacing),
+            SizedBox(height: spacing * 0.5),
             if (state.errorMessage != null &&
                 (state.profile != null || state.isMissingProfile))
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                padding: EdgeInsets.fromLTRB(
+                  tokens.horizontalPadding,
+                  0,
+                  tokens.horizontalPadding,
+                  spacing,
+                ),
                 child:
                     _MessageBanner(message: state.errorMessage!, isError: true),
               ),
@@ -1204,6 +1298,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   }
 
   Widget _buildBottomNav() {
+    final tokens = context.responsiveTokens;
+
     return Container(
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
@@ -1217,38 +1313,42 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       child: SafeArea(
         child: SizedBox(
           height: 52,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(
-                icon: Icons.home_outlined,
-                selectedIcon: Icons.home,
-                label: 'Home',
-                isSelected: _selectedTab == 0,
-                onTap: () => _handleTabSelection(0),
-              ),
-              _NavItem(
-                icon: Icons.receipt_long_outlined,
-                selectedIcon: Icons.receipt_long,
-                label: 'Orders',
-                isSelected: _selectedTab == 1,
-                onTap: () => _handleTabSelection(1),
-              ),
-              _NavItem(
-                icon: Icons.campaign_outlined,
-                selectedIcon: Icons.campaign,
-                label: 'My Ads',
-                isSelected: _selectedTab == 2,
-                onTap: () => _handleTabSelection(2),
-              ),
-              _NavItem(
-                icon: Icons.person_outline,
-                selectedIcon: Icons.person,
-                label: 'Profile',
-                isSelected: _selectedTab == 3,
-                onTap: () => _handleTabSelection(3),
-              ),
-            ],
+          child: Padding(
+            padding:
+                EdgeInsets.symmetric(horizontal: tokens.horizontalPadding),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _NavItem(
+                  icon: Icons.home_outlined,
+                  selectedIcon: Icons.home,
+                  label: 'Home',
+                  isSelected: _selectedTab == 0,
+                  onTap: () => _handleTabSelection(0),
+                ),
+                _NavItem(
+                  icon: Icons.receipt_long_outlined,
+                  selectedIcon: Icons.receipt_long,
+                  label: 'Orders',
+                  isSelected: _selectedTab == 1,
+                  onTap: () => _handleTabSelection(1),
+                ),
+                _NavItem(
+                  icon: Icons.campaign_outlined,
+                  selectedIcon: Icons.campaign,
+                  label: 'My Ads',
+                  isSelected: _selectedTab == 2,
+                  onTap: () => _handleTabSelection(2),
+                ),
+                _NavItem(
+                  icon: Icons.person_outline,
+                  selectedIcon: Icons.person,
+                  label: 'Profile',
+                  isSelected: _selectedTab == 3,
+                  onTap: () => _handleTabSelection(3),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1272,13 +1372,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
     String? validationError;
 
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: OpeiColors.pureWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    await _showResponsiveSheet<void>(
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -1408,13 +1502,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   }
 
   void _showAdDetails(P2PAd ad, P2PAdType intentType) async {
-    final result = await showModalBottomSheet<dynamic>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: OpeiColors.pureWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+    final result = await _showResponsiveSheet<dynamic>(
       builder: (context) {
         final inset = MediaQuery.of(context).viewInsets.bottom;
         return Padding(

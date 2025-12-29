@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tt1/core/providers/providers.dart';
+import 'package:tt1/responsive/responsive_breakpoints.dart';
+import 'package:tt1/responsive/responsive_tokens.dart';
+import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -26,245 +29,252 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           : const ClampingScrollPhysics(),
       );
 
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
     if (profile == null) {
       if (state.error != null) {
         return _buildErrorState(context, controller, state.error!);
       }
-      return const Scaffold(
-        body: Center(
-            child: CircularProgressIndicator(color: OpeiColors.pureBlack)),
+      return ResponsiveScaffold(
+        appBar: AppBar(
+          title: const Text('Profile'),
+          automaticallyImplyLeading: false,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(color: OpeiColors.pureBlack),
+        ),
       );
     }
 
-    return Scaffold(
+    return ResponsiveScaffold(
       appBar: AppBar(
         title: const Text('Profile'),
         automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async => await controller.refreshProfile(),
-          color: OpeiColors.pureBlack,
-          backgroundColor: OpeiColors.pureWhite,
-          displacement: 25,
-          triggerMode: RefreshIndicatorTriggerMode.onEdge,
-          child: ListView(
-            physics: scrollPhysics,
-            padding: AppSpacing.horizontalMd +
-                const EdgeInsets.only(top: 24, bottom: 32),
-            children: [
-              ProfileHeader(
-                displayName: profile?.displayName ?? 'User',
-                email: profile?.email ?? '',
-              ),
-              const SizedBox(height: 32),
+      body: RefreshIndicator(
+        onRefresh: () async => await controller.refreshProfile(),
+        color: OpeiColors.pureBlack,
+        backgroundColor: OpeiColors.pureWhite,
+        displacement: 25,
+        triggerMode: RefreshIndicatorTriggerMode.onEdge,
+        child: ListView(
+          physics: scrollPhysics,
+          padding: EdgeInsets.only(
+            top: spacing * 3,
+            bottom: spacing * 4,
+          ),
+          children: [
+            ProfileHeader(
+              displayName: profile?.displayName ?? 'User',
+              email: profile?.email ?? '',
+            ),
+            SizedBox(height: spacing * 4),
 
-              // Show KYC prompt if identity is missing
-              if (profile?.identity == null) ...[
-                _buildKycPromptCard(context),
-                const SizedBox(height: 24),
-              ],
+            // Show KYC prompt if identity is missing
+            if (profile?.identity == null) ...[
+              _buildKycPromptCard(context),
+              SizedBox(height: spacing * 3),
+            ],
 
-              ProfileSection(
-                title: 'Account Information',
-                children: [
-                  ProfileInfoItem(
-                    icon: Icons.email_outlined,
-                    label: 'Email',
-                    value: profile?.email ?? 'N/A',
-                  ),
-                  ProfileInfoItem(
-                    icon: Icons.phone_outlined,
-                    label: 'Phone',
-                    value: profile?.phone ?? 'N/A',
-                  ),
-                  ProfileInfoItem(
-                    icon: Icons.check_circle_outline,
-                    label: 'Verification Stage',
-                    value: _formatUserStage(profile?.userStage ?? ''),
-                  ),
-                ],
-              ),
-
-              // Show personal information if identity exists
-              if (profile?.identity != null) ...[
-                const SizedBox(height: 24),
-                ProfileSection(
-                  title: 'Personal Information',
-                  children: [
-                    ProfileInfoItem(
-                      icon: Icons.person_outline,
-                      label: 'Full Name',
-                      value: profile!.displayName,
-                    ),
-                    ProfileInfoItem(
-                      icon: Icons.cake_outlined,
-                      label: 'Date of Birth',
-                      value: _formatDate(profile.identity!.dateOfBirth),
-                    ),
-                    ProfileInfoItem(
-                      icon: Icons.wc_outlined,
-                      label: 'Gender',
-                      value: profile.identity!.gender,
-                    ),
-                    ProfileInfoItem(
-                      icon: Icons.flag_outlined,
-                      label: 'Nationality',
-                      value: profile.identity!.nationality,
-                    ),
-                    ProfileInfoItem(
-                      icon: Icons.badge_outlined,
-                      label: 'ID Type',
-                      value: profile.identity!.idType,
-                    ),
-                    ProfileInfoItem(
-                      icon: Icons.numbers_outlined,
-                      label: 'ID Number',
-                      value: profile.identity!.idNumber,
-                    ),
-                  ],
+            ProfileSection(
+              title: 'Account Information',
+              children: [
+                ProfileInfoItem(
+                  icon: Icons.email_outlined,
+                  label: 'Email',
+                  value: profile?.email ?? 'N/A',
+                ),
+                ProfileInfoItem(
+                  icon: Icons.phone_outlined,
+                  label: 'Phone',
+                  value: profile?.phone ?? 'N/A',
+                ),
+                ProfileInfoItem(
+                  icon: Icons.check_circle_outline,
+                  label: 'Verification Stage',
+                  value: _formatUserStage(profile?.userStage ?? ''),
                 ),
               ],
+            ),
 
-              const SizedBox(height: 24),
+            // Show personal information if identity exists
+            if (profile?.identity != null) ...[
+              SizedBox(height: spacing * 3),
               ProfileSection(
-                title: 'Address',
+                title: 'Personal Information',
                 children: [
-                  if (profile?.address != null) ...[
-                    if (profile!.address!.country != null)
-                      ProfileInfoItem(
-                        icon: Icons.public_outlined,
-                        label: 'Country',
-                        value: profile.address!.country!,
-                      ),
-                    if (profile.address!.state != null)
-                      ProfileInfoItem(
-                        icon: Icons.location_city_outlined,
-                        label: 'State',
-                        value: profile.address!.state!,
-                      ),
-                    if (profile.address!.city != null)
-                      ProfileInfoItem(
-                        icon: Icons.apartment_outlined,
-                        label: 'City',
-                        value: profile.address!.city!,
-                      ),
-                    if (profile.address!.houseNumber != null &&
-                        profile.address!.addressLine != null)
-                      ProfileInfoItem(
-                        icon: Icons.home_outlined,
-                        label: 'Address',
-                        value:
-                            '${profile.address!.houseNumber} ${profile.address!.addressLine}',
-                      ),
-                    if (profile.address!.zipCode != null)
-                      ProfileInfoItem(
-                        icon: Icons.markunread_mailbox_outlined,
-                        label: 'Zip Code',
-                        value: profile.address!.zipCode!,
-                      ),
-                    ProfileActionItem(
-                      icon: Icons.edit_outlined,
-                      label: 'Update Address',
-                      onTap: () => context.push('/address?source=profile'),
-                    ),
-                  ] else
-                    ProfileActionItem(
-                      icon: Icons.add_location_outlined,
-                      label: 'Add Address',
-                      subtitle: 'No address added yet',
-                      onTap: () => context.push('/address?source=profile'),
-                    ),
-                ],
-              ),
-
-              // Show verification badge if documents are verified
-              if (profile?.identity != null &&
-                  (profile!.identity!.selfieUrl != null ||
-                      profile.identity!.frontImage != null)) ...[
-                const SizedBox(height: 24),
-                ProfileSection(
-                  title: 'Verification Status',
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 16),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF34C759)
-                                  .withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.verified_user,
-                              color: Color(0xFF34C759),
-                              size: 28,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Identity Verified',
-                                  style:
-                                      context.textStyles.titleMedium?.copyWith(
-                                    color: OpeiColors.pureBlack,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Your identity has been successfully verified',
-                                  style: context.textStyles.bodySmall?.copyWith(
-                                    color: OpeiColors.grey600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-
-              const SizedBox(height: 24),
-              ProfileSection(
-                title: 'Preferences',
-                children: [
-                  ProfileActionItem(
-                    icon: Icons.language_outlined,
-                    label: 'Language',
-                    subtitle: state.selectedLanguage,
-                    onTap: () => _showLanguageSelector(context, controller),
+                  ProfileInfoItem(
+                    icon: Icons.person_outline,
+                    label: 'Full Name',
+                    value: profile!.displayName,
                   ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              if (profile != null)
-                QuickAuthSettingsSection(userId: profile.userId),
-              const SizedBox(height: 24),
-              ProfileSection(
-                title: 'Account Actions',
-                children: [
-                  ProfileActionItem(
-                    icon: Icons.logout,
-                    label: 'Log Out',
-                    isDestructive: true,
-                    isLoading: state.isLoggingOut,
-                    onTap: () => _handleLogout(context, controller),
+                  ProfileInfoItem(
+                    icon: Icons.cake_outlined,
+                    label: 'Date of Birth',
+                    value: _formatDate(profile.identity!.dateOfBirth),
+                  ),
+                  ProfileInfoItem(
+                    icon: Icons.wc_outlined,
+                    label: 'Gender',
+                    value: profile.identity!.gender,
+                  ),
+                  ProfileInfoItem(
+                    icon: Icons.flag_outlined,
+                    label: 'Nationality',
+                    value: profile.identity!.nationality,
+                  ),
+                  ProfileInfoItem(
+                    icon: Icons.badge_outlined,
+                    label: 'ID Type',
+                    value: profile.identity!.idType,
+                  ),
+                  ProfileInfoItem(
+                    icon: Icons.numbers_outlined,
+                    label: 'ID Number',
+                    value: profile.identity!.idNumber,
                   ),
                 ],
               ),
             ],
-          ),
+
+            SizedBox(height: spacing * 3),
+            ProfileSection(
+              title: 'Address',
+              children: [
+                if (profile?.address != null) ...[
+                  if (profile!.address!.country != null)
+                    ProfileInfoItem(
+                      icon: Icons.public_outlined,
+                      label: 'Country',
+                      value: profile.address!.country!,
+                    ),
+                  if (profile.address!.state != null)
+                    ProfileInfoItem(
+                      icon: Icons.location_city_outlined,
+                      label: 'State',
+                      value: profile.address!.state!,
+                    ),
+                  if (profile.address!.city != null)
+                    ProfileInfoItem(
+                      icon: Icons.apartment_outlined,
+                      label: 'City',
+                      value: profile.address!.city!,
+                    ),
+                  if (profile.address!.houseNumber != null &&
+                      profile.address!.addressLine != null)
+                    ProfileInfoItem(
+                      icon: Icons.home_outlined,
+                      label: 'Address',
+                      value:
+                          '${profile.address!.houseNumber} ${profile.address!.addressLine}',
+                    ),
+                  if (profile.address!.zipCode != null)
+                    ProfileInfoItem(
+                      icon: Icons.markunread_mailbox_outlined,
+                      label: 'Zip Code',
+                      value: profile.address!.zipCode!,
+                    ),
+                  ProfileActionItem(
+                    icon: Icons.edit_outlined,
+                    label: 'Update Address',
+                    onTap: () => context.push('/address?source=profile'),
+                  ),
+                ] else
+                  ProfileActionItem(
+                    icon: Icons.add_location_outlined,
+                    label: 'Add Address',
+                    subtitle: 'No address added yet',
+                    onTap: () => context.push('/address?source=profile'),
+                  ),
+              ],
+            ),
+
+            // Show verification badge if documents are verified
+            if (profile?.identity != null &&
+                (profile!.identity!.selfieUrl != null ||
+                    profile.identity!.frontImage != null)) ...[
+              SizedBox(height: spacing * 3),
+              ProfileSection(
+                title: 'Verification Status',
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color:
+                                const Color(0xFF34C759).withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.verified_user,
+                            color: Color(0xFF34C759),
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Identity Verified',
+                                style: context.textStyles.titleMedium?.copyWith(
+                                  color: OpeiColors.pureBlack,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Your identity has been successfully verified',
+                                style: context.textStyles.bodySmall?.copyWith(
+                                  color: OpeiColors.grey600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+
+            SizedBox(height: spacing * 3),
+            ProfileSection(
+              title: 'Preferences',
+              children: [
+                ProfileActionItem(
+                  icon: Icons.language_outlined,
+                  label: 'Language',
+                  subtitle: state.selectedLanguage,
+                  onTap: () => _showLanguageSelector(context, controller),
+                ),
+              ],
+            ),
+            SizedBox(height: spacing * 3),
+            if (profile != null)
+              QuickAuthSettingsSection(userId: profile.userId),
+            SizedBox(height: spacing * 3),
+            ProfileSection(
+              title: 'Account Actions',
+              children: [
+                ProfileActionItem(
+                  icon: Icons.logout,
+                  label: 'Log Out',
+                  isDestructive: true,
+                  isLoading: state.isLoggingOut,
+                  onTap: () => _handleLogout(context, controller),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -275,19 +285,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     ProfileController controller,
     String errorMessage,
   ) {
-    return Scaffold(
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
+    return ResponsiveScaffold(
       appBar: AppBar(
         title: const Text('Profile'),
         automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Padding(
-          padding: AppSpacing.horizontalMd,
+          padding: EdgeInsets.symmetric(horizontal: tokens.horizontalPadding),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.error_outline, size: 64, color: OpeiColors.grey400),
-              const SizedBox(height: 16),
+              SizedBox(height: spacing * 2),
               Text(
                 'Unable to load profile',
                 style: context.textStyles.titleLarge?.copyWith(
@@ -296,7 +309,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: spacing),
               Text(
                 errorMessage,
                 style: context.textStyles.bodyMedium?.copyWith(
@@ -304,7 +317,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: spacing * 4),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -312,12 +325,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: OpeiColors.pureBlack,
                     foregroundColor: OpeiColors.pureWhite,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(vertical: spacing * 1.75),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(tokens.buttonRadius),
+                    ),
                   ),
                   child: const Text('Retry'),
                 ),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: spacing * 1.5),
               TextButton(
                 onPressed: () => _handleLogout(context, controller),
                 child: const Text(
@@ -333,8 +349,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildKycPromptCard(BuildContext context) {
+    final spacing = context.responsiveSpacingUnit;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(spacing * 2.5),
       decoration: BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -358,7 +376,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: const Icon(Icons.shield_outlined,
                 color: OpeiColors.pureBlack, size: 24),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: spacing * 2),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +385,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   'Complete Your Profile',
                   style: context.textStyles.titleMedium,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: spacing * 0.5),
                 Text(
                   'Verify your identity to unlock all features',
                   style: context.textStyles.bodySmall
@@ -376,7 +394,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: spacing),
           const Icon(Icons.arrow_forward_ios,
               color: OpeiColors.grey400, size: 16),
         ],
@@ -396,30 +414,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }).join(' ');
   }
 
-  void _showLanguageSelector(BuildContext context, controller) {
-    showModalBottomSheet(
+  Future<T?> _presentResponsiveSheet<T>({
+    required WidgetBuilder builder,
+    bool enableDrag = true,
+  }) {
+    return showResponsiveBottomSheet<T>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => LanguageSelectorSheet(
+      builder: builder,
+      enableDrag: enableDrag,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+    );
+  }
+
+  void _showLanguageSelector(BuildContext context, controller) {
+    _presentResponsiveSheet<void>(
+      builder: (ctx) => LanguageSelectorSheet(
         currentLanguage: ref.read(profileControllerProvider).selectedLanguage,
         onLanguageSelected: (language) {
           controller.setLanguage(language);
-          Navigator.pop(context);
+          Navigator.pop(ctx);
         },
       ),
     );
   }
 
   Future<void> _handleLogout(BuildContext context, controller) async {
-    final success = await showModalBottomSheet<bool>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        return _LogoutConfirmationSheet(controller: controller);
-      },
+    final success = await _presentResponsiveSheet<bool>(
+      builder: (_) => _LogoutConfirmationSheet(controller: controller),
+      enableDrag: false,
     );
 
     if (success == true && mounted) {
@@ -444,24 +466,30 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, bottomInset + 20),
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-          decoration: BoxDecoration(
-            color: OpeiColors.pureWhite,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 30,
-                offset: const Offset(0, 16),
-              ),
-            ],
+      padding: EdgeInsets.only(bottom: bottomInset + spacing * 2),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: OpeiColors.pureWhite,
+          borderRadius: BorderRadius.circular(tokens.dialogRadius),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 30,
+              offset: const Offset(0, 16),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            spacing * 2.5,
+            spacing * 2.25,
+            spacing * 2.5,
+            spacing * 2,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -474,7 +502,7 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: spacing * 2),
               Container(
                 width: 70,
                 height: 70,
@@ -488,7 +516,7 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                   color: OpeiColors.pureBlack,
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: spacing * 2),
               Text(
                 'Sign out of Opei?',
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -498,7 +526,7 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: spacing),
               Text(
                 'You’ll need to enter your email and PIN again next time.',
                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -507,7 +535,7 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: spacing * 3),
               Row(
                 children: [
                   Expanded(
@@ -516,9 +544,11 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                           ? null
                           : () => Navigator.of(context).pop(false),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding:
+                            EdgeInsets.symmetric(vertical: spacing * 1.5),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius:
+                              BorderRadius.circular(tokens.buttonRadius),
                         ),
                         side: BorderSide(
                           color: OpeiColors.pureBlack.withValues(alpha: 0.15),
@@ -532,24 +562,26 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: spacing * 1.5),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _isProcessing ? null : _confirmLogout,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: OpeiColors.pureBlack,
                         foregroundColor: OpeiColors.pureWhite,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding:
+                            EdgeInsets.symmetric(vertical: spacing * 1.5),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius:
+                              BorderRadius.circular(tokens.buttonRadius),
                         ),
                         elevation: 0,
                       ),
                       child: _isProcessing
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(
+                          ? SizedBox(
+                              height: spacing * 2.25,
+                              width: spacing * 2.25,
+                              child: const CircularProgressIndicator(
                                 strokeWidth: 2,
                                 color: OpeiColors.pureWhite,
                               ),
@@ -568,8 +600,8 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
             ],
           ),
         ),
-          ),
-        );
+      ),
+    );
   }
 
   Future<void> _confirmLogout() async {
@@ -646,11 +678,13 @@ class ProfileSection extends StatelessWidget {
       }
     }
 
+    final spacing = context.responsiveSpacingUnit;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: AppSpacing.horizontalSm,
+          padding: EdgeInsets.symmetric(horizontal: spacing * 1.5),
           child: Text(
             title.toUpperCase(),
             style: context.textStyles.labelMedium?.copyWith(
@@ -660,7 +694,7 @@ class ProfileSection extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 10),
+        SizedBox(height: spacing * 1.25),
         Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: separatedChildren),
@@ -871,6 +905,9 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.75,
       decoration: const BoxDecoration(
@@ -879,7 +916,7 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
       ),
       child: Column(
         children: [
-          const SizedBox(height: 12),
+          SizedBox(height: spacing * 1.5),
           Container(
             width: 36,
             height: 4,
@@ -888,9 +925,9 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing * 2.5),
           Padding(
-            padding: AppSpacing.horizontalMd,
+            padding: EdgeInsets.symmetric(horizontal: tokens.horizontalPadding),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -904,7 +941,7 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
             ),
           ),
           Padding(
-            padding: AppSpacing.horizontalMd,
+            padding: EdgeInsets.symmetric(horizontal: tokens.horizontalPadding),
             child: TextField(
               controller: _searchController,
               decoration: const InputDecoration(
@@ -914,7 +951,7 @@ class _LanguageSelectorSheetState extends State<LanguageSelectorSheet> {
               onChanged: _filterLanguages,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing * 2),
           Expanded(
             child: ListView.builder(
               itemCount: _filteredLanguages.length,

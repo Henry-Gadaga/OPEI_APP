@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:tt1/core/utils/error_helper.dart';
 import 'package:tt1/features/withdraw/withdraw_controller.dart';
 import 'package:tt1/features/withdraw/withdraw_state.dart';
+import 'package:tt1/responsive/responsive_tokens.dart';
+import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
 import 'package:tt1/widgets/reference_copy_value.dart';
 import 'package:tt1/widgets/success_hero.dart';
@@ -200,8 +202,12 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: OpeiColors.pureWhite,
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
@@ -218,41 +224,39 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Choose the method you want to withdraw with',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 15,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
-              ),
-              const SizedBox(height: 20),
-              _CurrencyOption(
-                currency: 'USDT',
-                name: 'Tether',
-                networksLabel: 'Tron • Polygon • Ethereum • BSC',
-                onTap: () {
-                  ref.read(withdrawControllerProvider.notifier).setCurrency('USDT');
-                  context.push('/withdraw/crypto-network', extra: 'USDT');
-                },
-              ),
-              const SizedBox(height: 4),
-              _CurrencyOption(
-                currency: 'USDC',
-                name: 'USD Coin',
-                networksLabel: 'Polygon • Ethereum • BSC',
-                onTap: () {
-                  ref.read(withdrawControllerProvider.notifier).setCurrency('USDC');
-                  context.push('/withdraw/crypto-network', extra: 'USDC');
-                },
-              ),
-            ],
-          ),
+      body: Padding(
+        padding: EdgeInsets.all(tokens.horizontalPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Choose the method you want to withdraw with',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 15,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
+            ),
+            SizedBox(height: spacing * 2.5),
+            _CurrencyOption(
+              currency: 'USDT',
+              name: 'Tether',
+              networksLabel: 'Tron • Polygon • Ethereum • BSC',
+              onTap: () {
+                ref.read(withdrawControllerProvider.notifier).setCurrency('USDT');
+                context.push('/withdraw/crypto-network', extra: 'USDT');
+              },
+            ),
+            SizedBox(height: spacing * 0.5),
+            _CurrencyOption(
+              currency: 'USDC',
+              name: 'USD Coin',
+              networksLabel: 'Polygon • Ethereum • BSC',
+              onTap: () {
+                ref.read(withdrawControllerProvider.notifier).setCurrency('USDC');
+                context.push('/withdraw/crypto-network', extra: 'USDC');
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -391,9 +395,12 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(withdrawControllerProvider.notifier);
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
 
-    return Scaffold(
-      backgroundColor: OpeiColors.pureWhite,
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
@@ -410,37 +417,35 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Choose the network for your $currency withdrawal',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 15,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
-              ),
-              const SizedBox(height: 24),
-              ..._networks.map(
-                (network) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: _NetworkOption(
-                    network: network,
-                    onTap: () {
-                      notifier.setNetwork(network);
-                      context.push('/withdraw/crypto-form', extra: {
-                        'currency': currency,
-                        'network': network,
-                      });
-                    },
+      body: Padding(
+        padding: EdgeInsets.all(tokens.horizontalPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Choose the network for your $currency withdrawal',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 15,
+                    color: OpeiColors.iosLabelSecondary,
                   ),
+            ),
+            SizedBox(height: spacing * 2.5),
+            ..._networks.map(
+              (network) => Padding(
+                padding: EdgeInsets.only(bottom: spacing * 0.75),
+                child: _NetworkOption(
+                  network: network,
+                  onTap: () {
+                    notifier.setNetwork(network);
+                    context.push('/withdraw/crypto-form', extra: {
+                      'currency': currency,
+                      'network': network,
+                    });
+                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -675,8 +680,12 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
 
     final state = ref.watch(withdrawControllerProvider);
     final textTheme = Theme.of(context).textTheme;
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
 
-    return Scaffold(
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       backgroundColor: OpeiColors.pureWhite,
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
@@ -694,116 +703,117 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          children: [
-            Text(
-              'Enter the details for your ${widget.currency} withdrawal on $_networkLabel.',
-              style: textTheme.bodyMedium?.copyWith(
-                    fontSize: 15,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
-            ),
-            const SizedBox(height: 20),
-            _SummaryPill(
-              currency: widget.currency,
-              networkLabel: _networkLabel,
-            ),
-            const SizedBox(height: 24),
-            _LabeledField(
-              label: 'Amount',
-              helper: 'Enter the amount you want to send',
-              child: CupertinoTextField(
-                controller: _amountController,
-                placeholder: '0.00',
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-                decoration: BoxDecoration(
-                  color: OpeiColors.pureWhite,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
-                ),
-                style: textTheme.titleMedium?.copyWith(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            _LabeledField(
-              label: 'Destination address',
-              helper: 'Paste the wallet address that will receive the funds',
-              child: CupertinoTextField(
-                controller: _addressController,
-                placeholder: 'Wallet address',
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                textInputAction: TextInputAction.next,
-                decoration: BoxDecoration(
-                  color: OpeiColors.pureWhite,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
-                ),
-                style: textTheme.bodyMedium?.copyWith(
-                  fontSize: 15,
-                  height: 1.4,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            _LabeledField(
-              label: 'Memo (optional)',
-              helper: 'Add a note for your own records',
-              child: CupertinoTextField(
-                controller: _memoController,
-                placeholder: 'Memo or description',
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  color: OpeiColors.pureWhite,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
-                ),
-                style: textTheme.bodyMedium?.copyWith(fontSize: 15),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(color: OpeiColors.iosSeparator, width: 0.6),
-                  bottom: BorderSide(color: OpeiColors.iosSeparator, width: 0.6),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  _InfoRow(text: 'Double-check the network and address before submitting.'),
-                  SizedBox(height: 10),
-                  _InfoRow(text: 'We’ll notify you when the transfer status updates.'),
-                ],
-              ),
-            ),
-            const SizedBox(height: 26),
-            CupertinoButton.filled(
-              borderRadius: BorderRadius.circular(14),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              onPressed: state.isLoading ? null : _handleSubmit,
-              child: state.isLoading
-                  ? const CupertinoActivityIndicator(color: OpeiColors.pureWhite)
-                  : Text(
-                      'Send Withdrawal',
-                      style: textTheme.titleMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.pureWhite,
-                      ),
-                    ),
-            ),
-          ],
+      body: ListView(
+        padding: EdgeInsets.symmetric(
+          horizontal: tokens.horizontalPadding,
+          vertical: spacing * 2.5,
         ),
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        children: [
+          Text(
+            'Enter the details for your ${widget.currency} withdrawal on $_networkLabel.',
+            style: textTheme.bodyMedium?.copyWith(
+                  fontSize: 15,
+                  color: OpeiColors.iosLabelSecondary,
+                ),
+          ),
+          SizedBox(height: spacing * 2.5),
+          _SummaryPill(
+            currency: widget.currency,
+            networkLabel: _networkLabel,
+          ),
+          SizedBox(height: spacing * 3),
+          _LabeledField(
+            label: 'Amount',
+            helper: 'Enter the amount you want to send',
+            child: CupertinoTextField(
+              controller: _amountController,
+              placeholder: '0.00',
+              padding: EdgeInsets.symmetric(horizontal: spacing * 1.75, vertical: spacing * 1.25),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+              decoration: BoxDecoration(
+                color: OpeiColors.pureWhite,
+                borderRadius: BorderRadius.circular(tokens.inputRadius),
+                border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
+              ),
+              style: textTheme.titleMedium?.copyWith(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          SizedBox(height: spacing * 1.75),
+          _LabeledField(
+            label: 'Destination address',
+            helper: 'Paste the wallet address that will receive the funds',
+            child: CupertinoTextField(
+              controller: _addressController,
+              placeholder: 'Wallet address',
+              padding: EdgeInsets.symmetric(horizontal: spacing * 1.75, vertical: spacing * 1.25),
+              textInputAction: TextInputAction.next,
+              decoration: BoxDecoration(
+                color: OpeiColors.pureWhite,
+                borderRadius: BorderRadius.circular(tokens.inputRadius),
+                border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
+              ),
+              style: textTheme.bodyMedium?.copyWith(
+                fontSize: 15,
+                height: 1.4,
+              ),
+            ),
+          ),
+          SizedBox(height: spacing * 1.75),
+          _LabeledField(
+            label: 'Memo (optional)',
+            helper: 'Add a note for your own records',
+            child: CupertinoTextField(
+              controller: _memoController,
+              placeholder: 'Memo or description',
+              padding: EdgeInsets.symmetric(horizontal: spacing * 1.75, vertical: spacing * 1.25),
+              decoration: BoxDecoration(
+                color: OpeiColors.pureWhite,
+                borderRadius: BorderRadius.circular(tokens.inputRadius),
+                border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
+              ),
+              style: textTheme.bodyMedium?.copyWith(fontSize: 15),
+            ),
+          ),
+          SizedBox(height: spacing * 3),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: spacing * 0.5, vertical: spacing * 2),
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: OpeiColors.iosSeparator, width: 0.6),
+                bottom: BorderSide(color: OpeiColors.iosSeparator, width: 0.6),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                _InfoRow(text: 'Double-check the network and address before submitting.'),
+                SizedBox(height: 10),
+                _InfoRow(text: 'We’ll notify you when the transfer status updates.'),
+              ],
+            ),
+          ),
+          SizedBox(height: spacing * 3.25),
+          CupertinoButton.filled(
+            borderRadius: BorderRadius.circular(tokens.buttonRadius),
+            padding: EdgeInsets.symmetric(vertical: spacing * 1.75),
+            onPressed: state.isLoading ? null : _handleSubmit,
+            child: state.isLoading
+                ? const CupertinoActivityIndicator(color: OpeiColors.pureWhite)
+                : Text(
+                    'Send Withdrawal',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: OpeiColors.pureWhite,
+                    ),
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -984,6 +994,8 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
     final state = ref.watch(withdrawControllerProvider);
     final response = state.transferResponse;
     final textTheme = Theme.of(context).textTheme;
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
 
     if (response == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -999,7 +1011,9 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
     final amountDisplay = response.amount;
     
 
-    return Scaffold(
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       backgroundColor: OpeiColors.pureWhite,
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
@@ -1020,72 +1034,76 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
         ),
         centerTitle: true,
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          children: [
-            const SizedBox(height: 12),
-            const SuccessHero(iconHeight: 72, gap: 2),
-            const SizedBox(height: 16),
-            Text(
-              'Withdrawal sent',
-              style: textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'We are processing your ${response.asset.toUpperCase()} transfer on $networkLabel network. You will receive an update as soon as confirmations land.',
-              style: textTheme.bodyMedium?.copyWith(
-                fontSize: 14,
-                color: OpeiColors.iosLabelSecondary,
-                height: 1.45,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 26),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              decoration: BoxDecoration(
-                color: OpeiColors.grey100,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              child: Column(
-                children: [
-                  _DetailRow(label: 'Status', value: statusLabel),
-                  const SizedBox(height: 10),
-                  _DetailRow(label: 'Reference', value: response.reference),
-                  const SizedBox(height: 10),
-                  _DetailRow(
-                    label: 'Requested',
-                    value: '${amountDisplay.format(includeCurrencySymbol: false)} ${currency.toUpperCase()}',
-                  ),
-                  const SizedBox(height: 10),
-                  _DetailRow(label: 'Network', value: networkLabel),
-                ],
-              ),
-            ),
-            const SizedBox(height: 26),
-            CupertinoButton.filled(
-              borderRadius: BorderRadius.circular(14),
-              padding: const EdgeInsets.symmetric(vertical: 13),
-              onPressed: () {
-                ref.read(withdrawControllerProvider.notifier).resetSubmission();
-                context.go('/dashboard');
-              },
-              child: Text(
-                'Done',
-                style: textTheme.titleMedium?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: OpeiColors.pureWhite,
-                ),
-              ),
-            ),
-          ],
+      body: ListView(
+        padding: EdgeInsets.symmetric(
+          horizontal: tokens.horizontalPadding,
+          vertical: spacing * 3,
         ),
+        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        children: [
+          SizedBox(height: spacing * 1.5),
+          const SuccessHero(iconHeight: 72, gap: 2),
+          SizedBox(height: spacing * 2),
+          Text(
+            'Withdrawal sent',
+            style: textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: spacing * 1.75),
+          Text(
+            'We are processing your ${response.asset.toUpperCase()} transfer on $networkLabel network. You will receive an update as soon as confirmations land.',
+            style: textTheme.bodyMedium?.copyWith(
+              fontSize: 14,
+              color: OpeiColors.iosLabelSecondary,
+              height: 1.45,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: spacing * 3.25),
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: spacing * 2.5,
+              vertical: spacing * 2.25,
+            ),
+            decoration: BoxDecoration(
+              color: OpeiColors.grey100,
+              borderRadius: BorderRadius.circular(tokens.dialogRadius),
+            ),
+            child: Column(
+              children: [
+                _DetailRow(label: 'Status', value: statusLabel),
+                SizedBox(height: spacing * 1.25),
+                _DetailRow(label: 'Reference', value: response.reference),
+                SizedBox(height: spacing * 1.25),
+                _DetailRow(
+                  label: 'Requested',
+                  value: '${amountDisplay.format(includeCurrencySymbol: false)} ${currency.toUpperCase()}',
+                ),
+                SizedBox(height: spacing * 1.25),
+                _DetailRow(label: 'Network', value: networkLabel),
+              ],
+            ),
+          ),
+          SizedBox(height: spacing * 3.25),
+          CupertinoButton.filled(
+            borderRadius: BorderRadius.circular(tokens.buttonRadius),
+            padding: EdgeInsets.symmetric(vertical: spacing * 1.6),
+            onPressed: () {
+              ref.read(withdrawControllerProvider.notifier).resetSubmission();
+              context.go('/dashboard');
+            },
+            child: Text(
+              'Done',
+              style: textTheme.titleMedium?.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: OpeiColors.pureWhite,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
