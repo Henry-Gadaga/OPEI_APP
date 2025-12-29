@@ -77,4 +77,11 @@ Tokens will live in a new `responsive.dart` helper (Phase 2) and feed `ThemeData
 - Introduced `context.responsiveTokens`, `context.responsiveSpacingUnit`, etc., for gradual adoption.
 - No feature UIs touched yet; existing layouts render identically on phones, while tablets now respect max-width tokens once wrappers are used.
 
+### 9. Phase 3 Progress (Auth Forms – Dec 29, 2025)
+
+- Login, Signup, Forgot Password, and Reset Password screens now use `ResponsiveScaffold`, token-based gutters, and adaptive button heights.
+- Existing spacing translated into token multiples so phones look unchanged while large screens gain breathing room.
+- Shared auth field widgets (email/password inputs) derive spacing from `context.responsiveSpacingUnit`.
+- Remaining auth surfaces (Verify Email flow, Quick Auth screens) are next up—tracked separately before tackling dashboard/cards.
+
 _Prepared for Opei App Flutter – Dec 29, 2025._
