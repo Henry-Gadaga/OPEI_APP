@@ -47,9 +47,9 @@ Tokens will live in a new `responsive.dart` helper (Phase 2) and feed `ThemeData
 
 ### 5. Implementation Checklist (Phase 2 Prep)
 
-- [ ] Create `lib/responsive/responsive_breakpoints.dart` with enums/helpers.
-- [ ] Extend `ThemeData` with responsive typography/spacing getters.
-- [ ] Build reusable `ResponsiveScaffold`/`ResponsiveSheet` wrappers handling max widths & gutters.
+- [x] Create `lib/responsive/responsive_breakpoints.dart` with enums/helpers.
+- [x] Extend `ThemeData` with responsive typography/spacing getters.
+- [x] Build reusable `ResponsiveScaffold`/`ResponsiveSheet` wrappers handling max widths & gutters.
 - [ ] Add logging guard for `RenderFlex overflow` to surface regressions early.
 - [ ] Update global padding constants (`AppSpacing`, etc.) to reference breakpoint-aware tokens.
 
@@ -65,5 +65,16 @@ Tokens will live in a new `responsive.dart` helper (Phase 2) and feed `ThemeData
 1. Implement helpers & tokens (Phase 2).
 2. Refactor shared scaffolds and dialogs to consume helpers.
 3. Proceed module-by-module per priority table, verifying on compact/phone/tablet breakpoints.
+
+### 8. Phase 2 Deliverables (Dec 29, 2025)
+
+- Added `ResponsiveSize` + breakpoint resolver (no platform heuristics).
+- Added theme extension `OpeiResponsiveTheme` (base font scale, gutters, sheet widths, button heights).
+- Created helpers:
+  - `ResponsiveScaffold` – constrains content width + gutters, opt-in SafeArea.
+  - `ResponsiveSheet` + `showResponsiveBottomSheet`.
+  - `ResponsiveSliverGridDelegate` for automatic column changes ≥600dp.
+- Introduced `context.responsiveTokens`, `context.responsiveSpacingUnit`, etc., for gradual adoption.
+- No feature UIs touched yet; existing layouts render identically on phones, while tablets now respect max-width tokens once wrappers are used.
 
 _Prepared for Opei App Flutter – Dec 29, 2025._
