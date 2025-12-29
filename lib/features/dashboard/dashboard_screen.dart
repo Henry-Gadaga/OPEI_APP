@@ -5,11 +5,12 @@ import 'package:tt1/features/cards/cards_screen.dart';
 import 'package:tt1/features/dashboard/dashboard_controller.dart';
 import 'package:tt1/features/dashboard/dashboard_state.dart';
 import 'package:tt1/features/dashboard/widgets/transaction_widgets.dart';
-import 'package:tt1/features/dashboard/widgets/skeleton_pulse_scope.dart';
 import 'package:tt1/features/deposit/deposit_screen.dart';
 import 'package:tt1/features/profile/profile_screen.dart';
 import 'package:tt1/features/transactions/widgets/transaction_detail_sheet.dart';
 import 'package:tt1/features/withdraw/withdraw_screen.dart';
+import 'package:tt1/responsive/responsive_tokens.dart';
+import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -74,15 +75,18 @@ class DashboardHomeScreen extends ConsumerWidget {
       });
     }
 
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
     final Widget content = Column(
       children: [
-        const SizedBox(height: 12),
+        SizedBox(height: spacing * 1.5),
         WalletHeader(onProfileTap: onProfileTap),
-        const SizedBox(height: 85),
+        SizedBox(height: spacing * 10.5),
         BalanceCard(state: dashboardState),
-        const SizedBox(height: 40),
+        SizedBox(height: spacing * 5),
         QuickActions(onCardsTap: onCardsTap),
-        const SizedBox(height: 10),
+        SizedBox(height: spacing * 1.25),
         TransactionsList(
           state: dashboardState,
           onViewAll: () {
@@ -92,61 +96,66 @@ class DashboardHomeScreen extends ConsumerWidget {
             controller.refreshBalance(showSpinner: false);
           },
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: spacing * 3),
       ],
     );
 
-    return SafeArea(
-      child: RefreshIndicator(
-        color: OpeiColors.pureBlack,
-        backgroundColor: OpeiColors.pureWhite,
-        displacement: 25,
-        triggerMode: RefreshIndicatorTriggerMode.onEdge,
-        onRefresh: () => controller.refreshBalance(),
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              key:
-                  ValueKey(showFullContent ? 'dashboard-content' : 'dashboard'),
-              physics: scrollPhysics,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Opacity(
-                  opacity: showFullContent ? 1 : 0,
-                  child: content,
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: OpeiColors.pureBlack,
+          backgroundColor: OpeiColors.pureWhite,
+          displacement: 25,
+          triggerMode: RefreshIndicatorTriggerMode.onEdge,
+          onRefresh: () => controller.refreshBalance(),
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                key: ValueKey(showFullContent ? 'dashboard-content' : 'dashboard'),
+                physics: scrollPhysics,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: tokens.horizontalPadding),
+                  child: Opacity(
+                    opacity: showFullContent ? 1 : 0,
+                    child: content,
+                  ),
                 ),
               ),
-            ),
-            Positioned.fill(
-              child: IgnorePointer(
-                ignoring: showFullContent,
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 350),
-                  curve: Curves.easeOutCubic,
-                  opacity: showFullContent ? 0 : 1,
-                  child: Container(
-                    color: OpeiColors.pureWhite,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: constraints.maxHeight,
+              Positioned.fill(
+                child: IgnorePointer(
+                  ignoring: showFullContent,
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 350),
+                    curve: Curves.easeOutCubic,
+                    opacity: showFullContent ? 0 : 1,
+                    child: Container(
+                      color: OpeiColors.pureWhite,
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return SingleChildScrollView(
+                            physics: const NeverScrollableScrollPhysics(),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: constraints.maxHeight,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: tokens.horizontalPadding,
+                                ),
+                                child: const DashboardHomeSkeleton(),
+                              ),
                             ),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20),
-                              child: DashboardHomeSkeleton(),
-                            ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -275,11 +284,9 @@ class QuickActions extends StatelessWidget {
           icon: Icons.add,
           label: 'Add Money',
           onTap: () {
-            showModalBottomSheet(
+            showResponsiveBottomSheet(
               context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) => const DepositOptionsSheet(),
+              builder: (_) => const DepositOptionsSheet(),
             );
           },
         ),
@@ -291,11 +298,9 @@ class QuickActions extends StatelessWidget {
           icon: Icons.arrow_downward,
           label: 'Withdraw',
           onTap: () {
-            showModalBottomSheet(
+            showResponsiveBottomSheet(
               context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) => const WithdrawOptionsSheet(),
+              builder: (_) => const WithdrawOptionsSheet(),
             );
           },
         ),

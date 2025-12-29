@@ -84,4 +84,18 @@ Tokens will live in a new `responsive.dart` helper (Phase 2) and feed `ThemeData
 - Shared auth field widgets (email/password inputs) derive spacing from `context.responsiveSpacingUnit`.
 - Remaining auth surfaces (Verify Email flow, Quick Auth screens) are next up—tracked separately before tackling dashboard/cards.
 
+### 10. Phase 3 Progress (Verify Email & Quick Auth – Dec 29, 2025)
+
+- `VerifyEmailScreen` now runs inside `ResponsiveScaffold`; OTP inputs sit in a centered max-width row with token-based vertical rhythm and overlay spinners positioned via the same wrapper.
+- Quick Auth PIN entry and Quick Auth setup screens share responsive scaffolds, with avatars/keypads centered within the content width and vertical spacing driven by `responsiveSpacingUnit`.
+- Loading states (`BouncingDots`, verifying overlays) also use `ResponsiveScaffold` so tablets render consistent gutters.
+- Auth module is fully migrated; next focus shifts to dashboard/wallets and cards per Phase 3 plan.
+
+### 11. Phase 3 Progress (Dashboard & Cards – Dec 29, 2025)
+
+- `DashboardHomeScreen` now lives inside `ResponsiveScaffold`; hero cards, quick actions, and transaction lists respect token gutters and spacing, and skeleton/refresh states stay centered even on tablets.
+- Quick actions + deposit/withdraw sheets call `showResponsiveBottomSheet`, so large devices see capped, centered modals.
+- `CardsScreen` (list + empty state) now uses responsive scaffolds, tokenized vertical rhythm, and max-width constraints for virtual-card hero + CTA. Card top-up/withdraw/address sheets also use `showResponsiveBottomSheet`.
+- Next up: deposits/withdrawals, P2P, and settings/profile per the Phase 3 rollout plan.
+
 _Prepared for Opei App Flutter – Dec 29, 2025._

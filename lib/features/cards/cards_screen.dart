@@ -18,6 +18,8 @@ import 'package:tt1/features/cards/create_virtual_card_flow.dart';
 import 'package:tt1/features/cards/card_topup_sheet.dart';
 import 'package:tt1/features/cards/card_withdraw_sheet.dart';
 import 'package:tt1/features/dashboard/dashboard_controller.dart';
+import 'package:tt1/responsive/responsive_tokens.dart';
+import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
 
 class CardsScreen extends ConsumerStatefulWidget {
@@ -71,8 +73,12 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
       parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
     );
 
-    return Scaffold(
-      backgroundColor: OpeiColors.pureWhite,
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+
+    return ResponsiveScaffold(
+      useSafeArea: false,
+      padding: EdgeInsets.zero,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: _handleRefresh,
@@ -83,11 +89,11 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
           child: SingleChildScrollView(
             physics: scrollPhysics,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: EdgeInsets.symmetric(horizontal: tokens.horizontalPadding),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
+                  SizedBox(height: spacing),
                   SizedBox(
                     height: 28,
                     child: Stack(
@@ -134,11 +140,11 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                       message: resolvedErrorMessage,
                       onRetry: () => ref.read(cardsControllerProvider.notifier).refresh(),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: spacing * 2.5),
                   ],
-                   if (isInitialLoading) ...[
+                  if (isInitialLoading) ...[
                     const _CardsLoadingPlaceholder(),
-                    const SizedBox(height: 24),
+                    SizedBox(height: spacing * 3),
                   ] else if (showCardList) ...[
                     _UserCardsCarousel(
                       cards: cardsState.cards,
@@ -150,13 +156,13 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                       onToggleDetails: _handleToggleCardDetails,
                       onCopyValue: _copyToClipboard,
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: spacing * 1.5),
                     if (cardsState.cards.length > 1)
                       _CarouselPageIndicator(
                         itemCount: cardsState.cards.length,
                         currentIndex: _currentPage,
                       ),
-                    if (cardsState.cards.length > 1) const SizedBox(height: 16),
+                    if (cardsState.cards.length > 1) SizedBox(height: spacing * 2),
                     if (cardsState.cards.isNotEmpty) ...[
                       Builder(
                         builder: (context) {
@@ -177,26 +183,30 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                         },
                       ),
                     ],
-                    const SizedBox(height: 18),
+                    SizedBox(height: spacing * 2.25),
                    ] else if (showErrorState && resolvedErrorMessage != null) ...[
                     _CardsErrorPlaceholder(
                       message: resolvedErrorMessage,
                       onRetry: () => ref.read(cardsControllerProvider.notifier).refresh(),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: spacing * 3),
                    ] else if (showBlockingLoader) ...[
                      const _CardsLoadingPlaceholder(),
-                     const SizedBox(height: 24),
+                     SizedBox(height: spacing * 3),
                   ] else if (showEmptyState) ...[
-                    SizedBox(
-                      height: 220,
-                      child: const VirtualCardHero(),
-                    ),
-                    const SizedBox(height: 18),
                     Center(
-                      child: Container(
-                        width: double.infinity,
-                        constraints: const BoxConstraints(maxWidth: 360),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: tokens.contentMaxWidth),
+                        child: SizedBox(
+                          height: 220,
+                          child: const VirtualCardHero(),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: spacing * 2.25),
+                    Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: tokens.contentMaxWidth),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -207,24 +217,21 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                                     fontWeight: FontWeight.w600,
                                   ),
                             ),
+                            SizedBox(height: spacing * 1.25),
+                            const CardUseCasesList(),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Center(
-                      child: Container(
-                        width: double.infinity,
-                        constraints: const BoxConstraints(maxWidth: 360),
-                        child: const CardUseCasesList(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: spacing * 2),
                     Center(
                       child: SizedBox(
                         width: double.infinity,
                         child: CupertinoButton(
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: tokens.horizontalPadding,
+                            vertical: spacing * 1.6,
+                          ),
                           color: OpeiColors.pureBlack,
                           borderRadius: BorderRadius.circular(14),
                           onPressed: _startCardCreationFlow,
@@ -247,9 +254,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: spacing * 2.5),
                   ] else ...[
-                    const SizedBox(height: 12),
+                    SizedBox(height: spacing * 1.5),
                   ],
                 ],
               ),
@@ -418,13 +425,8 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
       return;
     }
 
-    await showModalBottomSheet<void>(
+    await showResponsiveBottomSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: OpeiColors.pureWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-      ),
       builder: (_) => CardTopUpSheet(card: card),
     );
   }
@@ -436,13 +438,8 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
       return;
     }
 
-    await showModalBottomSheet<void>(
+    await showResponsiveBottomSheet<void>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: OpeiColors.pureWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-      ),
       builder: (_) => CardWithdrawSheet(card: card),
     );
   }
@@ -1163,12 +1160,8 @@ class _UserCardView extends StatelessWidget {
   }
 
   void _showAddressSheet(BuildContext context, _CardAddressData data) {
-    showModalBottomSheet<void>(
+    showResponsiveBottomSheet<void>(
       context: context,
-      backgroundColor: OpeiColors.pureWhite,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
       builder: (sheetContext) {
         final theme = Theme.of(sheetContext);
         final copyLabel = data.isPlaceholder ? 'Copy sample address' : 'Copy address';

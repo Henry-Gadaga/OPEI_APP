@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
 import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
+import 'package:tt1/responsive/responsive_tokens.dart';
+import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
 import 'package:tt1/widgets/bouncing_dots.dart';
 
@@ -16,7 +18,7 @@ class QuickAuthSetupScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(quickAuthSetupControllerProvider);
-    
+
     ref.listen(quickAuthSetupControllerProvider, (previous, next) {
       if (next is QuickAuthSetupSuccess) {
         Future.microtask(
@@ -54,30 +56,28 @@ class _VerifyingPinView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: OpeiColors.pureWhite,
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Verifying your PIN',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Hang tight, just a moment...',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: OpeiColors.iosLabelSecondary,
-                ),
-              ),
-              const SizedBox(height: 28),
-              const BouncingDots(),
-            ],
-          ),
+    final spacing = context.responsiveSpacingUnit;
+    return ResponsiveScaffold(
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Verifying your PIN',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            SizedBox(height: spacing),
+            Text(
+              'Hang tight, just a moment...',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
+            ),
+            SizedBox(height: spacing * 3.5),
+            const BouncingDots(),
+          ],
         ),
       ),
     );
@@ -86,59 +86,54 @@ class _VerifyingPinView extends StatelessWidget {
 
 class _PinEntryScreen extends ConsumerWidget {
   final QuickAuthSetupPinEntry state;
-  
+
   const _PinEntryScreen({required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: OpeiColors.pureWhite,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios, size: 20),
-                    onPressed: () => ref
-                        .read(quickAuthSetupControllerProvider.notifier)
-                        .reset(),
-                  ),
-                ],
+    final spacing = context.responsiveSpacingUnit;
+    return ResponsiveScaffold(
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: spacing * 2, bottom: spacing * 2),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_ios, size: 20),
+                onPressed: () =>
+                    ref.read(quickAuthSetupControllerProvider.notifier).reset(),
               ),
             ),
-            const SizedBox(height: 32),
-            Text(
-              state.isConfirming ? 'Confirm PIN' : 'Create PIN',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              state.isConfirming
-                  ? 'Enter your PIN again to confirm'
-                  : 'Create a 6-digit PIN',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: OpeiColors.grey600,
-              ),
-            ),
-            if (state.errorMessage != null) ...[
-              const SizedBox(height: 16),
-              Text(
-                state.errorMessage!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: OpeiColors.errorRed,
+          ),
+          Text(
+            state.isConfirming ? 'Confirm PIN' : 'Create PIN',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          SizedBox(height: spacing),
+          Text(
+            state.isConfirming
+                ? 'Enter your PIN again to confirm'
+                : 'Create a 6-digit PIN',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: OpeiColors.grey600,
                 ),
-              ),
-            ],
-            const SizedBox(height: 48),
-            _buildPinDots(state.pin),
-            const Spacer(),
-            _buildNumericKeypad(context, ref),
-            const SizedBox(height: 32),
+          ),
+          if (state.errorMessage != null) ...[
+            SizedBox(height: spacing * 2),
+            Text(
+              state.errorMessage!,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: OpeiColors.errorRed,
+                  ),
+            ),
           ],
-        ),
+          SizedBox(height: spacing * 6),
+          _buildPinDots(state.pin),
+          const Spacer(),
+          _buildNumericKeypad(context, ref),
+          SizedBox(height: spacing * 4),
+        ],
       ),
     );
   }
@@ -178,50 +173,51 @@ class _PinEntryScreen extends ConsumerWidget {
     return Column(
       children: buttons
           .map((row) => Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: row.map((button) {
-                  if (button.isEmpty)
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: row.map((button) {
+                  if (button.isEmpty) {
                     return const SizedBox(width: 80, height: 80);
-              
-              return GestureDetector(
-                onTap: () {
-                  if (button == 'del') {
+                  }
+
+                  return GestureDetector(
+                    onTap: () {
+                      if (button == 'del') {
                         ref
                             .read(quickAuthSetupControllerProvider.notifier)
                             .removeDigit();
-                  } else {
+                      } else {
                         ref
                             .read(quickAuthSetupControllerProvider.notifier)
                             .addDigit(button);
-                  }
-                },
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
+                      }
+                    },
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      margin: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
                         color: button == 'del'
                             ? Colors.transparent
                             : const Color(0xFFF5F5F7),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: button == 'del'
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: button == 'del'
                             ? const Icon(Icons.backspace_outlined,
                                 size: 24, color: OpeiColors.pureBlack)
-                        : Text(
-                            button,
+                            : Text(
+                                button,
                                 style: Theme.of(context)
                                     .textTheme
                                     .headlineMedium
                                     ?.copyWith(
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                  ),
-                ),
-              );
-            }).toList(),
+                                      fontWeight: FontWeight.w400,
+                                    ),
+                              ),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ))
           .toList(),
     );

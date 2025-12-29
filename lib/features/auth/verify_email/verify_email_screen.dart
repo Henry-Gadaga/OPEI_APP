@@ -7,6 +7,8 @@ import 'package:tt1/core/providers/providers.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tt1/core/utils/error_helper.dart';
 import 'package:tt1/features/auth/verify_email/verify_email_state.dart';
+import 'package:tt1/responsive/responsive_tokens.dart';
+import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
@@ -20,7 +22,8 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
 }
 
 class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers =
+      List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   String? _email;
   bool _isInitialized = false;
@@ -37,7 +40,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   Future<void> _initializeEmail() async {
     debugPrint('📧 Starting email initialization...');
     String? email = widget.email;
-    
+
     if (email == null) {
       debugPrint('📧 Email not in route args, checking secure storage...');
       final storage = ref.read(secureStorageServiceProvider);
@@ -60,9 +63,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(verifyEmailControllerProvider.notifier).initialize(
-        email!,
-        autoSendCode: widget.autoSendCode,
-      );
+            email!,
+            autoSendCode: widget.autoSendCode,
+          );
     });
   }
 
@@ -207,14 +210,16 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized || _email == null) {
-      return const Scaffold(
+      return const ResponsiveScaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     final state = ref.watch(verifyEmailControllerProvider);
+    final spacing = context.responsiveSpacingUnit;
 
-    ref.listen<VerifyEmailState>(verifyEmailControllerProvider, (previous, next) async {
+    ref.listen<VerifyEmailState>(verifyEmailControllerProvider,
+        (previous, next) async {
       // Handle verification completion
       if (previous != null && previous.isVerifying && !next.isVerifying) {
         if (next.errorMessage == null) {
@@ -237,7 +242,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           }
         }
       }
-      
+
       // Handle auto-send completion (show feedback)
       if (previous != null && previous.isResending && !next.isResending) {
         if (next.errorMessage == null && mounted && widget.autoSendCode) {
@@ -252,160 +257,151 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
         await _handleBackNavigation();
         return false;
       },
-      child: Scaffold(
-        body: SafeArea(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                padding: AppSpacing.horizontalLg,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                  const SizedBox(height: 24),
-                  
+      child: ResponsiveScaffold(
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: EdgeInsets.symmetric(vertical: spacing * 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(height: spacing * 3),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back_ios, size: 20),
-                      onPressed: state.isLoading || _isLoggingOut ? null : () {
-                        _handleBackNavigation();
-                      },
                       padding: EdgeInsets.zero,
+                      onPressed: state.isLoading || _isLoggingOut
+                          ? null
+                          : () {
+                              _handleBackNavigation();
+                            },
                     ),
                   ),
-                  
-                  const SizedBox(height: 40),
-                  
+                  SizedBox(height: spacing * 5),
                   Text(
                     'Verify Your Email',
                     style: Theme.of(context).textTheme.displayLarge,
                     textAlign: TextAlign.center,
                   ),
-                  
-                  const SizedBox(height: 12),
-                  
+                  SizedBox(height: spacing * 1.5),
                   Text(
                     'We sent a 6-digit code to',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: OpeiColors.grey600,
-                    ),
+                          color: OpeiColors.grey600,
+                        ),
                     textAlign: TextAlign.center,
                   ),
-                  
-                  const SizedBox(height: 4),
-                  
+                  SizedBox(height: spacing * 0.5),
                   Text(
                     _email!,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                     textAlign: TextAlign.center,
                   ),
-                  
-                  const SizedBox(height: 48),
-                  
+                  SizedBox(height: spacing * 6),
                   IgnorePointer(
                     ignoring: state.isLoading || _isLoggingOut,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(6, (index) {
-                          return CodeInputBox(
-                            controller: _controllers[index],
-                            focusNode: _focusNodes[index],
-                            onChanged: (value) => _onDigitChanged(index, value),
-                            hasError: state.errorMessage != null,
-                            isDisabled: state.isLoading,
-                          );
-                        }),
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(6, (index) {
+                        return CodeInputBox(
+                          controller: _controllers[index],
+                          focusNode: _focusNodes[index],
+                          onChanged: (value) => _onDigitChanged(index, value),
+                          hasError: state.errorMessage != null,
+                          isDisabled: state.isLoading,
+                        );
+                      }),
                     ),
-                  
-                  const SizedBox(height: 16),
-                  
+                  ),
+                  SizedBox(height: spacing * 2),
                   if (state.errorMessage != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
                         state.errorMessage!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.errorRed,
-                        ),
+                              color: OpeiColors.errorRed,
+                            ),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                  
-                  const SizedBox(height: 32),
-                  
+                  SizedBox(height: spacing * 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        state.canResend ? "Didn't receive the code? " : "Resend code in ",
+                        state.canResend
+                            ? "Didn't receive the code? "
+                            : "Resend code in ",
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.grey600,
-                        ),
+                              color: OpeiColors.grey600,
+                            ),
                       ),
                       if (!state.canResend)
                         Text(
                           state.timerText,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: OpeiColors.grey600,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: OpeiColors.grey600,
+                                  ),
                         ),
                       if (state.canResend)
                         GestureDetector(
                           onTap: _handleResend,
                           child: Text(
                             'Resend',
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                              decoration: TextDecoration.underline,
-                            ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                  decoration: TextDecoration.underline,
+                                ),
                           ),
                         ),
                     ],
                   ),
-                  
-                  const SizedBox(height: 60),
+                  SizedBox(height: spacing * 7.5),
                 ],
               ),
             ),
-            
             if (state.isLoading || _isLoggingOut)
-                Container(
-                  color: OpeiColors.pureBlack.withValues(alpha: 0.3),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
+              Container(
+                color: OpeiColors.pureBlack.withValues(alpha: 0.3),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
                         const CircularProgressIndicator(
-                            strokeWidth: 3,
-                            color: OpeiColors.pureBlack,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
+                          strokeWidth: 3,
+                          color: OpeiColors.pureBlack,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
                           _isLoggingOut
                               ? 'Signing out...'
                               : state.isVerifying
                                   ? 'Verifying...'
                                   : 'Sending code...',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                     ),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -441,8 +437,8 @@ class CodeInputBox extends StatelessWidget {
         maxLength: 1,
         enabled: !isDisabled,
         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+              fontWeight: FontWeight.w600,
+            ),
         inputFormatters: [
           FilteringTextInputFormatter.digitsOnly,
         ],
@@ -471,9 +467,7 @@ class CodeInputBox extends StatelessWidget {
             ),
           ),
           filled: true,
-          fillColor: isDisabled 
-              ? OpeiColors.grey100 
-              : OpeiColors.pureWhite,
+          fillColor: isDisabled ? OpeiColors.grey100 : OpeiColors.pureWhite,
         ),
         onChanged: (value) => onChanged(value),
         onTap: () {
