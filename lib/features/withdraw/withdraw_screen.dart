@@ -999,8 +999,14 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
 
     if (response == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) {
-          context.pop();
+        if (!context.mounted) {
+          return;
+        }
+        final navigator = Navigator.of(context);
+        if (navigator.canPop()) {
+          navigator.pop();
+        } else {
+          context.go('/dashboard');
         }
       });
       return const SizedBox.shrink();
