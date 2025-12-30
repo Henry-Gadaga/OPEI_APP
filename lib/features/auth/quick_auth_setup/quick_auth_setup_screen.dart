@@ -21,8 +21,6 @@ class QuickAuthSetupScreen extends ConsumerWidget {
 
     ref.listen(quickAuthSetupControllerProvider, (previous, next) {
       if (next is QuickAuthSetupSuccess) {
-        Future.microtask(
-            () => ref.read(quickAuthSetupControllerProvider.notifier).reset());
         if (popOnComplete) {
           context.pop(true);
         } else {
