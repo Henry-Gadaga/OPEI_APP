@@ -7754,6 +7754,22 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                               color: OpeiColors.iosLabelSecondary),
                         ),
                       ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: OpeiColors.iosLabelSecondary,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 6),
