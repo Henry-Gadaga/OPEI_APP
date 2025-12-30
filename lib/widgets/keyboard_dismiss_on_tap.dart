@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 /// Global helper that dismisses the on-screen keyboard when the user taps
 /// outside the currently focused input, without stealing taps from other
@@ -8,6 +9,19 @@ class KeyboardDismissOnTap extends StatelessWidget {
 
   const KeyboardDismissOnTap({super.key, required this.child});
 
+  bool _isTappingEditable(PointerDownEvent event) {
+    final renderObject = RendererBinding.instance.renderView;
+    final result = HitTestResult();
+    renderObject.hitTest(result, position: event.position);
+    for (final entry in result.path) {
+      final target = entry.target;
+      if (target is RenderEditable) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Listener(
@@ -15,6 +29,10 @@ class KeyboardDismissOnTap extends StatelessWidget {
       onPointerDown: (PointerDownEvent event) {
         final focus = FocusManager.instance.primaryFocus;
         if (focus == null || !focus.hasPrimaryFocus) {
+          return;
+        }
+
+        if (_isTappingEditable(event)) {
           return;
         }
 
