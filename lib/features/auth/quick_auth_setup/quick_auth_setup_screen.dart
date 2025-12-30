@@ -93,47 +93,61 @@ class _PinEntryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final spacing = context.responsiveSpacingUnit;
     return ResponsiveScaffold(
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(top: spacing * 2, bottom: spacing * 2),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios, size: 20),
-                onPressed: () =>
-                    ref.read(quickAuthSetupControllerProvider.notifier).reset(),
+      body: Padding(
+        padding: EdgeInsets.symmetric(vertical: spacing * 2),
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back_ios, size: 20),
+                        onPressed: () => ref
+                            .read(quickAuthSetupControllerProvider.notifier)
+                            .reset(),
+                      ),
+                    ),
+                    SizedBox(height: spacing),
+                    Text(
+                      state.isConfirming ? 'Confirm PIN' : 'Create PIN',
+                      style: Theme.of(context).textTheme.headlineMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: spacing),
+                    Text(
+                      state.isConfirming
+                          ? 'Enter your PIN again to confirm'
+                          : 'Create a 6-digit PIN',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: OpeiColors.grey600,
+                          ),
+                    ),
+                    if (state.errorMessage != null) ...[
+                      SizedBox(height: spacing * 2),
+                      Text(
+                        state.errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: OpeiColors.errorRed,
+                            ),
+                      ),
+                    ],
+                    SizedBox(height: spacing * 4),
+                    _buildPinDots(state.pin),
+                    SizedBox(height: spacing * 2),
+                  ],
+                ),
               ),
             ),
-          ),
-          Text(
-            state.isConfirming ? 'Confirm PIN' : 'Create PIN',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          SizedBox(height: spacing),
-          Text(
-            state.isConfirming
-                ? 'Enter your PIN again to confirm'
-                : 'Create a 6-digit PIN',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
-                ),
-          ),
-          if (state.errorMessage != null) ...[
+            _buildNumericKeypad(context, ref),
             SizedBox(height: spacing * 2),
-            Text(
-              state.errorMessage!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: OpeiColors.errorRed,
-                  ),
-            ),
           ],
-          SizedBox(height: spacing * 6),
-          _buildPinDots(state.pin),
-          const Spacer(),
-          _buildNumericKeypad(context, ref),
-          SizedBox(height: spacing * 4),
-        ],
+        ),
       ),
     );
   }
