@@ -126,53 +126,71 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
             padding: EdgeInsets.symmetric(vertical: spacing * 3),
             child: Column(
               children: [
-                SizedBox(height: spacing * 6),
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: const Color(0xFFF5F5F7),
-                  child: Text(
-                    _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          color: OpeiColors.pureBlack,
-                          fontWeight: FontWeight.w600,
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        SizedBox(height: spacing * 4),
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundColor: const Color(0xFFF5F5F7),
+                          child: Text(
+                            _userName.isNotEmpty
+                                ? _userName[0].toUpperCase()
+                                : 'U',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(
+                                  color: OpeiColors.pureBlack,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
                         ),
+                        SizedBox(height: spacing * 2),
+                        Text(
+                          'Welcome back',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        SizedBox(height: spacing * 0.5),
+                        Text(
+                          _userName,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: OpeiColors.grey600,
+                              ),
+                        ),
+                        if (pinState.errorMessage != null) ...[
+                          SizedBox(height: spacing * 2),
+                          Text(
+                            pinState.errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color: OpeiColors.errorRed,
+                                ),
+                          ),
+                        ],
+                      ],
+                    ),
                   ),
                 ),
-                SizedBox(height: spacing * 2),
-                Text(
-                  'Welcome back',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                SizedBox(height: spacing * 0.5),
-                Text(
-                  _userName,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: OpeiColors.grey600,
-                      ),
-                ),
-                if (pinState.errorMessage != null) ...[
-                  SizedBox(height: spacing * 2),
-                  Text(
-                    pinState.errorMessage!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: OpeiColors.errorRed,
-                        ),
-                  ),
-                ],
-                SizedBox(height: spacing * 6),
                 if (_hasPinSetup) ...[
+                  SizedBox(height: spacing * 2),
                   _buildPinDots(pinState.pin),
-                  const Spacer(),
+                  SizedBox(height: spacing * 2),
                   _buildNumericKeypad(context),
                 ] else ...[
-                  const Spacer(),
+                  SizedBox(height: spacing * 2),
                   Text(
                     'No quick PIN set up for quick login',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: OpeiColors.grey600,
                         ),
                   ),
-                  const Spacer(),
+                  SizedBox(height: spacing * 2),
                 ],
                 TextButton(
                   onPressed: () => context.go('/login'),
@@ -195,7 +213,7 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                         ),
                   ),
                 ),
-                SizedBox(height: spacing * 4),
+                SizedBox(height: spacing * 2),
               ],
             ),
           ),
