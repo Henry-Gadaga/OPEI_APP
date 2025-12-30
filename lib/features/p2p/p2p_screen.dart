@@ -1377,119 +1377,124 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
         return StatefulBuilder(
           builder: (context, setSheetState) {
             final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-            return Padding(
-              padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(2),
+            return AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeOut,
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Amount filters',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: '.SF Pro Display',
-                        ),
-                  ),
-                  const SizedBox(height: 18),
-                  _AmountField(
-                    label: 'Minimum amount',
-                    currency: state.selectedCurrencyCode,
-                    controller: minController,
-                  ),
-                  const SizedBox(height: 14),
-                  _AmountField(
-                    label: 'Maximum amount',
-                    currency: state.selectedCurrencyCode,
-                    controller: maxController,
-                  ),
-                  if (validationError != null) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Text(
-                      validationError!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 12,
-                            color: const Color(0xFFFF3B30),
+                      'Amount filters',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: '.SF Pro Display',
                           ),
                     ),
-                  ],
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () async {
-                            await controller.updateAmountBounds(
-                              minAmountCents: null,
-                              maxAmountCents: null,
-                            );
-                            if (!mounted) return;
-                            Navigator.of(context).pop();
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: OpeiColors.pureBlack,
-                            side: BorderSide(
-                              color: OpeiColors.iosSeparator
-                                  .withValues(alpha: 0.5),
+                    const SizedBox(height: 18),
+                    _AmountField(
+                      label: 'Minimum amount',
+                      currency: state.selectedCurrencyCode,
+                      controller: minController,
+                    ),
+                    const SizedBox(height: 14),
+                    _AmountField(
+                      label: 'Maximum amount',
+                      currency: state.selectedCurrencyCode,
+                      controller: maxController,
+                    ),
+                    if (validationError != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        validationError!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 12,
+                              color: const Color(0xFFFF3B30),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                          ),
-                          child: const Text('Clear filters'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            final minCents =
-                                _parseMajorToCents(minController.text);
-                            final maxCents =
-                                _parseMajorToCents(maxController.text);
-
-                            if (minCents != null &&
-                                maxCents != null &&
-                                minCents > maxCents) {
-                              setSheetState(() {
-                                validationError =
-                                    'The minimum amount can’t be higher than the maximum.';
-                              });
-                              return;
-                            }
-
-                            setSheetState(() => validationError = null);
-
-                            await controller.updateAmountBounds(
-                              minAmountCents: minCents,
-                              maxAmountCents: maxCents,
-                            );
-
-                            if (!mounted) return;
-                            Navigator.of(context).pop();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: OpeiColors.pureBlack,
-                            foregroundColor: OpeiColors.pureWhite,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: const Text('Apply filters'),
-                        ),
                       ),
                     ],
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () async {
+                              await controller.updateAmountBounds(
+                                minAmountCents: null,
+                                maxAmountCents: null,
+                              );
+                              if (!mounted) return;
+                              Navigator.of(context).pop();
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: OpeiColors.pureBlack,
+                              side: BorderSide(
+                                color: OpeiColors.iosSeparator
+                                    .withValues(alpha: 0.5),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: const Text('Clear filters'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              final minCents =
+                                  _parseMajorToCents(minController.text);
+                              final maxCents =
+                                  _parseMajorToCents(maxController.text);
+
+                              if (minCents != null &&
+                                  maxCents != null &&
+                                  minCents > maxCents) {
+                                setSheetState(() {
+                                  validationError =
+                                      'The minimum amount can’t be higher than the maximum.';
+                                });
+                                return;
+                              }
+
+                              setSheetState(() => validationError = null);
+
+                              await controller.updateAmountBounds(
+                                minAmountCents: minCents,
+                                maxAmountCents: maxCents,
+                              );
+
+                              if (!mounted) return;
+                              Navigator.of(context).pop();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: OpeiColors.pureBlack,
+                              foregroundColor: OpeiColors.pureWhite,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Text('Apply filters'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -6412,121 +6417,129 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return SafeArea(
-      child: Container(
-        decoration: const BoxDecoration(
-          color: OpeiColors.pureWhite,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: EdgeInsets.fromLTRB(24, 20, 24, 20 + bottomInset),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.zero,
+          child: Container(
+            decoration: const BoxDecoration(
+              color: OpeiColors.pureWhite,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Raise a dispute',
-              style: textTheme.titleMedium?.copyWith(
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                fontFamily: '.SF Pro Display',
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Tell us what went wrong so our support team can review it quickly.',
-              style: textTheme.bodySmall?.copyWith(
-                fontSize: 12,
-                color: OpeiColors.iosLabelSecondary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              maxLines: 4,
-              minLines: 3,
-              textCapitalization: TextCapitalization.sentences,
-              inputFormatters: [LengthLimitingTextInputFormatter(250)],
-              onChanged: (_) {
-                if (_localError != null) {
-                  setState(() => _localError = null);
-                }
-              },
-              decoration: InputDecoration(
-                hintText: 'Seller never released after I sent funds',
-                filled: true,
-                fillColor: OpeiColors.iosSurfaceMuted,
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                      color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
-                      width: 0.5),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                      color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
-                      width: 0.5),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide:
-                      const BorderSide(color: OpeiColors.pureBlack, width: 1),
-                ),
-              ),
-            ),
-            if (_localError != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                _localError!,
-                style: textTheme.bodySmall?.copyWith(
-                  fontSize: 12,
-                  color: const Color(0xFFFF3B30),
-                ),
-              ),
-            ],
-            const SizedBox(height: 20),
-            Row(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    style: TextButton.styleFrom(
-                      foregroundColor: OpeiColors.iosLabelSecondary,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                    child: const Text('Cancel'),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _handleSubmit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: OpeiColors.pureBlack,
-                      foregroundColor: OpeiColors.pureWhite,
-                      padding: const EdgeInsets.symmetric(vertical: 13),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    child: const Text('Submit dispute'),
+                const SizedBox(height: 16),
+                Text(
+                  'Raise a dispute',
+                  style: textTheme.titleMedium?.copyWith(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: '.SF Pro Display',
                   ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Tell us what went wrong so our support team can review it quickly.',
+                  style: textTheme.bodySmall?.copyWith(
+                    fontSize: 12,
+                    color: OpeiColors.iosLabelSecondary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _controller,
+                  autofocus: true,
+                  maxLines: 4,
+                  minLines: 3,
+                  textCapitalization: TextCapitalization.sentences,
+                  inputFormatters: [LengthLimitingTextInputFormatter(250)],
+                  onChanged: (_) {
+                    if (_localError != null) {
+                      setState(() => _localError = null);
+                    }
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Seller never released after I sent funds',
+                    filled: true,
+                    fillColor: OpeiColors.iosSurfaceMuted,
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                          width: 0.5),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                          color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
+                          width: 0.5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: OpeiColors.pureBlack, width: 1),
+                    ),
+                  ),
+                ),
+                if (_localError != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _localError!,
+                    style: textTheme.bodySmall?.copyWith(
+                      fontSize: 12,
+                      color: const Color(0xFFFF3B30),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          foregroundColor: OpeiColors.iosLabelSecondary,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _handleSubmit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: OpeiColors.pureBlack,
+                          foregroundColor: OpeiColors.pureWhite,
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text('Submit dispute'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -8431,12 +8444,16 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
       orElse: () => currencyObjs.first,
     );
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 20 + bottomInset),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Center(
             child: Container(
               width: 40,
@@ -8581,6 +8598,7 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
             ),
           ),
         ],
+      ),
       ),
     );
   }

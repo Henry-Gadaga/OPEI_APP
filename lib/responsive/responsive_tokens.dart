@@ -10,6 +10,9 @@ class ResponsiveTokenSet {
   final double contentMaxWidth;
   final double sheetMaxWidth;
   final double buttonHeight;
+  final double buttonRadius;
+  final double dialogRadius;
+  final double inputRadius;
 
   const ResponsiveTokenSet({
     required this.baseFontSize,
@@ -19,6 +22,9 @@ class ResponsiveTokenSet {
     required this.contentMaxWidth,
     required this.sheetMaxWidth,
     required this.buttonHeight,
+    required this.buttonRadius,
+    required this.dialogRadius,
+    required this.inputRadius,
   });
 }
 
@@ -60,6 +66,9 @@ const OpeiResponsiveTheme kDefaultResponsiveTheme = OpeiResponsiveTheme(
       contentMaxWidth: double.infinity,
       sheetMaxWidth: double.infinity,
       buttonHeight: 48,
+      buttonRadius: 14,
+      dialogRadius: 20,
+      inputRadius: 14,
     ),
     ResponsiveSize.phone: ResponsiveTokenSet(
       baseFontSize: 14,
@@ -69,6 +78,9 @@ const OpeiResponsiveTheme kDefaultResponsiveTheme = OpeiResponsiveTheme(
       contentMaxWidth: double.infinity,
       sheetMaxWidth: double.infinity,
       buttonHeight: 50,
+      buttonRadius: 16,
+      dialogRadius: 24,
+      inputRadius: 16,
     ),
     ResponsiveSize.largePhone: ResponsiveTokenSet(
       baseFontSize: 15,
@@ -78,6 +90,9 @@ const OpeiResponsiveTheme kDefaultResponsiveTheme = OpeiResponsiveTheme(
       contentMaxWidth: 560,
       sheetMaxWidth: 600,
       buttonHeight: 52,
+      buttonRadius: 18,
+      dialogRadius: 26,
+      inputRadius: 18,
     ),
     ResponsiveSize.tabletDesktop: ResponsiveTokenSet(
       baseFontSize: 16,
@@ -87,6 +102,9 @@ const OpeiResponsiveTheme kDefaultResponsiveTheme = OpeiResponsiveTheme(
       contentMaxWidth: 720,
       sheetMaxWidth: 720,
       buttonHeight: 54,
+      buttonRadius: 20,
+      dialogRadius: 28,
+      inputRadius: 20,
     ),
   },
 );

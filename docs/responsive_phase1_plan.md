@@ -105,4 +105,40 @@ Tokens will live in a new `responsive.dart` helper (Phase 2) and feed `ThemeData
 - **Settings/Profile:** The profile screen (header, KYC prompt, address cards, preferences, logout) is constrained by `ResponsiveScaffold` with token spacing. Language selector and logout confirmation both consume `showResponsiveBottomSheet`, keeping sheets centered on tablets. Error/loading states share the same responsive shell.
 - With these modules complete, the Phase 3 retrofit now covers all user-facing surfaces, and modules inherit consistent breakpoints, gutters, and centered sheets. Remaining work shifts to Phase 4 tasks.
 
+### 13. Phase 4 · Validation & Polish (Plan – Dec 30, 2025)
+
+**Objective:** Validate the responsive work across real device classes, fix any edge cases discovered, and codify safeguards (docs/tests) before shipping.
+
+#### 13.1 Device & Screen Matrix
+
+| Breakpoint | Target Devices | Screens to Verify |
+| --- | --- | --- |
+| Compact (`<360dp`) | Pixel 3a (display scaled), split-screen iPhone SE | Auth stack (login/signup/OTP), quick-auth PIN, profile |
+| Phone (`360–599dp`) | Pixel 5/7, iPhone 14 | Dashboard, cards, deposit/withdraw, P2P tabs, profile |
+| Large Phone (`600–839dp`) | Pixel Fold portrait, Galaxy Z Fold | Dashboard, cards, P2P (ensure gutters hold), proof upload |
+| Tablet/Desktop (`≥840dp`) | iPad Pro landscape, Chrome desktop window | All modules, especially multi-step flows + sheets |
+
+For each combination capture screenshots or notes for: spacing accuracy, dialog centering, text wrapping, keyboard insets, and scroll behavior.
+
+#### 13.2 QA Checklist
+
+- [ ] Auth (login → signup → verify email → reset password) on compact + tablet.
+- [ ] Quick Auth (PIN entry/setup), ensuring keypad spacing and overlays scale.
+- [ ] Dashboard + cards (hero, create card flow) on large phone + tablet.
+- [ ] Deposit/withdraw (USD + crypto) on phone + tablet, verifying sheets.
+- [ ] P2P tabs (Home, Orders, My Ads, Profile) across all breakpoints; include trade sheet, proof upload, dispute dialog.
+- [ ] Profile/settings (language selector, logout) on tablet (sheet max-width) and compact phone.
+- [ ] Address editor / misc forms for any lingering fixed paddings.
+
+Document findings in a shared checklist (Notion/Jira) with severity, screenshot, and fix owner.
+
+#### 13.3 Edge-Case Fix & Regression Guard
+
+1. **Fix loop:** Triage QA bugs (overflow, tap targets, misaligned sheets) immediately and retest affected screen.
+2. **Snapshot tests:** Add golden tests for representative widgets (ProfileSection, P2P order card) under fixed width constraints to detect spacing regressions.
+3. **Smoke script:** Record a flutter drive or `integration_test` smoke flow that navigates dashboard ➝ cards ➝ P2P ➝ profile on a large emulator, ensuring no runtime errors or overflow logs.
+4. **Final documentation:** Summarize QA results + residual risks back in this doc and the release notes.
+
+With QA + regression guards in place, Phase 4 will conclude and the responsive work can ship confidently.
+
 _Prepared for Opei App Flutter – Dec 29, 2025._
