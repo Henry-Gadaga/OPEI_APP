@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:tt1/core/navigation/opei_page_transitions.dart';
 import 'package:tt1/core/utils/asset_preloader.dart';
 import 'package:tt1/core/providers/providers.dart';
@@ -30,9 +32,12 @@ import 'package:tt1/data/models/user_model.dart';
 import 'package:tt1/theme.dart';
 import 'package:tt1/widgets/keyboard_dismiss_on_tap.dart';
 
-void main() {
+const String _sentryDsn =
+    String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -41,7 +46,29 @@ void main() {
       systemNavigationBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
+  if (_sentryDsn.isNotEmpty) {
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = _sentryDsn;
+        options.tracesSampleRate = 0.2;
+        options.enableAutoSessionTracking = true;
+        options.sendDefaultPii = false;
+      },
+      appRunner: _runOpeiApp,
+    );
+  } else {
+    if (kDebugMode) {
+      debugPrint(
+        '⚠️ SENTRY_DSN not provided. Run with '
+        '\'--dart-define=SENTRY_DSN=your_dsn\' to enable Sentry.',
+      );
+    }
+    _runOpeiApp();
+  }
+}
+
+void _runOpeiApp() {
   runApp(const ProviderScope(child: OpeiApp()));
 }
 
