@@ -9366,6 +9366,16 @@ class _AddPaymentMethodSheetState
 
   bool get _isEditing => widget.initialMethod != null;
 
+  P2PPaymentMethodType? _currentType() {
+    if (_selectedTypeId == null) return null;
+    for (final type in _types) {
+      if (type.id == _selectedTypeId) {
+        return type;
+      }
+    }
+    return null;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -9510,6 +9520,89 @@ class _AddPaymentMethodSheetState
     }
   }
 
+  Future<void> _showProviderPicker() async {
+    if (_types.isEmpty) return;
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        final spacing = sheetContext.responsiveSpacingUnit;
+        final tokens = sheetContext.responsiveTokens;
+        return ResponsiveSheet(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              tokens.horizontalPadding,
+              spacing * 2,
+              tokens.horizontalPadding,
+              spacing * 2,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: OpeiColors.iosSeparator.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                SizedBox(height: spacing * 1.5),
+                Text(
+                  'Select provider',
+                  style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final type = _types[index];
+                      final isSelected = type.id == _selectedTypeId;
+                      return ListTile(
+                        onTap: () => Navigator.of(context).pop(type.id),
+                        title: Text(
+                          type.providerName,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(
+                          type.methodType,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: OpeiColors.iosLabelSecondary),
+                        ),
+                        trailing: isSelected
+                            ? const Icon(Icons.check_rounded,
+                                color: OpeiColors.pureBlack)
+                            : null,
+                      );
+                    },
+                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    itemCount: _types.length,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (selected != null && mounted) {
+      setState(() => _selectedTypeId = selected);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -9589,28 +9682,59 @@ class _AddPaymentMethodSheetState
                   ),
                 )
               else
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: OpeiColors.iosSurfaceMuted,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
+                InkWell(
+                  onTap: _loading || _types.isEmpty ? null : _showProviderPicker,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: OpeiColors.iosSurfaceMuted,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
                         color: OpeiColors.iosSeparator.withValues(alpha: 0.35),
-                        width: 0.5),
-                  ),
-                  child: DropdownButton<String>(
-                    value: _selectedTypeId,
-                    isExpanded: true,
-                    underline: const SizedBox.shrink(),
-                    hint: const Text('Select provider…'),
-                    items: _types
-                        .map((t) => DropdownMenuItem<String>(
-                              value: t.id,
-                              child:
-                                  Text('${t.providerName} · ${t.methodType}'),
-                            ))
-                        .toList(),
-                    onChanged: (v) => setState(() => _selectedTypeId = v),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_selectedTypeId == null)
+                                Text(
+                                  _types.isEmpty
+                                      ? 'No providers available'
+                                      : 'Select provider…',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontSize: 13,
+                                    color: OpeiColors.iosLabelSecondary,
+                                  ),
+                                )
+                              else ...[
+                                Text(
+                                  _currentType()?.providerName ?? '',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  _currentType()?.methodType ?? '',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    fontSize: 11,
+                                    color: OpeiColors.iosLabelSecondary,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.keyboard_arrow_down_rounded,
+                            color: OpeiColors.iosLabelSecondary),
+                      ],
+                    ),
                   ),
                 ),
               const SizedBox(height: 12),
