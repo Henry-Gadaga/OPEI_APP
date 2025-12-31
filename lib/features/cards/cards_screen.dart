@@ -2094,37 +2094,18 @@ class _CardActionsRow extends StatelessWidget {
       ),
     );
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: OpeiColors.pureWhite,
-          borderRadius: BorderRadius.circular(18),
-          boxShadow: [
-            BoxShadow(
-              color: OpeiColors.pureBlack.withValues(alpha: 0.04),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(18),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (var i = 0; i < actions.length; i++)
-                _CardActionTile(
-                  icon: actions[i].icon,
-                  label: actions[i].label,
-                  onTap: actions[i].onTap,
-                  isLoading: actions[i].isLoading,
-                  showDivider: i != actions.length - 1,
-                ),
-            ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var i = 0; i < actions.length; i++)
+          _CardActionTile(
+            icon: actions[i].icon,
+            label: actions[i].label,
+            onTap: actions[i].onTap,
+            isLoading: actions[i].isLoading,
+            showDivider: i != actions.length - 1,
           ),
-        ),
-      ),
+      ],
     );
   }
 }

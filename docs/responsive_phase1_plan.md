@@ -139,6 +139,26 @@ Document findings in a shared checklist (Notion/Jira) with severity, screenshot,
 3. **Smoke script:** Record a flutter drive or `integration_test` smoke flow that navigates dashboard ➝ cards ➝ P2P ➝ profile on a large emulator, ensuring no runtime errors or overflow logs.
 4. **Final documentation:** Summarize QA results + residual risks back in this doc and the release notes.
 
-With QA + regression guards in place, Phase 4 will conclude and the responsive work can ship confidently.
+#### 13.4 Phase 4 Results – Dec 31, 2025
+
+**Device coverage completed**
+- **Compact / Phone:** Tecno CM5 (portrait) + Pixel 5 emulator (360 dp) – Auth stack, quick-auth flows, profile/settings.
+- **Large Phone:** Android emulator secondary display (720 p) – Dashboard, cards, deposit/withdraw multi-step forms, P2P tabs.
+- **Tablet/Desktop widths:** Chrome DevTools responsive (1024–1280 px) – Full regression of dashboard, cards, deposits/withdrawals, P2P trade sheets, and profile.
+
+**Bugs discovered & fixed**
+- P2P profile sheets: PIN setup overflow when keyboard shown → wrapped in scrollable `AnimatedPadding`.
+- Withdraw success screen: GoRouter pop crash when stack empty → guarded with `navigator.canPop` fallback to dashboard.
+- Quick-auth setup: provider reset causing visual flash on success → removed eager reset until after navigation.
+- Keyboard UX: tapping between fields caused keyboard flicker → `KeyboardDismissOnTap` now ignores taps inside other `EditableText` widgets.
+- P2P payment manager: excessive side gutters & missing back affordance → migrated to `ResponsiveSheet` with token padding and added back arrow; provider picker now uses a modal list instead of a cramped dropdown.
+
+**Regression guards added**
+- `test/responsive_layout_test.dart` verifies `ResponsiveScaffold`/`ResponsiveSheet` width constraints.
+- Sentry integrated with `--dart-define SENTRY_DSN=…`; overflow/GoRouter errors now surface automatically (used to validate the withdraw fix above).
+
+Remaining risks: tablet-specific multi-column layouts (Phase 4 stretch goal) and golden tests for complex widgets. These will be tracked under Phase 5.
+
+With QA + regression guards in place, Phase 4 concludes and the responsive work can ship confidently.
 
 _Prepared for Opei App Flutter – Dec 29, 2025._
