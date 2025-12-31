@@ -22,23 +22,25 @@ class CardWithdrawSheet extends ConsumerStatefulWidget {
 
 class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
   late final TextEditingController _amountController;
+  late final CardWithdrawController _withdrawController;
 
   @override
   void initState() {
     super.initState();
     _amountController = TextEditingController();
+    _withdrawController = ref.read(cardWithdrawControllerProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currency = widget.card.balance?.currency ?? 'USD';
-      ref.read(cardWithdrawControllerProvider.notifier).attachCard(
-            cardId: widget.card.id,
-            currency: currency,
-          );
+      _withdrawController.attachCard(
+        cardId: widget.card.id,
+        currency: currency,
+      );
     });
   }
 
   @override
   void dispose() {
-    ref.read(cardWithdrawControllerProvider.notifier).reset();
+    _withdrawController.reset();
     _amountController.dispose();
     super.dispose();
   }
