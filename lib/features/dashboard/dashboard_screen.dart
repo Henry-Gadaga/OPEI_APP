@@ -488,24 +488,10 @@ class TransactionsList extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          decoration: BoxDecoration(
-            color: OpeiColors.pureWhite,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: OpeiColors.pureBlack.withValues(alpha: 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: AnimatedOpacity(
-            duration: const Duration(milliseconds: 180),
-            opacity: state.isRefreshingTransactions ? 0.65 : 1,
-            child: content,
-          ),
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 180),
+          opacity: state.isRefreshingTransactions ? 0.65 : 1,
+          child: content,
         ),
       ],
     );
