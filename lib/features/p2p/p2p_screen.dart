@@ -3126,14 +3126,21 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
     final theme = Theme.of(context);
     final grouped = _groupByCurrency(_methods);
     final currenciesSorted = grouped.keys.toList()..sort();
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + bottom),
-      child: SafeArea(
-        top: false,
+    return ResponsiveSheet(
+      padding: EdgeInsets.zero,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          tokens.horizontalPadding,
+          spacing * 2,
+          tokens.horizontalPadding,
+          spacing * 2 + bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -3148,9 +3155,16 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: spacing * 1.5),
             Row(
               children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                  padding: const EdgeInsets.all(8),
+                  constraints: const BoxConstraints(),
+                ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     'Payment methods',
