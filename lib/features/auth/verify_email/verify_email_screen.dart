@@ -227,11 +227,13 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           final storage = ref.read(secureStorageServiceProvider);
           await storage.clearEmail();
 
-          if (mounted) {
-            showSuccess(context, 'Email verified successfully!');
-            // After email verification, backend sets stage to PENDING_ADDRESS
-            context.go('/address');
+          if (!context.mounted) {
+            return;
           }
+
+          showSuccess(context, 'Email verified successfully!');
+          // After email verification, backend sets stage to PENDING_ADDRESS
+          context.go('/address');
         } else {
           // Clear all text controllers when verification fails
           for (var controller in _controllers) {
@@ -246,7 +248,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
       // Handle auto-send completion (show feedback)
       if (previous != null && previous.isResending && !next.isResending) {
-        if (next.errorMessage == null && mounted && widget.autoSendCode) {
+        if (next.errorMessage == null && widget.autoSendCode && context.mounted) {
           showSuccess(context, 'Verification code sent to your email');
         }
       }

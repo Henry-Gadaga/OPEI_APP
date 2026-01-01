@@ -2298,18 +2298,22 @@ class _CreateCardButtonState extends ConsumerState<CreateCardButton> with Single
 
   @override
   Widget build(BuildContext context) {
+    final navigator = Navigator.of(context);
+    final parentState =
+        context.findAncestorStateOfType<_CardsScreenState>();
+
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) async {
         await _controller.reverse();
         if (!mounted) return;
-        final cardsScreenState = context.findAncestorStateOfType<_CardsScreenState>();
-        if (cardsScreenState != null) {
-          await cardsScreenState._startCardCreationFlow();
+
+        if (parentState != null) {
+          await parentState._startCardCreationFlow();
           return;
         }
 
-        await Navigator.of(context).push(
+        await navigator.push(
           OpeiPageRoute(
             builder: (_) => const CreateVirtualCardFlow(),
             fullscreenDialog: true,

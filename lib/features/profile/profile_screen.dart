@@ -419,8 +419,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       enableDrag: false,
     );
 
-    if (success == true && mounted) {
-                  context.go('/login');
+    if (success == true && context.mounted) {
+      context.go('/login');
     }
   }
 }

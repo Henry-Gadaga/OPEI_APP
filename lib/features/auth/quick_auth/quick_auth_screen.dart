@@ -60,25 +60,11 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(quickAuthControllerProvider);
 
-    ref.listen(quickAuthControllerProvider, (previous, next) async {
+    ref.listen<QuickAuthState>(quickAuthControllerProvider, (previous, next) {
       if (next is QuickAuthSuccess) {
-        final dashboardController =
-            ref.read(dashboardControllerProvider.notifier);
-        dashboardController.prepareForFreshLaunch();
-        dashboardController.refreshBalance(showSpinner: true);
-        context.go('/dashboard');
+        _handleQuickAuthSuccess();
       } else if (next is QuickAuthFailed) {
-        await ref.read(authRepositoryProvider).logout();
-        ref.read(authSessionProvider.notifier).clearSession();
-        ref.read(quickAuthSetupControllerProvider.notifier).reset();
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.message),
-            backgroundColor: OpeiColors.errorRed,
-          ),
-        );
-        context.go('/login');
+        _handleQuickAuthFailure(next.message);
       }
     });
 
@@ -305,5 +291,46 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
               ))
           .toList(),
     );
+  }
+
+  Future<void> _handleQuickAuthSuccess() async {
+    if (!mounted) {
+      return;
+    }
+
+    final navigator = GoRouter.of(context);
+    final dashboardController =
+        ref.read(dashboardControllerProvider.notifier);
+    dashboardController.prepareForFreshLaunch();
+    dashboardController.refreshBalance(showSpinner: true);
+    navigator.go('/dashboard');
+  }
+
+  Future<void> _handleQuickAuthFailure(String message) async {
+    final authRepository = ref.read(authRepositoryProvider);
+    final sessionNotifier = ref.read(authSessionProvider.notifier);
+    final setupNotifier = ref.read(quickAuthSetupControllerProvider.notifier);
+
+    await authRepository.logout();
+    sessionNotifier.clearSession();
+    setupNotifier.reset();
+
+    if (!mounted) {
+      return;
+    }
+
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: OpeiColors.errorRed,
+      ),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    GoRouter.of(context).go('/login');
   }
 }

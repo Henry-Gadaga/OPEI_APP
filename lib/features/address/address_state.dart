@@ -29,7 +29,7 @@ class AddressState {
   
   bool get isValid {
     if (selectedCountry == null) return false;
-    if (this.state.trim().isEmpty) return false;
+    if (state.trim().isEmpty) return false;
     if (city.trim().isEmpty) return false;
     if (zipCode.trim().isEmpty) return false;
     if (addressLine.trim().isEmpty) return false;

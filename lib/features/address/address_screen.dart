@@ -50,6 +50,7 @@ class AddressScreen extends ConsumerWidget {
     ref.listen(addressControllerProvider, (AddressState? previous, AddressState next) {
       if (previous != null && previous.isLoading && !next.isLoading) {
         if (next.errorMessage == null) {
+          if (!context.mounted) return;
           if (isFromProfile) {
             Future.microtask(() => _showProfileSuccessSheet(context, ref));
           } else {
