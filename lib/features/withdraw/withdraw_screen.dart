@@ -645,6 +645,21 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
     }
   }
 
+  bool get _requiresConfirmation {
+    final currency = widget.currency.toUpperCase();
+    return currency == 'USDC' || currency == 'USDT';
+  }
+
+  Future<void> _handlePrimaryAction() async {
+    if (_requiresConfirmation) {
+      final confirmed = await _showConfirmationSheet();
+      if (confirmed != true) {
+        return;
+      }
+    }
+    await _handleSubmit();
+  }
+
   Future<void> _handleSubmit() async {
     final amountText = _amountController.text.trim();
     final addressText = _addressController.text.trim();
@@ -667,6 +682,36 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
         'network': widget.network,
       });
     }
+  }
+
+  Future<bool?> _showConfirmationSheet() {
+    final amountText = _amountController.text.trim();
+    final addressText = _addressController.text.trim();
+    final currencyCode = widget.currency.toUpperCase();
+    final amountDisplay = amountText.isEmpty ? '—' : '$amountText $currencyCode';
+    final addressDisplay = addressText.isEmpty ? 'Not provided' : _shortenAddress(addressText);
+
+    return showResponsiveBottomSheet<bool>(
+      context: context,
+      enableDrag: true,
+      builder: (sheetContext) => _WithdrawConfirmationSheet(
+        currency: currencyCode,
+        networkLabel: _networkLabel,
+        amountDisplay: amountDisplay,
+        addressDisplay: addressDisplay,
+        onConfirm: () => Navigator.of(sheetContext).pop(true),
+        onCancel: () => Navigator.of(sheetContext).pop(false),
+      ),
+    );
+  }
+
+  String _shortenAddress(String value) {
+    const visible = 6;
+    final trimmed = value.trim();
+    if (trimmed.length <= visible * 2 + 1) {
+      return trimmed;
+    }
+    return '${trimmed.substring(0, visible)}…${trimmed.substring(trimmed.length - visible)}';
   }
 
   @override
@@ -801,11 +846,11 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
           CupertinoButton.filled(
             borderRadius: BorderRadius.circular(tokens.buttonRadius),
             padding: EdgeInsets.symmetric(vertical: spacing * 1.75),
-            onPressed: state.isLoading ? null : _handleSubmit,
+            onPressed: state.isLoading ? null : _handlePrimaryAction,
             child: state.isLoading
                 ? const CupertinoActivityIndicator(color: OpeiColors.pureWhite)
                 : Text(
-                    'Send Withdrawal',
+                    'Withdraw',
                     style: textTheme.titleMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -957,6 +1002,161 @@ class _InfoRow extends StatelessWidget {
               fontSize: 14,
               color: OpeiColors.iosLabelSecondary,
             ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _WithdrawConfirmationSheet extends StatelessWidget {
+  final String currency;
+  final String networkLabel;
+  final String amountDisplay;
+  final String addressDisplay;
+  final VoidCallback onConfirm;
+  final VoidCallback onCancel;
+
+  const _WithdrawConfirmationSheet({
+    required this.currency,
+    required this.networkLabel,
+    required this.amountDisplay,
+    required this.addressDisplay,
+    required this.onConfirm,
+    required this.onCancel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = context.responsiveSpacingUnit;
+    final tokens = context.responsiveTokens;
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewPadding.bottom + spacing * 2),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 12),
+          Center(
+            child: Container(
+              width: 38,
+              height: 4,
+              decoration: BoxDecoration(
+                color: OpeiColors.iosLabelTertiary,
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+          ),
+          SizedBox(height: spacing * 2),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: tokens.horizontalPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Review withdrawal',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Confirm these details before we send your $currency.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: OpeiColors.iosLabelSecondary,
+                    height: 1.35,
+                  ),
+                ),
+                SizedBox(height: spacing * 2.5),
+                _ReviewRow(label: 'Amount', value: amountDisplay),
+                SizedBox(height: spacing * 2),
+                const Divider(color: OpeiColors.iosSeparator),
+                SizedBox(height: spacing * 2),
+                _ReviewRow(label: 'Asset', value: currency),
+                SizedBox(height: spacing * 2),
+                const Divider(color: OpeiColors.iosSeparator),
+                SizedBox(height: spacing * 2),
+                _ReviewRow(label: 'Network', value: networkLabel),
+                SizedBox(height: spacing * 2),
+                const Divider(color: OpeiColors.iosSeparator),
+                SizedBox(height: spacing * 2),
+                _ReviewRow(label: 'Destination', value: addressDisplay),
+                SizedBox(height: spacing * 3),
+                SizedBox(
+                  width: double.infinity,
+                  child: CupertinoButton.filled(
+                    borderRadius: BorderRadius.circular(tokens.buttonRadius),
+                    padding: EdgeInsets.symmetric(vertical: spacing * 1.75),
+                    onPressed: onConfirm,
+                    child: Text(
+                      'Confirm',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiColors.pureWhite,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: spacing * 1.5),
+                SizedBox(
+                  width: double.infinity,
+                  child: CupertinoButton(
+                    padding: EdgeInsets.symmetric(vertical: spacing * 1.5),
+                    onPressed: onCancel,
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: OpeiColors.iosLabelSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReviewRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _ReviewRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: textTheme.labelMedium?.copyWith(
+            fontSize: 12.5,
+            color: OpeiColors.iosLabelSecondary,
+            letterSpacing: 0.25,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          value,
+          style: textTheme.bodyMedium?.copyWith(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.1,
           ),
         ),
       ],
