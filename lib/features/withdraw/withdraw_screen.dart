@@ -758,6 +758,10 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
       if (!trimmed.startsWith('T')) {
         return 'TRC-20 addresses must start with the letter T.';
       }
+      final base58Regex = RegExp(r'^[1-9A-HJ-NP-Za-km-z]+$');
+      if (!base58Regex.hasMatch(trimmed)) {
+        return 'TRC-20 addresses use Base58 characters only.';
+      }
       return null;
     }
 
