@@ -651,6 +651,33 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
   }
 
   Future<void> _handlePrimaryAction() async {
+    final amountText = _amountController.text.trim();
+    final addressText = _addressController.text.trim();
+
+    // Validate required fields
+    if (amountText.isEmpty) {
+      showError(context, 'Please enter an amount');
+      return;
+    }
+
+    if (addressText.isEmpty) {
+      showError(context, 'Please enter a destination address');
+      return;
+    }
+
+    // Validate amount is a valid number
+    final amountValue = double.tryParse(amountText.replaceAll(',', ''));
+    if (amountValue == null || amountValue <= 0) {
+      showError(context, 'Please enter a valid amount greater than zero');
+      return;
+    }
+
+    final addressValidationError = _validateAddressForNetwork(addressText);
+    if (addressValidationError != null) {
+      showError(context, addressValidationError);
+      return;
+    }
+
     if (_requiresConfirmation) {
       final confirmed = await _showConfirmationSheet();
       if (confirmed != true) {
@@ -712,6 +739,44 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
       return trimmed;
     }
     return '${trimmed.substring(0, visible)}…${trimmed.substring(trimmed.length - visible)}';
+  }
+
+  String? _validateAddressForNetwork(String rawAddress) {
+    final trimmed = rawAddress.trim();
+    final currency = widget.currency.toUpperCase();
+    final network = widget.network.toLowerCase();
+
+    final isStablecoin = currency == 'USDT' || currency == 'USDC';
+    if (!isStablecoin) {
+      return null;
+    }
+
+    if (network == 'tron') {
+      if (trimmed.length != 34) {
+        return 'TRC-20 addresses must be exactly 34 characters long.';
+      }
+      if (!trimmed.startsWith('T')) {
+        return 'TRC-20 addresses must start with the letter T.';
+      }
+      return null;
+    }
+
+    if (network == 'polygon' || network == 'ethereum' || network == 'bsc') {
+      if (!trimmed.startsWith('0x')) {
+        return 'This network requires addresses that start with 0x.';
+      }
+      if (trimmed.length != 42) {
+        return 'This address must be exactly 42 characters long.';
+      }
+      final hexPart = trimmed.substring(2);
+      final hexRegex = RegExp(r'^[0-9a-fA-F]+$');
+      if (!hexRegex.hasMatch(hexPart)) {
+        return 'Use hexadecimal characters only (0-9, a-f).';
+      }
+      return null;
+    }
+
+    return null;
   }
 
   @override
