@@ -73,14 +73,12 @@ Widget buildOpeiPageTransition(
 class OpeiPageRoute<T> extends PageRouteBuilder<T> {
   OpeiPageRoute({
     required WidgetBuilder builder,
-    bool fullscreenDialog = false,
-    RouteSettings? settings,
+    super.fullscreenDialog,
+    super.settings,
   }) : super(
           transitionDuration: kOpeiForwardTransitionDuration,
           reverseTransitionDuration: kOpeiReverseTransitionDuration,
-          fullscreenDialog: fullscreenDialog,
           opaque: true,
-          settings: settings,
           pageBuilder: (context, animation, secondaryAnimation) =>
               builder(context),
           transitionsBuilder: (context, animation, secondaryAnimation, child) =>

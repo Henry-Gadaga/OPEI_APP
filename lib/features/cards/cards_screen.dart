@@ -1099,18 +1099,18 @@ class _UserCardView extends StatelessWidget {
       );
     }
 
-    String? _trim(String? value) {
+    String? trimValue(String? value) {
       final trimmed = value?.trim();
       return trimmed == null || trimmed.isEmpty ? null : trimmed;
     }
 
     final previewParts = <String>[];
-    final street = _trim(address.street);
-    final city = _trim(address.city);
-    final state = _trim(address.state);
-    final country = _trim(address.country);
-    final zipCode = _trim(address.zipCode);
-    final countryCode = _trim(address.countryCode);
+    final street = trimValue(address.street);
+    final city = trimValue(address.city);
+    final state = trimValue(address.state);
+    final country = trimValue(address.country);
+    final zipCode = trimValue(address.zipCode);
+    final countryCode = trimValue(address.countryCode);
 
     if (street != null) previewParts.add(street);
     if (city != null) previewParts.add(city);

@@ -29,7 +29,7 @@ class CardColorOption {
 
 class CardColorPalette {
   static const List<CardColorOption> options = [
-    const CardColorOption(
+    CardColorOption(
       key: 'sky-blue',
       label: 'Sky Blue',
       gradient: const [

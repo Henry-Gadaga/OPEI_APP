@@ -211,7 +211,11 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
 
   Future<void> _handleCancelTrade(P2PTrade trade) async {
     final confirmed = await showP2PCancelTradeWarningDialog(context);
-    if (!confirmed) {
+    if (confirmed != true) {
+      return;
+    }
+
+    if (!mounted) {
       return;
     }
 
@@ -5713,12 +5717,22 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
 
   String _resolvePreferredExtension(PlatformFile file) {
     final ext = (file.extension ?? '').toLowerCase();
-    if (ext == 'png') return 'png';
-    if (ext == 'jpeg' || ext == 'jpg') return 'jpg';
-    if (ext == 'heic' || ext == 'heif') return 'jpg';
-    if (file.name.toLowerCase().endsWith('.png')) return 'png';
-    if (file.name.toLowerCase().endsWith('.jpg') ||
-        file.name.toLowerCase().endsWith('.jpeg')) return 'jpg';
+    if (ext == 'png') {
+      return 'png';
+    }
+    if (ext == 'jpeg' || ext == 'jpg') {
+      return 'jpg';
+    }
+    if (ext == 'heic' || ext == 'heif') {
+      return 'jpg';
+    }
+    final lower = file.name.toLowerCase();
+    if (lower.endsWith('.png')) {
+      return 'png';
+    }
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) {
+      return 'jpg';
+    }
     return 'jpg';
   }
 
@@ -6076,7 +6090,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   }
 
   Future<void> _handleCancelTrade() async {
-    if (!await showP2PCancelTradeWarningDialog(context)) {
+    final warningResult = await showP2PCancelTradeWarningDialog(context);
+    if (warningResult != true) {
       return;
     }
 
@@ -9430,24 +9445,33 @@ class _AddPaymentMethodSheetState
       statusCode = error.statusCode;
       msg = (error.message).toLowerCase();
     }
-    if (msg.contains('missing x-user-id'))
+    if (msg.contains('missing x-user-id')) {
       return 'Please sign in again to continue.';
-    if (msg.contains('inactive'))
+    }
+    if (msg.contains('inactive')) {
       return 'Payment provider is currently inactive.';
-    if (msg.contains('payment method not found'))
+    }
+    if (msg.contains('payment method not found')) {
       return 'Payment method no longer exists.';
-    if (msg.contains('active ad'))
+    }
+    if (msg.contains('active ad')) {
       return 'This payment method is attached to an active ad and can’t be edited.';
-    if (msg.contains('ongoing trade'))
+    }
+    if (msg.contains('ongoing trade')) {
       return 'This payment method is being used in an ongoing trade.';
-    if (msg.contains('not available') || msg.contains('not found'))
+    }
+    if (msg.contains('not available') || msg.contains('not found')) {
       return 'Payment provider is not available.';
+    }
     if (msg.contains('already exists') || msg.contains('account number')) {
       return 'Account number already exists for this user.';
     }
-    if (msg.contains('maximum number'))
+    if (msg.contains('maximum number')) {
       return 'Maximum payment methods reached for this currency.';
-    if (statusCode == 404) return 'Payment method no longer exists.';
+    }
+    if (statusCode == 404) {
+      return 'Payment method no longer exists.';
+    }
     if (statusCode == 400 && msg.contains('active ad')) {
       return 'This payment method is attached to an active ad and can’t be edited.';
     }
@@ -11511,7 +11535,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
     }
 
     final confirmed = await showP2PCancelTradeWarningDialog(context);
-    if (!confirmed) {
+    if (confirmed != true) {
       return;
     }
 
