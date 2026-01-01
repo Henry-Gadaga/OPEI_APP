@@ -23,7 +23,6 @@ import 'package:tt1/data/models/p2p_user_profile.dart';
 import 'package:tt1/core/network/api_error.dart';
 import 'package:tt1/data/models/p2p_trade.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tt1/responsive/responsive_breakpoints.dart';
 import 'package:tt1/responsive/responsive_tokens.dart';
 import 'package:tt1/responsive/responsive_widgets.dart';
 // Removed SuccessBadge usage in favor of a custom asset checkmark
@@ -3459,29 +3458,44 @@ class _SelectAdPaymentMethodSheetState
                 itemBuilder: (context, index) {
                   final m = methods[index];
                   final subtitle = '${m.methodType} · ${m.currency}';
+                  final isSelected = _selectedId == m.id;
                   return Container(
                     decoration: BoxDecoration(
                       color: OpeiColors.pureWhite,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: OpeiColors.iosSeparator.withValues(alpha: 0.2),
-                          width: 0.5),
+                        color:
+                            OpeiColors.iosSeparator.withValues(alpha: 0.2),
+                        width: 0.5,
+                      ),
                     ),
-                    child: RadioListTile<String>(
-                      value: m.id,
-                      groupValue: _selectedId,
-                      onChanged: (v) => setState(() => _selectedId = v),
-                      dense: false,
-                      controlAffinity: ListTileControlAffinity.trailing,
+                    child: ListTile(
+                      onTap: () => setState(() => _selectedId = m.id),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       title: Text(
                         m.providerName,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 14, fontWeight: FontWeight.w700),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                       subtitle: Text(
                         subtitle,
                         style: theme.textTheme.bodySmall?.copyWith(
-                            fontSize: 11, color: OpeiColors.iosLabelSecondary),
+                          fontSize: 11,
+                          color: OpeiColors.iosLabelSecondary,
+                        ),
+                      ),
+                      trailing: Icon(
+                        isSelected
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_off,
+                        color: isSelected
+                            ? OpeiColors.pureBlack
+                            : OpeiColors.iosLabelSecondary,
                       ),
                     ),
                   );
@@ -3890,12 +3904,10 @@ class _OrdersFilterChip extends StatelessWidget {
 class _RefreshDotsIndicator extends StatefulWidget {
   final double dotSize;
   final double gap;
-  final Color color;
 
   const _RefreshDotsIndicator({
     this.dotSize = 6,
     this.gap = 6,
-    this.color = OpeiColors.pureBlack,
   });
 
   @override
@@ -3943,7 +3955,7 @@ class _RefreshDotsIndicatorState extends State<_RefreshDotsIndicator>
                   width: widget.dotSize * scale,
                   height: widget.dotSize * scale,
                   decoration: BoxDecoration(
-                    color: widget.color,
+                    color: OpeiColors.pureBlack,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -6258,7 +6270,6 @@ void _showProofViewer(BuildContext context, String url) {
     barrierLabel: 'Close',
     transitionDuration: const Duration(milliseconds: 220),
     pageBuilder: (ctx, animation, secondaryAnimation) {
-      final size = MediaQuery.of(ctx).size;
       return SafeArea(
         child: GestureDetector(
           onTap: () => Navigator.of(ctx).pop(),
@@ -8299,18 +8310,14 @@ class _TextField extends StatelessWidget {
   final TextEditingController controller;
   final String? hintText;
   final int maxLines;
-  final FocusNode? focusNode;
   final TextInputAction? textInputAction;
-  final ValueChanged<String>? onSubmitted;
 
   const _TextField({
     required this.label,
     required this.controller,
     this.hintText,
     this.maxLines = 1,
-    this.focusNode,
     this.textInputAction,
-    this.onSubmitted,
   });
 
   @override
@@ -8328,11 +8335,9 @@ class _TextField extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         TextField(
-          focusNode: focusNode,
           controller: controller,
           maxLines: maxLines,
           textInputAction: textInputAction,
-          onSubmitted: onSubmitted,
           style: theme.textTheme.bodyMedium?.copyWith(fontSize: 15),
           decoration: InputDecoration(
             hintText: hintText,

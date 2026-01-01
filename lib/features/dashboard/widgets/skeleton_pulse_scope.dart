@@ -21,7 +21,7 @@ class SkeletonPulseScope extends InheritedWidget {
 Color skeletonSurfaceColor(BuildContext context, {double intensity = 1}) {
   final pulse = SkeletonPulseScope.of(context);
   final base = OpeiColors.iosSurfaceMuted;
-  final highlight = OpeiColors.pureWhite.withOpacity(0.35);
+  final highlight = OpeiColors.pureWhite.withValues(alpha: 0.35);
   final factor = (pulse * 0.7 * intensity).clamp(0.0, 1.0);
   return Color.lerp(base, highlight, factor) ?? base;
 }

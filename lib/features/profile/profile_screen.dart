@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/responsive/responsive_breakpoints.dart';
 import 'package:tt1/responsive/responsive_tokens.dart';
 import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
@@ -30,7 +29,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       );
 
     final spacing = context.responsiveSpacingUnit;
-    final tokens = context.responsiveTokens;
 
     if (profile == null) {
       if (state.error != null) {
@@ -46,6 +44,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ),
       );
     }
+
+    final user = profile;
 
     return ResponsiveScaffold(
       appBar: AppBar(
@@ -66,13 +66,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
           children: [
             ProfileHeader(
-              displayName: profile?.displayName ?? 'User',
-              email: profile?.email ?? '',
+              displayName: user.displayName,
+              email: user.email,
             ),
             SizedBox(height: spacing * 4),
 
             // Show KYC prompt if identity is missing
-            if (profile?.identity == null) ...[
+            if (user.identity == null) ...[
               _buildKycPromptCard(context),
               SizedBox(height: spacing * 3),
             ],
@@ -83,23 +83,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ProfileInfoItem(
                   icon: Icons.email_outlined,
                   label: 'Email',
-                  value: profile?.email ?? 'N/A',
+                  value: user.email,
                 ),
                 ProfileInfoItem(
                   icon: Icons.phone_outlined,
                   label: 'Phone',
-                  value: profile?.phone ?? 'N/A',
+                  value: user.phone,
                 ),
                 ProfileInfoItem(
                   icon: Icons.check_circle_outline,
                   label: 'Verification Stage',
-                  value: _formatUserStage(profile?.userStage ?? ''),
+                  value: _formatUserStage(user.userStage),
                 ),
               ],
             ),
 
             // Show personal information if identity exists
-            if (profile?.identity != null) ...[
+            if (user.identity != null) ...[
               SizedBox(height: spacing * 3),
               ProfileSection(
                 title: 'Personal Information',
@@ -107,32 +107,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   ProfileInfoItem(
                     icon: Icons.person_outline,
                     label: 'Full Name',
-                    value: profile!.displayName,
+                    value: user.displayName,
                   ),
                   ProfileInfoItem(
                     icon: Icons.cake_outlined,
                     label: 'Date of Birth',
-                    value: _formatDate(profile.identity!.dateOfBirth),
+                    value: _formatDate(user.identity!.dateOfBirth),
                   ),
                   ProfileInfoItem(
                     icon: Icons.wc_outlined,
                     label: 'Gender',
-                    value: profile.identity!.gender,
+                    value: user.identity!.gender,
                   ),
                   ProfileInfoItem(
                     icon: Icons.flag_outlined,
                     label: 'Nationality',
-                    value: profile.identity!.nationality,
+                    value: user.identity!.nationality,
                   ),
                   ProfileInfoItem(
                     icon: Icons.badge_outlined,
                     label: 'ID Type',
-                    value: profile.identity!.idType,
+                    value: user.identity!.idType,
                   ),
                   ProfileInfoItem(
                     icon: Icons.numbers_outlined,
                     label: 'ID Number',
-                    value: profile.identity!.idNumber,
+                    value: user.identity!.idNumber,
                   ),
                 ],
               ),
@@ -142,38 +142,38 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ProfileSection(
               title: 'Address',
               children: [
-                if (profile?.address != null) ...[
-                  if (profile!.address!.country != null)
+                if (user.address != null) ...[
+                  if (user.address!.country != null)
                     ProfileInfoItem(
                       icon: Icons.public_outlined,
                       label: 'Country',
-                      value: profile.address!.country!,
+                      value: user.address!.country!,
                     ),
-                  if (profile.address!.state != null)
+                  if (user.address!.state != null)
                     ProfileInfoItem(
                       icon: Icons.location_city_outlined,
                       label: 'State',
-                      value: profile.address!.state!,
+                      value: user.address!.state!,
                     ),
-                  if (profile.address!.city != null)
+                  if (user.address!.city != null)
                     ProfileInfoItem(
                       icon: Icons.apartment_outlined,
                       label: 'City',
-                      value: profile.address!.city!,
+                      value: user.address!.city!,
                     ),
-                  if (profile.address!.houseNumber != null &&
-                      profile.address!.addressLine != null)
+                  if (user.address!.houseNumber != null &&
+                      user.address!.addressLine != null)
                     ProfileInfoItem(
                       icon: Icons.home_outlined,
                       label: 'Address',
                       value:
-                          '${profile.address!.houseNumber} ${profile.address!.addressLine}',
+                          '${user.address!.houseNumber} ${user.address!.addressLine}',
                     ),
-                  if (profile.address!.zipCode != null)
+                  if (user.address!.zipCode != null)
                     ProfileInfoItem(
                       icon: Icons.markunread_mailbox_outlined,
                       label: 'Zip Code',
-                      value: profile.address!.zipCode!,
+                      value: user.address!.zipCode!,
                     ),
                   ProfileActionItem(
                     icon: Icons.edit_outlined,
@@ -191,9 +191,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
 
             // Show verification badge if documents are verified
-            if (profile?.identity != null &&
-                (profile!.identity!.selfieUrl != null ||
-                    profile.identity!.frontImage != null)) ...[
+                if (user.identity != null &&
+                    (user.identity!.selfieUrl != null ||
+                        user.identity!.frontImage != null)) ...[
               SizedBox(height: spacing * 3),
               ProfileSection(
                 title: 'Verification Status',
@@ -247,8 +247,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ],
 
             SizedBox(height: spacing * 3),
-            if (profile != null)
-              QuickAuthSettingsSection(userId: profile.userId),
+            QuickAuthSettingsSection(userId: user.userId),
             SizedBox(height: spacing * 3),
             ProfileSection(
               title: 'Account Actions',

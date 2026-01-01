@@ -631,7 +631,7 @@ class _SkeletonBoxState extends State<_SkeletonBox>
           width: widget.width,
           height: widget.height,
           decoration: BoxDecoration(
-            color: baseColor.withOpacity(opacity),
+            color: baseColor.withValues(alpha: opacity),
             borderRadius: BorderRadius.circular(widget.radius),
           ),
         );
@@ -681,7 +681,7 @@ class _SkeletonCircleState extends State<_SkeletonCircle>
           width: widget.size,
           height: widget.size,
           decoration: BoxDecoration(
-            color: baseColor.withOpacity(opacity),
+            color: baseColor.withValues(alpha: opacity),
             borderRadius: BorderRadius.circular(widget.size / 2),
           ),
         );

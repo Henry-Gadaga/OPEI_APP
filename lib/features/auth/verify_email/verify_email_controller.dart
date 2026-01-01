@@ -200,15 +200,6 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
     }
   }
 
-  void _startCountdownWithSeconds(int seconds) {
-    if (seconds <= 0) {
-      _clearThrottleState();
-      return;
-    }
-    final expiry = DateTime.now().add(Duration(seconds: seconds));
-    _applyThrottleExpiry(expiry);
-  }
-
   void _applyThrottleExpiry(DateTime? expiry) {
     _countdownTimer?.cancel();
     _sharedThrottleExpiry = expiry;

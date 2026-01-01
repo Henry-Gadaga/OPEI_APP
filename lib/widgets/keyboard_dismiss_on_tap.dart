@@ -10,7 +10,11 @@ class KeyboardDismissOnTap extends StatelessWidget {
   const KeyboardDismissOnTap({super.key, required this.child});
 
   bool _isTappingEditable(PointerDownEvent event) {
-    final renderObject = RendererBinding.instance.renderView;
+    final binding = RendererBinding.instance;
+    if (binding.renderViews.isEmpty) {
+      return false;
+    }
+    final renderObject = binding.renderViews.first;
     final result = HitTestResult();
     renderObject.hitTest(result, position: event.position);
     for (final entry in result.path) {

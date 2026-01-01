@@ -33,7 +33,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   @override
   void initState() {
     super.initState();
-    RawKeyboard.instance.addListener(_handleKeyEvent);
+    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
     _initializeEmail();
   }
 
@@ -71,7 +71,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
   @override
   void dispose() {
-    RawKeyboard.instance.removeListener(_handleKeyEvent);
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
     for (var controller in _controllers) {
       controller.dispose();
     }
@@ -144,17 +144,18 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     _isPasting = false;
   }
 
-  void _handleKeyEvent(RawKeyEvent event) {
-    if (!_isInitialized || _email == null) return;
-    if (event is! RawKeyDownEvent) return;
-    if (event.logicalKey != LogicalKeyboardKey.backspace) return;
+  bool _handleKeyEvent(KeyEvent event) {
+    if (!_isInitialized || _email == null) return false;
+    if (event is! KeyDownEvent) return false;
+    if (event.logicalKey != LogicalKeyboardKey.backspace) return false;
 
     final activeIndex = _focusNodes.indexWhere((node) => node.hasFocus);
-    if (activeIndex == -1) return;
+    if (activeIndex == -1) return false;
 
     if (_controllers[activeIndex].text.isEmpty) {
       _handleEmptyBackspace(activeIndex);
     }
+    return false;
   }
 
   void _handleEmptyBackspace(int index) {
@@ -251,11 +252,16 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       }
     });
 
-    return WillPopScope(
-      onWillPop: () async {
-        if (state.isLoading || _isLoggingOut) return false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          return;
+        }
+        if (state.isLoading || _isLoggingOut) {
+          return;
+        }
         await _handleBackNavigation();
-        return false;
       },
       child: ResponsiveScaffold(
         body: Stack(

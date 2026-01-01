@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tt1/core/providers/providers.dart';
 import 'package:tt1/core/utils/error_helper.dart';
-import 'package:tt1/features/kyc/kyc_controller.dart';
 import 'package:tt1/theme.dart';
 
 class KycResultScreen extends ConsumerStatefulWidget {
@@ -138,7 +137,7 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: iconColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 44, color: iconColor),

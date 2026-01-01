@@ -806,7 +806,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                         const SizedBox(width: 8),
                         CupertinoButton(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          minSize: 0,
+                          minimumSize: Size.zero,
                           borderRadius: BorderRadius.circular(8),
                           color: OpeiColors.pureBlack.withValues(alpha: 0.04),
                           onPressed: hasAddress
