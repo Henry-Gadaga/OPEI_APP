@@ -21,25 +21,36 @@ class CardTopUpSheet extends ConsumerStatefulWidget {
 
 class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
   late final TextEditingController _amountController;
+  late final CardTopUpController _topUpController;
+  bool _hasScheduledReset = false;
 
   @override
   void initState() {
     super.initState();
     _amountController = TextEditingController();
+    _topUpController = ref.read(cardTopUpControllerProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currency = widget.card.balance?.currency ?? 'USD';
-      ref.read(cardTopUpControllerProvider.notifier).attachCard(
-            cardId: widget.card.id,
-            currency: currency,
-          );
+      _topUpController.attachCard(
+        cardId: widget.card.id,
+        currency: currency,
+      );
     });
   }
 
   @override
   void dispose() {
-    ref.read(cardTopUpControllerProvider.notifier).reset();
+    _scheduleControllerReset();
     _amountController.dispose();
     super.dispose();
+  }
+
+  void _scheduleControllerReset() {
+    if (_hasScheduledReset) return;
+    _hasScheduledReset = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _topUpController.reset();
+    });
   }
 
   @override
@@ -472,7 +483,6 @@ class _ResultStep extends ConsumerWidget {
           width: double.infinity,
           child: _PrimaryButton(
             onPressed: () {
-              ref.read(cardTopUpControllerProvider.notifier).reset();
               Navigator.of(context).pop();
             },
             label: success ? 'Done' : 'Close',

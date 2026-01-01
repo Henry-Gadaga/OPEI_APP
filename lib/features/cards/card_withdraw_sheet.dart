@@ -23,6 +23,7 @@ class CardWithdrawSheet extends ConsumerStatefulWidget {
 class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
   late final TextEditingController _amountController;
   late final CardWithdrawController _withdrawController;
+  bool _hasScheduledReset = false;
 
   @override
   void initState() {
@@ -40,9 +41,17 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
 
   @override
   void dispose() {
-    _withdrawController.reset();
+    _scheduleControllerReset();
     _amountController.dispose();
     super.dispose();
+  }
+
+  void _scheduleControllerReset() {
+    if (_hasScheduledReset) return;
+    _hasScheduledReset = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _withdrawController.reset();
+    });
   }
 
   @override
@@ -486,7 +495,6 @@ class _ResultStep extends ConsumerWidget {
           width: double.infinity,
           child: _PrimaryButton(
             onPressed: () {
-              ref.read(cardWithdrawControllerProvider.notifier).reset();
               context.pop();
             },
             label: success ? 'Done' : 'Close',

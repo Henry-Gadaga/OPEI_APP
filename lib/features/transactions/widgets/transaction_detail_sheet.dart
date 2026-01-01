@@ -22,7 +22,7 @@ class TransactionDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final directionLabel = transaction.isIncoming ? 'Incoming' : 'Outgoing';
+    final directionLabel = transaction.isCredit ? 'Credit' : 'Debit';
 
     final entries = <_DetailEntry>[
       if (transaction.normalizedStatus.isNotEmpty)

@@ -220,6 +220,17 @@ class ApiClient {
       }
     }
 
+    if (raw is Map<String, dynamic>) {
+      for (final key in ['message', 'error', 'errorMessage', 'detail', 'title', 'description']) {
+        if (raw.containsKey(key)) {
+          final candidate = _sanitizeServerMessage(raw[key]);
+          if (candidate != null) {
+            return candidate;
+          }
+        }
+      }
+    }
+
     return null;
   }
 

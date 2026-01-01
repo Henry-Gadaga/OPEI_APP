@@ -201,6 +201,9 @@ class CardTopUpController extends Notifier<CardTopUpState> {
           if (code == 'INVALID_AMOUNT') {
             return 'The amount you entered isn’t valid. Please enter a positive amount.';
           }
+          if (code == 'CARD_NOT_ACTIVE') {
+            return 'This card is not active; unfreeze it before topping up.';
+          }
           if (code == 'USER_NOT_REGISTERED_FOR_CARD') {
             return 'You need to activate your card profile before you can continue.';
           }
@@ -244,6 +247,9 @@ class CardTopUpController extends Notifier<CardTopUpState> {
         case 400:
           if (code == 'INVALID_AMOUNT') {
             return 'Please enter a valid amount.';
+          }
+          if (code == 'CARD_NOT_ACTIVE') {
+            return 'This card is not active; unfreeze it before topping up.';
           }
           if (code == 'USER_NOT_REGISTERED_FOR_CARD') {
             return 'You need to finish your card setup before topping up.';

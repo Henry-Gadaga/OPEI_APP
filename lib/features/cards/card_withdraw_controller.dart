@@ -204,6 +204,9 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
           if (code == 'INVALID_AMOUNT') {
             return 'Please enter an amount above zero.';
           }
+          if (code == 'CARD_NOT_ACTIVE') {
+            return 'This card is not active; unfreeze it before withdrawing.';
+          }
           if (code == 'CARD_NOT_READY') {
             return 'This card is still being set up. Please try again shortly.';
           }
@@ -241,6 +244,9 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
         case 400:
           if (code == 'INVALID_AMOUNT') {
             return 'Please enter a valid amount above zero.';
+          }
+          if (code == 'CARD_NOT_ACTIVE') {
+            return 'This card is not active; unfreeze it before withdrawing.';
           }
           if (code == 'USER_NOT_REGISTERED_FOR_CARD') {
             return 'Please finish your card setup before withdrawing.';
