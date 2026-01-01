@@ -32,7 +32,7 @@ class CardColorPalette {
     CardColorOption(
       key: 'sky-blue',
       label: 'Sky Blue',
-      gradient: const [
+      gradient: [
         Color(0xFF5AA9F5),
         Color(0xFF1F7BDF),
         Color(0xFF0F4DA2),

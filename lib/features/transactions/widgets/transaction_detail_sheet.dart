@@ -133,9 +133,7 @@ class TransactionDetailSheet extends StatelessWidget {
                           ),
                     ),
                     const SizedBox(height: 24),
-                      ...entries
-                          .map((entry) => _DetailRow(entry: entry))
-                          .toList(),
+                      ...entries.map((entry) => _DetailRow(entry: entry)),
                       const SizedBox(height: 8),
                   ],
                 ),

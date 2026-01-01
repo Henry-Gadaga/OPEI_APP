@@ -107,7 +107,7 @@ class AuthRepository {
 
     return ApiResponse<void>.fromJson(
       response,
-      (_) => null,
+      (_) {},
     );
   }
 

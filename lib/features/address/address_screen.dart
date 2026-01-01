@@ -52,13 +52,14 @@ class AddressScreen extends ConsumerWidget {
         if (next.errorMessage == null) {
           if (!context.mounted) return;
           if (isFromProfile) {
-            Future.microtask(() => _showProfileSuccessSheet(context, ref));
+            _showProfileSuccessSheet(context, ref);
           } else {
             showSuccess(context, 'Address submitted successfully!');
             // Use push so the back button on KYC returns to Address
             context.push('/kyc');
           }
         } else if (next.fieldErrors.isEmpty) {
+          if (!context.mounted) return;
           showError(context, next.errorMessage!);
         }
       }

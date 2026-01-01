@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tt1/core/network/api_error.dart';
@@ -201,7 +199,7 @@ class P2PAdsController extends Notifier<P2PAdsState> {
   }
 
   List<String> _extractPaymentMethods(List<P2PAd> ads) {
-    final set = LinkedHashSet<String>();
+    final set = <String>{};
     for (final ad in ads) {
       for (final method in ad.paymentMethods) {
         final label = method.providerName.trim();

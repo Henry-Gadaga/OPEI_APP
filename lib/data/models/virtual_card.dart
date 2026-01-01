@@ -40,7 +40,7 @@ class VirtualCard {
         json['cardSecurityCode'] ??
         json['securityCode'];
 
-    String _readCardId() {
+    String readCardId() {
       for (final key in const ['crid', 'cardId', 'cardID', 'id']) {
         final value = json[key];
         if (value == null) continue;
@@ -52,7 +52,7 @@ class VirtualCard {
       return '';
     }
 
-    String _readCardName() {
+    String readCardName() {
       for (final key in const ['cardName', 'name', 'card_name']) {
         final value = json[key];
         if (value == null) continue;
@@ -64,7 +64,7 @@ class VirtualCard {
       return '';
     }
 
-    String? _readExpiry() {
+    String? readExpiry() {
       for (final key in const ['valid', 'expiry', 'expires', 'expiration', 'expiryDate', 'expiry_date']) {
         final value = json[key];
         if (value == null) continue;
@@ -76,7 +76,7 @@ class VirtualCard {
       return null;
     }
 
-    String? _readStatus() {
+    String? readStatus() {
       for (final key in const ['status', 'cardStatus']) {
         final value = json[key];
         if (value == null) continue;
@@ -89,13 +89,13 @@ class VirtualCard {
     }
 
     return VirtualCard(
-      id: _readCardId(),
+      id: readCardId(),
       last4: json['last4']?.toString().trim().isEmpty == true
           ? null
           : json['last4']?.toString(),
-      cardName: _readCardName(),
-      expiry: _readExpiry(),
-      status: _readStatus() ?? 'unknown',
+      cardName: readCardName(),
+      expiry: readExpiry(),
+      status: readStatus() ?? 'unknown',
       address: json['address'] is Map<String, dynamic>
           ? VirtualCardAddress.fromJson(json['address'] as Map<String, dynamic>)
           : null,

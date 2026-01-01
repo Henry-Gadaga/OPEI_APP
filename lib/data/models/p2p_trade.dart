@@ -137,36 +137,36 @@ class P2PTradePaymentMethod {
       );
     }
 
-    String _resolveString(dynamic value) {
+    String resolveString(dynamic value) {
       if (value == null) return '';
       return value.toString().trim();
     }
 
-    final methodType = _resolveString(json['methodType']).toUpperCase();
-    final currencyRaw = _resolveString(json['currency']);
-    final accountNumber = _resolveString(json['accountNumber']);
-    final accountNumberMasked = json.containsKey('accountNumberMasked') && _resolveString(json['accountNumberMasked']).isNotEmpty
-        ? _resolveString(json['accountNumberMasked'])
+    final methodType = resolveString(json['methodType']).toUpperCase();
+    final currencyRaw = resolveString(json['currency']);
+    final accountNumber = resolveString(json['accountNumber']);
+    final accountNumberMasked = json.containsKey('accountNumberMasked') && resolveString(json['accountNumberMasked']).isNotEmpty
+        ? resolveString(json['accountNumberMasked'])
         : null;
 
     return P2PTradePaymentMethod(
-      id: _resolveString(json['id']),
-      providerName: _resolveString(json['providerName']).isEmpty
+      id: resolveString(json['id']),
+      providerName: resolveString(json['providerName']).isEmpty
           ? 'Unknown method'
-          : _resolveString(json['providerName']),
+          : resolveString(json['providerName']),
       methodType: methodType.isEmpty ? 'OTHER' : methodType,
       currency: currencyRaw.isEmpty ? fallbackCurrency : currencyRaw.toUpperCase(),
-      accountName: _resolveString(json['accountName']).isEmpty
+      accountName: resolveString(json['accountName']).isEmpty
           ? 'Account'
-          : _resolveString(json['accountName']),
+          : resolveString(json['accountName']),
       accountNumber: accountNumber,
       accountNumberMasked: accountNumberMasked,
       extraDetails: json['extraDetails'] is String && json['extraDetails'].toString().trim().isNotEmpty
           ? json['extraDetails'].toString().trim()
           : null,
-      userPaymentMethodId: _resolveString(json['userPaymentMethodId']).isEmpty
+      userPaymentMethodId: resolveString(json['userPaymentMethodId']).isEmpty
           ? null
-          : _resolveString(json['userPaymentMethodId']),
+          : resolveString(json['userPaymentMethodId']),
     );
   }
 }
@@ -246,16 +246,16 @@ class P2PTradeProof {
       );
     }
 
-    String _s(dynamic v) => (v ?? '').toString().trim();
+    String parseString(dynamic v) => (v ?? '').toString().trim();
 
     return P2PTradeProof(
-      id: _s(json['id']),
+      id: parseString(json['id']),
       // Some backends return `publicUrl` or `fileUrl` instead of `url`.
-      url: _s(json['url'] ?? json['publicUrl'] ?? json['fileUrl']),
+      url: parseString(json['url'] ?? json['publicUrl'] ?? json['fileUrl']),
       note: json['note'] is String && json['note'].toString().trim().isNotEmpty
           ? json['note'].toString().trim()
           : null,
-      uploadedById: _s(json['uploadedById']),
+      uploadedById: parseString(json['uploadedById']),
       createdAt: _parseDate(json['createdAt']),
     );
   }
@@ -300,9 +300,9 @@ class P2PTradeRating {
       return const P2PTradeRating.empty();
     }
 
-    String _s(dynamic value) => (value ?? '').toString().trim();
+    String parseString(dynamic value) => (value ?? '').toString().trim();
 
-    int _score(dynamic value) {
+    int parseScore(dynamic value) {
       if (value is int) return value;
       if (value is num) return value.round();
       if (value is String) {
@@ -324,11 +324,11 @@ class P2PTradeRating {
         : const <String>[];
 
     return P2PTradeRating(
-      id: _s(json['id']),
-      tradeId: _s(json['tradeId']),
-      ratedUserId: _s(json['ratedUserId']),
-      ratedById: _s(json['ratedById']),
-      score: _score(json['score']),
+      id: parseString(json['id']),
+      tradeId: parseString(json['tradeId']),
+      ratedUserId: parseString(json['ratedUserId']),
+      ratedById: parseString(json['ratedById']),
+      score: parseScore(json['score']),
       role: json['role'] is String ? json['role'].toString().trim().toUpperCase() : null,
       comment: json['comment'] is String && json['comment'].toString().trim().isNotEmpty
           ? json['comment'].toString().trim()
@@ -407,7 +407,7 @@ class P2PTrade {
           )
         : null;
 
-    Money? _parseSendAmount() {
+    Money? parseSendAmount() {
       if (sendAmountCents <= 0) {
         return null;
       }
@@ -419,13 +419,13 @@ class P2PTrade {
       return Money.fromCents(sendAmountCents, currency: sendCurrency);
     }
 
-    P2PTradeRating? _parseUserRating() {
+    P2PTradeRating? parseUserRating() {
       final ratingRaw = json['yourRating'] ?? json['myRating'] ?? json['rating'];
       final parsed = P2PTradeRating.fromJson(ratingRaw is Map<String, dynamic> ? ratingRaw : null);
       return parsed.isValid ? parsed : null;
     }
 
-    bool _parseCanRate(P2PTradeStatus status, P2PTradeRating? rating) {
+    bool parseCanRate(P2PTradeStatus status, P2PTradeRating? rating) {
       if (rating?.isValid ?? false) {
         return false;
       }
@@ -445,7 +445,7 @@ class P2PTrade {
       return status == P2PTradeStatus.releasedBySeller || status == P2PTradeStatus.completed;
     }
 
-    bool _parsePending() {
+    bool parsePending() {
       if (json['ratingPending'] is bool) {
         return json['ratingPending'] as bool;
       }
@@ -455,7 +455,7 @@ class P2PTrade {
       return false;
     }
 
-    bool _parseRatedByMe() {
+    bool parseRatedByMe() {
       final raw = json.containsKey('isRatedByMe')
           ? json['isRatedByMe']
           : (json.containsKey('ratedByMe') ? json['ratedByMe'] : json['hasRated']);
@@ -475,8 +475,8 @@ class P2PTrade {
     }
 
     final status = P2PTradeStatus.fromBackend(json['status']?.toString());
-    final rating = _parseUserRating();
-    final isRatedByMe = _parseRatedByMe();
+    final rating = parseUserRating();
+    final isRatedByMe = parseRatedByMe();
 
     return P2PTrade(
       id: (json['id'] ?? '').toString(),
@@ -484,7 +484,7 @@ class P2PTrade {
       buyerId: (json['buyerId'] ?? '').toString(),
       sellerId: (json['sellerId'] ?? '').toString(),
       amount: Money.fromCents(amountCents, currency: currency),
-      sendAmount: _parseSendAmount(),
+      sendAmount: parseSendAmount(),
       rate: Money.fromCents(rateCents, currency: currency),
       currency: currency,
       status: status,
@@ -507,8 +507,8 @@ class P2PTrade {
               .toList(growable: false)
           : const <P2PTradeProof>[],
       yourRating: rating,
-      canRate: _parseCanRate(status, rating),
-      ratingPending: _parsePending(),
+      canRate: parseCanRate(status, rating),
+      ratingPending: parsePending(),
       isRatedByMe: isRatedByMe,
     );
   }

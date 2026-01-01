@@ -1437,12 +1437,13 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                         Expanded(
                           child: OutlinedButton(
                             onPressed: () async {
+                              final navigator = Navigator.of(context);
                               await controller.updateAmountBounds(
                                 minAmountCents: null,
                                 maxAmountCents: null,
                               );
                               if (!mounted) return;
-                              Navigator.of(context).pop();
+                              navigator.pop();
                             },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: OpeiColors.pureBlack,
@@ -1459,6 +1460,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
+                              final navigator = Navigator.of(context);
                               final minCents =
                                   _parseMajorToCents(minController.text);
                               final maxCents =
@@ -1482,7 +1484,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                               );
 
                               if (!mounted) return;
-                              Navigator.of(context).pop();
+                              navigator.pop();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: OpeiColors.pureBlack,
@@ -3033,11 +3035,12 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
         _errorMessage = _mapError(error);
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isLoading = false;
-        _isRefreshing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isRefreshing = false;
+        });
+      }
     }
   }
 
@@ -4826,8 +4829,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                             width: 16,
                             child: CircularProgressIndicator(
                               strokeWidth: 1.8,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                  Color(0xFFD62E1F)),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Color(0xFFD62E1F),
+                              ),
                             ),
                           )
                         : const Text(
@@ -5481,7 +5485,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
             if (!mounted) return;
             setModalState(() {});
             if (_proofSubmissionSuccess) {
-              Navigator.of(context).pop();
+              final navigator = Navigator.of(context);
+              navigator.pop();
               await _presentProofSubmittedScreen(context);
             }
           },
@@ -6061,6 +6066,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         ..selection = TextSelection.collapsed(
             offset: _ratingCommentController.text.length);
 
+      if (!mounted) return;
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger
           ?.showSnackBar(const SnackBar(content: Text('Thanks for rating!')));
@@ -6082,10 +6088,11 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         }
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isRatingSubmitting = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isRatingSubmitting = false;
+        });
+      }
     }
   }
 
@@ -6210,6 +6217,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         // ignore refresh failures to keep sheet responsive
       }
 
+      if (!mounted) return;
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
         const SnackBar(
@@ -6222,10 +6230,11 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         _disputeSuccess = false;
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isDisputing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isDisputing = false;
+        });
+      }
     }
   }
 }
@@ -7564,11 +7573,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         _methods = const [];
       });
     } finally {
-      if (!mounted) return;
-      if (_currency.toUpperCase() != currency) {
-        return;
+      if (mounted && _currency.toUpperCase() == currency) {
+        setState(() => _loadingMethods = false);
       }
-      setState(() => _loadingMethods = false);
     }
   }
 
@@ -10656,6 +10663,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       // 1) Ensure profile exists
       final hasProfile = await repo.fetchProfileStatus();
       if (!hasProfile) {
+        if (!mounted) return;
         // Open inline profile setup sheet (reuses existing UI)
         final created = await showModalBottomSheet<bool>(
           context: context,
@@ -10686,6 +10694,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
         return;
       }
 
+      if (!mounted) return;
       final selectedMethodId = await showModalBottomSheet<String>(
         context: context,
         backgroundColor: OpeiColors.pureWhite,
@@ -10762,6 +10771,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
 
       final hasProfile = await repo.fetchProfileStatus();
       if (!hasProfile) {
+        if (!mounted) return;
         final created = await showModalBottomSheet<bool>(
           context: context,
           isScrollControlled: true,
@@ -10789,6 +10799,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
         return;
       }
 
+      if (!mounted) return;
       final selectedMethodId = await showModalBottomSheet<String>(
         context: context,
         backgroundColor: OpeiColors.pureWhite,
@@ -11226,6 +11237,7 @@ class BuyTradeSuccessView extends ConsumerStatefulWidget {
   final VoidCallback onViewOrders;
 
   const BuyTradeSuccessView({
+    super.key,
     required this.trade,
     required this.paymentMethod,
     required this.fallbackMethod,
@@ -11568,10 +11580,11 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(SnackBar(content: Text(friendly)));
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isCancelling = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isCancelling = false;
+        });
+      }
     }
   }
 
@@ -12648,10 +12661,11 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(SnackBar(content: Text(friendly)));
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isCancelling = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isCancelling = false;
+        });
+      }
     }
   }
 
@@ -12684,6 +12698,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
       await _refreshOrdersSilently();
 
+      if (!mounted) return;
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
         const SnackBar(
@@ -12696,10 +12711,11 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         _disputeSuccess = false;
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _isDisputing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isDisputing = false;
+        });
+      }
     }
   }
 
@@ -12837,12 +12853,22 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
 
   String _resolvePreferredExtension(PlatformFile file) {
     final ext = (file.extension ?? '').toLowerCase();
-    if (ext == 'png') return 'png';
-    if (ext == 'jpeg' || ext == 'jpg') return 'jpg';
-    if (ext == 'heic' || ext == 'heif') return 'jpg';
-    if (file.name.toLowerCase().endsWith('.png')) return 'png';
-    if (file.name.toLowerCase().endsWith('.jpg') ||
-        file.name.toLowerCase().endsWith('.jpeg')) return 'jpg';
+    if (ext == 'png') {
+      return 'png';
+    }
+    if (ext == 'jpeg' || ext == 'jpg') {
+      return 'jpg';
+    }
+    if (ext == 'heic' || ext == 'heif') {
+      return 'jpg';
+    }
+    final lowerName = file.name.toLowerCase();
+    if (lowerName.endsWith('.png')) {
+      return 'png';
+    }
+    if (lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) {
+      return 'jpg';
+    }
     return 'jpg';
   }
 
