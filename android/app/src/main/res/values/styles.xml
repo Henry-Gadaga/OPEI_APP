@@ -2,8 +2,11 @@
 <resources>
     <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
     <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <!-- Show a splash screen on the activity. Automatically removed when
-             the Flutter engine draws its first frame -->
+        <!-- Configure Android 12+ splash to use the Fin icon -->
+        <item name="android:windowSplashScreenBackground">@android:color/white</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/fin2</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/white</item>
+        <!-- Legacy fallback -->
         <item name="android:windowBackground">@drawable/launch_background</item>
     </style>
     <!-- Theme applied to the Android Window as soon as the process has started.
@@ -13,6 +16,6 @@
 
          This Theme is only used starting with V2 of Flutter's Android embedding. -->
     <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowBackground">?android:colorBackground</item>
+        <item name="android:windowBackground">@android:color/white</item>
     </style>
 </resources>

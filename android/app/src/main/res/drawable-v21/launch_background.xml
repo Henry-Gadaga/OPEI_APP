@@ -4,5 +4,5 @@
 
     <item
         android:gravity="center"
-        android:drawable="@drawable/opei3" />
+        android:drawable="@drawable/fin2" />
 </layer-list>

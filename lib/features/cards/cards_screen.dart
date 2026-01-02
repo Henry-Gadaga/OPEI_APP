@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/navigation/opei_page_transitions.dart';
 import 'package:tt1/core/money/money.dart';
 import 'package:tt1/core/utils/error_helper.dart';
 import 'package:tt1/data/models/card_creation_response.dart';
@@ -21,6 +20,16 @@ import 'package:tt1/features/dashboard/dashboard_controller.dart';
 import 'package:tt1/responsive/responsive_tokens.dart';
 import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
+
+Route<CardCreationResponse?> _buildCreateCardFlowRoute() {
+  return PageRouteBuilder<CardCreationResponse?>(
+    pageBuilder: (_, __, ___) => const CreateVirtualCardFlow(),
+    transitionDuration: Duration.zero,
+    reverseTransitionDuration: Duration.zero,
+    fullscreenDialog: true,
+    transitionsBuilder: (_, __, ___, child) => child,
+  );
+}
 
 class CardsScreen extends ConsumerStatefulWidget {
   const CardsScreen({super.key});
@@ -276,10 +285,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
 
   Future<void> _startCardCreationFlow() async {
     final creation = await Navigator.of(context).push<CardCreationResponse?>(
-      OpeiPageRoute(
-        builder: (_) => const CreateVirtualCardFlow(),
-        fullscreenDialog: true,
-      ),
+      _buildCreateCardFlowRoute(),
     );
 
     if (!mounted || creation == null) {
@@ -338,20 +344,13 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   void _openTransactions(List<VirtualCard> cards, int initialIndex) {
     Navigator.of(context).push(
       PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 320),
-        reverseTransitionDuration: const Duration(milliseconds: 220),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
         pageBuilder: (context, animation, secondaryAnimation) => CardTransactionsScreen(
           cards: cards,
           initialIndex: initialIndex,
         ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
-          return FadeTransition(opacity: curved, child: child);
-        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
       ),
     );
   }
@@ -2314,10 +2313,7 @@ class _CreateCardButtonState extends ConsumerState<CreateCardButton> with Single
         }
 
         await navigator.push(
-          OpeiPageRoute(
-            builder: (_) => const CreateVirtualCardFlow(),
-            fullscreenDialog: true,
-          ),
+          _buildCreateCardFlowRoute(),
         );
       },
       onTapCancel: () => _controller.reverse(),

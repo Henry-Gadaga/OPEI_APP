@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-const Duration kOpeiForwardTransitionDuration = Duration(milliseconds: 300);
-const Duration kOpeiReverseTransitionDuration = Duration(milliseconds: 240);
+const Duration kOpeiForwardTransitionDuration = Duration.zero;
+const Duration kOpeiReverseTransitionDuration = Duration.zero;
 
 /// Defines the default navigation transition used across the app.
 Widget buildOpeiPageTransition(
@@ -10,64 +10,8 @@ Widget buildOpeiPageTransition(
   Animation<double> animation,
   Animation<double> secondaryAnimation,
   Widget child,
-) {
-  final theme = Theme.of(context);
-
-  final direction = Directionality.of(context) == TextDirection.rtl ? -1.0 : 1.0;
-  final bool isReversing = animation.status == AnimationStatus.reverse;
-
-  final slideCurve = CurvedAnimation(
-    parent: animation,
-    curve: Curves.easeOutCubic,
-    reverseCurve: Curves.easeInCubic,
-  );
-
-  final slideTween = Tween<Offset>(
-    begin: Offset(direction, 0),
-    end: Offset.zero,
-  );
-
-  final slideAnimation = slideTween.animate(slideCurve);
-
-  final shadowTween = Tween<double>(begin: 0.18, end: 0.0).animate(slideCurve);
-
-  return Stack(
-    children: [
-      // Keep a solid backdrop while pushing so previous screen never peeks through.
-      if (!isReversing)
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(color: theme.scaffoldBackgroundColor),
-          ),
-        ),
-      ClipRect(
-        child: SlideTransition(
-          position: slideAnimation,
-          child: AnimatedBuilder(
-            animation: shadowTween,
-            builder: (context, content) {
-              return DecoratedBox(
-                decoration: BoxDecoration(
-                  color: theme.scaffoldBackgroundColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: shadowTween.value),
-                      blurRadius: 22,
-                      spreadRadius: -8,
-                      offset: Offset(direction * 6, 0),
-                    ),
-                  ],
-                ),
-                child: content,
-              );
-            },
-            child: child,
-          ),
-        ),
-      ),
-    ],
-  );
-}
+) =>
+    child;
 
 /// Custom page route that plugs into the Opei transition curve.
 class OpeiPageRoute<T> extends PageRouteBuilder<T> {
@@ -92,22 +36,13 @@ class OpeiPageRoute<T> extends PageRouteBuilder<T> {
 }
 
 /// GoRouter helper to build a page using the house transition.
-CustomTransitionPage<T> buildOpeiTransitionPage<T>({
+NoTransitionPage<T> buildOpeiTransitionPage<T>({
   required GoRouterState state,
   required Widget child,
 }) {
-  return CustomTransitionPage<T>(
+  return NoTransitionPage<T>(
     key: state.pageKey,
     child: child,
-    transitionDuration: kOpeiForwardTransitionDuration,
-    reverseTransitionDuration: kOpeiReverseTransitionDuration,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-        buildOpeiPageTransition(
-      context,
-      animation,
-      secondaryAnimation,
-      child,
-    ),
   );
 }
 

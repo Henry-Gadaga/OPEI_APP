@@ -62,7 +62,10 @@ class DepositOptionsSheet extends StatelessWidget {
                     description: 'Bank transfer, Mobile Payments and more',
                     onTap: () {
                       context.pop();
-                      context.push('/p2p?intent=buy');
+                      context.push(
+                        '/p2p?intent=buy',
+                        extra: const {'disableTransition': true},
+                      );
                     },
                   ),
                   const SizedBox(height: 4),

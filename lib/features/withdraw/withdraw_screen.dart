@@ -71,7 +71,10 @@ class WithdrawOptionsSheet extends StatelessWidget {
                     description: 'Bank transfer, Mobile Payments and more',
                     onTap: () {
                       context.pop();
-                      context.push('/p2p?intent=sell');
+              context.push(
+                '/p2p?intent=sell',
+                extra: const {'disableTransition': true},
+              );
                     },
                   ),
                   const SizedBox(height: 4),

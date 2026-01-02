@@ -6292,7 +6292,7 @@ void _showProofViewer(BuildContext context, String url) {
     context: context,
     barrierDismissible: true,
     barrierLabel: 'Close',
-    transitionDuration: const Duration(milliseconds: 220),
+    transitionDuration: Duration.zero,
     pageBuilder: (ctx, animation, secondaryAnimation) {
       return SafeArea(
         child: GestureDetector(
@@ -13193,29 +13193,12 @@ class _ProofThumb extends StatelessWidget {
 Future<void> _presentProofSubmittedScreen(BuildContext context) async {
   await Navigator.of(context).push(
     PageRouteBuilder<void>(
-      transitionDuration: const Duration(milliseconds: 380),
-      reverseTransitionDuration: const Duration(milliseconds: 260),
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
       pageBuilder: (context, animation, secondaryAnimation) {
-        final fade = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: fade,
-          child: const ProofSubmittedScreen(),
-        );
+        return const ProofSubmittedScreen();
       },
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(
-          opacity: CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutExpo,
-            reverseCurve: Curves.easeInExpo,
-          ),
-          child: child,
-        );
-      },
+      transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
     ),
   );
 }

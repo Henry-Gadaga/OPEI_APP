@@ -226,16 +226,9 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     GoRoute(
       path: '/splash',
       name: 'splash',
-      pageBuilder: (context, state) => CustomTransitionPage(
+      pageBuilder: (context, state) => NoTransitionPage(
         key: state.pageKey,
         child: const _SplashScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: CurveTween(curve: Curves.easeOut).animate(animation),
-            child: child,
-          );
-        },
       ),
     ),
     GoRoute(
@@ -325,16 +318,9 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     GoRoute(
       path: '/quick-auth',
       name: 'quick-auth',
-      pageBuilder: (context, state) => CustomTransitionPage(
+      pageBuilder: (context, state) => NoTransitionPage(
         key: state.pageKey,
         child: const QuickAuthScreen(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-          return FadeTransition(
-            opacity: CurveTween(curve: Curves.easeOut).animate(animation),
-            child: child,
-          );
-        },
       ),
     ),
     GoRoute(
@@ -348,23 +334,9 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     GoRoute(
       path: '/transactions',
       name: 'transactions',
-      pageBuilder: (context, state) => CustomTransitionPage(
+      pageBuilder: (context, state) => NoTransitionPage(
         key: state.pageKey,
         child: const TransactionsScreen(),
-        transitionDuration: kOpeiForwardTransitionDuration,
-        reverseTransitionDuration: kOpeiReverseTransitionDuration,
-        transitionsBuilder:
-            (context, animation, secondaryAnimation, child) {
-          final fadeCurve = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
-          return FadeTransition(
-            opacity: fadeCurve,
-            child: child,
-          );
-        },
       ),
     ),
     GoRoute(
@@ -378,8 +350,8 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     GoRoute(
       path: '/send-money',
       name: 'send-money',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
+      pageBuilder: (context, state) => NoTransitionPage(
+        key: state.pageKey,
         child: const SendMoneyScreen(),
       ),
     ),
@@ -415,12 +387,22 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
             initialTabIndex = null;
         }
 
+        final disableTransition = state.extra is Map && (state.extra as Map)['disableTransition'] == true;
+        final child = P2PExchangeScreen(
+          initialType: initialType,
+          initialTabIndex: initialTabIndex,
+        );
+
+        if (disableTransition) {
+          return NoTransitionPage(
+            key: state.pageKey,
+            child: child,
+          );
+        }
+
         return buildOpeiTransitionPage(
           state: state,
-          child: P2PExchangeScreen(
-            initialType: initialType,
-            initialTabIndex: initialTabIndex,
-          ),
+          child: child,
         );
       },
     ),
@@ -438,8 +420,8 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     GoRoute(
       path: '/deposit/crypto-currency',
       name: 'deposit-crypto-currency',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
+      pageBuilder: (context, state) => NoTransitionPage(
+        key: state.pageKey,
         child: const CryptoCurrencySelectionScreen(),
       ),
     ),
@@ -448,8 +430,8 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       name: 'deposit-crypto-network',
       pageBuilder: (context, state) {
         final currency = state.extra as String;
-        return buildOpeiTransitionPage(
-          state: state,
+        return NoTransitionPage(
+          key: state.pageKey,
           child: CryptoNetworkSelectionScreen(currency: currency),
         );
       },
@@ -459,33 +441,20 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       name: 'deposit-crypto-address',
       pageBuilder: (context, state) {
         final params = state.extra as Map<String, String>;
-        return CustomTransitionPage(
+        return NoTransitionPage(
           key: state.pageKey,
           child: CryptoAddressDisplayScreen(
             currency: params['currency']!,
             network: params['network']!,
           ),
-          transitionDuration: kOpeiForwardTransitionDuration,
-          reverseTransitionDuration: kOpeiReverseTransitionDuration,
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            final fadeCurve = CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-              reverseCurve: Curves.easeInCubic,
-            );
-            return FadeTransition(
-              opacity: fadeCurve,
-              child: child,
-            );
-          },
         );
       },
     ),
     GoRoute(
       path: '/withdraw/crypto-currency',
       name: 'withdraw-crypto-currency',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
+      pageBuilder: (context, state) => NoTransitionPage(
+        key: state.pageKey,
         child: const WithdrawCurrencySelectionScreen(),
       ),
     ),
@@ -494,8 +463,8 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       name: 'withdraw-crypto-network',
       pageBuilder: (context, state) {
         final currency = state.extra as String;
-        return buildOpeiTransitionPage(
-          state: state,
+        return NoTransitionPage(
+          key: state.pageKey,
           child: WithdrawNetworkSelectionScreen(currency: currency),
         );
       },
@@ -505,8 +474,8 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       name: 'withdraw-crypto-form',
       pageBuilder: (context, state) {
         final params = state.extra as Map<String, String>;
-        return buildOpeiTransitionPage(
-          state: state,
+        return NoTransitionPage(
+          key: state.pageKey,
           child: CryptoWithdrawFormScreen(
             currency: params['currency']!,
             network: params['network']!,
@@ -519,8 +488,8 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       name: 'withdraw-crypto-success',
       pageBuilder: (context, state) {
         final params = state.extra as Map<String, String>;
-        return buildOpeiTransitionPage(
-          state: state,
+        return NoTransitionPage(
+          key: state.pageKey,
           child: CryptoWithdrawSuccessScreen(
             currency: params['currency']!,
             network: params['network']!,
@@ -789,14 +758,40 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: OpeiColors.pureWhite,
-        body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Image.asset(
-            'assets/icons/splash1.png',
-            width: MediaQuery.of(context).size.width * 0.7,
-            fit: BoxFit.contain,
+      backgroundColor: Colors.white,
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Center(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final double logoSize =
+                  (constraints.maxWidth * 0.4).clamp(120.0, 220.0);
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: logoSize,
+                    height: logoSize,
+                    child: Image.asset(
+                      'assets/icons/second.png',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.black87,
+                      ),
+                      backgroundColor: Colors.black12,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
