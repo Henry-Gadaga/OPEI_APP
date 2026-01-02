@@ -359,29 +359,31 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             child: buildForm(),
           ),
           if (signupState is SignupLoading)
-            Container(
-              color: OpeiColors.pureBlack.withValues(alpha: 0.3),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(
-                        strokeWidth: 3,
-                        color: OpeiColors.pureBlack,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Creating your account...',
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ],
-                  ),
+            const ModalBarrier(
+              color: Colors.transparent,
+              dismissible: false,
+            ),
+          if (signupState is SignupLoading)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(AppRadius.lg),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: OpeiColors.pureBlack,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Creating your account...',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
                 ),
               ),
             ),
