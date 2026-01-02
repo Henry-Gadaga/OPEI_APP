@@ -12,6 +12,7 @@ import 'package:tt1/features/withdraw/withdraw_screen.dart';
 import 'package:tt1/responsive/responsive_tokens.dart';
 import 'package:tt1/responsive/responsive_widgets.dart';
 import 'package:tt1/theme.dart';
+import 'package:tt1/widgets/opei_wordmark.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -172,13 +173,9 @@ class WalletHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          'Opei',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.3,
-              ),
+        const OpeiWordmark(
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
         ),
         GestureDetector(
           onTap: onProfileTap,

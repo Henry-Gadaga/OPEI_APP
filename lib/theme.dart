@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'core/navigation/opei_page_transitions.dart';
 import 'responsive/responsive_tokens.dart';
+
+const String kPrimaryFontFamily = 'Outfit';
 
 class AppSpacing {
   static const double xs = 4.0;
@@ -119,7 +120,7 @@ ThemeData get lightTheme => ThemeData(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: GoogleFonts.outfit(
+          textStyle: _primaryTextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.4,
@@ -136,7 +137,7 @@ ThemeData get lightTheme => ThemeData(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: GoogleFonts.outfit(
+          textStyle: _primaryTextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.4,
@@ -169,19 +170,19 @@ ThemeData get lightTheme => ThemeData(
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        hintStyle: GoogleFonts.outfit(
+        hintStyle: _primaryTextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w400,
+          letterSpacing: -0.4,
           color: OpeiColors.grey500,
-          letterSpacing: -0.4,
         ),
-        labelStyle: GoogleFonts.outfit(
+        labelStyle: _primaryTextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w400,
-          color: OpeiColors.grey700,
           letterSpacing: -0.4,
+          color: OpeiColors.grey700,
         ),
-        errorStyle: GoogleFonts.outfit(
+        errorStyle: _primaryTextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w400,
           color: OpeiColors.errorRed,
@@ -242,7 +243,7 @@ ThemeData get darkTheme => ThemeData(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: GoogleFonts.outfit(
+          textStyle: _primaryTextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.4,
@@ -259,7 +260,7 @@ ThemeData get darkTheme => ThemeData(
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: GoogleFonts.outfit(
+          textStyle: _primaryTextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w600,
             letterSpacing: -0.4,
@@ -292,19 +293,19 @@ ThemeData get darkTheme => ThemeData(
         ),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        hintStyle: GoogleFonts.inter(
+        hintStyle: _primaryTextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w400,
+          letterSpacing: -0.4,
           color: OpeiColors.grey600,
-          letterSpacing: -0.4,
         ),
-        labelStyle: GoogleFonts.inter(
+        labelStyle: _primaryTextStyle(
           fontSize: 17,
           fontWeight: FontWeight.w400,
-          color: OpeiColors.grey400,
           letterSpacing: -0.4,
+          color: OpeiColors.grey400,
         ),
-        errorStyle: GoogleFonts.inter(
+        errorStyle: _primaryTextStyle(
           fontSize: 13,
           fontWeight: FontWeight.w400,
           color: OpeiColors.errorRed,
@@ -326,79 +327,96 @@ ThemeData get darkTheme => ThemeData(
     );
 
 TextTheme _buildTextTheme() => TextTheme(
-      displayLarge: GoogleFonts.outfit(
+      displayLarge: _primaryTextStyle(
         fontSize: 34,
         fontWeight: FontWeight.w700,
         letterSpacing: -0.8,
       ),
-      displayMedium: GoogleFonts.outfit(
+      displayMedium: _primaryTextStyle(
         fontSize: 28,
         fontWeight: FontWeight.w700,
         letterSpacing: -0.6,
       ),
-      displaySmall: GoogleFonts.outfit(
+      displaySmall: _primaryTextStyle(
         fontSize: 24,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.5,
       ),
-      headlineLarge: GoogleFonts.outfit(
+      headlineLarge: _primaryTextStyle(
         fontSize: 32,
         fontWeight: FontWeight.w700,
         letterSpacing: -0.7,
       ),
-      headlineMedium: GoogleFonts.outfit(
+      headlineMedium: _primaryTextStyle(
         fontSize: 22,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.4,
       ),
-      headlineSmall: GoogleFonts.outfit(
+      headlineSmall: _primaryTextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
       ),
-      titleLarge: GoogleFonts.outfit(
+      titleLarge: _primaryTextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
       ),
-      titleMedium: GoogleFonts.outfit(
+      titleMedium: _primaryTextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.4,
       ),
-      titleSmall: GoogleFonts.outfit(
+      titleSmall: _primaryTextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
       ),
-      bodyLarge: GoogleFonts.outfit(
+      bodyLarge: _primaryTextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w400,
         letterSpacing: -0.4,
       ),
-      bodyMedium: GoogleFonts.outfit(
+      bodyMedium: _primaryTextStyle(
         fontSize: 15,
         fontWeight: FontWeight.w400,
         letterSpacing: -0.3,
       ),
-      bodySmall: GoogleFonts.outfit(
+      bodySmall: _primaryTextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w400,
         letterSpacing: -0.2,
       ),
-      labelLarge: GoogleFonts.outfit(
+      labelLarge: _primaryTextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.4,
       ),
-      labelMedium: GoogleFonts.outfit(
+      labelMedium: _primaryTextStyle(
         fontSize: 13,
         fontWeight: FontWeight.w500,
         letterSpacing: -0.1,
       ),
-      labelSmall: GoogleFonts.outfit(
+      labelSmall: _primaryTextStyle(
         fontSize: 11,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.1,
       ),
     );
+
+TextStyle _primaryTextStyle({
+  required double fontSize,
+  required FontWeight fontWeight,
+  double letterSpacing = 0,
+  double? height,
+  Color? color,
+}) {
+  return TextStyle(
+    fontFamily: kPrimaryFontFamily,
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    letterSpacing: letterSpacing,
+    height: height,
+    color: color,
+  );
+}
