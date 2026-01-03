@@ -385,29 +385,29 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
               ),
             if (state.isLoading || _isLoggingOut)
               Center(
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.lg),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(
-                        strokeWidth: 3,
-                        color: OpeiColors.pureBlack,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _isLoggingOut
-                            ? 'Signing out...'
-                            : state.isVerifying
-                                ? 'Verifying...'
-                                : 'Sending code...',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                    ],
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(
+                          strokeWidth: 3,
+                          color: OpeiColors.pureBlack,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _isLoggingOut
+                              ? 'Signing out...'
+                              : state.isVerifying
+                                  ? 'Verifying...'
+                                  : 'Sending code...',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                   ),
                 ),
               ),

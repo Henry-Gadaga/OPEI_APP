@@ -174,8 +174,8 @@ class WalletHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const OpeiWordmark(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
         ),
         GestureDetector(
           onTap: onProfileTap,

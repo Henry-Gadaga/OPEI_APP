@@ -219,22 +219,10 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
     final currency = (state.amount?.currency ?? 'USD').toUpperCase();
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: 8),
-        const SizedBox(height: 18),
-        Container(
-          decoration: BoxDecoration(
-            color: OpeiColors.pureWhite,
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(color: OpeiColors.grey200, width: 1),
-          ),
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Initial load',
+          'Add your first funds',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   fontSize: 24,
@@ -243,19 +231,29 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
               ),
               const SizedBox(height: 10),
               Text(
-                'Add a starting balance to your card',
+          'Enter the amount you want to move onto your virtual card. You can top up again at any time.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: OpeiColors.iosLabelSecondary,
                   height: 1.35,
                 ),
-                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 32),
+        const SizedBox(height: 28),
+        Form(
+          key: _amountFormKey,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: BoxDecoration(
+              color: OpeiColors.pureWhite,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: OpeiColors.grey200, width: 1),
+            ),
+            child: Row(
+              children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: OpeiColors.grey100,
-                  borderRadius: BorderRadius.circular(10),
+                    color: OpeiColors.iosSurfaceMuted,
+                    borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   currency,
@@ -263,22 +261,17 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
                     fontWeight: FontWeight.w600,
                     color: OpeiColors.iosLabelSecondary,
                     letterSpacing: 0.6,
-                    fontSize: 13,
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
-              Form(
-                key: _amountFormKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    TextFormField(
+                const SizedBox(width: 16),
+                Expanded(
+                  child: TextFormField(
                       controller: _amountController,
                       focusNode: _amountFocusNode,
                       enabled: !state.isBusy,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      textAlign: TextAlign.center,
+                    textAlign: TextAlign.left,
                       style: theme.textTheme.displaySmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.3,
@@ -304,7 +297,8 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
                         if (sanitized.isEmpty) {
                           return 'Enter an amount to continue.';
                         }
-                        final parsed = double.tryParse(sanitized.replaceAll(',', ''));
+                      final parsed =
+                          double.tryParse(sanitized.replaceAll(',', ''));
                         if (parsed == null || parsed <= 0) {
                           return 'Enter a valid amount above 0.00.';
                         }
@@ -314,6 +308,11 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
                         return null;
                       },
                       onFieldSubmitted: (_) => _handlePreview(controller),
+                  ),
+                ),
+              ],
+            ),
+          ),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -323,16 +322,6 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
                         letterSpacing: -0.1,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (state.infoMessage?.isNotEmpty == true) ...[
-          const SizedBox(height: 16),
-          _MessageBanner(message: state.infoMessage!),
-        ],
         if (state.errorMessage?.isNotEmpty == true) ...[
           const SizedBox(height: 16),
           _MessageBanner(message: state.errorMessage!, isError: true),
@@ -375,10 +364,17 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
     setState(() => _isFinishing = true);
     FocusScope.of(context).unfocus();
 
+    final cardsController = ref.read(cardsControllerProvider.notifier);
     try {
-      await ref.read(cardsControllerProvider.notifier).refresh();
+      await cardsController.refresh();
     } catch (_) {
       // Silent catch — navigating back still returns control to cards screen which will surface errors if needed.
+    }
+
+    final creation = state.creation;
+    final createdCardId = creation?.cardId.trim() ?? '';
+    if (createdCardId.isNotEmpty) {
+      await cardsController.preloadCardDetails(createdCardId, reveal: true);
     }
 
     if (!mounted) {
@@ -390,7 +386,6 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
       _isFinishing = false;
     });
 
-    final creation = state.creation;
     if (creation != null) {
       Navigator.of(context).pop(creation);
     } else {
@@ -441,8 +436,7 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
           ],
         ),
         const SizedBox(height: 12),
-        const _SkyBlueCardPreview(),
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
           decoration: BoxDecoration(
@@ -450,17 +444,29 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _PreviewRow(label: 'Creation fee', value: preview.creationFee.format(includeCurrencySymbol: true)),
-              const SizedBox(height: 14),
+              Text(
+                'Summary',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.2,
+                ),
+              ),
+              const SizedBox(height: 18),
               _PreviewRow(label: 'Card receives', value: preview.cardWillReceive.format(includeCurrencySymbol: true)),
-              const SizedBox(height: 14),
+              const SizedBox(height: 12),
+              _PreviewRow(
+                label: 'Creation fee',
+                value: preview.creationFee.format(includeCurrencySymbol: true),
+              ),
+              const SizedBox(height: 12),
               _PreviewRow(
                 label: 'Total to charge',
                 value: preview.totalToCharge.format(includeCurrencySymbol: true),
                 emphasize: true,
               ),
-              const Divider(height: 30),
+              const SizedBox(height: 12),
               _PreviewRow(
                 label: 'Wallet balance after',
                 value: preview.walletBalanceAfter.format(includeCurrencySymbol: true),
@@ -558,152 +564,6 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
         ),
         const SizedBox(height: 16),
       ],
-    );
-  }
-}
-
-class _SkyBlueCardPreview extends StatelessWidget {
-  const _SkyBlueCardPreview();
-
-  static const List<Color> _gradient = [
-    Color(0xFF5AA9F5),
-    Color(0xFF1F7BDF),
-    Color(0xFF0F4DA2),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Center(
-      child: Container(
-        width: double.infinity,
-        constraints: const BoxConstraints(maxWidth: 380),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 1.75,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: _gradient,
-                  ),
-                  borderRadius: BorderRadius.circular(22),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.16),
-                      blurRadius: 26,
-                      offset: const Offset(0, 18),
-                    ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Opei',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.92),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.2,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            'Virtual Visa',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Sky Blue',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.96),
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        '•••• 8549',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.85),
-                          fontSize: 15,
-                          letterSpacing: 2.4,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: OpeiColors.grey100,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: _gradient,
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Signature look',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.2,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'Every virtual card now ships in sky blue.',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: OpeiColors.iosLabelSecondary,
-                            height: 1.3,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

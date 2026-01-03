@@ -8522,20 +8522,38 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
             ),
           ),
           const SizedBox(height: 18),
-          Text(
-            'Set up your P2P profile',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Tell others how to recognize you. You can edit this later.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontSize: 12,
-              color: OpeiColors.iosLabelSecondary,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Set up your P2P profile',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Tell others how to recognize you. You can edit this later.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 12,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed:
+                    _isSubmitting ? null : () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+            ],
           ),
           if (_errorMessage != null) ...[
             const SizedBox(height: 12),

@@ -149,6 +149,6 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
 }
 
 final quickAuthSetupControllerProvider =
-    NotifierProvider<QuickAuthSetupController, QuickAuthSetupState>(
+    NotifierProvider.autoDispose<QuickAuthSetupController, QuickAuthSetupState>(
   QuickAuthSetupController.new,
 );

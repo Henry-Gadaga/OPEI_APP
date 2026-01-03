@@ -115,6 +115,11 @@ class ProfileController extends Notifier<ProfileState> {
     // Invalidate auth session first - this will trigger all dependent providers to reset
     ref.read(authSessionProvider.notifier).clearSession();
     debugPrint('✅ Auth session cleared');
+
+    // Force next login to go through Quick Auth setup (PIN is removed on logout)
+    ref.read(quickAuthStatusProvider.notifier)
+        .setStatus(QuickAuthStatus.requiresSetup);
+    debugPrint('🔁 Quick auth status set to requiresSetup');
     
     // Clear profile data
     state = ProfileState();

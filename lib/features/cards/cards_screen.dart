@@ -466,32 +466,15 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   }
 
   Future<bool> _confirmTerminateDialog(VirtualCard card) async {
-    return await showCupertinoDialog<bool>(
-          context: context,
-          builder: (dialogContext) {
-            return CupertinoAlertDialog(
-              title: const Text('Terminate card?'),
-              content: const Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(
-                  'This card will be permanently terminated. You will no longer be able to use or view it after this action. Do you want to continue?',
-                ),
-              ),
-              actions: [
-                CupertinoDialogAction(
-                  onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: const Text('Cancel'),
-                ),
-                CupertinoDialogAction(
-                  isDestructiveAction: true,
-                  onPressed: () => Navigator.of(dialogContext).pop(true),
-                  child: const Text('Terminate'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
+    final result = await showResponsiveBottomSheet<bool>(
+      context: context,
+      builder: (sheetContext) => _TerminateConfirmationSheet(
+        cardName: card.cardName.isNotEmpty ? card.cardName : 'Virtual Card',
+        lastFour: card.last4,
+      ),
+    );
+
+    return result ?? false;
   }
 
   Future<void> _handleToggleCardDetails(VirtualCard card) async {
@@ -550,6 +533,140 @@ class _CardsMessageBanner extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TerminateConfirmationSheet extends StatelessWidget {
+  final String cardName;
+  final String? lastFour;
+
+  const _TerminateConfirmationSheet({
+    required this.cardName,
+    this.lastFour,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final cardLabel =
+        (lastFour == null || lastFour!.isEmpty) ? cardName : '$cardName ·•••• ${lastFour!}';
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 48,
+            height: 5,
+            decoration: BoxDecoration(
+              color: OpeiColors.iosSeparator.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: OpeiColors.errorRed.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.delete_outline,
+              size: 28,
+              color: OpeiColors.errorRed,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Terminate this card?',
+            style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'This card will be permanently removed. You won’t be able to use or view $cardLabel again.',
+            style: textTheme.bodyMedium?.copyWith(
+              color: OpeiColors.iosLabelSecondary,
+              height: 1.45,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF2F2),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.warning_amber_rounded,
+                    color: OpeiColors.errorRed,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Make sure you’ve moved any remaining funds before confirming.',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: OpeiColors.errorRed,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  style: TextButton.styleFrom(
+                    backgroundColor: OpeiColors.grey100,
+                    foregroundColor: OpeiColors.pureBlack,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text('Keep card'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: OpeiColors.errorRed,
+                    foregroundColor: OpeiColors.pureWhite,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text('Terminate'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

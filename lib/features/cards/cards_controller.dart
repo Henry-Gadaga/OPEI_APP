@@ -390,6 +390,76 @@ class CardsController extends Notifier<CardsState> {
     }
     return ErrorHelper.getErrorMessage(error);
   }
+
+  Future<bool> preloadCardDetails(String cardId, {bool reveal = true}) async {
+    final normalizedId = cardId.trim();
+    if (normalizedId.isEmpty) {
+      return false;
+    }
+
+    final card = _findCardById(normalizedId);
+    if (card == null) {
+      debugPrint('⚠️ Cannot preload card details. No card found for ID $normalizedId.');
+      return false;
+    }
+
+    if (state.detailsById.containsKey(normalizedId)) {
+      if (reveal && !state.revealedCardIds.contains(normalizedId)) {
+        final updatedRevealed = Set<String>.from(state.revealedCardIds)..add(normalizedId);
+        state = state.copyWith(revealedCardIds: updatedRevealed);
+      }
+      return true;
+    }
+
+    if (state.detailLoadingIds.contains(normalizedId)) {
+      debugPrint('⌛ Detail request already running for $normalizedId.');
+      return false;
+    }
+
+    final nextLoading = Set<String>.from(state.detailLoadingIds)..add(normalizedId);
+    state = state.copyWith(detailLoadingIds: nextLoading);
+
+    try {
+      final details = await _cardRepository.fetchCardDetails(
+        normalizedId,
+        currency: card.balance?.currency ?? 'USD',
+        fallbackBalance: card.balance,
+      );
+
+      final updatedDetails = Map<String, CardDetails>.from(state.detailsById)
+        ..[normalizedId] = details;
+      final trimmedLoading = Set<String>.from(state.detailLoadingIds)..remove(normalizedId);
+
+      state = state.copyWith(
+        detailsById: updatedDetails,
+        detailLoadingIds: trimmedLoading,
+        revealedCardIds:
+            reveal ? (Set<String>.from(state.revealedCardIds)..add(normalizedId)) : null,
+      );
+
+      return true;
+    } catch (error, stackTrace) {
+      debugPrint('❌ Failed to preload card details for $normalizedId: $error');
+      debugPrint('$stackTrace');
+      final trimmedLoading = Set<String>.from(state.detailLoadingIds)..remove(normalizedId);
+      state = state.copyWith(detailLoadingIds: trimmedLoading);
+      return false;
+    }
+  }
+
+  VirtualCard? _findCardById(String cardId) {
+    final normalizedId = cardId.trim();
+    if (normalizedId.isEmpty) {
+      return null;
+    }
+
+    for (final card in state.cards) {
+      if (card.id.trim() == normalizedId) {
+        return card;
+      }
+    }
+    return null;
+  }
 }
 
 class CardActionResult {
