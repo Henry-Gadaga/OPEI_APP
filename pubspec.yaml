@@ -64,5 +64,5 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/icons/ico.png
+  image_path: assets/icons/ic3.png
   remove_alpha_ios: true
