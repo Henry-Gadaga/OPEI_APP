@@ -1202,17 +1202,10 @@ class _UserCardView extends StatelessWidget {
   }
 
   static _CardAddressData? _buildAddressData(VirtualCard card) {
-    const fallbackPreview = '742 Evergreen Terrace, Springfield';
-    const fallbackFull = '742 Evergreen Terrace\nSpringfield, IL 62704\nUnited States';
-
     final address = card.address;
 
     if (address == null) {
-      return const _CardAddressData(
-        preview: fallbackPreview,
-        full: fallbackFull,
-        isPlaceholder: true,
-      );
+      return null;
     }
 
     String? trimValue(String? value) {
@@ -1257,15 +1250,25 @@ class _UserCardView extends StatelessWidget {
       }
     }
 
-    final effectivePreview = preview.isNotEmpty ? preview : fullLines.join(', ');
-    final effectiveFull = fullLines.isNotEmpty ? fullLines.join('\n') : effectivePreview;
+    final effectivePreview = preview.trim().isNotEmpty ? preview.trim() : fullLines.join(', ').trim();
+    final joinedFull = fullLines.join('\n').trim();
+    final effectiveFull = joinedFull.isNotEmpty ? joinedFull : effectivePreview;
 
-    if (effectivePreview.trim().isEmpty && effectiveFull.trim().isEmpty) {
-      return const _CardAddressData(
-        preview: fallbackPreview,
-        full: fallbackFull,
-        isPlaceholder: true,
-      );
+    if (effectivePreview.isEmpty && effectiveFull.isEmpty) {
+      return null;
+    }
+
+    final hasMeaningfulData = [
+      street,
+      city,
+      state,
+      country,
+      zipCode,
+      countryCode,
+    ].any((value) => value != null && value.trim().isNotEmpty);
+
+    if (!hasMeaningfulData) {
+      return null;
     }
 
     return _CardAddressData(

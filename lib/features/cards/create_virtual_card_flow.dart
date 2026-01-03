@@ -76,36 +76,31 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
     final state = ref.watch(cardCreationControllerProvider);
     final theme = Theme.of(context);
 
-    return Scaffold(
-      backgroundColor: OpeiColors.pureWhite,
-      appBar: AppBar(
+    return WillPopScope(
+      onWillPop: () async => !_isFinishing,
+      child: Scaffold(
         backgroundColor: OpeiColors.pureWhite,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        leadingWidth: 72,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: IconButton(
-            icon: const Icon(Icons.close_rounded, color: OpeiColors.pureBlack),
-            onPressed: () => Navigator.of(context).maybePop(),
-            tooltip: 'Close',
+        appBar: AppBar(
+          backgroundColor: OpeiColors.pureWhite,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Text(
+            _appBarTitle(state.stage),
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
+          centerTitle: true,
         ),
-        title: Text(
-          _appBarTitle(state.stage),
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        centerTitle: true,
-      ),
-      body: SafeArea(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 220),
-          switchInCurve: Curves.easeOut,
-          switchOutCurve: Curves.easeIn,
-          child: Padding(
-            key: ValueKey(state.stage),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            child: _buildStage(state, theme),
+        body: SafeArea(
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            child: Padding(
+              key: ValueKey(state.stage),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: _buildStage(state, theme),
+            ),
           ),
         ),
       ),
@@ -364,6 +359,8 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
     setState(() => _isFinishing = true);
     FocusScope.of(context).unfocus();
 
+    await Future.delayed(const Duration(seconds: 15));
+
     final cardsController = ref.read(cardsControllerProvider.notifier);
     try {
       await cardsController.refresh();
@@ -507,62 +504,96 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
     final isHydrating = state.isBusy;
     final canFinish = !isHydrating && !_isFinishing;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Stack(
       children: [
-        const Spacer(),
-        const SuccessHero(iconHeight: 80, gap: 8),
-        const SizedBox(height: 32),
-        Text(
-          'Virtual card created',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontSize: 28,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -0.4,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 12),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Text(
-            'Your card is ready to use',
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: OpeiColors.iosLabelSecondary,
-              height: 1.4,
-              fontSize: 17,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Spacer(),
+            const SuccessHero(iconHeight: 80, gap: 8),
+            const SizedBox(height: 32),
+            Text(
+              'Virtual card created',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.4,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const Spacer(flex: 2),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: FilledButton(
-            onPressed: canFinish
-                ? () {
-                    unawaited(_handleSuccessDone(state));
-                  }
-                : null,
-            style: FilledButton.styleFrom(
-              backgroundColor: OpeiColors.pureBlack,
-              foregroundColor: OpeiColors.pureWhite,
-              minimumSize: const Size.fromHeight(54),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                'Your card is ready to use',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: OpeiColors.iosLabelSecondary,
+                  height: 1.4,
+                  fontSize: 17,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            child: _isFinishing
-                ? const CupertinoActivityIndicator(radius: 11, color: OpeiColors.pureWhite)
-                : const Text(
-                    'Done',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.2,
-                    ),
+            const Spacer(flex: 2),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: FilledButton(
+                onPressed: canFinish
+                    ? () {
+                        unawaited(_handleSuccessDone(state));
+                      }
+                    : null,
+                style: FilledButton.styleFrom(
+                  backgroundColor: OpeiColors.pureBlack,
+                  foregroundColor: OpeiColors.pureWhite,
+                  minimumSize: const Size.fromHeight(54),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+                child: _isFinishing
+                    ? const CupertinoActivityIndicator(radius: 11, color: OpeiColors.pureWhite)
+                    : const Text(
+                        'Done',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+        if (_isFinishing) ...[
+          const Positioned.fill(
+            child: ModalBarrier(
+              color: Colors.white,
+              dismissible: false,
+            ),
+          ),
+          Positioned.fill(
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CupertinoActivityIndicator(
+                    radius: 16,
+                    color: OpeiColors.pureBlack,
                   ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Setting up your card. This will take less than 30 seconds.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: OpeiColors.pureBlack,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
+        ],
       ],
     );
   }
