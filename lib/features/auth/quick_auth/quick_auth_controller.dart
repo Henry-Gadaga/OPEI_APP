@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tt1/core/providers/providers.dart';
@@ -197,17 +199,28 @@ class QuickAuthController extends Notifier<QuickAuthState> {
   Future<void> _forceLogoutAfterTooManyAttempts() async {
     debugPrint(
         '🔐 Exceeded max PIN attempts ($_maxPinAttempts). Forcing logout.');
-    try {
-      await ref.read(authRepositoryProvider).logout();
-    } catch (e) {
-      debugPrint('⚠️ Forced logout encountered an error: $e');
-    } finally {
-      ref.read(authSessionProvider.notifier).clearSession();
-      _resetFailedAttempts();
-      state = QuickAuthFailed(
-        'Too many incorrect PIN attempts. Please log in again to set a new PIN.',
-      );
-    }
+    final sessionNotifier = ref.read(authSessionProvider.notifier);
+
+    // Immediately clear local session and update UI state so the screen can react
+    sessionNotifier.clearSession();
+    _resetFailedAttempts();
+    state = QuickAuthFailed(
+      'Too many incorrect PIN attempts. Please log in again to set a new PIN.',
+    );
+
+    // Fire-and-forget backend logout so a slow network call never blocks the UI
+    unawaited(
+      ref
+          .read(authRepositoryProvider)
+          .logout()
+          .timeout(const Duration(seconds: 8))
+          .catchError(
+        (error, __) {
+          debugPrint('⚠️ Forced logout encountered an error: $error');
+          return null;
+        },
+      ),
+    );
   }
 }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -311,9 +313,17 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     final sessionNotifier = ref.read(authSessionProvider.notifier);
     final setupNotifier = ref.read(quickAuthSetupControllerProvider.notifier);
 
-    await authRepository.logout();
     sessionNotifier.clearSession();
     setupNotifier.reset();
+
+    unawaited(
+      authRepository.logout().timeout(const Duration(seconds: 8)).catchError(
+        (error, __) {
+          debugPrint('⚠️ Logout after quick-auth failure hit an error: $error');
+          return null;
+        },
+      ),
+    );
 
     if (!mounted) {
       return;
