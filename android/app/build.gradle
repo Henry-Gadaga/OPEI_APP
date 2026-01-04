@@ -45,6 +45,7 @@ android {
         versionName = flutter.versionName
         manifestPlaceholders = [
                 appLabel: "Opei",
+                applicationName: "io.flutter.app.FlutterApplication",
         ]
     }
 
@@ -54,17 +55,26 @@ android {
             dimension "environment"
             applicationIdSuffix ".dev"
             versionNameSuffix "-dev"
-            manifestPlaceholders = [appLabel: "Opei Dev"]
+            manifestPlaceholders = [
+                    appLabel: "Opei Dev",
+                    applicationName: "io.flutter.app.FlutterApplication",
+            ]
         }
         staging {
             dimension "environment"
             applicationIdSuffix ".staging"
             versionNameSuffix "-staging"
-            manifestPlaceholders = [appLabel: "Opei Staging"]
+            manifestPlaceholders = [
+                    appLabel: "Opei Staging",
+                    applicationName: "io.flutter.app.FlutterApplication",
+            ]
         }
         prod {
             dimension "environment"
-            manifestPlaceholders = [appLabel: "Opei"]
+            manifestPlaceholders = [
+                    appLabel: "Opei",
+                    applicationName: "io.flutter.app.FlutterApplication",
+            ]
         }
     }
 

@@ -13,14 +13,14 @@ class Environment {
 
   static final _configByEnv = <AppEnvironment, _EnvironmentConfig>{
     AppEnvironment.dev: _EnvironmentConfig(
-      name: 'Development',
-      apiBaseUrl: 'https://opei-dev-api.example.com',
+    name: 'Development',
+    apiBaseUrl: 'https://opei-gateway-production.up.railway.app',
       apiVersion: 'v1',
       sentryDsn: '',
     ),
     AppEnvironment.staging: _EnvironmentConfig(
       name: 'Staging',
-      apiBaseUrl: 'https://opei-staging-api.example.com',
+    apiBaseUrl: 'https://opei-gateway-production.up.railway.app',
       apiVersion: 'v1',
       sentryDsn: '',
     ),
