@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:opei/core/config/environment.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/core/utils/asset_preloader.dart';
 import 'package:opei/core/providers/providers.dart';
@@ -34,8 +35,7 @@ import 'package:opei/features/legal/privacy_policy_screen.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/keyboard_dismiss_on_tap.dart';
 
-const String _sentryDsn =
-    String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+final String _sentryDsn = Environment.sentryDsn;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +52,10 @@ Future<void> main() async {
     ),
   );
 
+  if (kDebugMode) {
+    debugPrint('🏗 Running Opei in ${Environment.name} environment');
+  }
+
   if (_sentryDsn.isNotEmpty) {
     await SentryFlutter.init(
       (options) {
@@ -59,6 +63,7 @@ Future<void> main() async {
         options.tracesSampleRate = 0.2;
         options.enableAutoSessionTracking = true;
         options.sendDefaultPii = false;
+        options.environment = Environment.name;
       },
       appRunner: _runOpeiApp,
     );

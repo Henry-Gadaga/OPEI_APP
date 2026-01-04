@@ -79,6 +79,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Environment-aware configuration (`lib/core/config/environment.dart`) with support for dev/staging/prod API URLs and Sentry DSNs.
+- Android build flavors (`dev`, `staging`, `prod`) with distinct application IDs and launcher labels.
+- Continuous integration workflow (`.github/workflows/flutter-ci.yml`) that runs analyze/tests on every push or PR.
+
+### Changed
+- `ApiConfig` now derives its base URL/version from the active environment instead of hardcoded production values.
+- README updated with instructions for running different environments and flavors.
+
 ### Planned
 - Multi-language support
 - Dark mode

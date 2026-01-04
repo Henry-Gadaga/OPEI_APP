@@ -43,6 +43,29 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders = [
+                appLabel: "Opei",
+        ]
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        dev {
+            dimension "environment"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            manifestPlaceholders = [appLabel: "Opei Dev"]
+        }
+        staging {
+            dimension "environment"
+            applicationIdSuffix ".staging"
+            versionNameSuffix "-staging"
+            manifestPlaceholders = [appLabel: "Opei Staging"]
+        }
+        prod {
+            dimension "environment"
+            manifestPlaceholders = [appLabel: "Opei"]
+        }
     }
 
     buildTypes {

@@ -74,27 +74,24 @@ lib/
 3. **Run the app**
    ```bash
    # Development
-   flutter run
+   flutter run --flavor dev --dart-define=APP_ENV=dev
 
-   # With Sentry (production)
-   flutter run --dart-define=SENTRY_DSN=<your-sentry-dsn>
+   # Staging
+   flutter run --flavor staging --dart-define=APP_ENV=staging
+
+   # Production
+   flutter run --flavor prod --dart-define=APP_ENV=prod --dart-define=SENTRY_DSN=<your-sentry-dsn>
    ```
 
 ## Environment Configuration
 
-### API Configuration
-Update the API base URL in `lib/core/config/api_config.dart`:
+Environment-specific values live in `lib/core/config/environment.dart`. The active environment defaults to `prod` but can be overridden with `--dart-define=APP_ENV=<dev|staging|prod>`.
 
-```dart
-static const String apiBaseUrl = 'https://your-api-url.com';
-```
+- `APP_ENV` selects which config block (base URL, API version, default Sentry DSN) to load.
+- Optional overrides: `--dart-define=API_BASE_URL=...` or `--dart-define=SENTRY_DSN=...` take precedence.
+- Android build flavors (`dev`, `staging`, `prod`) are available with distinct `applicationId` suffixes and launcher labels.
 
-### Sentry Setup
-Add your Sentry DSN when running the app:
-
-```bash
-flutter run --dart-define=SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
-```
+Update the placeholder dev/staging URLs and DSNs before releasing.
 
 ## Project Structure
 
