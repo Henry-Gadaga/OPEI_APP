@@ -1,4 +1,4 @@
-package com.mycompany.CounterApp
+package com.yegetechnologies.opei
 
 import io.flutter.embedding.android.FlutterActivity
 

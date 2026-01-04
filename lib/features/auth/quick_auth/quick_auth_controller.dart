@@ -215,7 +215,7 @@ class QuickAuthController extends Notifier<QuickAuthState> {
           .logout()
           .timeout(const Duration(seconds: 8))
           .catchError(
-        (error, __) {
+        (error, stackTrace) {
           debugPrint('⚠️ Forced logout encountered an error: $error');
           return null;
         },

@@ -6,7 +6,9 @@ part of 'wallet_lookup_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-WalletLookupResponse _$WalletLookupResponseFromJson(Map<String, dynamic> json) => WalletLookupResponse(
+WalletLookupResponse _$WalletLookupResponseFromJson(
+        Map<String, dynamic> json) =>
+    WalletLookupResponse(
       userId: json['userId'] as String,
       email: json['email'] as String,
       status: json['status'] as String,
@@ -16,7 +18,8 @@ WalletLookupResponse _$WalletLookupResponseFromJson(Map<String, dynamic> json) =
       displayName: json['displayName'] as String?,
     );
 
-Map<String, dynamic> _$WalletLookupResponseToJson(WalletLookupResponse instance) =>
+Map<String, dynamic> _$WalletLookupResponseToJson(
+        WalletLookupResponse instance) =>
     <String, dynamic>{
       'userId': instance.userId,
       'email': instance.email,

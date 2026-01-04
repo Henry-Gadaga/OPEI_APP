@@ -73,6 +73,6 @@ Map<String, dynamic> _$FullProfileResponseToJson(
       'email': instance.email,
       'phone': instance.phone,
       'userStage': instance.userStage,
-      'identity': instance.identity?.toJson(),
-      'address': instance.address?.toJson(),
+      'identity': instance.identity,
+      'address': instance.address,
     };

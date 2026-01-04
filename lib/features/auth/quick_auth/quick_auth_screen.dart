@@ -328,7 +328,7 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
 
     unawaited(
       authRepository.logout().timeout(const Duration(seconds: 8)).catchError(
-        (error, __) {
+        (error, stackTrace) {
           debugPrint('⚠️ Logout after quick-auth failure hit an error: $error');
           return null;
         },

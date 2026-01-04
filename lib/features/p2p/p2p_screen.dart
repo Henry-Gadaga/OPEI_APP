@@ -651,7 +651,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 shrinkWrap: true,
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
                 itemCount: currencies.length,
-                separatorBuilder: (_, __) => Divider(
+                separatorBuilder: (_, index) => Divider(
                   height: 1,
                   color: OpeiColors.iosSeparator.withValues(alpha: 0.3),
                 ),
@@ -921,7 +921,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
           26,
         ),
         itemCount: state.trades.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        separatorBuilder: (_, index) => const SizedBox(height: 10),
         itemBuilder: (_, index) {
           final trade = state.trades[index];
           final bool? isBuyer =
@@ -1100,7 +1100,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
           32,
         ),
         itemCount: state.ads.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        separatorBuilder: (_, index) => const SizedBox(height: 12),
         itemBuilder: (_, index) {
           final ad = state.ads[index];
           return _MyAdCard(
@@ -3507,7 +3507,7 @@ class _SelectAdPaymentMethodSheetState
                     ),
                   );
                 },
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                separatorBuilder: (_, index) => const SizedBox(height: 8),
                 itemCount: methods.length,
               ),
             ),
@@ -3794,7 +3794,7 @@ class _CurrencySelectorSheetState extends State<_CurrencySelectorSheet> {
                     onTap: () => Navigator.of(context).pop(currency.code),
                   );
                 },
-                separatorBuilder: (_, __) => const SizedBox(height: 6),
+                separatorBuilder: (_, index) => const SizedBox(height: 6),
                 itemCount: filtered.length,
               ),
             ),
@@ -3828,7 +3828,7 @@ class _MyAdsFilterRow extends StatelessWidget {
             onTap: () => onSelected(filter),
           );
         },
-        separatorBuilder: (_, __) => const SizedBox(width: 6),
+        separatorBuilder: (_, index) => const SizedBox(width: 6),
         itemCount: MyP2PAdStatusFilter.values.length,
       ),
     );
@@ -3858,7 +3858,7 @@ class _OrdersFilterRow extends StatelessWidget {
             onTap: () => onSelected(filter),
           );
         },
-        separatorBuilder: (_, __) => const SizedBox(width: 6),
+        separatorBuilder: (_, index) => const SizedBox(width: 6),
         itemCount: P2POrderStatusFilter.values.length,
       ),
     );
@@ -8227,7 +8227,7 @@ class _CurrencyPickerSheet extends StatelessWidget {
               shrinkWrap: true,
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
               itemCount: currencies.length,
-              separatorBuilder: (_, __) =>
+              separatorBuilder: (_, index) =>
                   const Divider(height: 1, thickness: 0.5),
               itemBuilder: (_, index) {
                 final currency = currencies[index];
@@ -9642,7 +9642,7 @@ class _AddPaymentMethodSheetState
                             : null,
                       );
                     },
-                    separatorBuilder: (_, __) => const Divider(height: 1),
+                    separatorBuilder: (_, index) => const Divider(height: 1),
                     itemCount: _types.length,
                   ),
                 ),

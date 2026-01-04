@@ -23,11 +23,12 @@ import 'package:opei/theme.dart';
 
 Route<CardCreationResponse?> _buildCreateCardFlowRoute() {
   return PageRouteBuilder<CardCreationResponse?>(
-    pageBuilder: (_, __, ___) => const CreateVirtualCardFlow(),
+    pageBuilder: (_, animation, secondaryAnimation) =>
+        const CreateVirtualCardFlow(),
     transitionDuration: Duration.zero,
     reverseTransitionDuration: Duration.zero,
     fullscreenDialog: true,
-    transitionsBuilder: (_, __, ___, child) => child,
+    transitionsBuilder: (_, animation, secondaryAnimation, child) => child,
   );
 }
 

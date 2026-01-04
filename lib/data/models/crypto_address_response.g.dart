@@ -1,6 +1,14 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'crypto_address_response.dart';
 
-CryptoAddressResponse _$CryptoAddressResponseFromJson(Map<String, dynamic> json) => CryptoAddressResponse(
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+CryptoAddressResponse _$CryptoAddressResponseFromJson(
+        Map<String, dynamic> json) =>
+    CryptoAddressResponse(
       status: json['status'] as String,
       chain: json['chain'] as String,
       address: json['address'] as String,
@@ -8,7 +16,9 @@ CryptoAddressResponse _$CryptoAddressResponseFromJson(Map<String, dynamic> json)
       createdAt: json['createdAt'] as String,
     );
 
-Map<String, dynamic> _$CryptoAddressResponseToJson(CryptoAddressResponse instance) => <String, dynamic>{
+Map<String, dynamic> _$CryptoAddressResponseToJson(
+        CryptoAddressResponse instance) =>
+    <String, dynamic>{
       'status': instance.status,
       'chain': instance.chain,
       'address': instance.address,

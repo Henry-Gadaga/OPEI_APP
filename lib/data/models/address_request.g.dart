@@ -6,7 +6,8 @@ part of 'address_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-AddressRequest _$AddressRequestFromJson(Map<String, dynamic> json) => AddressRequest(
+AddressRequest _$AddressRequestFromJson(Map<String, dynamic> json) =>
+    AddressRequest(
       country: json['country'] as String,
       state: json['state'] as String,
       city: json['city'] as String,
@@ -16,7 +17,8 @@ AddressRequest _$AddressRequestFromJson(Map<String, dynamic> json) => AddressReq
       bvn: json['bvn'] as String?,
     );
 
-Map<String, dynamic> _$AddressRequestToJson(AddressRequest instance) => <String, dynamic>{
+Map<String, dynamic> _$AddressRequestToJson(AddressRequest instance) =>
+    <String, dynamic>{
       'country': instance.country,
       'state': instance.state,
       'city': instance.city,

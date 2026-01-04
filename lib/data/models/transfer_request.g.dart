@@ -6,7 +6,8 @@ part of 'transfer_request.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-TransferRequest _$TransferRequestFromJson(Map<String, dynamic> json) => TransferRequest(
+TransferRequest _$TransferRequestFromJson(Map<String, dynamic> json) =>
+    TransferRequest(
       toUserId: json['toUserId'] as String,
       amount: (json['amount'] as num).toInt(),
       description: json['description'] as String?,

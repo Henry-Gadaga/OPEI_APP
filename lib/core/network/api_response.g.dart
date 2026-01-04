@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'api_response.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
 
 ApiResponse<T> _$ApiResponseFromJson<T>(
   Map<String, dynamic> json,
@@ -7,7 +13,7 @@ ApiResponse<T> _$ApiResponseFromJson<T>(
     ApiResponse<T>(
       success: json['success'] as bool,
       message: json['message'] as String,
-      data: json['data'] == null ? null : fromJsonT(json['data']),
+      data: _$nullableGenericFromJson(json['data'], fromJsonT),
       error: json['error'] as Map<String, dynamic>?,
     );
 
@@ -18,6 +24,18 @@ Map<String, dynamic> _$ApiResponseToJson<T>(
     <String, dynamic>{
       'success': instance.success,
       'message': instance.message,
-      'data': instance.data == null ? null : toJsonT(instance.data as T),
+      'data': _$nullableGenericToJson(instance.data, toJsonT),
       'error': instance.error,
     };
+
+T? _$nullableGenericFromJson<T>(
+  Object? input,
+  T Function(Object? json) fromJson,
+) =>
+    input == null ? null : fromJson(input);
+
+Object? _$nullableGenericToJson<T>(
+  T? input,
+  Object? Function(T value) toJson,
+) =>
+    input == null ? null : toJson(input);
