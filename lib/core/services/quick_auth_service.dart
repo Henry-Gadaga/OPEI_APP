@@ -186,10 +186,8 @@ class QuickAuthService {
     try {
       final authenticated = await _localAuth.authenticate(
         localizedReason: reason,
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: false,
-        ),
+        persistAcrossBackgrounding: true,
+        biometricOnly: false,
       );
       
       debugPrint(authenticated 
