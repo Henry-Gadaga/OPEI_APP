@@ -545,7 +545,6 @@ class _TerminateConfirmationSheet extends StatelessWidget {
   const _TerminateConfirmationSheet({
     required this.cardName,
     this.lastFour,
-    super.key,
   });
 
   @override

@@ -80,8 +80,8 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
     final state = ref.watch(cardCreationControllerProvider);
     final theme = Theme.of(context);
 
-    return WillPopScope(
-      onWillPop: () async => !_isFinishing,
+    return PopScope(
+      canPop: !_isFinishing,
       child: Scaffold(
         backgroundColor: OpeiColors.pureWhite,
         appBar: AppBar(
