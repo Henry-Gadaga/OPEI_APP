@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/storage/secure_storage_service.dart';
-import 'package:tt1/data/models/p2p_ad.dart';
-import 'package:tt1/data/models/p2p_payment_method_type.dart';
-import 'package:tt1/data/models/p2p_trade.dart';
-import 'package:tt1/data/models/p2p_user_payment_method.dart';
-import 'package:tt1/data/models/p2p_user_profile.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/storage/secure_storage_service.dart';
+import 'package:opei/data/models/p2p_ad.dart';
+import 'package:opei/data/models/p2p_payment_method_type.dart';
+import 'package:opei/data/models/p2p_trade.dart';
+import 'package:opei/data/models/p2p_user_payment_method.dart';
+import 'package:opei/data/models/p2p_user_profile.dart';
 
 class P2PTradeProofUploadRequest {
   final String fileName;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/responsive/responsive_tokens.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/responsive/responsive_tokens.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
+import 'package:opei/theme.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -248,6 +248,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             SizedBox(height: spacing * 3),
             QuickAuthSettingsSection(userId: user.userId),
+            SizedBox(height: spacing * 3),
+            ProfileSection(
+              title: 'Legal',
+              children: [
+                ProfileActionItem(
+                  icon: Icons.description_outlined,
+                  label: 'Terms & Conditions',
+                  onTap: () => context.push('/terms'),
+                ),
+                ProfileActionItem(
+                  icon: Icons.privacy_tip_outlined,
+                  label: 'Privacy Policy',
+                  onTap: () => context.push('/privacy'),
+                ),
+              ],
+            ),
             SizedBox(height: spacing * 3),
             ProfileSection(
               title: 'Account Actions',

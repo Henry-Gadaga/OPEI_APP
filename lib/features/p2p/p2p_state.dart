@@ -1,6 +1,6 @@
-import 'package:tt1/data/models/p2p_ad.dart';
-import 'package:tt1/data/models/p2p_trade.dart';
-import 'package:tt1/data/models/p2p_user_profile.dart';
+import 'package:opei/data/models/p2p_ad.dart';
+import 'package:opei/data/models/p2p_trade.dart';
+import 'package:opei/data/models/p2p_user_profile.dart';
 
 class P2PAdsState {
   final List<P2PAd> allAds;

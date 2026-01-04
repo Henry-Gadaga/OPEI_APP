@@ -4,33 +4,35 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:tt1/core/navigation/opei_page_transitions.dart';
-import 'package:tt1/core/utils/asset_preloader.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/services/session_lock_service.dart';
-import 'package:tt1/features/address/address_screen.dart';
-import 'package:tt1/features/auth/forgot_password/forgot_password_screen.dart';
-import 'package:tt1/features/auth/login/login_screen.dart';
-import 'package:tt1/features/auth/reset_password/reset_password_screen.dart';
-import 'package:tt1/features/auth/signup/signup_screen.dart';
-import 'package:tt1/features/auth/verify_email/verify_email_screen.dart';
-import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_screen.dart';
-import 'package:tt1/features/auth/quick_auth/quick_auth_screen.dart';
-import 'package:tt1/features/dashboard/dashboard_screen.dart';
-import 'package:tt1/features/kyc/kyc_screen.dart';
-import 'package:tt1/features/kyc/kyc_result_screen.dart';
-import 'package:tt1/features/profile/profile_screen.dart';
-import 'package:tt1/features/send_money/send_money_screen.dart';
-import 'package:tt1/features/deposit/deposit_screen.dart';
-import 'package:tt1/features/withdraw/withdraw_screen.dart';
-import 'package:tt1/features/transactions/transactions_screen.dart';
-import 'package:tt1/features/p2p/p2p_screen.dart';
-import 'package:tt1/features/p2p/p2p_rating_screen.dart';
-import 'package:tt1/data/models/p2p_trade.dart';
-import 'package:tt1/data/models/p2p_ad.dart';
-import 'package:tt1/data/models/user_model.dart';
-import 'package:tt1/theme.dart';
-import 'package:tt1/widgets/keyboard_dismiss_on_tap.dart';
+import 'package:opei/core/navigation/opei_page_transitions.dart';
+import 'package:opei/core/utils/asset_preloader.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/services/session_lock_service.dart';
+import 'package:opei/features/address/address_screen.dart';
+import 'package:opei/features/auth/forgot_password/forgot_password_screen.dart';
+import 'package:opei/features/auth/login/login_screen.dart';
+import 'package:opei/features/auth/reset_password/reset_password_screen.dart';
+import 'package:opei/features/auth/signup/signup_screen.dart';
+import 'package:opei/features/auth/verify_email/verify_email_screen.dart';
+import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_screen.dart';
+import 'package:opei/features/auth/quick_auth/quick_auth_screen.dart';
+import 'package:opei/features/dashboard/dashboard_screen.dart';
+import 'package:opei/features/kyc/kyc_screen.dart';
+import 'package:opei/features/kyc/kyc_result_screen.dart';
+import 'package:opei/features/profile/profile_screen.dart';
+import 'package:opei/features/send_money/send_money_screen.dart';
+import 'package:opei/features/deposit/deposit_screen.dart';
+import 'package:opei/features/withdraw/withdraw_screen.dart';
+import 'package:opei/features/transactions/transactions_screen.dart';
+import 'package:opei/features/p2p/p2p_screen.dart';
+import 'package:opei/features/p2p/p2p_rating_screen.dart';
+import 'package:opei/data/models/p2p_trade.dart';
+import 'package:opei/data/models/p2p_ad.dart';
+import 'package:opei/data/models/user_model.dart';
+import 'package:opei/features/legal/terms_and_conditions_screen.dart';
+import 'package:opei/features/legal/privacy_policy_screen.dart';
+import 'package:opei/theme.dart';
+import 'package:opei/widgets/keyboard_dismiss_on_tap.dart';
 
 const String _sentryDsn =
     String.fromEnvironment('SENTRY_DSN', defaultValue: '');
@@ -91,6 +93,8 @@ const Set<String> _publicPaths = {
   '/verify-email',
   '/quick-auth',
   '/quick-auth-setup',
+  '/terms',
+  '/privacy',
 };
 
 const Set<String> _onboardingPaths = {
@@ -203,7 +207,7 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Opei',
+      title: 'Opei - USD Financial Tools',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -245,6 +249,22 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       pageBuilder: (context, state) => buildOpeiTransitionPage(
         state: state,
         child: const SignupScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/terms',
+      name: 'terms',
+      pageBuilder: (context, state) => buildOpeiTransitionPage(
+        state: state,
+        child: const TermsAndConditionsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/privacy',
+      name: 'privacy',
+      pageBuilder: (context, state) => buildOpeiTransitionPage(
+        state: state,
+        child: const PrivacyPolicyScreen(),
       ),
     ),
     GoRoute(

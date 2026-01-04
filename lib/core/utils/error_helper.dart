@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tt1/core/network/api_error.dart';
+import 'package:opei/core/network/api_error.dart';
 
 class ErrorHelper {
   static String getErrorMessage(dynamic error, {String? context}) {

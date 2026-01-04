@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/data/models/login_request.dart';
-import 'package:tt1/features/auth/login/login_state.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/data/models/login_request.dart';
+import 'package:opei/features/auth/login/login_state.dart';
 
 class LoginController extends Notifier<LoginState> {
   @override

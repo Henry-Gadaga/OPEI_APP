@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/data/models/wallet_transaction.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/data/models/wallet_transaction.dart';
+import 'package:opei/theme.dart';
 
 class TransactionGroupsView extends StatelessWidget {
   final List<WalletTransaction> transactions;

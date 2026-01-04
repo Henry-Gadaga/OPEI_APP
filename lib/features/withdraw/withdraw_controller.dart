@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/utils/error_helper.dart';
-import 'package:tt1/data/repositories/crypto_repository.dart';
-import 'package:tt1/features/dashboard/dashboard_controller.dart';
-import 'package:tt1/features/withdraw/withdraw_state.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
+import 'package:opei/data/repositories/crypto_repository.dart';
+import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/features/withdraw/withdraw_state.dart';
 
 final withdrawControllerProvider = NotifierProvider<WithdrawController, WithdrawState>(WithdrawController.new);
 

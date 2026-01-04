@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/features/auth/quick_auth/quick_auth_state.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/features/auth/quick_auth/quick_auth_state.dart';
 
 class QuickAuthController extends Notifier<QuickAuthState> {
   static const int _maxPinAttempts = 5;

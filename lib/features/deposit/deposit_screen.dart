@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tt1/features/deposit/deposit_controller.dart';
-import 'package:tt1/responsive/responsive_tokens.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/features/deposit/deposit_controller.dart';
+import 'package:opei/responsive/responsive_tokens.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
+import 'package:opei/theme.dart';
 
 class DepositOptionsSheet extends StatelessWidget {
   const DepositOptionsSheet({super.key});

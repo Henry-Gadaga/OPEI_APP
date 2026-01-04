@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/storage/secure_storage_service.dart';
-import 'package:tt1/core/utils/error_helper.dart';
-import 'package:tt1/data/repositories/user_repository.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/storage/secure_storage_service.dart';
+import 'package:opei/core/utils/error_helper.dart';
+import 'package:opei/data/repositories/user_repository.dart';
 
-export 'package:tt1/features/profile/profile_state.dart';
+export 'package:opei/features/profile/profile_state.dart';
 
 class ProfileController extends Notifier<ProfileState> {
   late UserRepository _userRepository;

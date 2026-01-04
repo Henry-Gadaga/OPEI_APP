@@ -1,6 +1,6 @@
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/data/models/card_topup_preview.dart';
-import 'package:tt1/data/models/card_topup_response.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/data/models/card_topup_preview.dart';
+import 'package:opei/data/models/card_topup_response.dart';
 
 enum CardTopUpStep { amountEntry, preview, result }
 

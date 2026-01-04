@@ -9,22 +9,22 @@ import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:dio/dio.dart';
-import 'package:tt1/core/constants/currencies.dart';
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/data/models/p2p_ad.dart';
-import 'package:tt1/data/repositories/p2p_repository.dart';
-import 'package:tt1/features/p2p/p2p_controller.dart';
-import 'package:tt1/features/p2p/p2p_state.dart';
-import 'package:tt1/theme.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/data/models/p2p_user_payment_method.dart';
-import 'package:tt1/data/models/p2p_payment_method_type.dart';
-import 'package:tt1/data/models/p2p_user_profile.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/data/models/p2p_trade.dart';
+import 'package:opei/core/constants/currencies.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/data/models/p2p_ad.dart';
+import 'package:opei/data/repositories/p2p_repository.dart';
+import 'package:opei/features/p2p/p2p_controller.dart';
+import 'package:opei/features/p2p/p2p_state.dart';
+import 'package:opei/theme.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/data/models/p2p_user_payment_method.dart';
+import 'package:opei/data/models/p2p_payment_method_type.dart';
+import 'package:opei/data/models/p2p_user_profile.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/data/models/p2p_trade.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:tt1/responsive/responsive_tokens.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
+import 'package:opei/responsive/responsive_tokens.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
 // Removed SuccessBadge usage in favor of a custom asset checkmark
 
 const List<String> _ratingTagSuggestions = <String>[

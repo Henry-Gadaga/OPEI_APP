@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tt1/data/models/wallet_transaction.dart';
-import 'package:tt1/theme.dart';
-import 'package:tt1/widgets/reference_copy_value.dart';
+import 'package:opei/data/models/wallet_transaction.dart';
+import 'package:opei/theme.dart';
+import 'package:opei/widgets/reference_copy_value.dart';
 
 Future<void> showTransactionDetailSheet(
   BuildContext context,

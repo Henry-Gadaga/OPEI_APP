@@ -1,5 +1,5 @@
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/data/models/p2p_ad.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/data/models/p2p_ad.dart';
 
 DateTime? _parseDate(dynamic value) {
   if (value is DateTime) {

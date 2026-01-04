@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tt1/features/cards/cards_screen.dart';
-import 'package:tt1/features/dashboard/dashboard_controller.dart';
-import 'package:tt1/features/dashboard/dashboard_state.dart';
-import 'package:tt1/features/dashboard/widgets/transaction_widgets.dart';
-import 'package:tt1/features/deposit/deposit_screen.dart';
-import 'package:tt1/features/profile/profile_screen.dart';
-import 'package:tt1/features/transactions/widgets/transaction_detail_sheet.dart';
-import 'package:tt1/features/withdraw/withdraw_screen.dart';
-import 'package:tt1/responsive/responsive_tokens.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
-import 'package:tt1/theme.dart';
-import 'package:tt1/widgets/opei_wordmark.dart';
+import 'package:opei/features/cards/cards_screen.dart';
+import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/features/dashboard/dashboard_state.dart';
+import 'package:opei/features/dashboard/widgets/transaction_widgets.dart';
+import 'package:opei/features/deposit/deposit_screen.dart';
+import 'package:opei/features/profile/profile_screen.dart';
+import 'package:opei/features/transactions/widgets/transaction_detail_sheet.dart';
+import 'package:opei/features/withdraw/withdraw_screen.dart';
+import 'package:opei/responsive/responsive_tokens.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
+import 'package:opei/theme.dart';
+import 'package:opei/widgets/opei_wordmark.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

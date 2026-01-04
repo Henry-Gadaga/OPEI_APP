@@ -1,28 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/services/quick_auth_service.dart';
-import 'package:tt1/core/services/session_lock_service.dart';
-import 'package:tt1/core/storage/secure_storage_service.dart';
-import 'package:tt1/data/repositories/address_repository.dart';
-import 'package:tt1/data/repositories/auth_repository.dart';
-import 'package:tt1/data/repositories/kyc_repository.dart';
-import 'package:tt1/data/repositories/password_reset_repository.dart';
-import 'package:tt1/data/repositories/user_repository.dart';
-import 'package:tt1/data/repositories/transfer_repository.dart';
-import 'package:tt1/data/repositories/card_repository.dart';
-import 'package:tt1/data/repositories/crypto_repository.dart';
-import 'package:tt1/data/repositories/p2p_repository.dart';
-import 'package:tt1/data/repositories/wallet_repository.dart';
-import 'package:tt1/data/repositories/transaction_repository.dart';
-import 'package:tt1/features/profile/profile_controller.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/services/quick_auth_service.dart';
+import 'package:opei/core/services/session_lock_service.dart';
+import 'package:opei/core/storage/secure_storage_service.dart';
+import 'package:opei/data/repositories/address_repository.dart';
+import 'package:opei/data/repositories/auth_repository.dart';
+import 'package:opei/data/repositories/kyc_repository.dart';
+import 'package:opei/data/repositories/password_reset_repository.dart';
+import 'package:opei/data/repositories/user_repository.dart';
+import 'package:opei/data/repositories/transfer_repository.dart';
+import 'package:opei/data/repositories/card_repository.dart';
+import 'package:opei/data/repositories/crypto_repository.dart';
+import 'package:opei/data/repositories/p2p_repository.dart';
+import 'package:opei/data/repositories/wallet_repository.dart';
+import 'package:opei/data/repositories/transaction_repository.dart';
+import 'package:opei/features/profile/profile_controller.dart';
 
-export 'package:tt1/data/repositories/auth_repository.dart';
-export 'package:tt1/features/address/address_controller.dart';
-export 'package:tt1/features/auth/verify_email/verify_email_controller.dart';
-export 'package:tt1/features/kyc/kyc_controller.dart';
-export 'package:tt1/features/profile/profile_controller.dart';
+export 'package:opei/data/repositories/auth_repository.dart';
+export 'package:opei/features/address/address_controller.dart';
+export 'package:opei/features/auth/verify_email/verify_email_controller.dart';
+export 'package:opei/features/kyc/kyc_controller.dart';
+export 'package:opei/features/profile/profile_controller.dart';
 
 // Auth Session State to track login/logout changes
 enum QuickAuthStatus {

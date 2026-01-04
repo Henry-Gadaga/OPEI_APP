@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/utils/retry_helper.dart';
-import 'package:tt1/features/auth/verify_email/verify_email_state.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/retry_helper.dart';
+import 'package:opei/features/auth/verify_email/verify_email_state.dart';
 
 class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
   Timer? _countdownTimer;

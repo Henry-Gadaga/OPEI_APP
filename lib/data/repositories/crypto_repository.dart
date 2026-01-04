@@ -1,7 +1,7 @@
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/data/models/crypto_address_response.dart';
-import 'package:tt1/data/models/crypto_transfer_response.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/data/models/crypto_address_response.dart';
+import 'package:opei/data/models/crypto_transfer_response.dart';
 
 class CryptoRepository {
   final ApiClient _apiClient;

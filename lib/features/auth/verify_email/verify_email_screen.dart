@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/providers/providers.dart';
+import 'package:opei/core/providers/providers.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tt1/core/utils/error_helper.dart';
-import 'package:tt1/features/auth/verify_email/verify_email_state.dart';
-import 'package:tt1/responsive/responsive_tokens.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/core/utils/error_helper.dart';
+import 'package:opei/features/auth/verify_email/verify_email_state.dart';
+import 'package:opei/responsive/responsive_tokens.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
+import 'package:opei/theme.dart';
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   final String? email;

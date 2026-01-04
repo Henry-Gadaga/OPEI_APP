@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/data/models/transactions_page.dart';
-import 'package:tt1/data/models/wallet_transaction.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/data/models/transactions_page.dart';
+import 'package:opei/data/models/wallet_transaction.dart';
 
 class TransactionRepository {
   final ApiClient _apiClient;

@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:tt1/core/constants/app_constants.dart';
-import 'package:tt1/data/models/user_model.dart';
+import 'package:opei/core/constants/app_constants.dart';
+import 'package:opei/data/models/user_model.dart';
 
 class SecureStorageService {
   final FlutterSecureStorage _storage;

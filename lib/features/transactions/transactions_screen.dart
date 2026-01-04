@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/features/dashboard/widgets/transaction_widgets.dart';
-import 'package:tt1/features/transactions/transactions_controller.dart';
-import 'package:tt1/features/transactions/transactions_state.dart';
-import 'package:tt1/features/transactions/widgets/transaction_detail_sheet.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/features/dashboard/widgets/transaction_widgets.dart';
+import 'package:opei/features/transactions/transactions_controller.dart';
+import 'package:opei/features/transactions/transactions_state.dart';
+import 'package:opei/features/transactions/widgets/transaction_detail_sheet.dart';
+import 'package:opei/theme.dart';
 
 class TransactionsScreen extends ConsumerStatefulWidget {
   const TransactionsScreen({super.key});

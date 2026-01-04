@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/features/cards/card_creation_controller.dart';
-import 'package:tt1/features/cards/card_creation_state.dart';
-import 'package:tt1/features/cards/cards_controller.dart';
-import 'package:tt1/theme.dart';
-import 'package:tt1/widgets/success_hero.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/features/cards/card_creation_controller.dart';
+import 'package:opei/features/cards/card_creation_state.dart';
+import 'package:opei/features/cards/cards_controller.dart';
+import 'package:opei/theme.dart';
+import 'package:opei/widgets/success_hero.dart';
 
 class CreateVirtualCardFlow extends ConsumerStatefulWidget {
   const CreateVirtualCardFlow({super.key});
@@ -43,7 +43,11 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
         if (!mounted) return;
 
         if (next.stage == CardCreationStage.success && previous?.stage != CardCreationStage.success) {
-          FocusScope.of(context).unfocus();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              FocusScope.of(context).unfocus();
+            }
+          });
         }
 
         if (next.stage == CardCreationStage.amountEntry) {

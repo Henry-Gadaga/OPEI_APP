@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/utils/error_helper.dart';
-import 'package:tt1/data/models/p2p_ad.dart';
-import 'package:tt1/data/models/p2p_trade.dart';
-import 'package:tt1/data/repositories/p2p_repository.dart';
-import 'package:tt1/features/p2p/p2p_state.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
+import 'package:opei/data/models/p2p_ad.dart';
+import 'package:opei/data/models/p2p_trade.dart';
+import 'package:opei/data/repositories/p2p_repository.dart';
+import 'package:opei/features/p2p/p2p_state.dart';
 
 final p2pAdsControllerProvider = NotifierProvider<P2PAdsController, P2PAdsState>(
   P2PAdsController.new,

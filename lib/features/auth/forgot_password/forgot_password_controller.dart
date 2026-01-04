@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/utils/retry_helper.dart';
-import 'package:tt1/features/auth/forgot_password/forgot_password_state.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/retry_helper.dart';
+import 'package:opei/features/auth/forgot_password/forgot_password_state.dart';
 
 class ForgotPasswordController extends Notifier<ForgotPasswordState> {
   @override

@@ -1,7 +1,7 @@
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/data/models/wallet_lookup_response.dart';
-import 'package:tt1/data/models/transfer_fee_response.dart';
-import 'package:tt1/data/models/transfer_response.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/data/models/wallet_lookup_response.dart';
+import 'package:opei/data/models/transfer_fee_response.dart';
+import 'package:opei/data/models/transfer_response.dart';
 
 enum SendMoneyStep { emailLookup, amountEntry, preview, result }
 

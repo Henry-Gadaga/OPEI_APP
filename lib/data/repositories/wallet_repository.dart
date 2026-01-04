@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/utils/error_helper.dart';
-import 'package:tt1/data/models/wallet_balance.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/utils/error_helper.dart';
+import 'package:opei/data/models/wallet_balance.dart';
 
 class WalletRepository {
   final ApiClient _apiClient;

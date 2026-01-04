@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/network/api_response.dart';
-import 'package:tt1/core/services/quick_auth_service.dart';
-import 'package:tt1/core/storage/secure_storage_service.dart';
-import 'package:tt1/data/models/auth_response.dart';
-import 'package:tt1/data/models/login_request.dart';
-import 'package:tt1/data/models/refresh_request.dart';
-import 'package:tt1/data/models/signup_request.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/network/api_response.dart';
+import 'package:opei/core/services/quick_auth_service.dart';
+import 'package:opei/core/storage/secure_storage_service.dart';
+import 'package:opei/data/models/auth_response.dart';
+import 'package:opei/data/models/login_request.dart';
+import 'package:opei/data/models/refresh_request.dart';
+import 'package:opei/data/models/signup_request.dart';
 
 class AuthRepository {
   final ApiClient _apiClient;

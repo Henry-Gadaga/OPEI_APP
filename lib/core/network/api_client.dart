@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/config/api_config.dart';
-import 'package:tt1/core/constants/app_constants.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/storage/secure_storage_service.dart';
+import 'package:opei/core/config/api_config.dart';
+import 'package:opei/core/constants/app_constants.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/storage/secure_storage_service.dart';
 
 class ApiClient {
   late final Dio _dio;

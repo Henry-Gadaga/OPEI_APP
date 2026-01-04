@@ -1,7 +1,7 @@
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/network/api_response.dart';
-import 'package:tt1/data/models/user_model.dart';
-import 'package:tt1/data/models/full_profile_response.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/network/api_response.dart';
+import 'package:opei/data/models/user_model.dart';
+import 'package:opei/data/models/full_profile_response.dart';
 
 class UserRepository {
   final ApiClient _apiClient;

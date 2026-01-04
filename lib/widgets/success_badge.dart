@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/theme.dart';
 
 class SuccessBadge extends StatelessWidget {
   final Color accentColor;

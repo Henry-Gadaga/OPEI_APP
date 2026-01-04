@@ -1,5 +1,5 @@
-import 'package:tt1/data/models/wallet_balance.dart';
-import 'package:tt1/data/models/wallet_transaction.dart';
+import 'package:opei/data/models/wallet_balance.dart';
+import 'package:opei/data/models/wallet_transaction.dart';
 
 class DashboardState {
   final bool isLoading;

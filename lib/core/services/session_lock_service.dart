@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/services/quick_auth_service.dart';
-import 'package:tt1/core/storage/secure_storage_service.dart';
+import 'package:opei/core/services/quick_auth_service.dart';
+import 'package:opei/core/storage/secure_storage_service.dart';
 
 enum SessionLockOutcome {
   none,

@@ -1,12 +1,12 @@
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/network/api_response.dart';
-import 'package:tt1/data/models/wallet_lookup_request.dart';
-import 'package:tt1/data/models/wallet_lookup_response.dart';
-import 'package:tt1/data/models/transfer_fee_request.dart';
-import 'package:tt1/data/models/transfer_fee_response.dart';
-import 'package:tt1/data/models/transfer_request.dart';
-import 'package:tt1/data/models/transfer_response.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/network/api_response.dart';
+import 'package:opei/data/models/wallet_lookup_request.dart';
+import 'package:opei/data/models/wallet_lookup_response.dart';
+import 'package:opei/data/models/transfer_fee_request.dart';
+import 'package:opei/data/models/transfer_fee_response.dart';
+import 'package:opei/data/models/transfer_request.dart';
+import 'package:opei/data/models/transfer_response.dart';
 
 class TransferRepository {
   final ApiClient _apiClient;

@@ -1,4 +1,4 @@
-import 'package:tt1/data/models/wallet_transaction.dart';
+import 'package:opei/data/models/wallet_transaction.dart';
 
 class TransactionsPage {
   final List<WalletTransaction> items;

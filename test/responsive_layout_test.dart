@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
+import 'package:opei/theme.dart';
 
 void main() {
   testWidgets(

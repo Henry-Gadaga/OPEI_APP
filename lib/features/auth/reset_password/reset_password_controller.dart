@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/features/auth/reset_password/reset_password_state.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/features/auth/reset_password/reset_password_state.dart';
 
 class ResetPasswordController extends Notifier<ResetPasswordState> {
   late String _email;

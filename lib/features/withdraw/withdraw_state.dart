@@ -1,4 +1,4 @@
-import 'package:tt1/data/models/crypto_transfer_response.dart';
+import 'package:opei/data/models/crypto_transfer_response.dart';
 
 class WithdrawState {
   final bool isLoading;

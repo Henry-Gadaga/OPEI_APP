@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/constants/countries.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/data/models/address_request.dart';
-import 'package:tt1/features/address/address_state.dart';
+import 'package:opei/core/constants/countries.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/data/models/address_request.dart';
+import 'package:opei/features/address/address_state.dart';
 
 class AddressNotifier extends Notifier<AddressState> {
   @override

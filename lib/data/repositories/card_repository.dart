@@ -1,15 +1,15 @@
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/money/money.dart';
-import 'package:tt1/data/models/card_creation_preview.dart';
-import 'package:tt1/data/models/card_creation_response.dart';
-import 'package:tt1/data/models/card_details.dart';
-import 'package:tt1/data/models/card_topup_preview.dart';
-import 'package:tt1/data/models/card_topup_response.dart';
-import 'package:tt1/data/models/card_withdraw_preview.dart';
-import 'package:tt1/data/models/card_withdraw_response.dart';
-import 'package:tt1/data/models/card_user_registration_response.dart';
-import 'package:tt1/data/models/card_transactions_page.dart';
-import 'package:tt1/data/models/virtual_card.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/money/money.dart';
+import 'package:opei/data/models/card_creation_preview.dart';
+import 'package:opei/data/models/card_creation_response.dart';
+import 'package:opei/data/models/card_details.dart';
+import 'package:opei/data/models/card_topup_preview.dart';
+import 'package:opei/data/models/card_topup_response.dart';
+import 'package:opei/data/models/card_withdraw_preview.dart';
+import 'package:opei/data/models/card_withdraw_response.dart';
+import 'package:opei/data/models/card_user_registration_response.dart';
+import 'package:opei/data/models/card_transactions_page.dart';
+import 'package:opei/data/models/virtual_card.dart';
 
 class CardRepository {
   final ApiClient _apiClient;

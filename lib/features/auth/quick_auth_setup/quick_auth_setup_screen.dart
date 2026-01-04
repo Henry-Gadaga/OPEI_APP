@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
-import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
-import 'package:tt1/responsive/responsive_tokens.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
-import 'package:tt1/theme.dart';
-import 'package:tt1/widgets/bouncing_dots.dart';
+import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
+import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
+import 'package:opei/responsive/responsive_tokens.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
+import 'package:opei/theme.dart';
+import 'package:opei/widgets/bouncing_dots.dart';
 
 class QuickAuthSetupScreen extends ConsumerWidget {
   final bool popOnComplete;

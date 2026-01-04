@@ -1,5 +1,5 @@
-import 'package:tt1/data/models/card_details.dart';
-import 'package:tt1/data/models/virtual_card.dart';
+import 'package:opei/data/models/card_details.dart';
+import 'package:opei/data/models/virtual_card.dart';
 
 class CardsState {
   final List<VirtualCard> cards;

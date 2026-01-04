@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/network/api_response.dart';
-import 'package:tt1/data/models/password_reset_request.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/network/api_response.dart';
+import 'package:opei/data/models/password_reset_request.dart';
 
 class PasswordResetRepository {
   final ApiClient _apiClient;

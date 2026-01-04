@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/features/auth/quick_auth/quick_auth_controller.dart';
-import 'package:tt1/features/auth/quick_auth/quick_auth_state.dart';
-import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
-import 'package:tt1/features/dashboard/dashboard_controller.dart';
-import 'package:tt1/responsive/responsive_tokens.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
-import 'package:tt1/theme.dart';
-import 'package:tt1/widgets/bouncing_dots.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/features/auth/quick_auth/quick_auth_controller.dart';
+import 'package:opei/features/auth/quick_auth/quick_auth_state.dart';
+import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
+import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/responsive/responsive_tokens.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
+import 'package:opei/theme.dart';
+import 'package:opei/widgets/bouncing_dots.dart';
 
 class QuickAuthScreen extends ConsumerStatefulWidget {
   const QuickAuthScreen({super.key});
@@ -309,12 +309,22 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   }
 
   Future<void> _handleQuickAuthFailure(String message) async {
+    if (!mounted) return;
+    
     final authRepository = ref.read(authRepositoryProvider);
     final sessionNotifier = ref.read(authSessionProvider.notifier);
-    final setupNotifier = ref.read(quickAuthSetupControllerProvider.notifier);
 
     sessionNotifier.clearSession();
-    setupNotifier.reset();
+
+    // Only reset setup controller if it's still alive
+    try {
+      if (mounted) {
+        ref.read(quickAuthSetupControllerProvider.notifier).reset();
+      }
+    } catch (e) {
+      // Provider may have been disposed, which is fine
+      debugPrint('QuickAuthSetup provider already disposed: $e');
+    }
 
     unawaited(
       authRepository.logout().timeout(const Duration(seconds: 8)).catchError(

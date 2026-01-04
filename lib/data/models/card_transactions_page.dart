@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/data/models/card_transaction.dart';
+import 'package:opei/data/models/card_transaction.dart';
 
 class CardTransactionsPage {
   final List<CardTransaction> items;

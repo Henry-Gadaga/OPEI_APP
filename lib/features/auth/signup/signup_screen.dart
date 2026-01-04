@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tt1/core/navigation/opei_page_transitions.dart';
-import 'package:tt1/features/auth/signup/signup_controller.dart';
-import 'package:tt1/features/auth/signup/signup_state.dart';
-import 'package:tt1/features/auth/verify_email/verify_email_screen.dart';
-import 'package:tt1/responsive/responsive_tokens.dart';
-import 'package:tt1/responsive/responsive_widgets.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/core/navigation/opei_page_transitions.dart';
+import 'package:opei/features/auth/signup/signup_controller.dart';
+import 'package:opei/features/auth/signup/signup_state.dart';
+import 'package:opei/features/auth/verify_email/verify_email_screen.dart';
+import 'package:opei/responsive/responsive_tokens.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
+import 'package:opei/theme.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
   const SignupScreen({super.key});
@@ -338,12 +338,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               ),
             ),
             SizedBox(height: spacing * 1.5),
-            Text(
-              'By continuing you agree to Opei’s Terms & Privacy Policy.',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: OpeiColors.iosLabelSecondary,
-              ),
-            ),
+            _buildLegalText(theme),
             SizedBox(height: spacing * 3),
           ],
         ),
@@ -387,6 +382,47 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegalText(ThemeData theme) {
+    return RichText(
+      text: TextSpan(
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: OpeiColors.iosLabelSecondary,
+        ),
+        children: [
+          const TextSpan(text: 'By continuing you agree to Opei\'s '),
+          WidgetSpan(
+            child: GestureDetector(
+              onTap: () => context.push('/terms'),
+              child: Text(
+                'Terms',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: OpeiColors.pureBlack,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+          const TextSpan(text: ' & '),
+          WidgetSpan(
+            child: GestureDetector(
+              onTap: () => context.push('/privacy'),
+              child: Text(
+                'Privacy Policy',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: OpeiColors.pureBlack,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ),
+          const TextSpan(text: '.'),
         ],
       ),
     );

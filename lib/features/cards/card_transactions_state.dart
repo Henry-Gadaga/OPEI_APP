@@ -1,4 +1,4 @@
-import 'package:tt1/data/models/card_transaction.dart';
+import 'package:opei/data/models/card_transaction.dart';
 
 class CardTransactionsState {
   final Map<String, CardTransactionsFeed> feeds;

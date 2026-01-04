@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/theme.dart';
 
 /// A unified success hero widget used across the app.
 ///

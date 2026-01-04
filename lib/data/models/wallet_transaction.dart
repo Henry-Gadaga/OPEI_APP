@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/money/money.dart';
+import 'package:opei/core/money/money.dart';
 
 class WalletTransaction {
   final String id;

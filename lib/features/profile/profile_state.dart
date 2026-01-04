@@ -1,4 +1,4 @@
-import 'package:tt1/data/models/full_profile_response.dart';
+import 'package:opei/data/models/full_profile_response.dart';
 
 class ProfileState {
   final bool isLoading;

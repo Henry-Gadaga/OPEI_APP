@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/data/models/p2p_trade.dart';
-import 'package:tt1/data/models/p2p_ad.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/data/models/p2p_trade.dart';
+import 'package:opei/data/models/p2p_ad.dart';
+import 'package:opei/theme.dart';
 
 /// A clean, Apple-style rating screen that appears after releasing the funds.
 /// User can rate the counterparty, then either submit or dismiss.

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:tt1/core/network/api_client.dart';
-import 'package:tt1/core/network/api_response.dart';
-import 'package:tt1/data/models/kyc_session_response.dart';
+import 'package:opei/core/network/api_client.dart';
+import 'package:opei/core/network/api_response.dart';
+import 'package:opei/data/models/kyc_session_response.dart';
 
 class KycRepository {
   final ApiClient _apiClient;

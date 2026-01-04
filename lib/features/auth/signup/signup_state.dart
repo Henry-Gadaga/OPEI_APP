@@ -1,4 +1,4 @@
-import 'package:tt1/data/models/auth_response.dart';
+import 'package:opei/data/models/auth_response.dart';
 
 sealed class SignupState {}
 

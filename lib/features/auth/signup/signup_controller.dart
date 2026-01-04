@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/network/api_error.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/utils/retry_helper.dart';
-import 'package:tt1/data/models/signup_request.dart';
-import 'package:tt1/features/auth/signup/signup_state.dart';
+import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/retry_helper.dart';
+import 'package:opei/data/models/signup_request.dart';
+import 'package:opei/features/auth/signup/signup_state.dart';
 
 class SignupController extends Notifier<SignupState> {
   @override

@@ -1,4 +1,4 @@
-import 'package:tt1/core/money/money.dart';
+import 'package:opei/core/money/money.dart';
 
 /// Preview response for a card top-up operation.
 class CardTopUpPreview {

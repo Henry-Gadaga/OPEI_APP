@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/utils/error_helper.dart';
-import 'package:tt1/theme.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
+import 'package:opei/theme.dart';
 
 class KycResultScreen extends ConsumerStatefulWidget {
   const KycResultScreen({super.key});

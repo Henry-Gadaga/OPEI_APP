@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:tt1/core/providers/providers.dart';
-import 'package:tt1/core/services/quick_auth_service.dart';
-import 'package:tt1/core/storage/secure_storage_service.dart';
-import 'package:tt1/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/services/quick_auth_service.dart';
+import 'package:opei/core/storage/secure_storage_service.dart';
+import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
 
 class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
   @override
@@ -56,6 +56,7 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
 
   void _moveToConfirmation(String pin) async {
     await Future.delayed(const Duration(milliseconds: 200));
+    if (!ref.mounted) return;
     state = QuickAuthSetupPinEntry(
       isConfirming: true,
       firstPin: pin,
@@ -64,14 +65,17 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
 
   Future<void> _confirmPin(String confirmPin, String firstPin) async {
     if (confirmPin != firstPin) {
+      if (!ref.mounted) return;
       state = QuickAuthSetupPinEntry(
         errorMessage: 'PINs do not match. Please try again.',
       );
       await Future.delayed(const Duration(seconds: 2));
+      if (!ref.mounted) return;
       state = QuickAuthSetupPinEntry();
       return;
     }
 
+    if (!ref.mounted) return;
     state = QuickAuthSetupLoading();
 
     try {
@@ -86,6 +90,8 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
 
       // Mark setup as completed
       await quickAuthService.markSetupCompleted(userIdentifier);
+      
+      if (!ref.mounted) return;
       ref.read(quickAuthStatusProvider.notifier).setStatus(
             QuickAuthStatus.satisfied,
           );
@@ -94,11 +100,13 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
       state = QuickAuthSetupSuccess('PIN setup complete');
     } catch (e) {
       debugPrint('❌ Failed to save PIN: $e');
+      if (!ref.mounted) return;
       state = QuickAuthSetupError('Failed to save PIN. Please try again.');
     }
   }
 
   Future<void> setupBiometric() async {
+    if (!ref.mounted) return;
     state = QuickAuthSetupLoading();
 
     try {
@@ -109,6 +117,7 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
       final canUseBiometric = await quickAuthService.canUseBiometric();
 
       if (!canUseBiometric) {
+        if (!ref.mounted) return;
         state = QuickAuthSetupError(
             'Biometric authentication is not available on this device');
         return;
@@ -119,6 +128,8 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
         'Set up biometric authentication for quick access',
       );
 
+      if (!ref.mounted) return;
+
       if (authenticated) {
         final userIdentifier =
             await _resolveUserIdentifier(quickAuthService, storage);
@@ -128,6 +139,8 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
 
         // Mark setup as completed
         await quickAuthService.markSetupCompleted(userIdentifier);
+        
+        if (!ref.mounted) return;
         ref.read(quickAuthStatusProvider.notifier).setStatus(
               QuickAuthStatus.satisfied,
             );
@@ -139,11 +152,13 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
       }
     } catch (e) {
       debugPrint('❌ Biometric setup failed: $e');
+      if (!ref.mounted) return;
       state = QuickAuthSetupError('Failed to enable biometric authentication');
     }
   }
 
   void reset() {
+    if (!ref.mounted) return;
     state = QuickAuthSetupPinEntry();
   }
 }
