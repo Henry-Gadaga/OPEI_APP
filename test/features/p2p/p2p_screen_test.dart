@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:opei/core/providers/providers.dart';
 import 'package:opei/data/models/p2p_ad.dart';
 import 'package:opei/data/models/p2p_trade.dart';
 import 'package:opei/features/p2p/p2p_controller.dart';
@@ -57,7 +56,7 @@ Future<void> _pumpP2PScreen(
     routes: [
       GoRoute(
         path: '/p2p',
-        builder: (_, __) => const P2PExchangeScreen(),
+        builder: (context, state) => const P2PExchangeScreen(),
       ),
     ],
   );

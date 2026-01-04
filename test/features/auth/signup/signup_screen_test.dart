@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:opei/core/providers/providers.dart';
 import 'package:opei/features/auth/signup/signup_controller.dart';
 import 'package:opei/features/auth/signup/signup_screen.dart';
 import 'package:opei/features/auth/signup/signup_state.dart';
@@ -16,7 +15,7 @@ void main() {
       var signupCalled = false;
       final controller = _FakeSignupController(
         initialState: SignupInitial(),
-        onSignup: (_, __, ___, ____) async => signupCalled = true,
+        onSignup: (controller, email, phone, password) async => signupCalled = true,
       );
 
       await _pumpSignupScreen(tester, controller: controller);

@@ -7,7 +7,6 @@ import 'package:opei/core/services/quick_auth_service.dart';
 import 'package:opei/core/storage/secure_storage_service.dart';
 import 'package:opei/data/models/auth_response.dart';
 import 'package:opei/data/models/user_model.dart';
-import 'package:opei/data/repositories/auth_repository.dart';
 import 'package:opei/features/auth/quick_auth/quick_auth_controller.dart';
 import 'package:opei/features/auth/quick_auth/quick_auth_state.dart';
 
@@ -24,7 +23,7 @@ void main() {
   late UserModel user;
   late AuthResponse authResponse;
 
-  ProviderContainer _createContainer() {
+  ProviderContainer createContainer() {
     return ProviderContainer(
       overrides: [
         quickAuthServiceProvider.overrideWithValue(quickAuthService),
@@ -69,7 +68,7 @@ void main() {
           .thenAnswer((_) async => authResponse);
       when(() => storage.saveUser(user)).thenAnswer((_) async {});
 
-      final container = _createContainer();
+      final container = createContainer();
       addTearDown(container.dispose);
       final listener = _attachListener(container);
       addTearDown(listener.close);
@@ -92,7 +91,7 @@ void main() {
         when(() => quickAuthService.verifyPin(user.id, any()))
             .thenAnswer((_) async => false);
 
-        final container = _createContainer();
+        final container = createContainer();
         addTearDown(container.dispose);
         final listener = _attachListener(container);
         addTearDown(listener.close);
@@ -120,7 +119,7 @@ void main() {
             .thenAnswer((_) async => false);
         when(() => authRepository.logout()).thenAnswer((_) async {});
 
-        final container = _createContainer();
+        final container = createContainer();
         addTearDown(container.dispose);
         final listener = _attachListener(container);
         addTearDown(listener.close);
@@ -149,7 +148,7 @@ void _enterPin(QuickAuthController controller) {
 ProviderSubscription<QuickAuthState> _attachListener(ProviderContainer container) {
   return container.listen(
     quickAuthControllerProvider,
-    (_, __) {},
+    (previous, next) {},
     fireImmediately: true,
   );
 }

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/providers/providers.dart';
-import 'package:opei/features/auth/verify_email/verify_email_controller.dart';
 import 'package:opei/features/auth/verify_email/verify_email_screen.dart';
 import 'package:opei/features/auth/verify_email/verify_email_state.dart';
 import 'package:opei/core/storage/secure_storage_service.dart';
@@ -86,15 +85,15 @@ Future<_VerifyEmailScreenHarness> _pumpVerifyEmailScreen(
     routes: [
       GoRoute(
         path: '/verify-email',
-        builder: (_, __) => const VerifyEmailScreen(email: 'user@example.com'),
+        builder: (context, state) => const VerifyEmailScreen(email: 'user@example.com'),
       ),
       GoRoute(
         path: '/address',
-        builder: (_, __) => const _StubScreen(label: 'Address Screen'),
+        builder: (context, state) => const _StubScreen(label: 'Address Screen'),
       ),
       GoRoute(
         path: '/login',
-        builder: (_, __) => const _StubScreen(label: 'Login Screen'),
+        builder: (context, state) => const _StubScreen(label: 'Login Screen'),
       ),
     ],
   );

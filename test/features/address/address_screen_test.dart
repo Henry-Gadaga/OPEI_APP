@@ -4,11 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/constants/countries.dart';
 import 'package:opei/core/providers/providers.dart';
-import 'package:opei/features/address/address_controller.dart';
 import 'package:opei/features/address/address_screen.dart';
 import 'package:opei/features/address/address_state.dart';
-import 'package:opei/features/profile/profile_controller.dart';
-import 'package:opei/features/profile/profile_state.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -105,19 +102,19 @@ Future<_AddressScreenHarness> _pumpAddressScreen(
     routes: [
       GoRoute(
         path: '/address',
-        builder: (_, __) => const AddressScreen(),
+        builder: (context, state) => const AddressScreen(),
       ),
       GoRoute(
         path: '/kyc',
-        builder: (_, __) => const _StubScreen(label: 'KYC Screen'),
+        builder: (context, state) => const _StubScreen(label: 'KYC Screen'),
       ),
       GoRoute(
         path: '/verify-email',
-        builder: (_, __) => const _StubScreen(label: 'Verify Email Screen'),
+        builder: (context, state) => const _StubScreen(label: 'Verify Email Screen'),
       ),
       GoRoute(
         path: '/dashboard',
-        builder: (_, __) => const _StubScreen(label: 'Dashboard Screen'),
+        builder: (context, state) => const _StubScreen(label: 'Dashboard Screen'),
       ),
     ],
   );

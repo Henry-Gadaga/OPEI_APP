@@ -23,13 +23,11 @@ class _FakeQuickAuthController extends QuickAuthController {
   _FakeQuickAuthController({
     required this.initialState,
     this.onAddDigit,
-    this.onRemoveDigit,
     this.onLogoutAndResetPin,
   });
 
   final QuickAuthState initialState;
   final void Function(String digit)? onAddDigit;
-  final VoidCallback? onRemoveDigit;
   final VoidCallback? onLogoutAndResetPin;
 
   @override
@@ -42,7 +40,7 @@ class _FakeQuickAuthController extends QuickAuthController {
 
   @override
   void removeDigit() {
-    onRemoveDigit?.call();
+    // no-op
   }
 
   @override

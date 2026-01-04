@@ -9,7 +9,6 @@ import 'package:opei/data/models/wallet_transaction.dart';
 import 'package:opei/data/repositories/transaction_repository.dart';
 import 'package:opei/data/repositories/wallet_repository.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
-import 'package:opei/features/dashboard/dashboard_state.dart';
 
 class _MockWalletRepository extends Mock implements WalletRepository {}
 

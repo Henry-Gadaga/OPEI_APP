@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/money/money.dart';
-import 'package:opei/core/providers/providers.dart';
 import 'package:opei/data/models/card_creation_preview.dart';
 import 'package:opei/features/cards/card_creation_controller.dart';
 import 'package:opei/features/cards/card_creation_state.dart';
@@ -100,27 +99,21 @@ void main() {
 class _FakeCardCreationController extends CardCreationController {
   _FakeCardCreationController({
     required this.initialState,
-    this.onReset,
     this.onStartRegistration,
     this.onLoadPreview,
-    this.onSubmitCreation,
     this.onBackToAmountEntry,
   });
 
   final CardCreationState initialState;
-  final VoidCallback? onReset;
   final VoidCallback? onStartRegistration;
   final ValueSetter<Money>? onLoadPreview;
-  final VoidCallback? onSubmitCreation;
   final VoidCallback? onBackToAmountEntry;
 
   @override
   CardCreationState build() => initialState;
 
   @override
-  void reset() {
-    onReset?.call();
-  }
+  void reset() {}
 
   @override
   Future<void> startRegistration() async {
@@ -134,7 +127,7 @@ class _FakeCardCreationController extends CardCreationController {
 
   @override
   Future<void> submitCreation() async {
-    onSubmitCreation?.call();
+    // no-op for tests
   }
 
   @override
@@ -144,24 +137,18 @@ class _FakeCardCreationController extends CardCreationController {
 }
 
 class _FakeCardsController extends CardsController {
-  _FakeCardsController({this.onRefresh, this.onPreloadCardDetails});
-
-  final VoidCallback? onRefresh;
-  final Future<bool> Function(String cardId, bool reveal)? onPreloadCardDetails;
+  _FakeCardsController();
 
   @override
   CardsState build() => const CardsState();
 
   @override
   Future<void> refresh() async {
-    onRefresh?.call();
+    // no-op
   }
 
   @override
   Future<bool> preloadCardDetails(String cardId, {bool reveal = true}) async {
-    if (onPreloadCardDetails != null) {
-      return onPreloadCardDetails!(cardId, reveal);
-    }
     return true;
   }
 }

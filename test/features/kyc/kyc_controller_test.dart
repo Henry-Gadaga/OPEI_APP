@@ -6,7 +6,6 @@ import 'package:opei/core/network/api_response.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/data/models/kyc_session_response.dart';
 import 'package:opei/data/repositories/kyc_repository.dart';
-import 'package:opei/features/kyc/kyc_controller.dart';
 import 'package:opei/features/kyc/kyc_state.dart';
 
 class _MockKycRepository extends Mock implements KycRepository {}
