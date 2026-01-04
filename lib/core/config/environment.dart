@@ -15,20 +15,20 @@ class Environment {
 
   static final _configByEnv = <AppEnvironment, _EnvironmentConfig>{
     AppEnvironment.dev: _EnvironmentConfig(
-    name: 'Development',
-    apiBaseUrl: 'https://opei-gateway-production.up.railway.app',
+      name: 'Development',
+      apiBaseUrl: 'https://api.opeiapi.com',
       apiVersion: 'v1',
       sentryDsn: '',
     ),
     AppEnvironment.staging: _EnvironmentConfig(
       name: 'Staging',
-    apiBaseUrl: 'https://opei-gateway-production.up.railway.app',
+      apiBaseUrl: 'https://api.opeiapi.com',
       apiVersion: 'v1',
       sentryDsn: '',
     ),
     AppEnvironment.prod: _EnvironmentConfig(
       name: 'Production',
-      apiBaseUrl: 'https://opei-gateway-production.up.railway.app',
+      apiBaseUrl: 'https://api.opeiapi.com',
       apiVersion: 'v1',
       sentryDsn: 'https://4fadee834f3f650265108cfd2a0c3064@o4510534698598400.ingest.us.sentry.io/4510622379868160',
     ),
