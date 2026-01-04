@@ -118,7 +118,7 @@ final authSessionProvider = NotifierProvider<AuthSessionNotifier, AuthSession>(
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
   return const FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(),
   );
 });
 
