@@ -88,6 +88,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ApiConfig` now derives its base URL/version from the active environment instead of hardcoded production values.
 - README updated with instructions for running different environments and flavors.
 
+## [1.1.0] - 2025-01-04
+
+### Added
+- Multi-environment support derived from `APP_ENV` or `--dart-define` overrides.
+- Android product flavors and CI workflow (analyze/test on push/PR).
+
+### Changed
+- Updated dependencies (riverpod, go_router, local_auth, permission_handler, flutter_secure_storage, sentry_flutter, etc.).
+- Raised Dart SDK constraint to ^3.8.0 and introduced a formal changelog.
+
 ### Planned
 - Multi-language support
 - Dark mode
