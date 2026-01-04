@@ -84,6 +84,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Android build flavors (`dev`, `staging`, `prod`) with distinct application IDs and launcher labels.
 - Continuous integration workflow (`.github/workflows/flutter-ci.yml`) that runs analyze/tests on every push or PR.
 - Automated test coverage for quick auth flows, card creation, and login-to-dashboard navigation.
+- Widget tests for verify-email inputs and address onboarding, covering validation, error messaging, and legal navigation.
+- Dashboard/wallet controller unit tests to assert balance refresh, error propagation, and transaction hydration logic.
+- Repository-level tests for `P2PRepository` covering ad parsing, trade cancellation responses, and proof upload presign headers.
+- End-to-end smoke test that drives dashboard ➝ P2P navigation and ensures every tab triggers its respective controller loads.
 
 ### Changed
 - `ApiConfig` now derives its base URL/version from the active environment instead of hardcoded production values.

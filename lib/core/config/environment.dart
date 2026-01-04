@@ -7,9 +7,11 @@ enum AppEnvironment {
 class Environment {
   Environment._();
 
-  static final AppEnvironment current = _parseEnvironment(
-    const String.fromEnvironment('APP_ENV', defaultValue: 'prod'),
-  );
+  static const String _defaultEnvString =
+      String.fromEnvironment('APP_ENV', defaultValue: 'prod');
+
+  static AppEnvironment? _overrideEnvironment;
+  static _EnvironmentConfig? _overrideConfig;
 
   static final _configByEnv = <AppEnvironment, _EnvironmentConfig>{
     AppEnvironment.dev: _EnvironmentConfig(
@@ -32,7 +34,16 @@ class Environment {
     ),
   };
 
-  static _EnvironmentConfig get _activeConfig => _configByEnv[current]!;
+  static AppEnvironment get current =>
+      _overrideEnvironment ?? _parseEnvironment(_defaultEnvString);
+
+  static _EnvironmentConfig get _activeConfig {
+    if (_overrideConfig != null) {
+      return _overrideConfig!;
+    }
+    final env = _overrideEnvironment ?? _parseEnvironment(_defaultEnvString);
+    return _configByEnv[env]!;
+  }
 
   static String get name => _activeConfig.name;
 
@@ -52,6 +63,42 @@ class Environment {
       return override;
     }
     return _activeConfig.sentryDsn;
+  }
+
+  /// Allows tests to force environment/config values without impacting release builds.
+  static void debugOverride({
+    AppEnvironment? environment,
+    String? apiBaseUrl,
+    String? apiVersion,
+    String? sentryDsn,
+    String? name,
+  }) {
+    assert(() {
+      _overrideEnvironment = environment;
+      final shouldOverrideConfig =
+          apiBaseUrl != null || apiVersion != null || sentryDsn != null || name != null;
+      if (shouldOverrideConfig) {
+        final baseEnv = environment ?? _parseEnvironment(_defaultEnvString);
+        final fallback = _configByEnv[baseEnv]!;
+        _overrideConfig = _EnvironmentConfig(
+          name: name ?? fallback.name,
+          apiBaseUrl: apiBaseUrl ?? fallback.apiBaseUrl,
+          apiVersion: apiVersion ?? fallback.apiVersion,
+          sentryDsn: sentryDsn ?? fallback.sentryDsn,
+        );
+      } else {
+        _overrideConfig = null;
+      }
+      return true;
+    }());
+  }
+
+  static void debugReset() {
+    assert(() {
+      _overrideEnvironment = null;
+      _overrideConfig = null;
+      return true;
+    }());
   }
 
   static AppEnvironment _parseEnvironment(String value) {
