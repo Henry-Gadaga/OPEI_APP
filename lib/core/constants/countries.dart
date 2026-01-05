@@ -201,3 +201,35 @@ const List<Country> countries = [
   Country(name: 'Zambia', iso: 'ZM'),
   Country(name: 'Zimbabwe', iso: 'ZW'),
 ];
+
+/// ISO codes for countries that are not eligible for residency verification.
+const Set<String> restrictedCountryIsoCodes = {
+  'AF', // Afghanistan
+  'BY', // Belarus
+  'BI', // Burundi
+  'CF', // Central African Republic
+  'CG', // Congo
+  'CU', // Cuba
+  'IR', // Iran
+  'IQ', // Iraq
+  'LB', // Lebanon
+  'LR', // Liberia
+  'LY', // Libya
+  'MM', // Myanmar
+  'NI', // Nicaragua
+  'KP', // North Korea
+  'PS', // Palestine
+  'RU', // Russia
+  'SO', // Somalia
+  'SS', // South Sudan
+  'SY', // Syria
+  'UA', // Ukraine
+  'VE', // Venezuela
+  'YE', // Yemen
+  'ZW', // Zimbabwe
+};
+
+/// Countries that can be shown in onboarding flows after removing restricted ones.
+final List<Country> allowedCountries = countries
+    .where((country) => !restrictedCountryIsoCodes.contains(country.iso))
+    .toList(growable: false);

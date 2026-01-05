@@ -394,7 +394,7 @@ class CountryPickerSheet extends StatefulWidget {
 }
 
 class _CountryPickerSheetState extends State<CountryPickerSheet> {
-  List<Country> _filteredCountries = countries;
+  List<Country> _filteredCountries = allowedCountries;
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -406,9 +406,9 @@ class _CountryPickerSheetState extends State<CountryPickerSheet> {
   void _filterCountries(String query) {
     setState(() {
       if (query.isEmpty) {
-        _filteredCountries = countries;
+        _filteredCountries = allowedCountries;
       } else {
-        _filteredCountries = countries.where((country) =>
+        _filteredCountries = allowedCountries.where((country) =>
           country.name.toLowerCase().contains(query.toLowerCase()) ||
           country.iso.toLowerCase().contains(query.toLowerCase())
         ).toList();
