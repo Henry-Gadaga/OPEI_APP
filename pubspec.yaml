@@ -2,7 +2,7 @@ name: opei
 description: "Opei - Your gateway to seamless USD financial tools. A fintech platform for currency exchange, P2P trading, and virtual cards."
 publish_to: "none"
 
-version: 1.1.0+2
+version: 1.0.0+1
 
 environment:
   sdk: ^3.8.0

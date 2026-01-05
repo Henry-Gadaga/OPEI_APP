@@ -46,12 +46,12 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera access is required for identity verification</string>
+	<string>Allow Opei to capture documents and selfies for verification.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone access is required for video identity verification.</string>
+	<string>Allow Opei to capture audio during live video verification.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photo library access is required when you choose an existing image for verification.</string>
+	<string>Allow Opei to upload existing photos or documents you select.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location access is required for identity verification</string>
+	<string>Allow Opei to confirm your location for compliance and fraud checks.</string>
 </dict>
 </plist>
