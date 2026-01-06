@@ -43,6 +43,11 @@ post_install do |installer|
     target.build_configurations.each do |config|
       # Keep every pod aligned with the app-level minimum
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+
+      # Silence @_implementationOnly warnings by enabling library evolution
+      if target.name.start_with?('Sentry')
+        config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+      end
     end
   end
 end
