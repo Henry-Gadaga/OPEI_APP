@@ -48,6 +48,9 @@ build/ios/ipa/
 .pub/
 /build/
 android/app/build/
+android/key.properties
+*.keystore
+*.jks
 
 # Symbolication related
 app.*.symbols
