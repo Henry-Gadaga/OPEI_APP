@@ -18,6 +18,21 @@ migrate_working_dir/
 *.iws
 .idea/
 
+# Xcode / iOS release artifacts
+ios/Runner/GoogleService-Info.plist
+ios/Runner/GoogleService-Info-*.plist
+ios/firebase_app_id_file.json
+*.p12
+*.p8
+*.cer
+*.mobileprovision
+*.xcuserstate
+ios/Pods/
+**/*.xcworkspace/xcuserdata/
+*.ipa
+*.xcresult
+build/ios/ipa/
+
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
