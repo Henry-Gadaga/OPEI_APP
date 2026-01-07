@@ -32,6 +32,8 @@
 	<string>Allow Opei to confirm your location for compliance and fraud checks.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow Opei to capture audio during live video verification.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Allow Opei to save verification files back to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow Opei to upload existing photos or documents you select.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

@@ -280,6 +280,11 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     }
 
     final results = await permissions.toList().request();
+    debugPrint('📸 Camera permission status: ${results[Permission.camera]}');
+    debugPrint('🎙️ Microphone permission status: ${results[Permission.microphone]}');
+    if (platform == TargetPlatform.iOS) {
+      debugPrint('🖼️ Photos permission status: ${results[Permission.photos]}');
+    }
     final allGranted = results.values.every((status) => status.isGranted || status.isLimited);
 
     if (allGranted) {
