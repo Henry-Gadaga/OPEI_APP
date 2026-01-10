@@ -44,9 +44,21 @@ post_install do |installer|
       # Keep every pod aligned with the app-level minimum
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
 
+      
       # Silence @_implementationOnly warnings by enabling library evolution
       if target.name.start_with?('Sentry')
         config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+      end
+
+      if target.name == 'permission_handler_apple'
+        definitions = config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
+        definitions += [
+          'PERMISSION_CAMERA=1',
+          'PERMISSION_MICROPHONE=1',
+          'PERMISSION_PHOTOS=1',
+          'PERMISSION_PHOTOS_ADD_ONLY=1'
+        ]
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] = definitions.uniq
       end
     end
   end

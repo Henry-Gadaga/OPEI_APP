@@ -44,6 +44,8 @@ dev_dependencies:
 
 dependency_overrides:
   package_info_plus: 8.1.1
+  permission_handler_apple: 9.4.7
+  url_launcher_ios: 6.3.6
 
 flutter:
   uses-material-design: true

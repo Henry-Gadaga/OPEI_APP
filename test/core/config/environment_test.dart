@@ -26,7 +26,7 @@ void main() {
 
     expect(Environment.current, AppEnvironment.staging);
     expect(Environment.apiVersion, 'v1');
-    expect(Environment.apiBaseUrl, 'https://opei-gateway-production.up.railway.app');
+    expect(Environment.apiBaseUrl, 'https://api.opeiapi.com');
   });
 
   test('debugReset restores default production config', () {
