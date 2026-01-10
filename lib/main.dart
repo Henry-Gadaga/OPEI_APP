@@ -38,19 +38,10 @@ import 'package:opei/widgets/keyboard_dismiss_on_tap.dart';
 final String _sentryDsn = Environment.sentryDsn;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
-
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.dark,
-      systemNavigationBarColor: OpeiColors.pureWhite,
-      systemNavigationBarIconBrightness: Brightness.dark,
-    ),
-  );
+  Future<void> bootstrapAndRun() async {
+    await _initializeFlutterUi();
+    _runOpeiApp();
+  }
 
   if (kDebugMode) {
     debugPrint('🏗 Running Opei in ${Environment.name} environment');
@@ -65,7 +56,7 @@ Future<void> main() async {
         options.sendDefaultPii = false;
         options.environment = Environment.name;
       },
-      appRunner: _runOpeiApp,
+      appRunner: bootstrapAndRun,
     );
   } else {
     if (kDebugMode) {
@@ -74,8 +65,24 @@ Future<void> main() async {
         '\'--dart-define=SENTRY_DSN=your_dsn\' to enable Sentry.',
       );
     }
-    _runOpeiApp();
+    await bootstrapAndRun();
   }
+}
+
+Future<void> _initializeFlutterUi() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarColor: OpeiColors.pureWhite,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
 }
 
 void _runOpeiApp() {
