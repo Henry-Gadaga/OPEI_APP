@@ -110,14 +110,20 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
           offset: _isReady ? Offset.zero : const Offset(0, 0.04),
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeOutCubic,
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: spacing * 3),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    physics: const ClampingScrollPhysics(),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final viewportHeight = constraints.maxHeight != double.infinity
+                  ? constraints.maxHeight
+                  : MediaQuery.of(context).size.height;
+
+              return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: viewportHeight),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: spacing * 3),
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(height: spacing * 4),
                         CircleAvatar(
@@ -161,49 +167,49 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                                 ),
                           ),
                         ],
+                        if (_hasPinSetup) ...[
+                          SizedBox(height: spacing * 2.5),
+                          _buildPinDots(pinState.pin),
+                          SizedBox(height: spacing * 2.5),
+                          _buildNumericKeypad(context),
+                        ] else ...[
+                          SizedBox(height: spacing * 2.5),
+                          Text(
+                            'No quick PIN set up for quick login',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: OpeiColors.grey600,
+                                ),
+                          ),
+                          SizedBox(height: spacing * 2.5),
+                        ],
+                        TextButton(
+                          onPressed: () => context.go('/login'),
+                          child: Text(
+                            'Use Password Instead',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: OpeiColors.grey600,
+                                ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () => ref
+                              .read(quickAuthControllerProvider.notifier)
+                              .logoutAndResetPin(),
+                          child: Text(
+                            'Forgot PIN?',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: OpeiColors.errorRed,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                        ),
+                        SizedBox(height: spacing * 2),
                       ],
                     ),
                   ),
                 ),
-                if (_hasPinSetup) ...[
-                  SizedBox(height: spacing * 2),
-                  _buildPinDots(pinState.pin),
-                  SizedBox(height: spacing * 2),
-                  _buildNumericKeypad(context),
-                ] else ...[
-                  SizedBox(height: spacing * 2),
-                  Text(
-                    'No quick PIN set up for quick login',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.grey600,
-                        ),
-                  ),
-                  SizedBox(height: spacing * 2),
-                ],
-                TextButton(
-                  onPressed: () => context.go('/login'),
-                  child: Text(
-                    'Use Password Instead',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.grey600,
-                        ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => ref
-                      .read(quickAuthControllerProvider.notifier)
-                      .logoutAndResetPin(),
-                  child: Text(
-                    'Forgot PIN?',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.errorRed,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                ),
-                SizedBox(height: spacing * 2),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
