@@ -116,6 +116,7 @@ Future<T?> showResponsiveBottomSheet<T>({
   bool useRootNavigator = true,
   Color barrierColor = const Color(0x59000000),
   bool enableDrag = true,
+  bool dismissOnBarrierTap = false,
 }) {
   return showModalBottomSheet<T>(
     context: context,
@@ -124,7 +125,24 @@ Future<T?> showResponsiveBottomSheet<T>({
     enableDrag: enableDrag,
     backgroundColor: Colors.transparent,
     barrierColor: barrierColor,
-    builder: (sheetContext) => ResponsiveSheet(child: builder(sheetContext)),
+    builder: (sheetContext) {
+      final sheet = ResponsiveSheet(child: builder(sheetContext));
+      if (!dismissOnBarrierTap) {
+        return sheet;
+      }
+      return Stack(
+        children: [
+          Positioned.fill(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Navigator.of(sheetContext).maybePop(),
+              child: const SizedBox.shrink(),
+            ),
+          ),
+          sheet,
+        ],
+      );
+    },
   );
 }
 

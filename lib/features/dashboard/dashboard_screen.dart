@@ -283,6 +283,7 @@ class QuickActions extends StatelessWidget {
           onTap: () {
             showResponsiveBottomSheet(
               context: context,
+              dismissOnBarrierTap: true,
               builder: (_) => const DepositOptionsSheet(),
             );
           },
@@ -297,6 +298,7 @@ class QuickActions extends StatelessWidget {
           onTap: () {
             showResponsiveBottomSheet(
               context: context,
+              dismissOnBarrierTap: true,
               builder: (_) => const WithdrawOptionsSheet(),
             );
           },
