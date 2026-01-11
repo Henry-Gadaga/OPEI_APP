@@ -427,6 +427,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
 
     await showResponsiveBottomSheet<void>(
       context: context,
+      dismissOnBarrierTap: true,
       builder: (_) => CardTopUpSheet(card: card),
     );
   }
@@ -440,6 +441,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
 
     await showResponsiveBottomSheet<void>(
       context: context,
+      dismissOnBarrierTap: true,
       builder: (_) => CardWithdrawSheet(card: card),
     );
   }
