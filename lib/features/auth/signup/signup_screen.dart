@@ -191,19 +191,26 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: spacing * 3),
-            Text(
-              'Create account',
-              style: theme.textTheme.displayLarge,
+            SizedBox(height: spacing * 0.5),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 20),
+                  onPressed: () => context.go('/login'),
+                  tooltip: 'Back',
+                ),
+                const SizedBox(width: 4),
+                Expanded(
+                  child: Text(
+                    'Create account',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: spacing),
-            Text(
-              'Create your Opei profile to unlock seamless USD tools.',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: OpeiColors.iosLabelSecondary,
-              ),
-            ),
-            SizedBox(height: spacing * 3.5),
+            SizedBox(height: spacing * 2),
             Text(
               'Email',
               style: theme.textTheme.titleSmall?.copyWith(
@@ -229,7 +236,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 }
               },
             ),
-            SizedBox(height: spacing * 2.25),
+            SizedBox(height: spacing * 1.5),
             Text(
               'Phone number',
               style: theme.textTheme.titleSmall?.copyWith(
@@ -255,7 +262,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 }
               },
             ),
-            SizedBox(height: spacing * 2.25),
+            SizedBox(height: spacing * 1.5),
             Text(
               'Password',
               style: theme.textTheme.titleSmall?.copyWith(
@@ -293,14 +300,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               },
               onFieldSubmitted: (_) => _handleSignup(),
             ),
-            SizedBox(height: spacing * 1.25),
+            SizedBox(height: spacing),
             Text(
               'Min. 8 characters with upper/lowercase, number and symbol.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: OpeiColors.iosLabelSecondary,
               ),
             ),
-            SizedBox(height: spacing * 3.5),
+            SizedBox(height: spacing * 2.25),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -314,27 +321,26 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 child: const Text('Create account'),
               ),
             ),
-            SizedBox(height: spacing * 2),
+            SizedBox(height: spacing * 1.5),
             Text(
               'Already have an account?',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: OpeiColors.iosLabelSecondary,
               ),
             ),
-            TextButton(
+            SizedBox(height: spacing * 0.5),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
               onPressed: () => context.go('/login'),
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                minimumSize: const Size(0, 0),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                alignment: Alignment.centerLeft,
-              ),
-              child: Text(
-                'Sign in instead',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.pureBlack,
-                  fontWeight: FontWeight.w600,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: Size.fromHeight(tokens.buttonHeight),
+                  side: const BorderSide(color: OpeiColors.pureBlack, width: 1.2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
+                child: const Text('Sign in instead'),
               ),
             ),
             SizedBox(height: spacing * 1.5),
@@ -350,8 +356,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       body: Stack(
         children: [
           SingleChildScrollView(
-            padding: EdgeInsets.symmetric(vertical: spacing * 4),
-            child: buildForm(),
+            padding: EdgeInsets.symmetric(vertical: spacing * 2),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: tokens.contentMaxWidth),
+                child: buildForm(),
+              ),
+            ),
           ),
           if (signupState is SignupLoading)
             const ModalBarrier(

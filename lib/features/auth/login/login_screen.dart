@@ -119,23 +119,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return ResponsiveScaffold(
       backgroundColor: OpeiColors.pureWhite,
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(vertical: spacing * 4),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        padding: EdgeInsets.only(
+          top: spacing * 3,
+          bottom: spacing * 3,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: spacing * 5),
+            SizedBox(height: spacing * 2),
             Text(
-              'Welcome back',
-              style: Theme.of(context).textTheme.displayLarge,
+              'Sign in',
+              style: Theme.of(context).textTheme.displayMedium,
             ),
-            SizedBox(height: spacing),
+            SizedBox(height: spacing * 0.75),
             Text(
               'Sign in to your account',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: OpeiColors.grey600,
                   ),
             ),
-            SizedBox(height: spacing * 4),
+            SizedBox(height: spacing * 2.5),
             if (state.errorMessage != null) ...[
               Container(
                 width: double.infinity,
@@ -161,7 +165,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: spacing * 3),
+              SizedBox(height: spacing * 2),
             ],
             _EmailField(
               controller: _emailController,
@@ -172,7 +176,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               },
               onSubmitted: (_) => _passwordFocusNode.requestFocus(),
             ),
-            SizedBox(height: spacing * 2),
+            SizedBox(height: spacing * 1.5),
             _PasswordField(
               controller: _passwordController,
               focusNode: _passwordFocusNode,
@@ -188,7 +192,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               },
               onSubmitted: (_) => _handleLogin(),
             ),
-            SizedBox(height: spacing * 1.5),
+            SizedBox(height: spacing),
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -207,7 +211,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
             ),
-            SizedBox(height: spacing * 3.5),
+            SizedBox(height: spacing * 2.5),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -224,10 +228,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('Login'),
+                    : const Text('Sign in'),
               ),
             ),
-            SizedBox(height: spacing * 2.5),
+            SizedBox(height: spacing * 2),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -254,7 +258,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ],
             ),
-            SizedBox(height: spacing * 2.5),
+            SizedBox(height: spacing),
           ],
         ),
       ),
@@ -290,7 +294,7 @@ class _EmailField extends StatelessWidget {
                 color: OpeiColors.grey700,
               ),
         ),
-        SizedBox(height: spacing * 0.75),
+        SizedBox(height: spacing * 0.5),
         TextField(
           controller: controller,
           focusNode: focusNode,
@@ -302,7 +306,7 @@ class _EmailField extends StatelessWidget {
             hintText: 'Enter your email',
             isDense: true,
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             prefixIcon: const Icon(
               Icons.email_outlined,
               size: 20,
@@ -349,7 +353,7 @@ class _PasswordField extends StatelessWidget {
                 color: OpeiColors.grey700,
               ),
         ),
-        SizedBox(height: spacing * 0.75),
+        SizedBox(height: spacing * 0.5),
         TextField(
           controller: controller,
           focusNode: focusNode,
@@ -361,7 +365,7 @@ class _PasswordField extends StatelessWidget {
             hintText: 'Enter your password',
             isDense: true,
             contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             prefixIcon: const Icon(
               Icons.lock_outline,
               size: 20,
