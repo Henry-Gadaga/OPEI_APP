@@ -796,8 +796,14 @@ class _UserCardsCarousel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final textScale = mediaQuery.textScaleFactor.clamp(1.0, 1.35);
+    const baseHeight = 228.0;
+    final maxResponsiveHeight = math.max(baseHeight, mediaQuery.size.height * 0.45);
+    final cardHeight = (baseHeight * textScale).clamp(baseHeight, maxResponsiveHeight);
+
     return SizedBox(
-      height: 228,
+      height: cardHeight,
       child: PageView.builder(
         controller: pageController,
         onPageChanged: onPageChanged,
@@ -975,56 +981,65 @@ class _UserCardView extends StatelessWidget {
                   Expanded(
                     child: Row(
                       children: [
-                        _CardInfoColumn(
-                          label: 'Expires',
-                          value: expiryLabel,
-                          animateValue: true,
-                          onCopy: copyableExpiry.isNotEmpty
-                              ? () => onCopyValue('Expiry date', copyableExpiry)
-                              : null,
-                          copyLabel: 'Expiry date',
-                          reserveCopySlot: true,
+                        Flexible(
+                          child: _CardInfoColumn(
+                            label: 'Expires',
+                            value: expiryLabel,
+                            animateValue: true,
+                            onCopy: copyableExpiry.isNotEmpty
+                                ? () => onCopyValue('Expiry date', copyableExpiry)
+                                : null,
+                            copyLabel: 'Expiry date',
+                            reserveCopySlot: true,
+                          ),
                         ),
-                        const SizedBox(width: 18),
-                        _CardInfoColumn(
-                          label: 'CVV',
-                          value: cvvRevealed,
-                          maskedValue: cvvMasked,
-                          isMasked: !showDetails,
-                          animateValue: true,
-                          onCopy: copyableCvv.isNotEmpty
-                              ? () => onCopyValue('CVV', copyableCvv)
-                              : null,
-                          copyLabel: 'CVV',
-                          reserveCopySlot: true,
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: _CardInfoColumn(
+                            label: 'CVV',
+                            value: cvvRevealed,
+                            maskedValue: cvvMasked,
+                            isMasked: !showDetails,
+                            animateValue: true,
+                            onCopy: copyableCvv.isNotEmpty
+                                ? () => onCopyValue('CVV', copyableCvv)
+                                : null,
+                            copyLabel: 'CVV',
+                            reserveCopySlot: true,
+                          ),
                         ),
-                        const SizedBox(width: 18),
-                        _CardInfoColumn(
-                          label: 'Balance',
-                          value: balanceRevealed,
-                          maskedValue: balanceMasked,
-                          isMasked: !showDetails,
-                          animateValue: true,
+                        const SizedBox(width: 12),
+                        Flexible(
+                          child: _CardInfoColumn(
+                            label: 'Balance',
+                            value: balanceRevealed,
+                            maskedValue: balanceMasked,
+                            isMasked: !showDetails,
+                            animateValue: true,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  SizedBox(
-                    width: 60,
-                    height: 26,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        'VISA',
-                        style: TextStyle(
-                          color: OpeiColors.pureWhite.withValues(alpha: 0.92),
-                          fontSize: 26,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 2.4,
-                          fontStyle: FontStyle.italic,
-                          height: 1.0,
+                  Flexible(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            'VISA',
+                            style: TextStyle(
+                              color: OpeiColors.pureWhite.withValues(alpha: 0.92),
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 2.4,
+                              fontStyle: FontStyle.italic,
+                              height: 1.0,
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -1565,14 +1580,21 @@ class _CardInfoColumn extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          label.toUpperCase(),
-          style: theme.textTheme.bodySmall?.copyWith(
-                color: OpeiColors.pureWhite.withValues(alpha: 0.55),
-                letterSpacing: 0.8,
-                fontSize: 9,
-                fontWeight: FontWeight.w500,
-              ),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            label.toUpperCase(),
+            style: theme.textTheme.bodySmall?.copyWith(
+                  color: OpeiColors.pureWhite.withValues(alpha: 0.55),
+                  letterSpacing: 0.8,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w500,
+                ),
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.clip,
+          ),
         ),
         const SizedBox(height: 5),
         animateValue
@@ -1648,7 +1670,13 @@ class _CardInfoValue extends StatelessWidget {
 
     Widget buildValueContent() {
       if (!hasMasking) {
-        return Text(value, style: baseStyle);
+        return Text(
+          value,
+          style: baseStyle,
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.fade,
+        );
       }
 
       return _MaskedValueText(
@@ -1659,36 +1687,53 @@ class _CardInfoValue extends StatelessWidget {
       );
     }
 
-    if (!needsTrailingSpace) {
-      return SizedBox(
-        height: valueHeight,
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: buildValueContent(),
-        ),
-      );
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const double minWidthForTrailing = 90;
+        final hasRoomForTrailing = constraints.maxWidth >= minWidthForTrailing;
 
-    return SizedBox(
-      height: valueHeight,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Align(
+        if (!needsTrailingSpace || !hasRoomForTrailing) {
+          return SizedBox(
+            height: valueHeight,
+            child: Align(
+              alignment: Alignment.centerLeft,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
             alignment: Alignment.centerLeft,
             child: buildValueContent(),
           ),
-          const SizedBox(width: 6),
-          canCopy
-              ? _CopyIconButton(
-                  label: 'Copy $copyLabel',
-                  onPressed: onCopy!,
-                  size: 24,
-                )
-              : const _CopyIconPlaceholder(size: 24),
-        ],
-      ),
+            ),
+          );
+        }
+
+        return SizedBox(
+          height: valueHeight,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: buildValueContent(),
+                ),
+              ),
+            ),
+              const SizedBox(width: 6),
+              canCopy
+                  ? _CopyIconButton(
+                      label: 'Copy $copyLabel',
+                      onPressed: onCopy!,
+                      size: 24,
+                    )
+                  : const _CopyIconPlaceholder(size: 24),
+            ],
+          ),
+        );
+      },
     );
   }
 }
