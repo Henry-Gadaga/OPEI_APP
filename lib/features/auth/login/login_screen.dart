@@ -115,151 +115,158 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final state = ref.watch(loginControllerProvider);
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return ResponsiveScaffold(
       backgroundColor: OpeiColors.pureWhite,
-      body: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.only(
-          top: spacing * 3,
-          bottom: spacing * 3,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: spacing * 2),
-            Text(
-              'Sign in',
-              style: Theme.of(context).textTheme.displayMedium,
-            ),
-            SizedBox(height: spacing * 0.75),
-            Text(
-              'Sign in to your account',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: OpeiColors.grey600,
-                  ),
-            ),
-            SizedBox(height: spacing * 2.5),
-            if (state.errorMessage != null) ...[
-              Container(
-                width: double.infinity,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: OpeiColors.errorRed.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline,
-                        color: OpeiColors.errorRed, size: 20),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        state.errorMessage!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: OpeiColors.errorRed,
-                            ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      body: AnimatedPadding(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.only(
+            top: spacing * 3,
+            bottom: spacing * 3,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               SizedBox(height: spacing * 2),
-            ],
-            _EmailField(
-              controller: _emailController,
-              focusNode: _emailFocusNode,
-              errorText: state.emailError,
-              onChanged: (value) {
-                ref.read(loginControllerProvider.notifier).updateEmail(value);
-              },
-              onSubmitted: (_) => _passwordFocusNode.requestFocus(),
-            ),
-            SizedBox(height: spacing * 1.5),
-            _PasswordField(
-              controller: _passwordController,
-              focusNode: _passwordFocusNode,
-              obscureText: _obscurePassword,
-              errorText: state.passwordError,
-              onChanged: (value) {
-                ref
-                    .read(loginControllerProvider.notifier)
-                    .updatePassword(value);
-              },
-              onToggleVisibility: () {
-                setState(() => _obscurePassword = !_obscurePassword);
-              },
-              onSubmitted: (_) => _handleLogin(),
-            ),
-            SizedBox(height: spacing),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => context.push('/forgot-password'),
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  minimumSize: const Size(0, 0),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                child: Text(
-                  'Forgot Password?',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: OpeiColors.pureBlack,
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
+              Text(
+                'Sign in',
+                style: Theme.of(context).textTheme.displayMedium,
               ),
-            ),
-            SizedBox(height: spacing * 2.5),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: state.isLoading ? null : _handleLogin,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size.fromHeight(tokens.buttonHeight),
-                ),
-                child: state.isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
+              SizedBox(height: spacing * 0.75),
+              Text(
+                'Sign in to your account',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: OpeiColors.grey600,
+                    ),
+              ),
+              SizedBox(height: spacing * 2.5),
+              if (state.errorMessage != null) ...[
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: OpeiColors.errorRed.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline,
+                          color: OpeiColors.errorRed, size: 20),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          state.errorMessage!,
+                          style:
+                              Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: OpeiColors.errorRed,
+                                  ),
                         ),
-                      )
-                    : const Text('Sign in'),
-              ),
-            ),
-            SizedBox(height: spacing * 2),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  "Don't have an account? ",
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: OpeiColors.grey600,
                       ),
+                    ],
+                  ),
                 ),
-                TextButton(
-                  onPressed: () => context.go('/signup'),
+                SizedBox(height: spacing * 2),
+              ],
+              _EmailField(
+                controller: _emailController,
+                focusNode: _emailFocusNode,
+                errorText: state.emailError,
+                onChanged: (value) {
+                  ref.read(loginControllerProvider.notifier).updateEmail(value);
+                },
+                onSubmitted: (_) => _passwordFocusNode.requestFocus(),
+              ),
+              SizedBox(height: spacing * 1.5),
+              _PasswordField(
+                controller: _passwordController,
+                focusNode: _passwordFocusNode,
+                obscureText: _obscurePassword,
+                errorText: state.passwordError,
+                onChanged: (value) {
+                  ref
+                      .read(loginControllerProvider.notifier)
+                      .updatePassword(value);
+                },
+                onToggleVisibility: () {
+                  setState(() => _obscurePassword = !_obscurePassword);
+                },
+                onSubmitted: (_) => _handleLogin(),
+              ),
+              SizedBox(height: spacing),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => context.push('/forgot-password'),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 0),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
-                    'Sign Up',
+                    'Forgot Password?',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: OpeiColors.pureBlack,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: spacing),
-          ],
+              ),
+              SizedBox(height: spacing * 2.5),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: state.isLoading ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size.fromHeight(tokens.buttonHeight),
+                  ),
+                  child: state.isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Sign in'),
+                ),
+              ),
+              SizedBox(height: spacing * 2),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't have an account? ",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: OpeiColors.grey600,
+                        ),
+                  ),
+                  TextButton(
+                    onPressed: () => context.go('/signup'),
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size(0, 0),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      'Sign Up',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: OpeiColors.pureBlack,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: spacing),
+            ],
+          ),
         ),
       ),
     );

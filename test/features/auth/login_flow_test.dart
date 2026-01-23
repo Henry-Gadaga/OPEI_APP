@@ -13,7 +13,7 @@ void main() {
     testWidgets('shows validation errors when attempting empty login', (tester) async {
       await _pumpLoginFlowApp(tester);
 
-      await tester.tap(find.text('Login'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Sign in'));
       await tester.pumpAndSettle();
 
       expect(find.text('Email is required'), findsOneWidget);
@@ -31,7 +31,7 @@ void main() {
 
       await tester.enterText(find.byType(TextField).at(0), 'tester@example.com');
       await tester.enterText(find.byType(TextField).at(1), 'password123');
-      await tester.tap(find.text('Login'));
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Sign in'));
       await tester.pumpAndSettle();
 
       expect(find.text('verify-email:autoSend=true'), findsOneWidget);
