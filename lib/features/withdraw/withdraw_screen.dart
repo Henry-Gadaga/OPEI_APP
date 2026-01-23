@@ -720,6 +720,7 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
     final currencyCode = widget.currency.toUpperCase();
     final amountDisplay = amountText.isEmpty ? '—' : '$amountText $currencyCode';
     final addressDisplay = addressText.isEmpty ? 'Not provided' : _shortenAddress(addressText);
+    const feeDisplay = '\$1.50';
 
     return showResponsiveBottomSheet<bool>(
       context: context,
@@ -729,6 +730,7 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
         networkLabel: _networkLabel,
         amountDisplay: amountDisplay,
         addressDisplay: addressDisplay,
+        feeDisplay: feeDisplay,
         onConfirm: () => Navigator.of(sheetContext).pop(true),
         onCancel: () => Navigator.of(sheetContext).pop(false),
       ),
@@ -1086,6 +1088,7 @@ class _WithdrawConfirmationSheet extends StatelessWidget {
   final String networkLabel;
   final String amountDisplay;
   final String addressDisplay;
+  final String feeDisplay;
   final VoidCallback onConfirm;
   final VoidCallback onCancel;
 
@@ -1094,6 +1097,7 @@ class _WithdrawConfirmationSheet extends StatelessWidget {
     required this.networkLabel,
     required this.amountDisplay,
     required this.addressDisplay,
+    required this.feeDisplay,
     required this.onConfirm,
     required this.onCancel,
   });
@@ -1144,19 +1148,23 @@ class _WithdrawConfirmationSheet extends StatelessWidget {
                 ),
                 SizedBox(height: spacing * 2.5),
                 _ReviewRow(label: 'Amount', value: amountDisplay),
-                SizedBox(height: spacing * 2),
+                SizedBox(height: spacing * 1.5),
                 const Divider(color: OpeiColors.iosSeparator),
-                SizedBox(height: spacing * 2),
+                SizedBox(height: spacing * 1.5),
                 _ReviewRow(label: 'Asset', value: currency),
-                SizedBox(height: spacing * 2),
+                SizedBox(height: spacing * 1.5),
                 const Divider(color: OpeiColors.iosSeparator),
-                SizedBox(height: spacing * 2),
+                SizedBox(height: spacing * 1.5),
                 _ReviewRow(label: 'Network', value: networkLabel),
-                SizedBox(height: spacing * 2),
+                SizedBox(height: spacing * 1.5),
                 const Divider(color: OpeiColors.iosSeparator),
-                SizedBox(height: spacing * 2),
+                SizedBox(height: spacing * 1.5),
                 _ReviewRow(label: 'Destination', value: addressDisplay),
-                SizedBox(height: spacing * 3),
+                SizedBox(height: spacing * 1.5),
+                const Divider(color: OpeiColors.iosSeparator),
+                SizedBox(height: spacing * 1.5),
+                _ReviewRow(label: 'Fee', value: feeDisplay),
+                SizedBox(height: spacing * 2.5),
                 SizedBox(
                   width: double.infinity,
                   child: CupertinoButton.filled(
