@@ -1,0 +1,9 @@
+## Example Android signing config (DO NOT COMMIT REAL SECRETS)
+## Copy to `android/key.properties` locally or inject via CI secrets.
+##
+## storeFile can be an absolute path in CI, or a relative path from `android/`.
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=CHANGE_ME
+storeFile=CHANGE_ME.jks
+

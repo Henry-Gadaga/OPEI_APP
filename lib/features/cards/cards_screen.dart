@@ -797,7 +797,7 @@ class _UserCardsCarousel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final textScale = mediaQuery.textScaleFactor.clamp(1.0, 1.35);
+    final textScale = mediaQuery.textScaler.scale(1.0).clamp(1.0, 1.35);
     const baseHeight = 228.0;
     final maxResponsiveHeight = math.max(baseHeight, mediaQuery.size.height * 0.45);
     final cardHeight = (baseHeight * textScale).clamp(baseHeight, maxResponsiveHeight);

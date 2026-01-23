@@ -12,6 +12,13 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def hasReleaseSigning =
+        keystorePropertiesFile.exists() &&
+                keystoreProperties['storeFile'] &&
+                keystoreProperties['storePassword'] &&
+                keystoreProperties['keyAlias'] &&
+                keystoreProperties['keyPassword']
+
 android {
     namespace = "com.yegetechnologies.opei"
     compileSdk = flutter.compileSdkVersion
@@ -82,7 +89,7 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.release
+            signingConfig = hasReleaseSigning ? signingConfigs.release : signingConfigs.debug
         }
     }
 }
