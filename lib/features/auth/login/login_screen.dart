@@ -116,9 +116,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final sectionSpacing = spacing * 3;
+    final fieldSpacing = spacing * 2;
 
     return ResponsiveScaffold(
       backgroundColor: OpeiColors.pureWhite,
+      resizeToAvoidBottomInset: false,
       body: AnimatedPadding(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
@@ -126,25 +129,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.only(
-            top: spacing * 3,
-            bottom: spacing * 3,
+            top: spacing * 4,
+            bottom: spacing * 4,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: spacing * 2),
+              SizedBox(height: spacing * 2.5),
               Text(
                 'Sign in',
                 style: Theme.of(context).textTheme.displayMedium,
               ),
-              SizedBox(height: spacing * 0.75),
+              SizedBox(height: spacing),
               Text(
                 'Sign in to your account',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: OpeiColors.grey600,
                     ),
               ),
-              SizedBox(height: spacing * 2.5),
+              SizedBox(height: sectionSpacing),
               if (state.errorMessage != null) ...[
                 Container(
                   width: double.infinity,
@@ -171,7 +174,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: spacing * 2),
+                SizedBox(height: sectionSpacing),
               ],
               _EmailField(
                 controller: _emailController,
@@ -182,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 },
                 onSubmitted: (_) => _passwordFocusNode.requestFocus(),
               ),
-              SizedBox(height: spacing * 1.5),
+              SizedBox(height: fieldSpacing),
               _PasswordField(
                 controller: _passwordController,
                 focusNode: _passwordFocusNode,
@@ -198,7 +201,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 },
                 onSubmitted: (_) => _handleLogin(),
               ),
-              SizedBox(height: spacing),
+              SizedBox(height: spacing * 1.5),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -217,7 +220,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: spacing * 2.5),
+              SizedBox(height: sectionSpacing),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -237,7 +240,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       : const Text('Sign in'),
                 ),
               ),
-              SizedBox(height: spacing * 2),
+              SizedBox(height: sectionSpacing),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -264,7 +267,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: spacing),
+              SizedBox(height: spacing * 2),
             ],
           ),
         ),

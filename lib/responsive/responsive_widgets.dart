@@ -14,6 +14,7 @@ class ResponsiveScaffold extends StatelessWidget {
   final Color? backgroundColor;
   final bool extendBody;
   final bool extendBodyBehindAppBar;
+  final bool resizeToAvoidBottomInset;
   final bool useSafeArea;
   final EdgeInsetsGeometry? padding;
 
@@ -29,6 +30,7 @@ class ResponsiveScaffold extends StatelessWidget {
     this.backgroundColor,
     this.extendBody = false,
     this.extendBodyBehindAppBar = false,
+    this.resizeToAvoidBottomInset = true,
     this.useSafeArea = true,
     this.padding,
   });
@@ -57,6 +59,7 @@ class ResponsiveScaffold extends StatelessWidget {
     return Scaffold(
       appBar: appBar,
       backgroundColor: backgroundColor,
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       body: content,
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
