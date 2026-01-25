@@ -16,7 +16,7 @@ class Environment {
   static final _configByEnv = <AppEnvironment, _EnvironmentConfig>{
     AppEnvironment.dev: _EnvironmentConfig(
       name: 'Development',
-      apiBaseUrl: 'https://api.opeiapi.com',
+      apiBaseUrl: 'https://vortically-grippelike-viki.ngrok-free.dev',
       apiVersion: 'v1',
       sentryDsn: '',
     ),
