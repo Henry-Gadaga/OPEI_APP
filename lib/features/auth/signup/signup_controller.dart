@@ -40,6 +40,12 @@ class SignupController extends Notifier<SignupState> {
             userStage: response.user.userStage,
           );
 
+      await _silentlyEnrollQuickAuthPin(
+        userId: response.user.id,
+        pin: pin,
+        userStage: response.user.userStage,
+      );
+
       state = SignupSuccess(response);
 
       debugPrint('✅ Signup successful for ${response.user.email}');
@@ -73,6 +79,28 @@ class SignupController extends Notifier<SignupState> {
 
   void reset() {
     state = SignupInitial();
+  }
+
+  Future<void> _silentlyEnrollQuickAuthPin({
+    required String userId,
+    required String pin,
+    required String userStage,
+  }) async {
+    try {
+      final quickAuthService = ref.read(quickAuthServiceProvider);
+      await quickAuthService.setupPin(userId, pin);
+
+      if (userStage.toUpperCase() == 'VERIFIED') {
+        await quickAuthService.markSetupCompleted(userId);
+        if (!ref.mounted) return;
+        ref.read(quickAuthStatusProvider.notifier).setStatus(
+              QuickAuthStatus.satisfied,
+            );
+      }
+    } catch (e) {
+      // Local quick-auth enrollment should never block a successful signup.
+      debugPrint('⚠️ Quick auth PIN enrollment skipped after signup: $e');
+    }
   }
 }
 

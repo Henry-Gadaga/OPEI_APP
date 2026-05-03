@@ -46,21 +46,22 @@ class ResetPasswordController extends Notifier<ResetPasswordState> {
       codeError = 'Code must be 6 digits';
     }
 
+    // The user's credential is a 6-digit numeric PIN (matches signup).
     if (state.newPassword.isEmpty) {
-      passwordError = 'Password is required';
-    } else if (state.newPassword.length < 8) {
-      passwordError = 'Password must be at least 8 characters';
-    } else if (!_isPasswordStrong(state.newPassword)) {
-      passwordError = 'Password must contain uppercase, lowercase, number, and special character';
+      passwordError = 'PIN is required';
+    } else if (!RegExp(r'^\d{6}$').hasMatch(state.newPassword)) {
+      passwordError = 'PIN must be exactly 6 digits';
     }
 
     if (state.confirmPassword.isEmpty) {
-      confirmPasswordError = 'Please confirm your password';
+      confirmPasswordError = 'Please confirm your PIN';
     } else if (state.confirmPassword != state.newPassword) {
-      confirmPasswordError = 'Passwords do not match';
+      confirmPasswordError = 'PINs do not match';
     }
 
-    if (codeError != null || passwordError != null || confirmPasswordError != null) {
+    if (codeError != null ||
+        passwordError != null ||
+        confirmPasswordError != null) {
       state = state.copyWith(
         codeError: codeError,
         passwordError: passwordError,
@@ -70,15 +71,6 @@ class ResetPasswordController extends Notifier<ResetPasswordState> {
     }
 
     return true;
-  }
-
-  bool _isPasswordStrong(String password) {
-    final hasUppercase = password.contains(RegExp(r'[A-Z]'));
-    final hasLowercase = password.contains(RegExp(r'[a-z]'));
-    final hasDigit = password.contains(RegExp(r'[0-9]'));
-    final hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-
-    return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
   }
 
   Future<bool> resetPassword() async {

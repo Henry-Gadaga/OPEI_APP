@@ -89,6 +89,12 @@ class LoginController extends Notifier<LoginState> {
         '✅ Auth session set - providers will refresh with new user data',
       );
 
+      await _silentlyEnrollQuickAuthPin(
+        userId: response.user.id,
+        pin: state.password,
+        userStage: response.user.userStage,
+      );
+
       state = state.copyWith(isLoading: false);
 
       return {
@@ -137,6 +143,27 @@ class LoginController extends Notifier<LoginState> {
 
   void clearError() {
     state = state.copyWith(clearErrors: true);
+  }
+
+  Future<void> _silentlyEnrollQuickAuthPin({
+    required String userId,
+    required String pin,
+    required String userStage,
+  }) async {
+    try {
+      final quickAuthService = ref.read(quickAuthServiceProvider);
+      final hasPin = await quickAuthService.hasPinSetup(userId);
+      if (!hasPin) {
+        await quickAuthService.setupPin(userId, pin);
+      }
+
+      if (userStage.toUpperCase() == 'VERIFIED') {
+        await quickAuthService.markSetupCompleted(userId);
+      }
+    } catch (e) {
+      // Local quick-auth enrollment should never block a successful login.
+      debugPrint('⚠️ Quick auth PIN enrollment skipped after login: $e');
+    }
   }
 }
 

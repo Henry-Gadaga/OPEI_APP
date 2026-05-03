@@ -72,10 +72,6 @@ class OpeiColors {
   static const successGreen = Color(0xFF16A34A);
   static const success = successGreen;
   static const warningYellow = Color(0xFFF59E0B);
-  static const brandBlue = Color(0xFF4A9EFF);
-  static const brandBlueDeep = Color(0xFF2F7FE0);
-  static const brandBlueSurface = Color(0xFFF3F8FF);
-  static const brandBlueBorder = Color(0xFFD7E8FF);
 
   // iOS-like neutrals for subtle, compact UI
   static const iosLabelSecondary = Color(0xFF8E8E93); // secondary label
@@ -84,62 +80,57 @@ class OpeiColors {
   static const iosSurfaceMuted = Color(0xFFF5F5F7); // subtle surface
 }
 
-class AuthFlowStyles {
-  static BoxDecoration stepCardDecoration = BoxDecoration(
-    color: OpeiColors.pureWhite,
-    borderRadius: BorderRadius.circular(AppRadius.lg),
-    border: Border.all(color: OpeiColors.brandBlueBorder),
-    boxShadow: const [
-      BoxShadow(
-        color: Color(0x120F172A),
-        blurRadius: 20,
-        offset: Offset(0, 8),
-      ),
-    ],
-  );
+/// Opei premium brand tokens. Use these for new/redesigned screens.
+/// Existing screens continue to use [OpeiColors] until migrated.
+class OpeiBrand {
+  // Brand — sampled from official Opei logo
+  static const primary = Color(0xFF3D7BFF);
+  static const primaryPressed = Color(0xFF2860E0);
+  static const primaryHover = Color(0xFF5C92FF);
+  static const primaryTint = Color(0xFFEFF4FF);
+  static const primaryTintStrong = Color(0xFFDDE8FF);
+  static const primaryGradientStart = Color(0xFF3D7BFF);
+  static const primaryGradientEnd = Color(0xFF6E9DFF);
 
-  static BoxDecoration trustBannerDecoration = BoxDecoration(
-    color: OpeiColors.brandBlueSurface,
-    borderRadius: BorderRadius.circular(AppRadius.md),
-    border: Border.all(color: OpeiColors.brandBlueBorder),
-  );
+  // Neutrals — banking minimal scale
+  static const ink = Color(0xFF0B1220);
+  static const inkSecondary = Color(0xFF5B6477);
+  static const inkTertiary = Color(0xFF8A93A6);
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceMuted = Color(0xFFF5F7FB);
+  static const surfaceElevated = Color(0xFFFAFBFD);
+  // Hairlines tuned to be just visible against pure white surfaces — fields
+  // should feel CLEAR inside, not grey.
+  static const hairline = Color(0xFFEBEEF4);
+  static const hairlineStrong = Color(0xFFD4D9E3);
+  // Lighter placeholder colour so empty fields don't look "grey filled".
+  static const inkPlaceholder = Color(0xFFB7BDC9);
 
-  static InputDecoration compactInputDecoration({
-    required String hint,
-    required IconData icon,
-    Widget? suffix,
-  }) {
-    return InputDecoration(
-      hintText: hint,
-      isDense: true,
-      filled: true,
-      fillColor: OpeiColors.pureWhite,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      prefixIcon: Icon(icon, size: 18, color: OpeiColors.grey600),
-      prefixIconConstraints: const BoxConstraints(minWidth: 42),
-      suffixIcon: suffix,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: OpeiColors.grey200, width: 1.2),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: OpeiColors.grey200, width: 1.2),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: OpeiColors.brandBlue, width: 1.6),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: OpeiColors.errorRed, width: 1.2),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        borderSide: const BorderSide(color: OpeiColors.errorRed, width: 1.2),
-      ),
-    );
-  }
+  // Semantic
+  static const success = Color(0xFF16A34A);
+  static const warning = Color(0xFFF59E0B);
+  static const danger = Color(0xFFE0394A);
+
+  // Geometry
+  static const radiusField = 14.0;
+  static const radiusCta = 14.0;
+  static const radiusCard = 16.0;
+  static const radiusSheet = 24.0;
+  static const heightCta = 56.0;
+  static const heightField = 56.0;
+
+  // Motion
+  static const motionFast = Duration(milliseconds: 160);
+  static const motion = Duration(milliseconds: 240);
+  static const motionSlow = Duration(milliseconds: 360);
+  static const motionCurve = Curves.easeOutCubic;
+
+  // Gradients
+  static const heroGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [primaryGradientStart, primaryGradientEnd],
+  );
 }
 
 ThemeData get lightTheme => ThemeData(

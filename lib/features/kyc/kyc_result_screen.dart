@@ -70,9 +70,9 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
           icon: Icons.verified,
           iconColor: OpeiColors.successGreen,
           title: 'KYC approved',
-          message: 'You’re fully verified. Set your PIN to finish onboarding.',
+          message: 'You’re fully verified. Continue to your dashboard.',
           buttonLabel: 'Continue',
-          onPressed: _handleContinueToPinSetup,
+          onPressed: _handleContinueToDashboard,
         );
       case _KycOutcome.review:
         return _buildResultCard(
@@ -279,9 +279,27 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
     }
   }
 
-  Future<void> _handleContinueToPinSetup() async {
+  Future<void> _handleContinueToDashboard() async {
+    final quickAuthService = ref.read(quickAuthServiceProvider);
+    final quickAuthStatusNotifier = ref.read(quickAuthStatusProvider.notifier);
+    final storage = ref.read(secureStorageServiceProvider);
+
+    try {
+      final user = await storage.getUser();
+      final userId = user?.id ?? await quickAuthService.getRegisteredUserId();
+      if (userId != null) {
+        final hasPin = await quickAuthService.hasPinSetup(userId);
+        if (hasPin) {
+          await quickAuthService.markSetupCompleted(userId);
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ Failed to sync quick auth state after KYC: $e');
+    }
+
+    quickAuthStatusNotifier.setStatus(QuickAuthStatus.satisfied);
     if (!mounted) return;
-    context.go('/quick-auth-setup');
+    context.go('/dashboard');
   }
 
   Future<void> _handleReturnToLogin() async {

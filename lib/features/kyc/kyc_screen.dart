@@ -3,18 +3,21 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:opei/core/config/api_config.dart';
-import 'package:opei/core/providers/providers.dart';
-import 'package:opei/features/kyc/kyc_state.dart';
-import 'package:opei/theme.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'package:opei/core/config/api_config.dart';
+import 'package:opei/core/providers/providers.dart';
+import 'package:opei/features/kyc/kyc_state.dart';
+import 'package:opei/theme.dart';
+import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
 class KycScreen extends ConsumerStatefulWidget {
   const KycScreen({super.key});
@@ -31,16 +34,30 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(kycControllerProvider);
+    final isWebView = state is KycWebViewReady;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Identity Verification'),
-        leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-          onPressed: _handleBackNavigation,
-              ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: OpeiBrand.surface,
+        systemNavigationBarIconBrightness: Brightness.dark,
       ),
-      body: _buildBody(state),
+      child: Scaffold(
+        // White for the webview to avoid any visible app bar tint behind the
+        // verification flow; off-white for the intro/loading/error screens.
+        backgroundColor:
+            isWebView ? OpeiBrand.surface : OpeiBrand.surfaceMuted,
+        appBar: OpeiAppBar(
+          backgroundColor:
+              isWebView ? OpeiBrand.surface : OpeiBrand.surfaceMuted,
+          currentStep: isWebView ? null : 4,
+          totalSteps: isWebView ? null : 4,
+          onBack: _handleBackNavigation,
+        ),
+        body: _buildBody(state),
+      ),
     );
   }
 
@@ -56,21 +73,18 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     final logoutFuture = ref.read(authRepositoryProvider).logout();
     ref.read(authSessionProvider.notifier).clearSession();
 
-    if (!mounted) {
-      return;
-    }
-
-    context.go('/signup');
+    if (!mounted) return;
+    context.go('/welcome');
 
     try {
       await logoutFuture;
-    } catch (e, stackTrace) {
-      debugPrint('⚠️ Failed to logout before returning to signup: $e');
-      debugPrint('$stackTrace');
+    } catch (e) {
+      debugPrint('⚠️ Failed to logout before returning to welcome: $e');
     }
   }
 
-  Future<List<String>> _handleAndroidFileSelection(FileSelectorParams params) async {
+  Future<List<String>> _handleAndroidFileSelection(
+      FileSelectorParams params) async {
     try {
       final config = _resolveFilePickerConfig(params.acceptTypes);
       final allowMultiple = params.mode == FileSelectorMode.openMultiple;
@@ -81,29 +95,25 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         withData: false,
       );
 
-      if (result == null || result.files.isEmpty) {
-        return [];
-      }
+      if (result == null || result.files.isEmpty) return [];
 
       final uriStrings = <String>[];
       for (final file in result.files) {
         String? path = file.path;
         if (path == null && file.bytes != null) {
           final tempDir = await getTemporaryDirectory();
-          final extension = file.extension?.isNotEmpty == true ? '.${file.extension}' : '';
-          final tempFile = File('${tempDir.path}/didit_upload_${DateTime.now().millisecondsSinceEpoch}$extension');
+          final extension =
+              file.extension?.isNotEmpty == true ? '.${file.extension}' : '';
+          final tempFile = File(
+              '${tempDir.path}/didit_upload_${DateTime.now().millisecondsSinceEpoch}$extension');
           await tempFile.writeAsBytes(file.bytes!);
           path = tempFile.path;
         }
-        if (path != null) {
-          uriStrings.add(Uri.file(path).toString());
-        }
+        if (path != null) uriStrings.add(Uri.file(path).toString());
       }
-
       return uriStrings;
-    } catch (e, stackTrace) {
+    } catch (e) {
       debugPrint('❌ File picker error: $e');
-      debugPrint('$stackTrace');
       return [];
     }
   }
@@ -112,7 +122,6 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     if (acceptTypes.isEmpty) {
       return const _FilePickerConfig(fileType: FileType.any);
     }
-
     final normalized = acceptTypes
         .map((type) => type.toLowerCase().trim())
         .where((type) => type.isNotEmpty)
@@ -132,14 +141,10 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     for (final type in normalized) {
       if (type.startsWith('.')) {
         final extension = type.substring(1);
-        if (extension.isNotEmpty) {
-          extensions.add(extension);
-        }
+        if (extension.isNotEmpty) extensions.add(extension);
       } else if (type.contains('/')) {
         final subtype = type.split('/').last;
-        if (subtype != '*' && subtype.isNotEmpty) {
-          extensions.add(subtype);
-        }
+        if (subtype != '*' && subtype.isNotEmpty) extensions.add(subtype);
       }
     }
 
@@ -149,15 +154,12 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         allowedExtensions: extensions,
       );
     }
-
     return const _FilePickerConfig(fileType: FileType.any);
   }
 
   bool _isKycCallbackUrl(String? url) {
     if (url == null || url.isEmpty) return false;
-    final normalizedUrl = url.toLowerCase();
-    final normalizedTarget = ApiConfig.kycCallbackUrl.toLowerCase();
-    return normalizedUrl.startsWith(normalizedTarget);
+    return url.toLowerCase().startsWith(ApiConfig.kycCallbackUrl.toLowerCase());
   }
 
   void _handleCallbackRedirect() {
@@ -165,9 +167,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     _handledCallbackNavigation = true;
     ref.read(kycControllerProvider.notifier).reset();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.go('/kyc/result');
-      }
+      if (mounted) context.go('/kyc/result');
     });
   }
 
@@ -176,79 +176,128 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       KycInitial() => _buildInitialView(),
       KycLoading() => _buildLoadingView(),
       KycWebViewReady(:final sessionUrl) => _buildWebView(sessionUrl),
-      KycError(:final message, :final errorType) => _buildErrorView(message, errorType),
+      KycError(:final message, :final errorType) =>
+        _buildErrorView(message, errorType),
       KycCompleted() => _buildCompletedView(),
     };
   }
 
   Widget _buildInitialView() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final verticalPadding = constraints.maxHeight > 640 ? 48.0 : 24.0;
-        return Padding(
-          padding: EdgeInsets.fromLTRB(24, verticalPadding, 24, verticalPadding),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-                padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                  color: OpeiColors.pureBlack.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.verified_user_outlined,
-                  size: 48,
-                color: OpeiColors.pureBlack,
-              ),
-            ),
-              Column(
+    return SafeArea(
+      top: false,
+      child: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
-            Text(
-                    'Identity verification',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
-              textAlign: TextAlign.center,
-            ),
-                  const SizedBox(height: 8),
-            Text(
-                    'We need to verify your identity to complete your account setup. This usually takes 2-3 minutes.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontSize: 13,
-                          height: 1.4,
-                    color: OpeiColors.grey600,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-                ],
-              ),
-            SizedBox(
-                width: 280,
-              child: ElevatedButton(
-                  onPressed: _handleStartVerification,
-                style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                  ),
-                    minimumSize: const Size.fromHeight(0),
-                ),
-                  child: const Text(
-                    'Start identity verification',
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Verify your identity',
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 26,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.5,
+                      color: OpeiBrand.ink,
+                      height: 1.15,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "One last step. We'll quickly verify your government-issued ID and a selfie. Takes about 2 minutes.",
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: OpeiBrand.inkSecondary,
+                      letterSpacing: -0.2,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Card-style "what you'll need" list — premium banking feel.
+                  Container(
+                    decoration: BoxDecoration(
+                      color: OpeiBrand.surface,
+                      borderRadius:
+                          BorderRadius.circular(OpeiBrand.radiusCard),
+                      border:
+                          Border.all(color: OpeiBrand.hairline, width: 1),
+                    ),
+                    child: Column(
+                      children: [
+                        _ChecklistRow(
+                          icon: Icons.badge_rounded,
+                          label: 'A government-issued ID',
+                          subLabel:
+                              "Passport, driver's licence or national ID",
+                        ),
+                        _Divider(),
+                        _ChecklistRow(
+                          icon: Icons.face_rounded,
+                          label: 'A quick selfie',
+                          subLabel:
+                              'To match the photo on your ID',
+                        ),
+                        _Divider(),
+                        _ChecklistRow(
+                          icon: Icons.timer_outlined,
+                          label: 'About 2 minutes',
+                          subLabel: 'Most checks complete instantly',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: OpeiBrand.primaryTint,
+                      borderRadius:
+                          BorderRadius.circular(OpeiBrand.radiusCard),
+                    ),
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.shield_rounded,
+                          size: 18,
+                          color: OpeiBrand.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Your data is encrypted and never shared. '
+                            'We verify with a trusted partner.',
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                              color:
+                                  OpeiBrand.primary.withValues(alpha: 0.9),
+                              letterSpacing: -0.1,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ),
             ),
-          ],
-        ),
-        );
-      },
+          ),
+          _BottomBar(
+            primaryLabel: 'Start verification',
+            onPrimary: _handleStartVerification,
+          ),
+        ],
+      ),
     );
   }
 
@@ -256,9 +305,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     debugPrint('🔘 Start verification button pressed');
     if (!kIsWeb) {
       final granted = await _ensureKycPermissions();
-      if (!granted) {
-        return;
-      }
+      if (!granted) return;
     }
     if (!mounted) return;
     ref.read(kycControllerProvider.notifier).initializeKycSession();
@@ -266,7 +313,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
 
   Future<bool> _ensureKycPermissions() async {
     final platform = defaultTargetPlatform;
-    if (platform != TargetPlatform.android && platform != TargetPlatform.iOS) {
+    if (platform != TargetPlatform.android &&
+        platform != TargetPlatform.iOS) {
       return true;
     }
 
@@ -274,35 +322,34 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       Permission.camera,
       Permission.microphone,
     };
-
     if (platform == TargetPlatform.iOS) {
       permissions.add(Permission.photos);
     }
 
     final results = await permissions.toList().request();
-    debugPrint('📸 Camera permission status: ${results[Permission.camera]}');
-    debugPrint('🎙️ Microphone permission status: ${results[Permission.microphone]}');
-    if (platform == TargetPlatform.iOS) {
-      debugPrint('🖼️ Photos permission status: ${results[Permission.photos]}');
-    }
-    final allGranted = results.values.every((status) => status.isGranted || status.isLimited);
+    final allGranted = results.values
+        .every((status) => status.isGranted || status.isLimited);
+    if (allGranted) return true;
 
-    if (allGranted) {
-      return true;
-    }
-
-    final permanentlyDenied = results.entries.any((entry) => entry.value.isPermanentlyDenied);
-
+    final permanentlyDenied =
+        results.entries.any((entry) => entry.value.isPermanentlyDenied);
     if (permanentlyDenied && mounted) {
       await _showPermissionDialog();
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Camera and microphone access are required to continue.'),
+        SnackBar(
+          content: const Text(
+            'Camera and microphone access are required to continue.',
+          ),
+          backgroundColor: OpeiBrand.danger,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+          ),
         ),
       );
     }
-
     return false;
   }
 
@@ -312,22 +359,37 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Allow Access'),
+          backgroundColor: OpeiBrand.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+          ),
+          title: const Text('Allow access',
+              style: TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontWeight: FontWeight.w700)),
           content: const Text(
-            'Camera, microphone, and media permissions are needed to capture your verification selfie. '
+            'Camera, microphone and media permissions are needed to capture your verification selfie. '
             'Please enable them in Settings to continue.',
+            style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                color: OpeiBrand.inkSecondary,
+                height: 1.4),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Not now'),
+              child: const Text('Not now',
+                  style: TextStyle(color: OpeiBrand.inkSecondary)),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 await openAppSettings();
               },
-              child: const Text('Open Settings'),
+              child: const Text('Open Settings',
+                  style: TextStyle(
+                      color: OpeiBrand.primary,
+                      fontWeight: FontWeight.w600)),
             ),
           ],
         );
@@ -340,18 +402,32 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.4,
+              color: OpeiBrand.primary,
+            ),
+          ),
           SizedBox(height: 16),
-          Text('Preparing verification...'),
+          Text(
+            'Preparing verification…',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.2,
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildWebView(String sessionUrl) {
-    if (_webViewController == null) {
-      _setupWebView(sessionUrl);
-    }
+    if (_webViewController == null) _setupWebView(sessionUrl);
 
     return Stack(
       children: [
@@ -359,9 +435,16 @@ class _KycScreenState extends ConsumerState<KycScreen> {
           WebViewWidget(controller: _webViewController!),
         if (_isWebViewLoading)
           Container(
-            color: Colors.white,
+            color: OpeiBrand.surface,
             child: const Center(
-              child: CircularProgressIndicator(),
+              child: SizedBox(
+                width: 28,
+                height: 28,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: OpeiBrand.primary,
+                ),
+              ),
             ),
           ),
       ],
@@ -372,14 +455,16 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     debugPrint('🌐 Setting up WebView for: $sessionUrl');
 
     if (kIsWeb) {
-      // On web, open the verification session in a new tab for best UX
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final uri = Uri.parse(sessionUrl);
-        final launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
+        final launched =
+            await launchUrl(uri, mode: LaunchMode.platformDefault);
         if (!launched && mounted) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Could not open verification tab. Copying link...')),
+              const SnackBar(
+                  content:
+                      Text('Could not open verification tab. Copying link…')),
             );
           }
         }
@@ -401,14 +486,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       )
       ..setNavigationDelegate(
         NavigationDelegate(
-          onPageStarted: (url) {
-            debugPrint('🌐 Page started loading: $url');
-          },
           onPageFinished: (url) {
-            debugPrint('✅ Page finished loading: $url');
-            if (mounted) {
-              setState(() => _isWebViewLoading = false);
-            }
+            if (mounted) setState(() => _isWebViewLoading = false);
           },
           onWebResourceError: (error) {
             debugPrint('❌ WebView error: ${error.description}');
@@ -427,17 +506,13 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       ..loadRequest(Uri.parse(sessionUrl));
 
     final platformController = _webViewController!.platform;
-
     platformController.setOnPlatformPermissionRequest((request) {
-      debugPrint('📸 Permission requested: ${request.types}');
       request.grant();
     });
 
     if (platformController is AndroidWebViewController) {
-      debugPrint('🤖 Configuring Android-specific settings');
       platformController.setGeolocationPermissionsPromptCallbacks(
         onShowPrompt: (params) async {
-          debugPrint('📍 Geolocation permission requested');
           return const GeolocationPermissionsResponse(
             allow: true,
             retain: true,
@@ -450,134 +525,290 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     }
   }
 
-
   Widget _buildErrorView(String message, KycErrorType errorType) {
     IconData icon;
     Color iconColor;
+    Color tintColor;
     String actionText;
     VoidCallback? onAction;
+    String title;
 
     switch (errorType) {
       case KycErrorType.alreadyApproved:
-        icon = Icons.check_circle_outline;
-        iconColor = Colors.green;
-        actionText = 'Go to Dashboard';
+        icon = Icons.check_circle_rounded;
+        iconColor = OpeiBrand.success;
+        tintColor = const Color(0xFFE7F8EE);
+        title = 'Already verified';
+        actionText = 'Go to dashboard';
         onAction = () => context.go('/dashboard');
         break;
-
       case KycErrorType.underReview:
-        icon = Icons.pending_outlined;
-        iconColor = Colors.orange;
-        actionText = 'Back to Home';
-        onAction = () => context.pop();
-        break;
-
-      case KycErrorType.wrongStage:
-        icon = Icons.info_outline;
-        iconColor = Colors.blue;
-        actionText = 'Complete Address';
-        onAction = () => context.go('/address');
-        break;
-
-      case KycErrorType.inactiveUser:
-        icon = Icons.block;
-        iconColor = Colors.red;
+        icon = Icons.hourglass_top_rounded;
+        iconColor = OpeiBrand.warning;
+        tintColor = const Color(0xFFFFF7E6);
+        title = 'Under review';
         actionText = 'Back';
         onAction = () => context.pop();
         break;
-
+      case KycErrorType.wrongStage:
+        icon = Icons.info_rounded;
+        iconColor = OpeiBrand.primary;
+        tintColor = OpeiBrand.primaryTint;
+        title = 'Address required';
+        actionText = 'Complete address';
+        onAction = () => context.go('/address');
+        break;
+      case KycErrorType.inactiveUser:
+        icon = Icons.block_rounded;
+        iconColor = OpeiBrand.danger;
+        tintColor = const Color(0xFFFDEBEE);
+        title = 'Account inactive';
+        actionText = 'Back';
+        onAction = () => context.pop();
+        break;
       case KycErrorType.unauthorized:
       case KycErrorType.notFound:
-        icon = Icons.lock_outline;
-        iconColor = Colors.red;
-        actionText = 'Login Again';
-        onAction = () => context.go('/signup');
+        icon = Icons.lock_rounded;
+        iconColor = OpeiBrand.danger;
+        tintColor = const Color(0xFFFDEBEE);
+        title = 'Sign in again';
+        actionText = 'Go to sign in';
+        onAction = () => context.go('/login');
         break;
-
       case KycErrorType.serviceUnavailable:
       case KycErrorType.general:
-        icon = Icons.error_outline;
-        iconColor = Colors.red;
-        actionText = 'Try Again';
-        onAction = () => ref.read(kycControllerProvider.notifier).initializeKycSession();
+        icon = Icons.error_rounded;
+        iconColor = OpeiBrand.danger;
+        tintColor = const Color(0xFFFDEBEE);
+        title = 'Something went wrong';
+        actionText = 'Try again';
+        onAction = () =>
+            ref.read(kycControllerProvider.notifier).initializeKycSession();
         break;
     }
 
-    return Center(
-      child: Padding(
-        padding: AppSpacing.horizontalLg,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 80, color: iconColor),
-            const SizedBox(height: 24),
-            Text(
-              message,
-              style: Theme.of(context).textTheme.bodyLarge,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: onAction,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+    return SafeArea(
+      top: false,
+      child: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: tintColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Icon(icon, size: 30, color: iconColor),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: OpeiBrand.ink,
+                        letterSpacing: -0.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      message,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.2,
+                        height: 1.45,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-                child: Text(actionText),
               ),
             ),
-          ],
-        ),
+          ),
+          _BottomBar(primaryLabel: actionText, onPrimary: onAction),
+        ],
       ),
     );
   }
 
   Widget _buildCompletedView() {
-    return Center(
-      child: Padding(
-        padding: AppSpacing.horizontalLg,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.check_circle,
-              size: 80,
-              color: Colors.green,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Verification Complete!',
-              style: Theme.of(context).textTheme.displayMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Your identity has been verified successfully.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: OpeiColors.grey600,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => context.go('/dashboard'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+    return SafeArea(
+      top: false,
+      child: Column(
+        children: [
+          Expanded(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 72,
+                      height: 72,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE7F8EE),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        size: 36,
+                        color: OpeiBrand.success,
+                      ),
+                    ),
+                    const SizedBox(height: 22),
+                    const Text(
+                      'You\'re all set!',
+                      style: TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: OpeiBrand.ink,
+                        letterSpacing: -0.4,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Your identity has been verified. Welcome to Opei.',
+                      style: TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.2,
+                        height: 1.45,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-                child: const Text('Continue to Dashboard'),
               ),
             ),
-          ],
-        ),
+          ),
+          _BottomBar(
+            primaryLabel: 'Continue to dashboard',
+            onPrimary: () => context.go('/dashboard'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ChecklistRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String subLabel;
+
+  const _ChecklistRow({
+    required this.icon,
+    required this.label,
+    required this.subLabel,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: OpeiBrand.primaryTint,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, size: 18, color: OpeiBrand.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiBrand.ink,
+                    letterSpacing: -0.2,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subLabel,
+                  style: const TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w400,
+                    color: OpeiBrand.inkSecondary,
+                    letterSpacing: -0.1,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      child: Divider(
+        height: 1,
+        thickness: 1,
+        color: OpeiBrand.hairline,
+      ),
+    );
+  }
+}
+
+class _BottomBar extends StatelessWidget {
+  final String primaryLabel;
+  final VoidCallback? onPrimary;
+
+  const _BottomBar({required this.primaryLabel, required this.onPrimary});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: OpeiBrand.surface,
+        border: Border(top: BorderSide(color: OpeiBrand.hairline, width: 1)),
+      ),
+      padding: EdgeInsets.fromLTRB(
+        24,
+        14,
+        24,
+        14 + MediaQuery.of(context).viewPadding.bottom,
+      ),
+      child: OpeiPrimaryButton(
+        label: primaryLabel,
+        onPressed: onPrimary,
+        trailingIcon: Icons.arrow_forward_rounded,
       ),
     );
   }
@@ -586,7 +817,6 @@ class _KycScreenState extends ConsumerState<KycScreen> {
 class _FilePickerConfig {
   final FileType fileType;
   final List<String>? allowedExtensions;
-
   const _FilePickerConfig({
     required this.fileType,
     this.allowedExtensions,

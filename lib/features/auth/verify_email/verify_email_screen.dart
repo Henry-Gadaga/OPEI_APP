@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opei/core/providers/providers.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/auth/verify_email/verify_email_state.dart';
-import 'package:opei/responsive/responsive_tokens.dart';
-import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
+import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   final String? email;
@@ -38,24 +38,19 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   }
 
   Future<void> _initializeEmail() async {
-    debugPrint('📧 Starting email initialization...');
     String? email = widget.email;
 
     if (email == null) {
-      debugPrint('📧 Email not in route args, checking secure storage...');
       final storage = ref.read(secureStorageServiceProvider);
       email = await storage.getEmail();
     }
 
     if (email == null && mounted) {
-      debugPrint('❌ No email found anywhere');
       showError(context, 'Email not found. Please sign up again.');
-      // Using GoRouter navigation to avoid invalid pop on declarative routes
       context.go('/login');
       return;
     }
 
-    debugPrint('✅ Email found: $email, calling controller initialize');
     setState(() {
       _email = email;
       _isInitialized = true;
@@ -66,24 +61,25 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
             email!,
             autoSendCode: widget.autoSendCode,
           );
+      // Auto-focus first box for fastest possible entry.
+      if (_focusNodes.isNotEmpty) _focusNodes[0].requestFocus();
     });
   }
 
   @override
   void dispose() {
     HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-    for (var controller in _controllers) {
-      controller.dispose();
+    for (final c in _controllers) {
+      c.dispose();
     }
-    for (var focusNode in _focusNodes) {
-      focusNode.dispose();
+    for (final f in _focusNodes) {
+      f.dispose();
     }
     super.dispose();
   }
 
   void _onDigitChanged(int index, String value) {
-    if (!_isInitialized || _email == null) return;
-    if (_isPasting) return;
+    if (!_isInitialized || _email == null || _isPasting) return;
 
     final controller = ref.read(verifyEmailControllerProvider.notifier);
     final sanitized = value.replaceAll(RegExp(r'[^0-9]'), '');
@@ -172,9 +168,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
   Future<void> _handleBackNavigation() async {
     if (_isLoggingOut) return;
-    setState(() {
-      _isLoggingOut = true;
-    });
+    setState(() => _isLoggingOut = true);
 
     final authRepository = ref.read(authRepositoryProvider);
     final sessionNotifier = ref.read(authSessionProvider.notifier);
@@ -182,19 +176,15 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
     try {
       await authRepository.logout();
-    } catch (e, stackTrace) {
-      debugPrint('❌ Logout during verify-email failed: $e');
-      debugPrint('$stackTrace');
+    } catch (_) {
+      // best-effort logout
     } finally {
       sessionNotifier.clearSession();
       await storage.clearEmail();
     }
 
-    if (!mounted) {
-      return;
-    }
-
-    context.go('/login');
+    if (!mounted) return;
+    context.go('/welcome');
   }
 
   Future<void> _handleResend() async {
@@ -204,288 +194,473 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     final success = await controller.resendCode();
 
     if (success && mounted) {
-      showSuccess(context, 'Verification code sent to your email');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Verification code sent'),
+          backgroundColor: OpeiBrand.success,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+          ),
+        ),
+      );
+      // Re-focus first box for re-entry.
+      _focusNodes[0].requestFocus();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     if (!_isInitialized || _email == null) {
-      return const ResponsiveScaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return const Scaffold(
+        backgroundColor: OpeiBrand.surface,
+        body: Center(
+          child: CircularProgressIndicator(color: OpeiBrand.primary),
+        ),
       );
     }
 
     final state = ref.watch(verifyEmailControllerProvider);
-    final spacing = context.responsiveSpacingUnit;
 
     ref.listen<VerifyEmailState>(verifyEmailControllerProvider,
         (previous, next) async {
-      // Handle verification completion
       if (previous != null && previous.isVerifying && !next.isVerifying) {
         if (next.errorMessage == null) {
           final storage = ref.read(secureStorageServiceProvider);
           await storage.clearEmail();
-
-          if (!context.mounted) {
-            return;
-          }
-
-          showSuccess(context, 'Email verified successfully!');
-          // After email verification, backend sets stage to PENDING_ADDRESS
+          if (!context.mounted) return;
           context.go('/address');
         } else {
-          // Clear all text controllers when verification fails
-          for (var controller in _controllers) {
-            controller.clear();
+          for (final c in _controllers) {
+            c.clear();
           }
-          // Focus on first input
-          if (mounted) {
-            _focusNodes[0].requestFocus();
-          }
+          if (mounted) _focusNodes[0].requestFocus();
         }
       }
-
-      // Handle auto-send completion (show feedback)
       if (previous != null && previous.isResending && !next.isResending) {
         if (next.errorMessage == null && widget.autoSendCode && context.mounted) {
-          showSuccess(context, 'Verification code sent to your email');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Verification code sent'),
+              backgroundColor: OpeiBrand.success,
+              behavior: SnackBarBehavior.floating,
+              margin: const EdgeInsets.all(16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+              ),
+            ),
+          );
         }
       }
     });
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) {
-          return;
-        }
-        if (state.isLoading || _isLoggingOut) {
-          return;
-        }
-        await _handleBackNavigation();
-      },
-      child: ResponsiveScaffold(
-        body: Stack(
-          children: [
-            SingleChildScrollView(
-              padding: EdgeInsets.symmetric(vertical: spacing * 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: spacing * 3),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back_ios, size: 20),
-                      padding: EdgeInsets.zero,
-                      onPressed: state.isLoading || _isLoggingOut
-                          ? null
-                          : () {
-                              _handleBackNavigation();
-                            },
-                    ),
-                  ),
-                  SizedBox(height: spacing * 5),
-                  Text(
-                    'Verify Your Email',
-                    style: Theme.of(context).textTheme.displayLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: spacing * 1.5),
-                  Text(
-                    'We sent a 6-digit code to',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: OpeiColors.grey600,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: spacing * 0.5),
-                  Text(
-                    _email!,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: spacing * 6),
-                  IgnorePointer(
-                    ignoring: state.isLoading || _isLoggingOut,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(6, (index) {
-                        return CodeInputBox(
-                          controller: _controllers[index],
-                          focusNode: _focusNodes[index],
-                          onChanged: (value) => _onDigitChanged(index, value),
-                          hasError: state.errorMessage != null,
-                          isDisabled: state.isLoading,
-                        );
-                      }),
-                    ),
-                  ),
-                  SizedBox(height: spacing * 2),
-                  if (state.errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Text(
-                        state.errorMessage!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: OpeiColors.errorRed,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  SizedBox(height: spacing * 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        state.canResend
-                            ? "Didn't receive the code? "
-                            : "Resend code in ",
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: OpeiColors.grey600,
-                            ),
-                      ),
-                      if (!state.canResend)
-                        Text(
-                          state.timerText,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: OpeiColors.grey600,
-                                  ),
-                        ),
-                      if (state.canResend)
-                        GestureDetector(
-                          onTap: _handleResend,
-                          child: Text(
-                            'Resend',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                  decoration: TextDecoration.underline,
-                                ),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
+        systemNavigationBarColor: OpeiBrand.surface,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) async {
+          if (didPop) return;
+          if (state.isLoading || _isLoggingOut) return;
+          await _handleBackNavigation();
+        },
+        child: Scaffold(
+          backgroundColor: OpeiBrand.surfaceMuted,
+          appBar: OpeiAppBar(
+            backgroundColor: OpeiBrand.surfaceMuted,
+            currentStep: 2,
+            totalSteps: 4,
+            onBack: state.isLoading || _isLoggingOut
+                ? null
+                : () => _handleBackNavigation(),
+          ),
+          body: SafeArea(
+            top: false,
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                    physics: const ClampingScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Verify your email',
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                            color: OpeiBrand.ink,
+                            height: 1.15,
                           ),
                         ),
-                    ],
-                  ),
-                  SizedBox(height: spacing * 7.5),
-                ],
-              ),
-            ),
-            if (state.isLoading || _isLoggingOut)
-              const ModalBarrier(
-                color: Colors.transparent,
-                dismissible: false,
-              ),
-            if (state.isLoading || _isLoggingOut)
-              Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const CircularProgressIndicator(
-                          strokeWidth: 3,
-                          color: OpeiColors.pureBlack,
+                        const SizedBox(height: 8),
+                        RichText(
+                          text: TextSpan(
+                            style: const TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: OpeiBrand.inkSecondary,
+                              letterSpacing: -0.2,
+                              height: 1.45,
+                            ),
+                            children: [
+                              const TextSpan(
+                                text: "We've sent a 6-digit code to ",
+                              ),
+                              TextSpan(
+                                text: _email!,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: OpeiBrand.ink,
+                                ),
+                              ),
+                              const TextSpan(text: '.'),
+                            ],
+                          ),
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _isLoggingOut
-                              ? 'Signing out...'
-                              : state.isVerifying
-                                  ? 'Verifying...'
-                                  : 'Sending code...',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                        const SizedBox(height: 32),
+                        IgnorePointer(
+                          ignoring: state.isLoading || _isLoggingOut,
+                          child: _OtpRow(
+                            controllers: _controllers,
+                            focusNodes: _focusNodes,
+                            hasError: state.errorMessage != null,
+                            isDisabled: state.isLoading,
+                            onChanged: _onDigitChanged,
+                          ),
+                        ),
+                        if (state.errorMessage != null) ...[
+                          const SizedBox(height: 16),
+                          Center(
+                            child: Text(
+                              state.errorMessage!,
+                              style: const TextStyle(
+                                fontFamily: kPrimaryFontFamily,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: OpeiBrand.danger,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 28),
+                        Center(
+                          child: _ResendRow(
+                            canResend: state.canResend,
+                            timerText: state.timerText,
+                            onResend: _handleResend,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Center(
+                          child: TextButton(
+                            onPressed: state.isLoading || _isLoggingOut
+                                ? null
+                                : _handleBackNavigation,
+                            style: TextButton.styleFrom(
+                              foregroundColor: OpeiBrand.inkSecondary,
+                              textStyle: const TextStyle(
+                                fontFamily: kPrimaryFontFamily,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                letterSpacing: -0.1,
+                              ),
+                            ),
+                            child: const Text('Wrong email? Start over'),
+                          ),
                         ),
                       ],
+                    ),
                   ),
                 ),
-              ),
-          ],
+                _BottomTrust(
+                  isLoading: state.isVerifying || _isLoggingOut,
+                  busyLabel:
+                      _isLoggingOut ? 'Signing out…' : 'Verifying your code…',
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-class CodeInputBox extends StatelessWidget {
-  final TextEditingController controller;
-  final FocusNode focusNode;
-  final ValueChanged<String> onChanged;
+class _OtpRow extends StatelessWidget {
+  final List<TextEditingController> controllers;
+  final List<FocusNode> focusNodes;
   final bool hasError;
   final bool isDisabled;
+  final void Function(int, String) onChanged;
 
-  const CodeInputBox({
-    required this.controller,
-    required this.focusNode,
+  const _OtpRow({
+    required this.controllers,
+    required this.focusNodes,
+    required this.hasError,
+    required this.isDisabled,
     required this.onChanged,
-    this.hasError = false,
-    this.isDisabled = false,
-    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 48,
-      height: 56,
+    return LayoutBuilder(
+      builder: (context, c) {
+        const spacing = 10.0;
+        final available = c.maxWidth - spacing * 5;
+        final boxWidth = (available / 6).clamp(44.0, 60.0);
+        final boxHeight = boxWidth * 1.22;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(6, (i) {
+            return _OtpBox(
+              controller: controllers[i],
+              focusNode: focusNodes[i],
+              hasError: hasError,
+              isDisabled: isDisabled,
+              width: boxWidth,
+              height: boxHeight,
+              onChanged: (v) => onChanged(i, v),
+            );
+          }),
+        );
+      },
+    );
+  }
+}
+
+class _OtpBox extends StatefulWidget {
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final bool hasError;
+  final bool isDisabled;
+  final double width;
+  final double height;
+  final ValueChanged<String> onChanged;
+
+  const _OtpBox({
+    required this.controller,
+    required this.focusNode,
+    required this.hasError,
+    required this.isDisabled,
+    required this.width,
+    required this.height,
+    required this.onChanged,
+  });
+
+  @override
+  State<_OtpBox> createState() => _OtpBoxState();
+}
+
+class _OtpBoxState extends State<_OtpBox> {
+  @override
+  void initState() {
+    super.initState();
+    widget.focusNode.addListener(_rebuild);
+    widget.controller.addListener(_rebuild);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode.removeListener(_rebuild);
+    widget.controller.removeListener(_rebuild);
+    super.dispose();
+  }
+
+  void _rebuild() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isFocused = widget.focusNode.hasFocus;
+    final hasValue = widget.controller.text.isNotEmpty;
+    final color = widget.hasError
+        ? OpeiBrand.danger
+        : isFocused
+            ? OpeiBrand.primary
+            : hasValue
+                ? OpeiBrand.hairlineStrong
+                : OpeiBrand.hairline;
+
+    return AnimatedContainer(
+      duration: OpeiBrand.motionFast,
+      curve: OpeiBrand.motionCurve,
+      width: widget.width,
+      height: widget.height,
+      decoration: BoxDecoration(
+        // Always white inside (clear). Disabled state only changes border.
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: color,
+          width: isFocused || widget.hasError ? 1.6 : 1.0,
+        ),
+      ),
+      alignment: Alignment.center,
       child: TextFormField(
-        controller: controller,
-        focusNode: focusNode,
+        controller: widget.controller,
+        focusNode: widget.focusNode,
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
         maxLength: 1,
-        enabled: !isDisabled,
-        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-        inputFormatters: [
-          FilteringTextInputFormatter.digitsOnly,
-        ],
-        decoration: InputDecoration(
-          counterText: '',
-          contentPadding: const EdgeInsets.all(0),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide: BorderSide(
-              color: hasError ? OpeiColors.errorRed : OpeiColors.grey300,
-              width: 1.5,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide: BorderSide(
-              color: hasError ? OpeiColors.errorRed : OpeiColors.pureBlack,
-              width: 2,
-            ),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide: const BorderSide(
-              color: OpeiColors.grey200,
-              width: 1.5,
-            ),
-          ),
-          filled: true,
-          fillColor: isDisabled ? OpeiColors.grey100 : OpeiColors.pureWhite,
+        enabled: !widget.isDisabled,
+        cursorColor: OpeiBrand.primary,
+        cursorWidth: 1.6,
+        cursorHeight: 22,
+        style: const TextStyle(
+          fontFamily: kPrimaryFontFamily,
+          fontSize: 22,
+          fontWeight: FontWeight.w700,
+          color: OpeiBrand.ink,
+          letterSpacing: -0.4,
+          height: 1.0,
         ),
-        onChanged: (value) => onChanged(value),
+        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+        decoration: const InputDecoration(
+          counterText: '',
+          isCollapsed: true,
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
+          errorBorder: InputBorder.none,
+          disabledBorder: InputBorder.none,
+          contentPadding: EdgeInsets.zero,
+        ),
+        onChanged: widget.onChanged,
         onTap: () {
-          controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: controller.text.length),
+          widget.controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: widget.controller.text.length),
           );
         },
       ),
+    );
+  }
+}
+
+class _ResendRow extends StatelessWidget {
+  final bool canResend;
+  final String timerText;
+  final VoidCallback onResend;
+
+  const _ResendRow({
+    required this.canResend,
+    required this.timerText,
+    required this.onResend,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const baseStyle = TextStyle(
+      fontFamily: kPrimaryFontFamily,
+      fontSize: 13.5,
+      fontWeight: FontWeight.w500,
+      color: OpeiBrand.inkSecondary,
+      letterSpacing: -0.1,
+    );
+
+    if (canResend) {
+      return RichText(
+        text: TextSpan(
+          style: baseStyle,
+          children: [
+            const TextSpan(text: "Didn't get the code? "),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+              child: GestureDetector(
+                onTap: onResend,
+                child: const Text(
+                  'Resend',
+                  style: TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w700,
+                    color: OpeiBrand.primary,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Text(
+      'Resend code in $timerText',
+      style: baseStyle.copyWith(color: OpeiBrand.inkTertiary),
+    );
+  }
+}
+
+class _BottomTrust extends StatelessWidget {
+  final bool isLoading;
+  final String busyLabel;
+
+  const _BottomTrust({required this.isLoading, required this.busyLabel});
+
+  @override
+  Widget build(BuildContext context) {
+    // Bottom strip only renders while we're verifying / signing out — keeps
+    // the screen ultra compact when idle.
+    return AnimatedSize(
+      duration: OpeiBrand.motionFast,
+      curve: OpeiBrand.motionCurve,
+      alignment: Alignment.bottomCenter,
+      child: !isLoading
+          ? const SizedBox.shrink()
+          : Container(
+              decoration: const BoxDecoration(
+                color: OpeiBrand.surface,
+                border: Border(
+                  top: BorderSide(color: OpeiBrand.hairline, width: 1),
+                ),
+              ),
+              padding: EdgeInsets.fromLTRB(
+                24,
+                14,
+                24,
+                14 + MediaQuery.of(context).viewPadding.bottom,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: OpeiBrand.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    busyLabel,
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiBrand.inkSecondary,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

@@ -27,7 +27,6 @@ export 'package:opei/features/profile/profile_controller.dart';
 // Auth Session State to track login/logout changes
 enum QuickAuthStatus {
   unknown,
-  requiresSetup,
   requiresVerification,
   satisfied,
 }

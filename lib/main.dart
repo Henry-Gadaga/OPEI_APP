@@ -15,7 +15,7 @@ import 'package:opei/features/auth/login/login_screen.dart';
 import 'package:opei/features/auth/reset_password/reset_password_screen.dart';
 import 'package:opei/features/auth/signup/signup_screen.dart';
 import 'package:opei/features/auth/verify_email/verify_email_screen.dart';
-import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_screen.dart';
+import 'package:opei/features/auth/welcome/welcome_screen.dart';
 import 'package:opei/features/auth/quick_auth/quick_auth_screen.dart';
 import 'package:opei/features/dashboard/dashboard_screen.dart';
 import 'package:opei/features/kyc/kyc_screen.dart';
@@ -98,13 +98,13 @@ class OpeiApp extends ConsumerStatefulWidget {
 
 const Set<String> _publicPaths = {
   '/splash',
+  '/welcome',
   '/login',
   '/signup',
   '/forgot-password',
   '/reset-password',
   '/verify-email',
   '/quick-auth',
-  '/quick-auth-setup',
   '/terms',
   '/privacy',
 };
@@ -248,6 +248,14 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       ),
     ),
     GoRoute(
+      path: '/welcome',
+      name: 'welcome',
+      pageBuilder: (context, state) => buildOpeiTransitionPage(
+        state: state,
+        child: const WelcomeScreen(),
+      ),
+    ),
+    GoRoute(
       path: '/login',
       name: 'login',
       pageBuilder: (context, state) => buildOpeiTransitionPage(
@@ -337,16 +345,6 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
             child: const KycResultScreen(),
           ),
         ),
-    GoRoute(
-      path: '/quick-auth-setup',
-      name: 'quick-auth-setup',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: QuickAuthSetupScreen(
-          popOnComplete: state.extra is bool ? state.extra as bool : false,
-        ),
-      ),
-    ),
     GoRoute(
       path: '/quick-auth',
       name: 'quick-auth',
@@ -558,7 +556,7 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       return '/login';
     }
 
-    if (location == '/quick-auth' || location == '/quick-auth-setup') {
+    if (location == '/quick-auth') {
       return null;
     }
 
@@ -584,19 +582,12 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     final requiresVerification =
         quickAuthStatus == QuickAuthStatus.requiresVerification &&
             stageUpper == 'VERIFIED';
-    final needsSetup = stageUpper == 'VERIFIED' &&
-        (quickAuthStatus == QuickAuthStatus.requiresSetup ||
-            quickAuthStatus == QuickAuthStatus.unknown);
-
-    if (needsSetup && location != '/quick-auth-setup') {
-      return '/quick-auth-setup';
-    }
-
     if (requiresVerification && location != '/quick-auth') {
       return '/quick-auth';
     }
 
     if (_isOnboardingPath(location) ||
+        location == '/welcome' ||
         location == '/login' ||
         location == '/signup') {
       return '/dashboard';
@@ -676,7 +667,7 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
 
     if (refreshToken == null) {
       quickAuthStatusNotifier.reset();
-      if (mounted) context.go('/login');
+      if (mounted) context.go('/welcome');
       return;
     }
 
@@ -712,20 +703,25 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
           await quickAuthService.isSetupCompleted(user.id);
       final isVerified = user.userStage.toUpperCase() == 'VERIFIED';
 
-      if (isVerified && !hasCompletedSetup) {
-        quickAuthStatusNotifier.setStatus(
-          QuickAuthStatus.requiresSetup,
-        );
-        if (mounted) context.go('/quick-auth-setup');
-        return;
-      }
-
       if (isVerified && hasCompletedSetup) {
         quickAuthStatusNotifier.setStatus(
           QuickAuthStatus.requiresVerification,
         );
         if (mounted) context.go('/quick-auth');
         return;
+      }
+
+      if (isVerified && !hasCompletedSetup) {
+        final hasPin = await quickAuthService.hasPinSetup(user.id);
+        if (hasPin) {
+          await quickAuthService.markSetupCompleted(user.id);
+          quickAuthStatusNotifier.setStatus(
+            QuickAuthStatus.requiresVerification,
+          );
+          if (mounted) context.go('/quick-auth');
+          return;
+        }
+        quickAuthStatusNotifier.setStatus(QuickAuthStatus.satisfied);
       }
 
       final nextRoute = _stageRouteFor(user.userStage);

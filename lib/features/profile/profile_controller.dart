@@ -116,11 +116,6 @@ class ProfileController extends Notifier<ProfileState> {
     ref.read(authSessionProvider.notifier).clearSession();
     debugPrint('✅ Auth session cleared');
 
-    // Force next login to go through Quick Auth setup (PIN is removed on logout)
-    ref.read(quickAuthStatusProvider.notifier)
-        .setStatus(QuickAuthStatus.requiresSetup);
-    debugPrint('🔁 Quick auth status set to requiresSetup');
-    
     // Clear profile data
     state = ProfileState();
     debugPrint('✅ Profile data cleared - logout complete');
