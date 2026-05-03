@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/features/dashboard/widgets/transaction_widgets.dart';
 import 'package:opei/features/transactions/transactions_controller.dart';
@@ -10,7 +11,8 @@ class TransactionsScreen extends ConsumerStatefulWidget {
   const TransactionsScreen({super.key});
 
   @override
-  ConsumerState<TransactionsScreen> createState() => _TransactionsScreenState();
+  ConsumerState<TransactionsScreen> createState() =>
+      _TransactionsScreenState();
 }
 
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
@@ -27,133 +29,236 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final state = ref.watch(transactionsControllerProvider);
     final controller = ref.read(transactionsControllerProvider.notifier);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Transactions'),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark.copyWith(
+        statusBarColor: Colors.transparent,
       ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: OpeiColors.pureBlack,
-          backgroundColor: OpeiColors.pureWhite,
-          displacement: 72,
-          onRefresh: () => controller.refresh(),
-          child: _buildContent(context, state, controller),
+      child: Scaffold(
+        backgroundColor: OpeiBrand.surfaceMuted,
+        body: SafeArea(
+          child: RefreshIndicator(
+            color: OpeiBrand.primary,
+            backgroundColor: OpeiBrand.surface,
+            displacement: 28,
+            onRefresh: () => controller.refresh(),
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics()),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Activity',
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: OpeiBrand.ink,
+                            letterSpacing: -0.8,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'All your transactions in one place.',
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: OpeiBrand.inkSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+                    child: _buildBody(context, state, controller),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildContent(BuildContext context, TransactionsState state,
-      TransactionsController controller) {
+  Widget _buildBody(
+    BuildContext context,
+    TransactionsState state,
+    TransactionsController controller,
+  ) {
     if (state.showSkeleton) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics()),
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: OpeiColors.pureWhite,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: OpeiColors.iosSeparator, width: 0.7),
+      return Container(
+        decoration: BoxDecoration(
+          color: OpeiBrand.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: OpeiBrand.hairline, width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: OpeiBrand.ink.withValues(alpha: 0.03),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: const Padding(
-              padding: EdgeInsets.symmetric(vertical: 6),
-              child: TransactionsListSkeleton(itemCount: 5),
-            ),
-          ),
-        ],
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+        child: const TransactionsListSkeleton(itemCount: 6),
       );
     }
 
     if (state.error != null && state.transactions.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics()),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-        children: [
-          Column(
-            children: [
-              Icon(Icons.error_outline,
-                  size: 48, color: OpeiColors.errorRed.withValues(alpha: 0.85)),
-              const SizedBox(height: 16),
-              Text(
-                state.error!,
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontSize: 15, color: OpeiColors.errorRed),
-              ),
-              const SizedBox(height: 16),
-              FilledButton.tonal(
-                onPressed: () {
-                  controller.refresh();
-                },
-                child: const Text('Try again'),
-              ),
-            ],
-          ),
-        ],
+      return _StatusSlot(
+        icon: Icons.wifi_off_rounded,
+        iconColor: OpeiBrand.danger,
+        iconBg: const Color(0xFFFFF0F0),
+        title: 'Couldn\'t load activity',
+        subtitle: state.error!,
+        actionLabel: 'Try again',
+        onAction: () => controller.refresh(),
       );
     }
 
     if (state.transactions.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics()),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-        children: [
-          Column(
-            children: [
-              Icon(Icons.receipt_long,
-                  size: 48, color: OpeiColors.iosLabelTertiary),
-              const SizedBox(height: 16),
-              Text(
-                'No transactions yet',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'You haven\'t made any moves yet. New activity will show up instantly.',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
-              ),
-            ],
-          ),
-        ],
+      return const _StatusSlot(
+        icon: Icons.receipt_long_rounded,
+        iconColor: OpeiBrand.primary,
+        iconBg: OpeiBrand.primaryTint,
+        title: 'No activity yet',
+        subtitle:
+            'You haven\'t made any moves yet.\nNew activity will appear instantly.',
       );
     }
 
-    final transactions = state.transactions;
-
-    return ListView(
-      physics:
-          const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 24),
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: OpeiColors.pureWhite,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: OpeiColors.iosSeparator, width: 0.7),
+    return Container(
+      decoration: BoxDecoration(
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: OpeiBrand.hairline, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: OpeiBrand.ink.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-          clipBehavior: Clip.antiAlias,
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
-          child: TransactionGroupsView(
-            transactions: transactions,
-            onTransactionTap: (tx) => showTransactionDetailSheet(context, tx),
-          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 180),
+        opacity: state.isRefreshing ? 0.65 : 1,
+        child: TransactionGroupsView(
+          transactions: state.transactions,
+          onTransactionTap: (tx) =>
+              showTransactionDetailSheet(context, tx),
         ),
-        const SizedBox(height: 8),
-      ],
+      ),
+    );
+  }
+}
+
+class _StatusSlot extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color iconBg;
+  final String title;
+  final String subtitle;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  const _StatusSlot({
+    required this.icon,
+    required this.iconColor,
+    required this.iconBg,
+    required this.title,
+    required this.subtitle,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+      decoration: BoxDecoration(
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: OpeiBrand.hairline, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: OpeiBrand.ink.withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: iconBg,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: iconColor, size: 28),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
+              height: 1.45,
+            ),
+          ),
+          if (actionLabel != null && onAction != null) ...[
+            const SizedBox(height: 20),
+            GestureDetector(
+              onTap: onAction,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 22, vertical: 11),
+                decoration: BoxDecoration(
+                  color: OpeiBrand.primaryTint,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  actionLabel!,
+                  style: const TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: OpeiBrand.primary,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
