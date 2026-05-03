@@ -4,6 +4,10 @@ import 'package:opei/core/money/money.dart';
 import 'package:opei/data/models/wallet_transaction.dart';
 import 'package:opei/theme.dart';
 
+// =====================================================================
+// Public: TransactionGroupsView — sleek grouped list of tiles.
+// =====================================================================
+
 class TransactionGroupsView extends StatelessWidget {
   final List<WalletTransaction> transactions;
   final ValueChanged<WalletTransaction>? onTransactionTap;
@@ -17,63 +21,49 @@ class TransactionGroupsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final groups = _groupTransactions(transactions);
-    if (groups.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    if (groups.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var gIndex = 0; gIndex < groups.length; gIndex++) ...[
-          if (!_shouldSuppressLabel(groups[gIndex].label))
-            Padding(
-              padding: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
-              child: Text(
-                groups[gIndex].label.toUpperCase(),
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.8,
-                      color: OpeiColors.iosLabelSecondary,
-                    ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16, top: 4, bottom: 6),
+            child: Text(
+              groups[gIndex].label,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: OpeiBrand.inkTertiary,
+                letterSpacing: 0.1,
               ),
             ),
-          Column(
-            children: [
-              for (var i = 0; i < groups[gIndex].transactions.length; i++)
-                WalletTransactionTile(
-                  transaction: groups[gIndex].transactions[i],
-                  showDivider: i != groups[gIndex].transactions.length - 1,
-                  onTap: onTransactionTap == null
-                      ? null
-                      : () => onTransactionTap!(groups[gIndex].transactions[i]),
-                ),
-            ],
           ),
-          if (gIndex != groups.length - 1) const SizedBox(height: 14),
+          for (var i = 0; i < groups[gIndex].transactions.length; i++)
+            WalletTransactionTile(
+              transaction: groups[gIndex].transactions[i],
+              showDivider: i != groups[gIndex].transactions.length - 1,
+              onTap: onTransactionTap == null
+                  ? null
+                  : () => onTransactionTap!(groups[gIndex].transactions[i]),
+            ),
+          if (gIndex != groups.length - 1) const SizedBox(height: 18),
         ],
       ],
     );
   }
 }
 
-const _transactionIconDark = Color(0xFF111111);
-const _transactionIconStroke = Color(0xFF1F1F1F);
-
-bool _shouldSuppressLabel(String label) => false;
-
 class _TransactionGroup {
   final String label;
   final List<WalletTransaction> transactions;
-
   const _TransactionGroup(this.label, this.transactions);
 }
 
 List<_TransactionGroup> _groupTransactions(
     List<WalletTransaction> transactions) {
-  if (transactions.isEmpty) {
-    return const [];
-  }
+  if (transactions.isEmpty) return const [];
 
   final sorted = List<WalletTransaction>.from(transactions)
     ..sort((a, b) {
@@ -95,7 +85,6 @@ List<_TransactionGroup> _groupTransactions(
     }
     currentItems!.add(tx);
   }
-
   return groups;
 }
 
@@ -109,58 +98,42 @@ String _buildGroupLabel(DateTime? date) {
 
   if (diff == 0) return 'Today';
   if (diff == 1) return 'Yesterday';
-
-  return DateFormat('MMM d, yyyy').format(date);
+  if (diff < 7) return DateFormat('EEEE').format(date); // "Wednesday"
+  if (date.year == now.year) return DateFormat('EEE, d MMM').format(date);
+  return DateFormat('d MMM yyyy').format(date);
 }
 
-class _TransactionTypeVisual {
+// =====================================================================
+// Type → label / icon map
+// =====================================================================
+
+class _TypeVisual {
   final String label;
   final IconData icon;
-
-  const _TransactionTypeVisual({
-    required this.label,
-    required this.icon,
-  });
+  const _TypeVisual({required this.label, required this.icon});
 }
 
-const _transactionTypeVisuals = <String, _TransactionTypeVisual>{
-  'CARD_TOPUP': _TransactionTypeVisual(
-    label: 'Card Top-up',
-    icon: Icons.credit_card,
-  ),
-  'CRYPTO_DEPOSIT': _TransactionTypeVisual(
-    label: 'Crypto Deposit',
-    icon: Icons.currency_bitcoin,
-  ),
-  'P2P_RECEIVE': _TransactionTypeVisual(
-    label: 'Received from',
-    icon: Icons.person_add_alt_1,
-  ),
-  'ADMIN_ADJUSTMENT': _TransactionTypeVisual(
-    label: 'Account Adjustment',
-    icon: Icons.tune,
-  ),
-  'CARD_WITHDRAWAL': _TransactionTypeVisual(
-    label: 'Card Withdrawal',
-    icon: Icons.credit_card,
-  ),
-  'CRYPTO_SEND': _TransactionTypeVisual(
-    label: 'Crypto Sent',
-    icon: Icons.currency_bitcoin,
-  ),
-  'P2P_SEND': _TransactionTypeVisual(
-    label: 'Sent to',
-    icon: Icons.person_remove_alt_1,
-  ),
-  'FEE': _TransactionTypeVisual(
-    label: 'Transaction Fee',
-    icon: Icons.receipt_long,
-  ),
-  'REVERSAL': _TransactionTypeVisual(
-    label: 'Reversal',
-    icon: Icons.undo,
-  ),
+const _typeVisuals = <String, _TypeVisual>{
+  'CARD_TOPUP':
+      _TypeVisual(label: 'Card top-up', icon: Icons.credit_card_rounded),
+  'CARD_WITHDRAWAL':
+      _TypeVisual(label: 'Card withdrawal', icon: Icons.credit_card_rounded),
+  'CRYPTO_DEPOSIT':
+      _TypeVisual(label: 'Crypto deposit', icon: Icons.currency_bitcoin),
+  'CRYPTO_SEND':
+      _TypeVisual(label: 'Crypto sent', icon: Icons.currency_bitcoin),
+  'P2P_RECEIVE':
+      _TypeVisual(label: 'Received from', icon: Icons.south_rounded),
+  'P2P_SEND': _TypeVisual(label: 'Sent to', icon: Icons.north_rounded),
+  'ADMIN_ADJUSTMENT':
+      _TypeVisual(label: 'Adjustment', icon: Icons.tune_rounded),
+  'FEE': _TypeVisual(label: 'Fee', icon: Icons.receipt_long_rounded),
+  'REVERSAL': _TypeVisual(label: 'Reversal', icon: Icons.undo_rounded),
 };
+
+// =====================================================================
+// WalletTransactionTile — sleek, single-row, color-coded
+// =====================================================================
 
 class WalletTransactionTile extends StatelessWidget {
   final WalletTransaction transaction;
@@ -176,87 +149,96 @@ class WalletTransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = _TransactionTileViewModel.fromTransaction(transaction);
-    final border = showDivider
-        ? Border(
-            bottom: BorderSide(color: OpeiColors.iosSeparator, width: 0.5),
-          )
-        : null;
+    final vm = _TileViewModel.fromTransaction(transaction);
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
-      opacity: viewModel.opacity,
+      opacity: vm.opacity,
       child: Material(
-      color: Colors.transparent,
-      child: InkWell(
-          onTap: viewModel.isPending ? null : onTap,
-        child: Container(
-            decoration: BoxDecoration(border: border),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          splashColor: OpeiBrand.primary.withValues(alpha: 0.04),
+          highlightColor: OpeiBrand.primary.withValues(alpha: 0.02),
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: showDivider
+                  ? const Border(
+                      bottom: BorderSide(
+                        color: OpeiBrand.hairline,
+                        width: 0.6,
+                      ),
+                    )
+                  : null,
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _TransactionIconCircle(
-                  icon: viewModel.icon,
-                  filled: viewModel.iconFilled,
+                _TransactionIconBadge(
+                  icon: vm.icon,
+                  isIncoming: vm.isIncoming,
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                       Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Text(
-                              viewModel.title,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    letterSpacing: -0.2,
-                                  ),
+                              vm.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: kPrimaryFontFamily,
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w600,
+                                color: OpeiBrand.ink,
+                                letterSpacing: -0.2,
+                                height: 1.15,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 12),
                           Text(
-                            viewModel.amountLabel,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: -0.2,
-                                  color: viewModel.amountColor,
-                                ),
+                            vm.amountLabel,
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w700,
+                              color: vm.amountColor,
+                              letterSpacing: -0.3,
+                              height: 1.15,
+                            ),
                           ),
                         ],
-                       ),
-                       const SizedBox(height: 3),
+                      ),
+                      const SizedBox(height: 3),
                       Row(
                         children: [
                           Expanded(
                             child: Text(
-                              viewModel.subtitle,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.copyWith(
-                                    fontSize: 11,
-                                    color: OpeiColors.iosLabelSecondary,
-                                  ),
-                        overflow: TextOverflow.ellipsis,
+                              vm.subtitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: kPrimaryFontFamily,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: OpeiBrand.inkSecondary,
+                                letterSpacing: -0.1,
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          _StatusBadge(data: viewModel.badge),
+                          if (vm.statusPill != null) ...[
+                            const SizedBox(width: 8),
+                            vm.statusPill!,
+                          ],
                         ],
                       ),
                     ],
@@ -271,162 +253,182 @@ class WalletTransactionTile extends StatelessWidget {
   }
 }
 
-class _TransactionIconCircle extends StatelessWidget {
-  final IconData icon;
-  final bool filled;
+// =====================================================================
+// Icon badge — rounded-square (12r) with green tint for incoming,
+// neutral muted tint for outgoing.
+// =====================================================================
 
-  const _TransactionIconCircle({required this.icon, required this.filled});
+class _TransactionIconBadge extends StatelessWidget {
+  final IconData icon;
+  final bool isIncoming;
+
+  const _TransactionIconBadge({required this.icon, required this.isIncoming});
+
+  static const _incomingBg = Color(0xFFE6F6EA);
+  static const _incomingFg = Color(0xFF137A33);
+  static const _outgoingBg = OpeiBrand.surfaceMuted;
+  static const _outgoingFg = OpeiBrand.ink;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 32,
-      height: 32,
+      width: 40,
+      height: 40,
       decoration: BoxDecoration(
-        color: filled ? _transactionIconDark : OpeiColors.pureWhite,
-        shape: BoxShape.circle,
-        border: Border.all(color: _transactionIconStroke, width: 0.8),
+        color: isIncoming ? _incomingBg : _outgoingBg,
+        borderRadius: BorderRadius.circular(12),
       ),
       alignment: Alignment.center,
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: Icon(
-          icon,
-          color: filled ? OpeiColors.pureWhite : _transactionIconDark,
-          size: 14,
+      child: Icon(
+        icon,
+        size: 20,
+        color: isIncoming ? _incomingFg : _outgoingFg,
+      ),
+    );
+  }
+}
+
+// =====================================================================
+// Status pill (only for non-completed states, e.g. Pending/Failed)
+// =====================================================================
+
+class _StatusPill extends StatelessWidget {
+  final String label;
+  final Color background;
+  final Color textColor;
+
+  const _StatusPill({
+    required this.label,
+    required this.background,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: kPrimaryFontFamily,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+          color: textColor,
+          letterSpacing: 0.2,
         ),
       ),
     );
   }
 }
 
-class _StatusBadgeData {
-  final String label;
-  final String icon;
-  final Color background;
-  final Color textColor;
-  final bool showSpinner;
+// =====================================================================
+// View model
+// =====================================================================
 
-  const _StatusBadgeData({
-    required this.label,
-    required this.icon,
-    required this.background,
-    required this.textColor,
-    required this.showSpinner,
-  });
-
-  bool get isPending => showSpinner;
-}
-
-class _StatusBadge extends StatelessWidget {
-  final _StatusBadgeData data;
-
-  const _StatusBadge({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      data.label,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            fontSize: 10,
-            fontWeight: FontWeight.w600,
-            color: data.textColor,
-            letterSpacing: 0.1,
-          ),
-    );
-  }
-}
-
-class _TransactionTileViewModel {
+class _TileViewModel {
   final IconData icon;
-  final bool iconFilled;
+  final bool isIncoming;
   final String title;
   final String subtitle;
   final String amountLabel;
   final Color amountColor;
-  final _StatusBadgeData badge;
+  final Widget? statusPill;
   final double opacity;
+  final bool isPending;
 
-  bool get isPending => badge.isPending;
-
-  const _TransactionTileViewModel({
+  const _TileViewModel({
     required this.icon,
-    required this.iconFilled,
+    required this.isIncoming,
     required this.title,
     required this.subtitle,
     required this.amountLabel,
     required this.amountColor,
-    required this.badge,
+    required this.statusPill,
     required this.opacity,
+    required this.isPending,
   });
 
-  factory _TransactionTileViewModel.fromTransaction(
-      WalletTransaction transaction) {
-    final rawType = transaction.rawType?.toUpperCase() ?? '';
-    final typeVisual = _transactionTypeVisuals[rawType];
-    final isIncoming = transaction.isIncoming;
-    final isCrypto = transaction.isCryptoTransfer;
+  factory _TileViewModel.fromTransaction(WalletTransaction tx) {
+    final rawType = tx.rawType?.toUpperCase() ?? '';
+    final visual = _typeVisuals[rawType];
+    final isIncoming = tx.isIncoming;
+    final isCrypto = tx.isCryptoTransfer;
     final icon = isCrypto
-        ? Icons.attach_money
-        : (typeVisual?.icon ?? (isIncoming ? Icons.call_received : Icons.call_made));
-    final resolvedTitle = transaction.listTitle;
-    final amount = Money.fromCents(transaction.amountCents.abs(),
-        currency: transaction.currency);
-    final amountLabel =
-        '${isIncoming ? '+' : '-'}${amount.format(includeCurrencySymbol: true)}';
-    final amountColor =
-        isIncoming ? OpeiColors.successGreen : OpeiColors.errorRed;
-    final subtitle = _formatListDateTime(transaction.createdAt);
-    final badge = _buildStatusBadge(transaction);
-    final opacity = badge.isPending ? 0.7 : 1.0;
+        ? Icons.currency_bitcoin_rounded
+        : (visual?.icon ??
+            (isIncoming ? Icons.south_rounded : Icons.north_rounded));
 
-    return _TransactionTileViewModel(
+    final amount = Money.fromCents(tx.amountCents.abs(), currency: tx.currency);
+    final amountLabel =
+        '${isIncoming ? '+' : '−'}${amount.format(includeCurrencySymbol: true)}';
+
+    // Modern fintech: incoming = green; outgoing = ink (not alarming red).
+    final amountColor = isIncoming ? const Color(0xFF137A33) : OpeiBrand.ink;
+
+    // Subtitle shows time only ("12:45 PM") — group header already shows the day.
+    final subtitle = _formatTimeOnly(tx.createdAt);
+
+    final pill = _buildStatusPill(tx);
+    final isPending = tx.isPending;
+
+    return _TileViewModel(
       icon: icon,
-      iconFilled: !isIncoming,
-      title: resolvedTitle,
+      isIncoming: isIncoming,
+      title: tx.listTitle,
       subtitle: subtitle,
       amountLabel: amountLabel,
       amountColor: amountColor,
-      badge: badge,
-      opacity: opacity,
+      statusPill: pill,
+      opacity: isPending ? 0.78 : 1.0,
+      isPending: isPending,
     );
   }
 }
 
-_StatusBadgeData _buildStatusBadge(WalletTransaction transaction) {
-  final normalized = transaction.status?.trim().toUpperCase() ?? '';
-  const badgeBackground = OpeiColors.iosSurfaceMuted;
-  const badgeText = OpeiColors.iosLabelSecondary;
+Widget? _buildStatusPill(WalletTransaction tx) {
+  final s = tx.status?.trim().toUpperCase() ?? '';
 
-  if (normalized == 'PENDING') {
-    return _StatusBadgeData(
-      label: 'Processing',
-      icon: '',
-      background: badgeBackground,
-      textColor: badgeText,
-      showSpinner: false,
+  if (s == 'PENDING' || s == 'PROCESSING') {
+    return const _StatusPill(
+      label: 'Pending',
+      background: Color(0xFFFFF6E0),
+      textColor: Color(0xFF8A5A00),
     );
   }
-
-  return _StatusBadgeData(
-    label: 'Completed',
-    icon: '',
-    background: badgeBackground,
-    textColor: badgeText,
-    showSpinner: false,
-  );
+  if (s == 'FAILED' || s == 'DECLINED' || s == 'CANCELLED' || s == 'CANCELED') {
+    return _StatusPill(
+      label: s == 'FAILED' ? 'Failed' : 'Cancelled',
+      background: const Color(0xFFFDECEC),
+      textColor: OpeiBrand.danger,
+    );
+  }
+  if (s == 'REVERSED' || s == 'REFUNDED') {
+    return _StatusPill(
+      label: s == 'REVERSED' ? 'Reversed' : 'Refunded',
+      background: OpeiBrand.surfaceMuted,
+      textColor: OpeiBrand.inkSecondary,
+    );
+  }
+  // Completed → no pill (cleaner look). Time alone in the subtitle.
+  return null;
 }
 
-String _formatListDateTime(DateTime? date) {
-  if (date == null) return 'Date unavailable';
-  final formatter = DateFormat('MMM d, yyyy • h:mm a');
-  return formatter.format(date);
+String _formatTimeOnly(DateTime? date) {
+  if (date == null) return '—';
+  return DateFormat('h:mm a').format(date);
 }
+
+// =====================================================================
+// Skeleton — mirrors new tile shape
+// =====================================================================
 
 class TransactionsListSkeleton extends StatelessWidget {
   final int itemCount;
-
-  const TransactionsListSkeleton({super.key, this.itemCount = 3});
+  const TransactionsListSkeleton({super.key, this.itemCount = 4});
 
   @override
   Widget build(BuildContext context) {
@@ -434,33 +436,34 @@ class TransactionsListSkeleton extends StatelessWidget {
       children: List.generate(itemCount, (index) {
         final showDivider = index != itemCount - 1;
         return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             border: showDivider
-                ? Border(
-                    bottom:
-                        BorderSide(color: OpeiColors.iosSeparator, width: 0.5))
+                ? const Border(
+                    bottom: BorderSide(
+                      color: OpeiBrand.hairline,
+                      width: 0.6,
+                    ),
+                  )
                 : null,
           ),
-          child: const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            child: Row(
-              children: [
-                _SkeletonCircle(),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SkeletonLine(width: 120, height: 11),
-                      SizedBox(height: 5),
-                      _SkeletonLine(width: 90, height: 9),
-                    ],
-                  ),
+          child: Row(
+            children: const [
+              _SkRect(w: 40, h: 40, r: 12),
+              SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _SkRect(w: 130, h: 12, r: 6),
+                    SizedBox(height: 6),
+                    _SkRect(w: 80, h: 10, r: 6),
+                  ],
                 ),
-                SizedBox(width: 12),
-                _SkeletonLine(width: 60, height: 12),
-              ],
-            ),
+              ),
+              SizedBox(width: 12),
+              _SkRect(w: 70, h: 12, r: 6),
+            ],
           ),
         );
       }),
@@ -468,99 +471,50 @@ class TransactionsListSkeleton extends StatelessWidget {
   }
 }
 
-class _SkeletonCircle extends StatefulWidget {
-  const _SkeletonCircle();
+class _SkRect extends StatefulWidget {
+  final double w;
+  final double h;
+  final double r;
+  const _SkRect({required this.w, required this.h, required this.r});
 
   @override
-  State<_SkeletonCircle> createState() => _SkeletonCircleState();
+  State<_SkRect> createState() => _SkRectState();
 }
 
-class _SkeletonCircleState extends State<_SkeletonCircle>
+class _SkRectState extends State<_SkRect>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _pulse;
+  late final AnimationController _c;
+  late final Animation<double> _a;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _c = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1600),
+      duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
-    _pulse = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    _a = CurvedAnimation(parent: _c, curve: Curves.easeInOut);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _c.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const baseColor = OpeiColors.iosSurfaceMuted;
     return AnimatedBuilder(
-      animation: _pulse,
+      animation: _a,
       builder: (context, child) {
-        final opacity = 0.35 + (0.25 * _pulse.value);
-    return Container(
-          width: 32,
-          height: 32,
-      decoration: BoxDecoration(
-            color: baseColor.withValues(alpha: opacity),
-            borderRadius: BorderRadius.circular(16),
-      ),
-        );
-      },
-    );
-  }
-}
-
-class _SkeletonLine extends StatefulWidget {
-  final double width;
-  final double height;
-
-  const _SkeletonLine({required this.width, required this.height});
-
-  @override
-  State<_SkeletonLine> createState() => _SkeletonLineState();
-}
-
-class _SkeletonLineState extends State<_SkeletonLine>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _pulse;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    )..repeat(reverse: true);
-    _pulse = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    const baseColor = OpeiColors.iosSurfaceMuted;
-    return AnimatedBuilder(
-      animation: _pulse,
-      builder: (context, child) {
-        final opacity = 0.35 + (0.25 * _pulse.value);
-    return Container(
-          width: widget.width,
-          height: widget.height,
-      decoration: BoxDecoration(
-            color: baseColor.withValues(alpha: opacity),
-        borderRadius: BorderRadius.circular(12),
-      ),
+        final opacity = 0.55 + 0.30 * _a.value;
+        return Container(
+          width: widget.w,
+          height: widget.h,
+          decoration: BoxDecoration(
+            color: OpeiBrand.surfaceMuted.withValues(alpha: opacity),
+            borderRadius: BorderRadius.circular(widget.r),
+          ),
         );
       },
     );

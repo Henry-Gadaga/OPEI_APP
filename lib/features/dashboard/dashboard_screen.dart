@@ -1137,7 +1137,7 @@ class _HomeSkeleton extends StatelessWidget {
                     ],
                   ),
                   SizedBox(height: 14),
-                  TransactionsListSkeleton(itemCount: 6),
+                  TransactionsListSkeleton(itemCount: 4),
                 ],
               ),
             ),
