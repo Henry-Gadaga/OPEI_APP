@@ -255,6 +255,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       }
     });
 
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -271,11 +273,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           await _handleBackNavigation();
         },
         child: Scaffold(
-          backgroundColor: OpeiBrand.surfaceMuted,
+          backgroundColor: OpeiBrand.surface,
           appBar: OpeiAppBar(
-            backgroundColor: OpeiBrand.surfaceMuted,
-            currentStep: 2,
-            totalSteps: 4,
+            backgroundColor: OpeiBrand.surface,
             onBack: state.isLoading || _isLoggingOut
                 ? null
                 : () => _handleBackNavigation(),
@@ -283,23 +283,46 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           body: SafeArea(
             top: false,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Progress bar — step 2 of 4
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 2, 24, 0),
+                  child: Row(
+                    children: List.generate(4, (i) {
+                      return Expanded(
+                        child: AnimatedContainer(
+                          duration: OpeiBrand.motion,
+                          curve: OpeiBrand.motionCurve,
+                          height: 3,
+                          margin: EdgeInsets.only(right: i < 3 ? 5 : 0),
+                          decoration: BoxDecoration(
+                            color: i < 2
+                                ? OpeiBrand.primary
+                                : OpeiBrand.hairline,
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
                     physics: const ClampingScrollPhysics(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Verify your email',
+                          'Check your\nemail',
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1.0,
                             color: OpeiBrand.ink,
-                            height: 1.15,
+                            height: 1.1,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -307,15 +330,15 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                           text: TextSpan(
                             style: const TextStyle(
                               fontFamily: kPrimaryFontFamily,
-                              fontSize: 14,
+                              fontSize: 14.5,
                               fontWeight: FontWeight.w400,
                               color: OpeiBrand.inkSecondary,
-                              letterSpacing: -0.2,
+                              letterSpacing: -0.1,
                               height: 1.45,
                             ),
                             children: [
                               const TextSpan(
-                                text: "We've sent a 6-digit code to ",
+                                text: "We sent a 6-digit code to ",
                               ),
                               TextSpan(
                                 text: _email!,
@@ -328,7 +351,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: 36),
                         IgnorePointer(
                           ignoring: state.isLoading || _isLoggingOut,
                           child: _OtpRow(
@@ -340,18 +363,17 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                           ),
                         ),
                         if (state.errorMessage != null) ...[
-                          const SizedBox(height: 16),
-                          Center(
-                            child: Text(
-                              state.errorMessage!,
-                              style: const TextStyle(
-                                fontFamily: kPrimaryFontFamily,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                color: OpeiBrand.danger,
-                              ),
-                              textAlign: TextAlign.center,
+                          const SizedBox(height: 14),
+                          Text(
+                            state.errorMessage!,
+                            style: const TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: OpeiBrand.danger,
+                              letterSpacing: -0.1,
                             ),
+                            textAlign: TextAlign.center,
                           ),
                         ],
                         const SizedBox(height: 28),
@@ -362,32 +384,36 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                             onResend: _handleResend,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Center(
-                          child: TextButton(
-                            onPressed: state.isLoading || _isLoggingOut
+                          child: GestureDetector(
+                            onTap: state.isLoading || _isLoggingOut
                                 ? null
                                 : _handleBackNavigation,
-                            style: TextButton.styleFrom(
-                              foregroundColor: OpeiBrand.inkSecondary,
-                              textStyle: const TextStyle(
-                                fontFamily: kPrimaryFontFamily,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: -0.1,
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: Text(
+                                'Wrong email? Start over',
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: OpeiBrand.inkSecondary,
+                                  letterSpacing: -0.1,
+                                ),
                               ),
                             ),
-                            child: const Text('Wrong email? Start over'),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
+                // Loading strip — only visible while verifying
                 _BottomTrust(
                   isLoading: state.isVerifying || _isLoggingOut,
-                  busyLabel:
-                      _isLoggingOut ? 'Signing out…' : 'Verifying your code…',
+                  busyLabel: _isLoggingOut ? 'Signing out…' : 'Verifying…',
+                  bottomPad: bottomPad,
                 ),
               ],
             ),
@@ -609,8 +635,13 @@ class _ResendRow extends StatelessWidget {
 class _BottomTrust extends StatelessWidget {
   final bool isLoading;
   final String busyLabel;
+  final double bottomPad;
 
-  const _BottomTrust({required this.isLoading, required this.busyLabel});
+  const _BottomTrust({
+    required this.isLoading,
+    required this.busyLabel,
+    this.bottomPad = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -633,7 +664,7 @@ class _BottomTrust extends StatelessWidget {
                 24,
                 14,
                 24,
-                14 + MediaQuery.of(context).viewPadding.bottom,
+                14 + bottomPad,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -161,6 +161,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
     });
 
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -170,13 +173,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        // Subtle off-white scaffold creates depth against pure-white fields —
-        // standard "bank app" feel (Revolut / Monzo / N26).
-        backgroundColor: OpeiBrand.surfaceMuted,
+        backgroundColor: OpeiBrand.surface,
+        resizeToAvoidBottomInset: false,
         appBar: OpeiAppBar(
-          backgroundColor: OpeiBrand.surfaceMuted,
-          currentStep: 1,
-          totalSteps: 4,
+          backgroundColor: OpeiBrand.surface,
           onBack: () => context.go('/welcome'),
         ),
         body: SafeArea(
@@ -184,127 +184,202 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.opaque,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
-                    physics: const ClampingScrollPhysics(),
+            child: AnimatedPadding(
+              duration: OpeiBrand.motionFast,
+              curve: OpeiBrand.motionCurve,
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ── Progress strip ──────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 2, 24, 0),
+                    child: Row(
+                      children: List.generate(4, (i) {
+                        return Expanded(
+                          child: AnimatedContainer(
+                            duration: OpeiBrand.motion,
+                            curve: OpeiBrand.motionCurve,
+                            height: 3,
+                            margin: EdgeInsets.only(right: i < 3 ? 5 : 0),
+                            decoration: BoxDecoration(
+                              color: i == 0
+                                  ? OpeiBrand.primary
+                                  : OpeiBrand.hairline,
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+
+                  // ── Scrollable content ──────────────────────────────────
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+                      physics: const ClampingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Title block
+                          const Text(
+                            'Create your\naccount',
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -1.0,
+                              color: OpeiBrand.ink,
+                              height: 1.1,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "We'll send a code to verify your email.",
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w400,
+                              color: OpeiBrand.inkSecondary,
+                              letterSpacing: -0.1,
+                              height: 1.45,
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+
+                          // Form fields
+                          OpeiTextField(
+                            controller: _emailController,
+                            focusNode: _emailFocus,
+                            label: 'Email address',
+                            hint: 'name@example.com',
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            enabled: !isLoading,
+                            errorText: _emailError,
+                            onSubmitted: (_) =>
+                                FocusScope.of(context).nextFocus(),
+                          ),
+                          const SizedBox(height: 14),
+                          OpeiPhoneField(
+                            label: 'Phone number',
+                            enabled: !isLoading,
+                            selectedIso: _phoneIso,
+                            localNumber: _localPhoneController.text,
+                            errorText: _phoneError,
+                            onIsoChanged: (iso) {
+                              setState(() {
+                                _phoneIso = iso;
+                                _phoneError = null;
+                              });
+                            },
+                            onLocalNumberChanged: (v) {
+                              if (_localPhoneController.text != v) {
+                                _localPhoneController.value =
+                                    _localPhoneController.value.copyWith(
+                                  text: v,
+                                  selection: TextSelection.collapsed(
+                                    offset: v.length,
+                                  ),
+                                );
+                              }
+                            },
+                            onSubmitted: (_) => _pinFocus.requestFocus(),
+                          ),
+                          const SizedBox(height: 14),
+                          OpeiTextField(
+                            controller: _pinController,
+                            focusNode: _pinFocus,
+                            label: '6-digit PIN',
+                            hint: '••••••',
+                            keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.done,
+                            enabled: !isLoading,
+                            errorText: _pinError,
+                            obscureText: _obscurePin,
+                            maxLength: 6,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(6),
+                            ],
+                            helperText: _pinError == null
+                                ? 'Used to sign in and authorise payments.'
+                                : null,
+                            suffix: IconButton(
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
+                              splashRadius: 16,
+                              icon: Icon(
+                                _obscurePin
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: OpeiBrand.inkTertiary,
+                                size: 18,
+                              ),
+                              onPressed: () =>
+                                  setState(() => _obscurePin = !_obscurePin),
+                            ),
+                            onSubmitted: (_) => _handleSignup(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // ── CTA area — seamless, no container box ───────────────
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          'Create your account',
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
-                            color: OpeiBrand.ink,
-                            height: 1.15,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          "It takes less than a minute. We'll send a code to verify your email.",
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: OpeiBrand.inkSecondary,
-                            letterSpacing: -0.2,
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 22),
-                        OpeiTextField(
-                          controller: _emailController,
-                          focusNode: _emailFocus,
-                          label: 'Email address',
-                          hint: 'name@example.com',
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          enabled: !isLoading,
-                          errorText: _emailError,
-                          onSubmitted: (_) =>
-                              FocusScope.of(context).nextFocus(),
-                        ),
-                        const SizedBox(height: 14),
-                        OpeiPhoneField(
-                          label: 'Phone number',
-                          enabled: !isLoading,
-                          selectedIso: _phoneIso,
-                          localNumber: _localPhoneController.text,
-                          errorText: _phoneError,
-                          onIsoChanged: (iso) {
-                            setState(() {
-                              _phoneIso = iso;
-                              _phoneError = null;
-                            });
-                          },
-                          onLocalNumberChanged: (v) {
-                            if (_localPhoneController.text != v) {
-                              _localPhoneController.value =
-                                  _localPhoneController.value.copyWith(
-                                text: v,
-                                selection:
-                                    TextSelection.collapsed(offset: v.length),
-                              );
-                            }
-                          },
-                          onSubmitted: (_) => _pinFocus.requestFocus(),
-                        ),
-                        const SizedBox(height: 14),
-                        OpeiTextField(
-                          controller: _pinController,
-                          focusNode: _pinFocus,
-                          label: 'Create 6-digit PIN',
-                          hint: '••••••',
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.done,
-                          enabled: !isLoading,
-                          errorText: _pinError,
-                          obscureText: _obscurePin,
-                          maxLength: 6,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
-                          ],
-                          helperText: _pinError == null
-                              ? "You'll use this to sign in and authorise payments."
+                        OpeiPrimaryButton(
+                          label: 'Continue',
+                          loading: isLoading,
+                          onPressed: _isFormValid && !isLoading
+                              ? _handleSignup
                               : null,
-                          suffix: IconButton(
-                            visualDensity: VisualDensity.compact,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            splashRadius: 16,
-                            icon: Icon(
-                              _obscurePin
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: OpeiBrand.inkTertiary,
-                              size: 18,
-                            ),
-                            onPressed: () =>
-                                setState(() => _obscurePin = !_obscurePin),
-                          ),
-                          onSubmitted: (_) => _handleSignup(),
+                          trailingIcon: Icons.arrow_forward_rounded,
                         ),
                         const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Already have an account?',
+                              style: TextStyle(
+                                fontFamily: kPrimaryFontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: OpeiBrand.inkSecondary,
+                                letterSpacing: -0.1,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () => context.go('/login'),
+                              child: const Text(
+                                'Sign in',
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: OpeiBrand.primary,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
-                ),
-                _BottomBar(
-                  isLoading: isLoading,
-                  enabled: _isFormValid && !isLoading,
-                  onContinue: _handleSignup,
-                  onSignIn: () => context.go('/login'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -313,49 +388,3 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   }
 }
 
-class _BottomBar extends StatelessWidget {
-  final bool isLoading;
-  final bool enabled;
-  final VoidCallback onContinue;
-  final VoidCallback onSignIn;
-
-  const _BottomBar({
-    required this.isLoading,
-    required this.enabled,
-    required this.onContinue,
-    required this.onSignIn,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: OpeiBrand.surface,
-        border: Border(top: BorderSide(color: OpeiBrand.hairline, width: 1)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        10 + MediaQuery.of(context).viewPadding.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          OpeiPrimaryButton(
-            label: 'Continue',
-            loading: isLoading,
-            onPressed: enabled ? onContinue : null,
-            trailingIcon: Icons.arrow_forward_rounded,
-          ),
-          const SizedBox(height: 2),
-          OpeiSecondaryLink(
-            label: 'Already have an account?',
-            actionLabel: 'Sign in',
-            onTap: onSignIn,
-          ),
-        ],
-      ),
-    );
-  }
-}

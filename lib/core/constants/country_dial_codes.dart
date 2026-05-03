@@ -56,7 +56,7 @@ CountryDial dialCodeFor(String iso) =>
     kDialCodes[iso.toUpperCase()] ?? _kDefaultDial;
 
 /// Default ISO to highlight at the top of the picker.
-const String kDefaultDialIso = 'NG';
+const String kDefaultDialIso = 'US';
 
 // Source data — kept terse on purpose. Numbering-plan ranges sourced from
 // ITU E.164 + Wikipedia. For unlisted countries we'll fall back to (5..15).

@@ -105,6 +105,9 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
       }
     });
 
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final isOnboarding = !widget.isFromProfile;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -114,11 +117,9 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.surfaceMuted,
+        backgroundColor: OpeiBrand.surface,
         appBar: OpeiAppBar(
-          backgroundColor: OpeiBrand.surfaceMuted,
-          currentStep: widget.isFromProfile ? null : 3,
-          totalSteps: widget.isFromProfile ? null : 4,
+          backgroundColor: OpeiBrand.surface,
           onBack: state.isLoading
               ? null
               : () {
@@ -136,39 +137,62 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.opaque,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Progress bar — step 3 of 4 (only during onboarding)
+                if (isOnboarding)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 2, 24, 0),
+                    child: Row(
+                      children: List.generate(4, (i) {
+                        return Expanded(
+                          child: AnimatedContainer(
+                            duration: OpeiBrand.motion,
+                            curve: OpeiBrand.motionCurve,
+                            height: 3,
+                            margin: EdgeInsets.only(right: i < 3 ? 5 : 0),
+                            decoration: BoxDecoration(
+                              color: i < 3
+                                  ? OpeiBrand.primary
+                                  : OpeiBrand.hairline,
+                              borderRadius: BorderRadius.circular(99),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
+                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
                     physics: const ClampingScrollPhysics(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 4),
                         const Text(
-                          'Where do you live?',
+                          'Your home\naddress',
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -1.0,
                             color: OpeiBrand.ink,
-                            height: 1.15,
+                            height: 1.1,
                           ),
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          "We need your residential address to verify your account. This stays private.",
+                          "Required to verify your account. Stays completely private.",
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
-                            fontSize: 14,
+                            fontSize: 14.5,
                             fontWeight: FontWeight.w400,
                             color: OpeiBrand.inkSecondary,
-                            letterSpacing: -0.2,
+                            letterSpacing: -0.1,
                             height: 1.45,
                           ),
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 28),
                         IgnorePointer(
                           ignoring: state.isLoading,
                           child: Column(
@@ -184,19 +208,13 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                 ),
                               ),
                               const SizedBox(height: 14),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OpeiTextField(
-                                      controller: _addressCtrl,
-                                      label: 'Address line',
-                                      hint: '123 Main Street',
-                                      textInputAction: TextInputAction.next,
-                                      errorText: state.fieldErrors['addressLine'],
-                                      onChanged: controller.updateAddressLine,
-                                    ),
-                                  ),
-                                ],
+                              OpeiTextField(
+                                controller: _addressCtrl,
+                                label: 'Address line',
+                                hint: '123 Main Street',
+                                textInputAction: TextInputAction.next,
+                                errorText: state.fieldErrors['addressLine'],
+                                onChanged: controller.updateAddressLine,
                               ),
                               const SizedBox(height: 14),
                               Row(
@@ -235,22 +253,30 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                 ],
                               ),
                               const SizedBox(height: 14),
-                              OpeiTextField(
-                                controller: _cityCtrl,
-                                label: 'City',
-                                hint: 'New York',
-                                textInputAction: TextInputAction.next,
-                                errorText: state.fieldErrors['city'],
-                                onChanged: controller.updateCity,
-                              ),
-                              const SizedBox(height: 14),
-                              OpeiTextField(
-                                controller: _stateCtrl,
-                                label: 'State',
-                                hint: 'NY',
-                                textInputAction: TextInputAction.done,
-                                errorText: state.fieldErrors['state'],
-                                onChanged: controller.updateState,
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OpeiTextField(
+                                      controller: _cityCtrl,
+                                      label: 'City',
+                                      hint: 'New York',
+                                      textInputAction: TextInputAction.next,
+                                      errorText: state.fieldErrors['city'],
+                                      onChanged: controller.updateCity,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: OpeiTextField(
+                                      controller: _stateCtrl,
+                                      label: 'State',
+                                      hint: 'NY',
+                                      textInputAction: TextInputAction.done,
+                                      errorText: state.fieldErrors['state'],
+                                      onChanged: controller.updateState,
+                                    ),
+                                  ),
+                                ],
                               ),
                               if (state.isNigeria) ...[
                                 const SizedBox(height: 14),
@@ -271,7 +297,6 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                   onChanged: controller.updateBvn,
                                 ),
                               ],
-                              const SizedBox(height: 16),
                             ],
                           ),
                         ),
@@ -279,51 +304,25 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                     ),
                   ),
                 ),
-                _BottomBar(
-                  isLoading: state.isLoading,
-                  enabled: state.isValid && !state.isLoading,
-                  onContinue: () => controller.submitAddress(
-                    fromProfile: widget.isFromProfile,
+                // Seamless CTA — no box, same white surface
+                Padding(
+                  padding:
+                      EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
+                  child: OpeiPrimaryButton(
+                    label: 'Continue',
+                    loading: state.isLoading,
+                    onPressed: state.isValid && !state.isLoading
+                        ? () => controller.submitAddress(
+                              fromProfile: widget.isFromProfile,
+                            )
+                        : null,
+                    trailingIcon: Icons.arrow_forward_rounded,
                   ),
                 ),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _BottomBar extends StatelessWidget {
-  final bool isLoading;
-  final bool enabled;
-  final VoidCallback onContinue;
-
-  const _BottomBar({
-    required this.isLoading,
-    required this.enabled,
-    required this.onContinue,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: OpeiBrand.surface,
-        border: Border(top: BorderSide(color: OpeiBrand.hairline, width: 1)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        10 + MediaQuery.of(context).viewPadding.bottom,
-      ),
-      child: OpeiPrimaryButton(
-        label: 'Continue',
-        loading: isLoading,
-        onPressed: enabled ? onContinue : null,
-        trailingIcon: Icons.arrow_forward_rounded,
       ),
     );
   }

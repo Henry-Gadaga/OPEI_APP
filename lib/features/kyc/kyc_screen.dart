@@ -45,15 +45,10 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        // White for the webview to avoid any visible app bar tint behind the
-        // verification flow; off-white for the intro/loading/error screens.
-        backgroundColor:
-            isWebView ? OpeiBrand.surface : OpeiBrand.surfaceMuted,
+        backgroundColor: OpeiBrand.surface,
         appBar: OpeiAppBar(
-          backgroundColor:
-              isWebView ? OpeiBrand.surface : OpeiBrand.surfaceMuted,
-          currentStep: isWebView ? null : 4,
-          totalSteps: isWebView ? null : 4,
+          backgroundColor: OpeiBrand.surface,
+          showBack: !isWebView,
           onBack: _handleBackNavigation,
         ),
         body: _buildBody(state),
@@ -183,56 +178,74 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   }
 
   Widget _buildInitialView() {
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
     return SafeArea(
       top: false,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Progress bar — step 4 of 4 (complete)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 2, 24, 0),
+            child: Row(
+              children: List.generate(4, (i) {
+                return Expanded(
+                  child: AnimatedContainer(
+                    duration: OpeiBrand.motion,
+                    curve: OpeiBrand.motionCurve,
+                    height: 3,
+                    margin: EdgeInsets.only(right: i < 3 ? 5 : 0),
+                    decoration: BoxDecoration(
+                      color: OpeiBrand.primary,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
               physics: const ClampingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 4),
                   const Text(
-                    'Verify your identity',
+                    'Verify your\nidentity',
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.5,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1.0,
                       color: OpeiBrand.ink,
-                      height: 1.15,
+                      height: 1.1,
                     ),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    "One last step. We'll quickly verify your government-issued ID and a selfie. Takes about 2 minutes.",
+                    "One last step — a quick ID check and selfie. Takes about 2 minutes.",
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
-                      fontSize: 14,
+                      fontSize: 14.5,
                       fontWeight: FontWeight.w400,
                       color: OpeiBrand.inkSecondary,
-                      letterSpacing: -0.2,
+                      letterSpacing: -0.1,
                       height: 1.45,
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // Card-style "what you'll need" list — premium banking feel.
+                  const SizedBox(height: 28),
                   Container(
                     decoration: BoxDecoration(
-                      color: OpeiBrand.surface,
+                      color: OpeiBrand.surfaceMuted,
                       borderRadius:
                           BorderRadius.circular(OpeiBrand.radiusCard),
-                      border:
-                          Border.all(color: OpeiBrand.hairline, width: 1),
                     ),
                     child: Column(
                       children: [
                         _ChecklistRow(
                           icon: Icons.badge_rounded,
-                          label: 'A government-issued ID',
+                          label: 'Government-issued ID',
                           subLabel:
                               "Passport, driver's licence or national ID",
                         ),
@@ -240,8 +253,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
                         _ChecklistRow(
                           icon: Icons.face_rounded,
                           label: 'A quick selfie',
-                          subLabel:
-                              'To match the photo on your ID',
+                          subLabel: 'Matched against your ID photo',
                         ),
                         _Divider(),
                         _ChecklistRow(
@@ -252,49 +264,41 @@ class _KycScreenState extends ConsumerState<KycScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 18),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: OpeiBrand.primaryTint,
-                      borderRadius:
-                          BorderRadius.circular(OpeiBrand.radiusCard),
-                    ),
-                    padding: const EdgeInsets.all(14),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(
-                          Icons.shield_rounded,
-                          size: 18,
-                          color: OpeiBrand.primary,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'Your data is encrypted and never shared. '
-                            'We verify with a trusted partner.',
-                            style: TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w500,
-                              color:
-                                  OpeiBrand.primary.withValues(alpha: 0.9),
-                              letterSpacing: -0.1,
-                              height: 1.4,
-                            ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.lock_rounded,
+                        size: 14,
+                        color: OpeiBrand.inkTertiary,
+                      ),
+                      const SizedBox(width: 6),
+                      const Expanded(
+                        child: Text(
+                          'Your data is encrypted and never shared. We verify with a trusted partner.',
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: OpeiBrand.inkTertiary,
+                            letterSpacing: -0.1,
+                            height: 1.4,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
                 ],
               ),
             ),
           ),
-          _BottomBar(
-            primaryLabel: 'Start verification',
-            onPrimary: _handleStartVerification,
+          Padding(
+            padding: EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
+            child: OpeiPrimaryButton(
+              label: 'Start verification',
+              onPressed: _handleStartVerification,
+              trailingIcon: Icons.arrow_forward_rounded,
+            ),
           ),
         ],
       ),
