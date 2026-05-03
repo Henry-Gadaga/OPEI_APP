@@ -16,7 +16,7 @@ class Environment {
   static final _configByEnv = <AppEnvironment, _EnvironmentConfig>{
     AppEnvironment.dev: _EnvironmentConfig(
       name: 'Development',
-      apiBaseUrl: 'https://vortically-grippelike-viki.ngrok-free.dev',
+      apiBaseUrl: 'https://nonglacial-jonell-hatlike.ngrok-free.dev',
       apiVersion: 'v1',
       sentryDsn: '',
     ),

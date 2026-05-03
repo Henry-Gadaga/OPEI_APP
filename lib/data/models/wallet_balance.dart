@@ -101,12 +101,12 @@ class WalletBalance {
       'currency_code',
     ], fallback: 'USD').toUpperCase();
 
+    // Read the TOTAL balance (not pre-computed available balance).
+    // availableBalance is derived as balance − reservedBalance.
     final balanceMoney = Money.fromJson(
       readFirst([
         'balanceInCents',
         'balance_in_cents',
-        'availableBalance',
-        'available_balance',
         'balance',
         'ledgerBalance',
         'ledger_balance',

@@ -911,68 +911,163 @@ class _PayScreen extends StatelessWidget {
     required this.onWithdraw,
   });
 
+  // brand gradient matching the home screen hero
+  static const _heroGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF2257E0), Color(0xFF3D7BFF), Color(0xFF6E9DFF)],
+    stops: [0.0, 0.50, 1.0],
+  );
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: OpeiBrand.surfaceMuted,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    final bottomPad = MediaQuery.of(context).padding.bottom;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        backgroundColor: OpeiBrand.surface,
+        body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Payments',
-                    style: TextStyle(
-                      fontFamily: kPrimaryFontFamily,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: OpeiBrand.ink,
-                      letterSpacing: -0.8,
-                    ),
+            // ── Blue hero header ──────────────────────────────
+            Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: _heroGradient,
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 22, 24, 32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Payments',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.8,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Send, fund and withdraw — instantly.',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withValues(alpha: 0.78),
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Move your money anywhere.',
-                    style: TextStyle(
-                      fontFamily: kPrimaryFontFamily,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: OpeiBrand.inkSecondary,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-            const SizedBox(height: 28),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  _PayOption(
-                    icon: Icons.add_rounded,
-                    title: 'Add money',
-                    subtitle: 'Fund your wallet via crypto or bank',
-                    onTap: onAdd,
-                  ),
-                  const SizedBox(height: 12),
-                  _PayOption(
-                    icon: Icons.arrow_upward_rounded,
-                    title: 'Send money',
-                    subtitle: 'Send USD to another Opei user',
-                    onTap: onSend,
-                  ),
-                  const SizedBox(height: 12),
-                  _PayOption(
-                    icon: Icons.arrow_downward_rounded,
-                    title: 'Withdraw',
-                    subtitle: 'Move funds to your bank or mobile money',
-                    onTap: onWithdraw,
-                  ),
-                ],
+
+            // ── White action area ─────────────────────────────
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(20, 24, 20, 24 + bottomPad),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _PayCard(
+                      icon: Icons.arrow_upward_rounded,
+                      iconBg: const Color(0xFFE6F6EA),
+                      iconFg: const Color(0xFF137A33),
+                      label: 'Send',
+                      title: 'Send money',
+                      subtitle: 'Pay another Opei user instantly, no fees',
+                      onTap: onSend,
+                    ),
+                    const SizedBox(height: 12),
+                    _PayCard(
+                      icon: Icons.add_rounded,
+                      iconBg: OpeiBrand.primaryTint,
+                      iconFg: OpeiBrand.primary,
+                      label: 'Add',
+                      title: 'Add money',
+                      subtitle: 'Fund your wallet via crypto or bank transfer',
+                      onTap: onAdd,
+                    ),
+                    const SizedBox(height: 12),
+                    _PayCard(
+                      icon: Icons.account_balance_rounded,
+                      iconBg: const Color(0xFFF5F0FF),
+                      iconFg: const Color(0xFF6B3FD4),
+                      label: 'Out',
+                      title: 'Withdraw',
+                      subtitle: 'Move funds to your bank or mobile money',
+                      onTap: onWithdraw,
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    // ── Info strip ──────────────────────────
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: OpeiBrand.surfaceMuted,
+                        borderRadius: BorderRadius.circular(16),
+                        border:
+                            Border.all(color: OpeiBrand.hairline, width: 1),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 38,
+                            height: 38,
+                            decoration: BoxDecoration(
+                              color: OpeiBrand.primaryTint,
+                              borderRadius: BorderRadius.circular(11),
+                            ),
+                            child: const Icon(Icons.bolt_rounded,
+                                size: 20, color: OpeiBrand.primary),
+                          ),
+                          const SizedBox(width: 14),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Instant · Zero fees',
+                                  style: TextStyle(
+                                    fontFamily: kPrimaryFontFamily,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: OpeiBrand.ink,
+                                    letterSpacing: -0.2,
+                                  ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Opei-to-Opei transfers settle in seconds.',
+                                  style: TextStyle(
+                                    fontFamily: kPrimaryFontFamily,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: OpeiBrand.inkSecondary,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -982,14 +1077,22 @@ class _PayScreen extends StatelessWidget {
   }
 }
 
-class _PayOption extends StatelessWidget {
+// ── Single pay action card ─────────────────────────────────────
+
+class _PayCard extends StatelessWidget {
   final IconData icon;
+  final Color iconBg;
+  final Color iconFg;
+  final String label;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
-  const _PayOption({
+  const _PayCard({
     required this.icon,
+    required this.iconBg,
+    required this.iconFg,
+    required this.label,
     required this.title,
     required this.subtitle,
     required this.onTap,
@@ -999,19 +1102,20 @@ class _PayOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: OpeiBrand.surface,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(20),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
+        splashColor: OpeiBrand.primary.withValues(alpha: 0.05),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 18),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(color: OpeiBrand.hairline, width: 1),
             boxShadow: [
               BoxShadow(
                 color: OpeiBrand.ink.withValues(alpha: 0.03),
-                blurRadius: 8,
+                blurRadius: 12,
                 offset: const Offset(0, 3),
               ),
             ],
@@ -1021,11 +1125,11 @@ class _PayOption extends StatelessWidget {
               Container(
                 width: 50,
                 height: 50,
-                decoration: const BoxDecoration(
-                  color: OpeiBrand.primaryTint,
-                  shape: BoxShape.circle,
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                child: Icon(icon, color: OpeiBrand.primary, size: 24),
+                child: Icon(icon, color: iconFg, size: 24),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -1036,33 +1140,78 @@ class _PayOption extends StatelessWidget {
                       title,
                       style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
-                        fontSize: 15,
+                        fontSize: 15.5,
                         fontWeight: FontWeight.w700,
                         color: OpeiBrand.ink,
-                        letterSpacing: -0.2,
+                        letterSpacing: -0.3,
+                        height: 1.1,
                       ),
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
-                        fontSize: 13,
+                        fontSize: 12.5,
                         fontWeight: FontWeight.w500,
                         color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.1,
+                        height: 1.35,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded,
-                  color: OpeiBrand.inkTertiary, size: 20),
+              const SizedBox(width: 8),
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: OpeiBrand.surfaceMuted,
+                  borderRadius: BorderRadius.circular(99),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 16,
+                  color: OpeiBrand.inkSecondary,
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
+
+// ── Legacy aliases kept so no other code breaks ────────────────
+// ignore: unused_element
+class _PayOption extends StatelessWidget {
+  final IconData icon;
+  final Color iconBg;
+  final Color iconFg;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _PayOption({
+    required this.icon,
+    required this.iconBg,
+    required this.iconFg,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) => _PayCard(
+        icon: icon,
+        iconBg: iconBg,
+        iconFg: iconFg,
+        label: title,
+        title: title,
+        subtitle: subtitle,
+        onTap: onTap,
+      );
 }
 
 // ============================================================
