@@ -161,7 +161,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
     });
 
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final bottomPad = MediaQuery.of(context).viewPadding.bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -174,7 +173,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       ),
       child: Scaffold(
         backgroundColor: OpeiBrand.surface,
-        resizeToAvoidBottomInset: false,
         appBar: OpeiAppBar(
           backgroundColor: OpeiBrand.surface,
           onBack: () => context.go('/welcome'),
@@ -184,11 +182,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.opaque,
-            child: AnimatedPadding(
-              duration: OpeiBrand.motionFast,
-              curve: OpeiBrand.motionCurve,
-              padding: EdgeInsets.only(bottom: bottomInset),
-              child: Column(
+            child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // ── Progress strip ──────────────────────────────────────
@@ -383,8 +377,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 

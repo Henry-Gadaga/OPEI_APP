@@ -5,9 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
-/// Welcome / Get started — first screen new users see.
-/// Premium banking aesthetic: pure white scaffold, real Opei logo, tight
-/// single-line tagline, compact CTAs at the bottom.
+/// Welcome / Get started — the first screen new users see.
+/// Apple-quality banking aesthetic: pure white scaffold, prominent HQ logo
+/// well-balanced in the upper-third, hero headline + soft subhead, and a
+/// quiet bottom region with the primary CTA, sign-in shortcut, and legal text.
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -19,25 +20,38 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fade;
-  late final Animation<double> _scale;
-  late final Animation<Offset> _slide;
+  late final Animation<double> _logoScale;
+  late final Animation<Offset> _copySlide;
+  late final Animation<Offset> _ctaSlide;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 720),
+      duration: const Duration(milliseconds: 760),
     );
     _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
-    _scale = Tween<double>(begin: 0.96, end: 1.0).animate(
+    _logoScale = Tween<double>(begin: 0.94, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
     );
-    _slide = Tween<Offset>(
-      begin: const Offset(0, 0.04),
+    _copySlide = Tween<Offset>(
+      begin: const Offset(0, 0.06),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.15, 1.0, curve: Curves.easeOutCubic),
+      ),
+    );
+    _ctaSlide = Tween<Offset>(
+      begin: const Offset(0, 0.10),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: const Interval(0.25, 1.0, curve: Curves.easeOutCubic),
+      ),
     );
     _controller.forward();
   }
@@ -50,6 +64,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final bottomPad = media.viewPadding.bottom;
+    // Wide lockup (mark + "Opei" wordmark, ~3.1:1). Sized by height; capped
+    // so it never crowds the headline on small screens or feels heavy on big.
+    final logoHeight = (media.size.height * 0.058).clamp(48.0, 64.0);
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -62,50 +82,75 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         backgroundColor: OpeiBrand.surface,
         body: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+            padding: EdgeInsets.fromLTRB(24, 8, 24, 16 + bottomPad * 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Top spacer pushes the brand block to the visual center.
-                const Spacer(flex: 4),
+                // ── Brand block ──────────────────────────────────────────
+                const Spacer(flex: 5),
                 FadeTransition(
                   opacity: _fade,
                   child: ScaleTransition(
-                    scale: _scale,
+                    scale: _logoScale,
                     child: Center(
-                      child: Image.asset(
-                        'assets/icons/second.png',
-                        height: 80,
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
+                      child: Hero(
+                        tag: 'opei-logo',
+                        child: Image.asset(
+                          'assets/icons/second.png',
+                          height: logoHeight,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
+                        ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 18),
+                const SizedBox(height: 40),
                 FadeTransition(
                   opacity: _fade,
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      'Send, receive, save, and spend USD across 80+ countries.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: kPrimaryFontFamily,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400,
-                        color: OpeiBrand.inkSecondary,
-                        letterSpacing: -0.2,
-                        height: 1.4,
-                      ),
+                  child: SlideTransition(
+                    position: _copySlide,
+                    child: Column(
+                      children: const [
+                        Text(
+                          'All your USD\nin one place.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 34,
+                            fontWeight: FontWeight.w800,
+                            color: OpeiBrand.ink,
+                            letterSpacing: -1.1,
+                            height: 1.08,
+                          ),
+                        ),
+                        SizedBox(height: 14),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          child: Text(
+                            'Send, receive, save, and spend globally.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w400,
+                              color: OpeiBrand.inkSecondary,
+                              letterSpacing: -0.2,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                const Spacer(flex: 5),
-                SlideTransition(
-                  position: _slide,
-                  child: FadeTransition(
-                    opacity: _fade,
+                const Spacer(flex: 6),
+
+                // ── Bottom CTA block ─────────────────────────────────────
+                FadeTransition(
+                  opacity: _fade,
+                  child: SlideTransition(
+                    position: _ctaSlide,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -115,15 +160,41 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           trailingIcon: Icons.arrow_forward_rounded,
                           onPressed: () => context.go('/signup'),
                         ),
-                        const SizedBox(height: 4),
-                        Center(
-                          child: OpeiSecondaryLink(
-                            label: 'Already have an account?',
-                            actionLabel: 'Sign in',
-                            onTap: () => context.go('/login'),
-                          ),
+                        const SizedBox(height: 14),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Already have an account?',
+                              style: TextStyle(
+                                fontFamily: kPrimaryFontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: OpeiBrand.inkSecondary,
+                                letterSpacing: -0.1,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () => context.go('/login'),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 4),
+                                child: Text(
+                                  'Sign in',
+                                  style: TextStyle(
+                                    fontFamily: kPrimaryFontFamily,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: OpeiBrand.primary,
+                                    letterSpacing: -0.1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 12),
                         _LegalText(
                           onTerms: () => context.push('/terms'),
                           onPrivacy: () => context.push('/privacy'),

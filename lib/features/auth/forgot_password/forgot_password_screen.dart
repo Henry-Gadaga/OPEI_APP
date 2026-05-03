@@ -61,7 +61,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final isLoading = state.isLoading;
 
     final bottomPad = MediaQuery.of(context).viewPadding.bottom;
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -73,7 +72,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       ),
       child: Scaffold(
         backgroundColor: OpeiBrand.surface,
-        resizeToAvoidBottomInset: false,
         appBar: OpeiAppBar(
           backgroundColor: OpeiBrand.surface,
           onBack: () =>
@@ -84,11 +82,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.opaque,
-            child: AnimatedPadding(
-              duration: OpeiBrand.motionFast,
-              curve: OpeiBrand.motionCurve,
-              padding: EdgeInsets.only(bottom: bottomInset),
-              child: Column(
+            child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Expanded(
@@ -213,8 +207,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 

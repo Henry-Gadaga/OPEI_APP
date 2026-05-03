@@ -7,16 +7,16 @@ part of 'full_profile_response.dart';
 // **************************************************************************
 
 IdentityData _$IdentityDataFromJson(Map<String, dynamic> json) => IdentityData(
-      firstName: json['firstName'] as String,
-      lastName: json['lastName'] as String,
-      dateOfBirth: DateTime.parse(json['dateOfBirth'] as String),
-      gender: json['gender'] as String,
-      nationality: json['nationality'] as String,
-      idType: json['idType'] as String,
-      idNumber: json['idNumber'] as String,
-      selfieUrl: json['selfieUrl'] as String?,
-      frontImage: json['frontImage'] as String?,
-    );
+  firstName: json['firstName'] as String,
+  lastName: json['lastName'] as String,
+  dateOfBirth: DateTime.parse(json['dateOfBirth'] as String),
+  gender: json['gender'] as String,
+  nationality: json['nationality'] as String,
+  idType: json['idType'] as String,
+  idNumber: json['idNumber'] as String,
+  selfieUrl: json['selfieUrl'] as String?,
+  frontImage: json['frontImage'] as String?,
+);
 
 Map<String, dynamic> _$IdentityDataToJson(IdentityData instance) =>
     <String, dynamic>{
@@ -32,14 +32,14 @@ Map<String, dynamic> _$IdentityDataToJson(IdentityData instance) =>
     };
 
 AddressData _$AddressDataFromJson(Map<String, dynamic> json) => AddressData(
-      country: json['country'] as String?,
-      state: json['state'] as String?,
-      city: json['city'] as String?,
-      zipCode: json['zipCode'] as String?,
-      addressLine: json['addressLine'] as String?,
-      houseNumber: json['houseNumber'] as String?,
-      bvn: json['bvn'] as String?,
-    );
+  country: json['country'] as String?,
+  state: json['state'] as String?,
+  city: json['city'] as String?,
+  zipCode: json['zipCode'] as String?,
+  addressLine: json['addressLine'] as String?,
+  houseNumber: json['houseNumber'] as String?,
+  bvn: json['bvn'] as String?,
+);
 
 Map<String, dynamic> _$AddressDataToJson(AddressData instance) =>
     <String, dynamic>{
@@ -67,12 +67,12 @@ FullProfileResponse _$FullProfileResponseFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$FullProfileResponseToJson(
-        FullProfileResponse instance) =>
-    <String, dynamic>{
-      'userId': instance.userId,
-      'email': instance.email,
-      'phone': instance.phone,
-      'userStage': instance.userStage,
-      'identity': instance.identity,
-      'address': instance.address,
-    };
+  FullProfileResponse instance,
+) => <String, dynamic>{
+  'userId': instance.userId,
+  'email': instance.email,
+  'phone': instance.phone,
+  'userStage': instance.userStage,
+  'identity': instance.identity,
+  'address': instance.address,
+};

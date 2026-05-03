@@ -7,12 +7,8 @@ part of 'wallet_lookup_request.dart';
 // **************************************************************************
 
 WalletLookupRequest _$WalletLookupRequestFromJson(Map<String, dynamic> json) =>
-    WalletLookupRequest(
-      email: json['email'] as String,
-    );
+    WalletLookupRequest(email: json['email'] as String);
 
 Map<String, dynamic> _$WalletLookupRequestToJson(
-        WalletLookupRequest instance) =>
-    <String, dynamic>{
-      'email': instance.email,
-    };
+  WalletLookupRequest instance,
+) => <String, dynamic>{'email': instance.email};
