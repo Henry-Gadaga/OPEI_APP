@@ -53,6 +53,12 @@ extension TextStyleExtensions on TextStyle {
   TextStyle withSize(double size) => copyWith(fontSize: size);
 }
 
+/// Legacy palette kept for backwards compatibility.
+///
+/// Values are now aliased to the [OpeiBrand] tokens so every screen that still
+/// references `OpeiColors.iosLabelSecondary`, `OpeiColors.errorRed`, etc.
+/// automatically inherits the unified signup theme. Greys and the
+/// pureWhite / pureBlack constants are kept untouched for explicit usage.
 class OpeiColors {
   static const pureWhite = Color(0xFFFFFFFF);
   static const pureBlack = Color(0xFF000000);
@@ -68,16 +74,17 @@ class OpeiColors {
   static const grey800 = Color(0xFF424242);
   static const grey900 = Color(0xFF212121);
 
-  static const errorRed = Color(0xFFDC2626);
-  static const successGreen = Color(0xFF16A34A);
+  // Semantic — aligned with OpeiBrand tokens
+  static const errorRed = Color(0xFFE0394A); // = OpeiBrand.danger
+  static const successGreen = Color(0xFF16A34A); // = OpeiBrand.success
   static const success = successGreen;
-  static const warningYellow = Color(0xFFF59E0B);
+  static const warningYellow = Color(0xFFF59E0B); // = OpeiBrand.warning
 
-  // iOS-like neutrals for subtle, compact UI
-  static const iosLabelSecondary = Color(0xFF8E8E93); // secondary label
-  static const iosLabelTertiary = Color(0xFFC7C7CC); // tertiary label
-  static const iosSeparator = Color(0xFFE5E5EA); // separator line
-  static const iosSurfaceMuted = Color(0xFFF5F5F7); // subtle surface
+  // Compact UI neutrals — aligned with OpeiBrand neutrals
+  static const iosLabelSecondary = Color(0xFF5B6477); // = inkSecondary
+  static const iosLabelTertiary = Color(0xFF8A93A6); // = inkTertiary
+  static const iosSeparator = Color(0xFFEBEEF4); // = hairline
+  static const iosSurfaceMuted = Color(0xFFF5F7FB); // = surfaceMuted
 }
 
 /// Opei premium brand tokens. Use these for new/redesigned screens.
@@ -136,110 +143,251 @@ class OpeiBrand {
 ThemeData get lightTheme => ThemeData(
       useMaterial3: true,
       colorScheme: const ColorScheme.light(
-        primary: OpeiColors.pureBlack,
-        onPrimary: OpeiColors.pureWhite,
-        secondary: OpeiColors.grey700,
-        onSecondary: OpeiColors.pureWhite,
-        surface: OpeiColors.pureWhite,
-        onSurface: OpeiColors.pureBlack,
-        error: OpeiColors.errorRed,
-        onError: OpeiColors.pureWhite,
-        outline: OpeiColors.grey300,
+        primary: OpeiBrand.primary,
+        onPrimary: OpeiBrand.surface,
+        secondary: OpeiBrand.primary,
+        onSecondary: OpeiBrand.surface,
+        surface: OpeiBrand.surface,
+        onSurface: OpeiBrand.ink,
+        surfaceContainerHighest: OpeiBrand.surfaceMuted,
+        error: OpeiBrand.danger,
+        onError: OpeiBrand.surface,
+        outline: OpeiBrand.hairline,
+        outlineVariant: OpeiBrand.hairline,
       ),
       brightness: Brightness.light,
-      scaffoldBackgroundColor: OpeiColors.pureWhite,
+      scaffoldBackgroundColor: OpeiBrand.surface,
+      canvasColor: OpeiBrand.surface,
+      dividerColor: OpeiBrand.hairline,
+      splashColor: OpeiBrand.primary.withValues(alpha: 0.06),
+      highlightColor: OpeiBrand.primary.withValues(alpha: 0.04),
       appBarTheme: const AppBarTheme(
-        backgroundColor: OpeiColors.pureWhite,
-        foregroundColor: OpeiColors.pureBlack,
+        backgroundColor: OpeiBrand.surface,
+        foregroundColor: OpeiBrand.ink,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontFamily: kPrimaryFontFamily,
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
+          color: OpeiBrand.ink,
+          letterSpacing: -0.3,
+        ),
+        iconTheme: IconThemeData(color: OpeiBrand.ink, size: 22),
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: OpeiColors.pureWhite,
+        color: OpeiBrand.surface,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          side: const BorderSide(color: OpeiColors.grey200, width: 1),
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+          side: const BorderSide(color: OpeiBrand.hairline, width: 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: OpeiColors.pureBlack,
-          foregroundColor: OpeiColors.pureWhite,
+          backgroundColor: OpeiBrand.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: OpeiBrand.primaryTintStrong,
+          disabledForegroundColor:
+              OpeiBrand.primary.withValues(alpha: 0.6),
           elevation: 0,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           textStyle: _primaryTextStyle(
-            fontSize: 17,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
-            letterSpacing: -0.4,
-            height: 1.2, // prevent descender clipping
+            letterSpacing: -0.3,
+            height: 1.2,
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: OpeiColors.pureBlack,
-          side: const BorderSide(color: OpeiColors.grey300, width: 1),
+          foregroundColor: OpeiBrand.primary,
+          side: const BorderSide(color: OpeiBrand.hairline, width: 1),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           textStyle: _primaryTextStyle(
-            fontSize: 17,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
-            letterSpacing: -0.4,
-            height: 1.2, // prevent descender clipping
+            letterSpacing: -0.3,
+            height: 1.2,
           ),
         ),
       ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: OpeiBrand.primary,
+          textStyle: _primaryTextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.2,
+          ),
+        ),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(foregroundColor: OpeiBrand.ink),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: OpeiColors.grey100,
+        fillColor: OpeiBrand.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.hairline, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.hairline, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: OpeiColors.pureBlack, width: 2),
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: OpeiColors.errorRed, width: 1),
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.danger, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: OpeiColors.errorRed, width: 2),
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.danger, width: 1.5),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.hairline, width: 1),
         ),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         hintStyle: _primaryTextStyle(
-          fontSize: 17,
+          fontSize: 15,
           fontWeight: FontWeight.w400,
-          letterSpacing: -0.4,
-          color: OpeiColors.grey500,
+          letterSpacing: -0.2,
+          color: OpeiBrand.inkPlaceholder,
         ),
         labelStyle: _primaryTextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.4,
-          color: OpeiColors.grey700,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.1,
+          color: OpeiBrand.inkSecondary,
+        ),
+        floatingLabelStyle: _primaryTextStyle(
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.1,
+          color: OpeiBrand.primary,
         ),
         errorStyle: _primaryTextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-          color: OpeiColors.errorRed,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          letterSpacing: -0.1,
+          color: OpeiBrand.danger,
         ),
+        prefixIconColor: OpeiBrand.inkSecondary,
+        suffixIconColor: OpeiBrand.inkSecondary,
+      ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: OpeiBrand.primary,
+      ),
+      dividerTheme: const DividerThemeData(
+        color: OpeiBrand.hairline,
+        thickness: 0.6,
+        space: 0.6,
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: OpeiBrand.surface,
+        surfaceTintColor: Colors.transparent,
+        modalBackgroundColor: OpeiBrand.surface,
+        modalBarrierColor: Color(0x73000000),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: OpeiBrand.surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        titleTextStyle: _primaryTextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w700,
+          color: OpeiBrand.ink,
+          letterSpacing: -0.3,
+        ),
+        contentTextStyle: _primaryTextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: OpeiBrand.inkSecondary,
+          letterSpacing: -0.2,
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: OpeiBrand.ink,
+        contentTextStyle: _primaryTextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+        ),
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: OpeiBrand.surfaceMuted,
+        selectedColor: OpeiBrand.primaryTint,
+        secondarySelectedColor: OpeiBrand.primaryTint,
+        side: const BorderSide(color: OpeiBrand.hairline, width: 1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(999),
+          side: const BorderSide(color: OpeiBrand.hairline, width: 1),
+        ),
+        labelStyle: _primaryTextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: OpeiBrand.ink,
+          letterSpacing: -0.1,
+        ),
+        secondaryLabelStyle: _primaryTextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: OpeiBrand.primary,
+          letterSpacing: -0.1,
+        ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: OpeiBrand.primary,
+        unselectedLabelColor: OpeiBrand.inkSecondary,
+        indicatorColor: OpeiBrand.primary,
+        dividerColor: OpeiBrand.hairline,
+        labelStyle: _primaryTextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.2,
+        ),
+        unselectedLabelStyle: _primaryTextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          letterSpacing: -0.2,
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return OpeiBrand.primary;
+          return OpeiBrand.hairlineStrong;
+        }),
+        thumbColor: const WidgetStatePropertyAll(Colors.white),
       ),
       textTheme: _buildTextTheme(),
       pageTransitionsTheme: const PageTransitionsTheme(
@@ -259,109 +407,125 @@ ThemeData get lightTheme => ThemeData(
 ThemeData get darkTheme => ThemeData(
       useMaterial3: true,
       colorScheme: const ColorScheme.dark(
-        primary: OpeiColors.pureWhite,
-        onPrimary: OpeiColors.pureBlack,
-        secondary: OpeiColors.grey400,
-        onSecondary: OpeiColors.pureBlack,
-        surface: OpeiColors.pureBlack,
-        onSurface: OpeiColors.pureWhite,
-        error: OpeiColors.errorRed,
-        onError: OpeiColors.pureWhite,
-        outline: OpeiColors.grey800,
+        primary: OpeiBrand.primary,
+        onPrimary: Colors.white,
+        secondary: OpeiBrand.primaryGradientEnd,
+        onSecondary: OpeiBrand.ink,
+        surface: OpeiBrand.ink,
+        onSurface: Colors.white,
+        error: OpeiBrand.danger,
+        onError: Colors.white,
+        outline: Color(0xFF26303F),
+        outlineVariant: Color(0xFF1A2332),
       ),
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: OpeiColors.pureBlack,
+      scaffoldBackgroundColor: OpeiBrand.ink,
+      canvasColor: OpeiBrand.ink,
+      dividerColor: const Color(0xFF26303F),
       appBarTheme: const AppBarTheme(
-        backgroundColor: OpeiColors.pureBlack,
-        foregroundColor: OpeiColors.pureWhite,
+        backgroundColor: OpeiBrand.ink,
+        foregroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: OpeiColors.grey900,
+        color: const Color(0xFF111A2C),
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          side: const BorderSide(color: OpeiColors.grey800, width: 1),
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+          side: const BorderSide(color: Color(0xFF26303F), width: 1),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: OpeiColors.pureWhite,
-          foregroundColor: OpeiColors.pureBlack,
+          backgroundColor: OpeiBrand.primary,
+          foregroundColor: Colors.white,
           elevation: 0,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           textStyle: _primaryTextStyle(
-            fontSize: 17,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
-            letterSpacing: -0.4,
-            height: 1.2, // prevent descender clipping
+            letterSpacing: -0.3,
+            height: 1.2,
           ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: OpeiColors.pureWhite,
-          side: const BorderSide(color: OpeiColors.grey700, width: 1),
+          foregroundColor: Colors.white,
+          side: const BorderSide(color: Color(0xFF26303F), width: 1),
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           textStyle: _primaryTextStyle(
-            fontSize: 17,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
-            letterSpacing: -0.4,
-            height: 1.2, // prevent descender clipping
+            letterSpacing: -0.3,
+            height: 1.2,
           ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: OpeiColors.grey900,
+        fillColor: const Color(0xFF111A2C),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: Color(0xFF26303F), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide.none,
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: Color(0xFF26303F), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: OpeiColors.pureWhite, width: 2),
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: OpeiColors.errorRed, width: 1),
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.danger, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: const BorderSide(color: OpeiColors.errorRed, width: 2),
+          borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+          borderSide: const BorderSide(color: OpeiBrand.danger, width: 1.5),
         ),
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         hintStyle: _primaryTextStyle(
-          fontSize: 17,
+          fontSize: 15,
           fontWeight: FontWeight.w400,
-          letterSpacing: -0.4,
-          color: OpeiColors.grey600,
+          letterSpacing: -0.2,
+          color: const Color(0xFF6B7385),
         ),
         labelStyle: _primaryTextStyle(
-          fontSize: 17,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.4,
-          color: OpeiColors.grey400,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
+          letterSpacing: -0.1,
+          color: const Color(0xFF9AA3B5),
         ),
         errorStyle: _primaryTextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-          color: OpeiColors.errorRed,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          color: OpeiBrand.danger,
+        ),
+      ),
+      progressIndicatorTheme:
+          const ProgressIndicatorThemeData(color: OpeiBrand.primary),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: OpeiBrand.ink,
+        modalBackgroundColor: OpeiBrand.ink,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
       ),
       textTheme: _buildTextTheme(),

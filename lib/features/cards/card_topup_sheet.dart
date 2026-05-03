@@ -71,11 +71,11 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
             children: [
               const SizedBox(height: 8),
               Container(
-                width: 40,
+                width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: OpeiColors.grey300,
-                  borderRadius: BorderRadius.circular(2),
+                  color: OpeiBrand.hairlineStrong,
+                  borderRadius: BorderRadius.circular(99),
                 ),
               ),
               const SizedBox(height: 16),
@@ -121,7 +121,8 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
           width: 40,
           child: showBack
               ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                      size: 18, color: OpeiBrand.ink),
                   onPressed: state.isSubmitting
                       ? null
                       : () {
@@ -136,7 +137,9 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
             'Top up card',
             style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  fontSize: 18,
+                  fontSize: 17,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.3,
                 ),
             textAlign: TextAlign.center,
           ),
@@ -144,7 +147,8 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
         SizedBox(
           width: 40,
           child: IconButton(
-            icon: const Icon(CupertinoIcons.xmark, size: 18),
+            icon: const Icon(CupertinoIcons.xmark,
+                size: 18, color: OpeiBrand.inkSecondary),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
@@ -185,7 +189,7 @@ class _AmountStep extends ConsumerWidget {
         Text(
           'Enter the amount',
           style: theme.textTheme.bodyMedium?.copyWith(
-                color: OpeiColors.grey600,
+                color: OpeiBrand.inkSecondary,
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 letterSpacing: -0.2,
@@ -196,8 +200,9 @@ class _AmountStep extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: OpeiColors.grey100,
-            borderRadius: BorderRadius.circular(14),
+            color: OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+            border: Border.all(color: OpeiBrand.hairline, width: 1),
           ),
           child: Row(
             children: [
@@ -206,7 +211,7 @@ class _AmountStep extends ConsumerWidget {
                 style: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: OpeiColors.grey600,
+                      color: OpeiBrand.inkSecondary,
                     ),
               ),
               const SizedBox(width: 8),
@@ -230,7 +235,7 @@ class _AmountStep extends ConsumerWidget {
                         fontWeight: FontWeight.w600,
                         letterSpacing: -0.4,
                       ),
-                  cursorColor: OpeiColors.pureBlack,
+                  cursorColor: OpeiBrand.primary,
                   textAlignVertical: TextAlignVertical.center,
                   onChanged: (_) => ref.read(cardTopUpControllerProvider.notifier).clearErrorMessage(),
                   onSubmitted: (_) => _submit(ref, state.currency),
@@ -298,7 +303,7 @@ class _PreviewStep extends ConsumerWidget {
         Text(
           'Review',
           style: theme.textTheme.bodyMedium?.copyWith(
-                color: OpeiColors.grey600,
+                color: OpeiBrand.inkSecondary,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
               ),
@@ -308,8 +313,9 @@ class _PreviewStep extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: OpeiColors.grey100,
-            borderRadius: BorderRadius.circular(12),
+            color: OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline, width: 1),
           ),
           child: Column(
             children: [
@@ -329,7 +335,7 @@ class _PreviewStep extends ConsumerWidget {
                 isEmphasis: true,
               ),
               const SizedBox(height: 10),
-              Divider(color: OpeiColors.grey300.withValues(alpha: 0.6)),
+              const Divider(color: OpeiBrand.hairline, height: 1, thickness: 0.6),
               const SizedBox(height: 10),
               _PreviewRow(
                 label: 'Wallet balance after',
@@ -366,7 +372,7 @@ class _PreviewStep extends ConsumerWidget {
                 },
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 9),
-            foregroundColor: OpeiColors.pureBlack,
+            foregroundColor: OpeiBrand.primary,
           ),
           child: Text(
             'Edit amount',
@@ -404,7 +410,7 @@ class _ResultStep extends ConsumerWidget {
           const Icon(
             Icons.error_rounded,
             size: 48,
-            color: OpeiColors.errorRed,
+            color: OpeiBrand.danger,
           ),
           const SizedBox(height: 14),
         ],
@@ -421,7 +427,7 @@ class _ResultStep extends ConsumerWidget {
           Text(
             'Processing ${result.amountMoney.format(includeCurrencySymbol: true)}',
             style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
+                  color: OpeiBrand.inkSecondary,
                   fontSize: 13,
                 ),
             textAlign: TextAlign.center,
@@ -430,7 +436,7 @@ class _ResultStep extends ConsumerWidget {
           Text(
             state.errorMessage!,
             style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
+                  color: OpeiBrand.inkSecondary,
                   fontSize: 13,
                 ),
             textAlign: TextAlign.center,
@@ -439,7 +445,7 @@ class _ResultStep extends ConsumerWidget {
           Text(
             'Unable to complete top-up. Try again.',
             style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
+                  color: OpeiBrand.inkSecondary,
                   fontSize: 13,
                 ),
             textAlign: TextAlign.center,
@@ -449,8 +455,9 @@ class _ResultStep extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: OpeiColors.grey100,
-              borderRadius: BorderRadius.circular(12),
+              color: OpeiBrand.surfaceMuted,
+              borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+              border: Border.all(color: OpeiBrand.hairline, width: 1),
             ),
             child: Column(
               children: [
@@ -459,7 +466,7 @@ class _ResultStep extends ConsumerWidget {
                   reference: result.reference,
                 ),
                 const SizedBox(height: 8),
-                Divider(color: OpeiColors.grey300.withValues(alpha: 0.6)),
+                const Divider(color: OpeiBrand.hairline, height: 1, thickness: 0.6),
                 const SizedBox(height: 8),
                 _PreviewRow(
                   label: 'Amount',
@@ -533,7 +540,7 @@ class _PreviewRow extends StatelessWidget {
         Text(
           label,
           style: theme.textTheme.bodyMedium?.copyWith(
-                color: isEmphasis ? OpeiColors.pureBlack : OpeiColors.grey600,
+                color: isEmphasis ? OpeiBrand.ink : OpeiBrand.inkSecondary,
                 fontWeight: isEmphasis ? FontWeight.w600 : FontWeight.w500,
                 fontSize: 13,
               ),
@@ -572,35 +579,39 @@ class _PrimaryButton extends StatelessWidget {
     final theme = Theme.of(context);
     final isBusy = isLoading;
 
-    return ElevatedButton(
-      onPressed: isBusy ? null : onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: OpeiColors.pureBlack,
-        foregroundColor: Colors.white,
-        disabledBackgroundColor: OpeiColors.grey300,
-        disabledForegroundColor: OpeiColors.grey600,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(vertical: 11),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-      child: isBusy
-          ? const SizedBox(
-              height: 16,
-              width: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+    return SizedBox(
+      height: 52,
+      child: ElevatedButton(
+        onPressed: isBusy ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: OpeiBrand.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: OpeiBrand.primaryTintStrong,
+          disabledForegroundColor: OpeiBrand.primary.withValues(alpha: 0.6),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(OpeiBrand.radiusCta)),
+        ),
+        child: isBusy
+            ? const SizedBox(
+                height: 18,
+                width: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                label,
+                style: theme.textTheme.labelLarge?.copyWith(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.3,
+                      color: Colors.white,
+                    ),
               ),
-            )
-          : Text(
-              label,
-              style: theme.textTheme.labelLarge?.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.2,
-                    color: Colors.white,
-                  ),
-            ),
+      ),
     );
   }
 }
@@ -617,18 +628,18 @@ class _ErrorBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: OpeiColors.errorRed.withValues(alpha: 0.08),
+        color: OpeiBrand.danger.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: OpeiColors.errorRed, size: 16),
+          const Icon(Icons.error_outline, color: OpeiBrand.danger, size: 16),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
               style: theme.textTheme.bodySmall?.copyWith(
-                    color: OpeiColors.errorRed,
+                    color: OpeiBrand.danger,
                     fontSize: 11,
                   ),
             ),
@@ -658,16 +669,16 @@ class _StatusBanner extends StatelessWidget {
     final IconData icon;
 
     if (isError) {
-      background = OpeiColors.errorRed.withValues(alpha: 0.08);
-      foreground = OpeiColors.errorRed;
+      background = OpeiBrand.danger.withValues(alpha: 0.08);
+      foreground = OpeiBrand.danger;
       icon = Icons.error_outline;
     } else if (isWarning) {
-      background = const Color(0xFFFFF8E6);
-      foreground = const Color(0xFFB25B00);
+      background = const Color(0xFFFFF6E0);
+      foreground = const Color(0xFF8A5A00);
       icon = Icons.info_outline_rounded;
     } else {
-      background = OpeiColors.pureBlack.withValues(alpha: 0.05);
-      foreground = OpeiColors.pureBlack;
+      background = OpeiBrand.primaryTint;
+      foreground = OpeiBrand.primary;
       icon = CupertinoIcons.lightbulb;
     }
 
