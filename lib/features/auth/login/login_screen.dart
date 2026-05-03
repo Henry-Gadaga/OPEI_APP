@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/providers/providers.dart';
@@ -50,7 +51,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (result == null) {
       final loginState = ref.read(loginControllerProvider);
       if (loginState.errorMessage ==
-          'Invalid email or password. Please try again.') {
+          'Invalid email or PIN. Please try again.') {
         _passwordController.clear();
         ref.read(loginControllerProvider.notifier).resetPasswordField();
         _passwordFocusNode.requestFocus();
@@ -99,8 +100,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     debugPrint('🔍 Checking quick auth setup for user: $userIdentifier');
 
-    final setupCompleted =
-        await quickAuthService.isSetupCompleted(userIdentifier);
+    final setupCompleted = await quickAuthService.isSetupCompleted(
+      userIdentifier,
+    );
 
     debugPrint('🔍 Setup completed? $setupCompleted');
 
@@ -128,47 +130,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         padding: EdgeInsets.only(bottom: bottomInset),
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.only(
-            top: spacing * 4,
-            bottom: spacing * 4,
-          ),
+          padding: EdgeInsets.only(top: spacing * 4, bottom: spacing * 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: spacing * 2.5),
-              Text(
-                'Sign in',
-                style: Theme.of(context).textTheme.displayMedium,
-              ),
+              Text('Sign in', style: Theme.of(context).textTheme.displayMedium),
               SizedBox(height: spacing),
               Text(
                 'Sign in to your account',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: OpeiColors.grey600,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: OpeiColors.grey600),
               ),
               SizedBox(height: sectionSpacing),
               if (state.errorMessage != null) ...[
                 Container(
                   width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 12,
+                  ),
                   decoration: BoxDecoration(
                     color: OpeiColors.errorRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.error_outline,
-                          color: OpeiColors.errorRed, size: 20),
+                      const Icon(
+                        Icons.error_outline,
+                        color: OpeiColors.errorRed,
+                        size: 20,
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           state.errorMessage!,
-                          style:
-                              Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: OpeiColors.errorRed,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: OpeiColors.errorRed),
                         ),
                       ),
                     ],
@@ -212,11 +211,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                   child: Text(
-                    'Forgot Password?',
+                    'Forgot PIN?',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.pureBlack,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      color: OpeiColors.pureBlack,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
@@ -246,9 +245,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: [
                   Text(
                     "Don't have an account? ",
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: OpeiColors.grey600,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: OpeiColors.grey600),
                   ),
                   TextButton(
                     onPressed: () => context.go('/signup'),
@@ -260,9 +259,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: Text(
                       'Sign Up',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: OpeiColors.pureBlack,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: OpeiColors.pureBlack,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -300,9 +299,9 @@ class _EmailField extends StatelessWidget {
         Text(
           'Email',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: OpeiColors.grey700,
-              ),
+            fontWeight: FontWeight.w600,
+            color: OpeiColors.grey700,
+          ),
         ),
         SizedBox(height: spacing * 0.5),
         TextField(
@@ -315,12 +314,11 @@ class _EmailField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: 'Enter your email',
             isDense: true,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            prefixIcon: const Icon(
-              Icons.email_outlined,
-              size: 20,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
             ),
+            prefixIcon: const Icon(Icons.email_outlined, size: 20),
             prefixIconConstraints: const BoxConstraints(minWidth: 44),
             errorText: errorText,
             errorMaxLines: 2,
@@ -357,29 +355,33 @@ class _PasswordField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Password',
+          'PIN',
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: OpeiColors.grey700,
-              ),
+            fontWeight: FontWeight.w600,
+            color: OpeiColors.grey700,
+          ),
         ),
         SizedBox(height: spacing * 0.5),
         TextField(
           controller: controller,
           focusNode: focusNode,
           obscureText: obscureText,
+          keyboardType: TextInputType.number,
           textInputAction: TextInputAction.done,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(6),
+          ],
           onChanged: onChanged,
           onSubmitted: onSubmitted,
           decoration: InputDecoration(
-            hintText: 'Enter your password',
+            hintText: 'Enter your 6-digit PIN',
             isDense: true,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            prefixIcon: const Icon(
-              Icons.lock_outline,
-              size: 20,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
             ),
+            prefixIcon: const Icon(Icons.lock_outline, size: 20),
             prefixIconConstraints: const BoxConstraints(minWidth: 44),
             suffixIcon: IconButton(
               icon: Icon(

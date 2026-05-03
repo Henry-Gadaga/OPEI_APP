@@ -72,12 +72,74 @@ class OpeiColors {
   static const successGreen = Color(0xFF16A34A);
   static const success = successGreen;
   static const warningYellow = Color(0xFFF59E0B);
+  static const brandBlue = Color(0xFF4A9EFF);
+  static const brandBlueDeep = Color(0xFF2F7FE0);
+  static const brandBlueSurface = Color(0xFFF3F8FF);
+  static const brandBlueBorder = Color(0xFFD7E8FF);
 
   // iOS-like neutrals for subtle, compact UI
   static const iosLabelSecondary = Color(0xFF8E8E93); // secondary label
   static const iosLabelTertiary = Color(0xFFC7C7CC); // tertiary label
   static const iosSeparator = Color(0xFFE5E5EA); // separator line
   static const iosSurfaceMuted = Color(0xFFF5F5F7); // subtle surface
+}
+
+class AuthFlowStyles {
+  static BoxDecoration stepCardDecoration = BoxDecoration(
+    color: OpeiColors.pureWhite,
+    borderRadius: BorderRadius.circular(AppRadius.lg),
+    border: Border.all(color: OpeiColors.brandBlueBorder),
+    boxShadow: const [
+      BoxShadow(
+        color: Color(0x120F172A),
+        blurRadius: 20,
+        offset: Offset(0, 8),
+      ),
+    ],
+  );
+
+  static BoxDecoration trustBannerDecoration = BoxDecoration(
+    color: OpeiColors.brandBlueSurface,
+    borderRadius: BorderRadius.circular(AppRadius.md),
+    border: Border.all(color: OpeiColors.brandBlueBorder),
+  );
+
+  static InputDecoration compactInputDecoration({
+    required String hint,
+    required IconData icon,
+    Widget? suffix,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      isDense: true,
+      filled: true,
+      fillColor: OpeiColors.pureWhite,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      prefixIcon: Icon(icon, size: 18, color: OpeiColors.grey600),
+      prefixIconConstraints: const BoxConstraints(minWidth: 42),
+      suffixIcon: suffix,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderSide: const BorderSide(color: OpeiColors.grey200, width: 1.2),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderSide: const BorderSide(color: OpeiColors.grey200, width: 1.2),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderSide: const BorderSide(color: OpeiColors.brandBlue, width: 1.6),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderSide: const BorderSide(color: OpeiColors.errorRed, width: 1.2),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        borderSide: const BorderSide(color: OpeiColors.errorRed, width: 1.2),
+      ),
+    );
+  }
 }
 
 ThemeData get lightTheme => ThemeData(

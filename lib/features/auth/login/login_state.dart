@@ -34,5 +34,8 @@ class LoginState {
     );
   }
 
-  bool get isValid => email.isNotEmpty && password.isNotEmpty && password.length >= 8;
+  bool get isValid =>
+      email.isNotEmpty &&
+      password.isNotEmpty &&
+      RegExp(r'^\d{6}$').hasMatch(password);
 }

@@ -13,7 +13,7 @@ class SignupController extends Notifier<SignupState> {
   Future<void> signup({
     required String email,
     required String phone,
-    required String password,
+    required String pin,
   }) async {
     state = SignupLoading();
 
@@ -21,25 +21,27 @@ class SignupController extends Notifier<SignupState> {
       final request = SignupRequest(
         email: email.trim(),
         phone: phone.trim(),
-        password: password,
+        password: pin,
       );
 
       final repository = ref.read(authRepositoryProvider);
       final storage = ref.read(secureStorageServiceProvider);
-      
+
       final response = await repository.signup(request);
 
       await storage.saveEmail(email.trim());
-      
+
       // Set auth session - this will trigger dependent providers to refresh
-      ref.read(authSessionProvider.notifier).setSession(
-        userId: response.user.id,
-        accessToken: response.accessToken,
-        userStage: response.user.userStage,
-      );
+      ref
+          .read(authSessionProvider.notifier)
+          .setSession(
+            userId: response.user.id,
+            accessToken: response.accessToken,
+            userStage: response.user.userStage,
+          );
 
       state = SignupSuccess(response);
-      
+
       debugPrint('✅ Signup successful for ${response.user.email}');
       debugPrint('User stage: ${response.user.userStage}');
       debugPrint('✅ Auth session set via signup');
@@ -50,7 +52,7 @@ class SignupController extends Notifier<SignupState> {
         state = SignupError(buildRetryMessage(e.message, retryInfo));
         return;
       }
-      
+
       final fieldErrors = <String, String>{};
       if (e.errors != null) {
         e.errors!.forEach((key, value) {
@@ -61,7 +63,7 @@ class SignupController extends Notifier<SignupState> {
           }
         });
       }
-      
+
       state = SignupError(e.message, fieldErrors: fieldErrors);
     } catch (e) {
       debugPrint('❌ Unexpected error during signup: $e');
@@ -74,6 +76,5 @@ class SignupController extends Notifier<SignupState> {
   }
 }
 
-final signupControllerProvider = NotifierProvider<SignupController, SignupState>(
-  SignupController.new,
-);
+final signupControllerProvider =
+    NotifierProvider<SignupController, SignupState>(SignupController.new);

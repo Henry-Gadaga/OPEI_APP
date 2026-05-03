@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
@@ -20,12 +21,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _pinController = TextEditingController();
 
-  bool _obscurePassword = true;
+  bool _obscurePin = true;
   String? _emailError;
   String? _phoneError;
-  String? _passwordError;
+  String? _pinError;
   InputDecoration _buildInputDecoration({
     required String hint,
     required IconData icon,
@@ -67,7 +68,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   void dispose() {
     _emailController.dispose();
     _phoneController.dispose();
-    _passwordController.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 
@@ -75,16 +76,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     setState(() {
       _emailError = null;
       _phoneError = null;
-      _passwordError = null;
+      _pinError = null;
     });
 
     if (_formKey.currentState!.validate()) {
       FocusScope.of(context).unfocus();
 
-      ref.read(signupControllerProvider.notifier).signup(
+      ref
+          .read(signupControllerProvider.notifier)
+          .signup(
             email: _emailController.text,
             phone: _phoneController.text,
-            password: _passwordController.text,
+            pin: _pinController.text,
           );
     }
   }
@@ -112,25 +115,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     return null;
   }
 
-  String? _validatePassword(String? value) {
-    if (_passwordError != null) return _passwordError;
+  String? _validatePin(String? value) {
+    if (_pinError != null) return _pinError;
     if (value == null || value.isEmpty) {
-      return 'Password is required';
+      return 'PIN is required';
     }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    }
-    if (!RegExp(r'[A-Z]').hasMatch(value)) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!RegExp(r'[a-z]').hasMatch(value)) {
-      return 'Password must contain at least one lowercase letter';
-    }
-    if (!RegExp(r'[0-9]').hasMatch(value)) {
-      return 'Password must contain at least one number';
-    }
-    if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value)) {
-      return 'Password must contain at least one special character';
+    if (!RegExp(r'^\d{6}$').hasMatch(value)) {
+      return 'PIN must be exactly 6 digits';
     }
     return null;
   }
@@ -163,7 +154,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           setState(() {
             _emailError = next.fieldErrors['email'];
             _phoneError = next.fieldErrors['phone'];
-            _passwordError = next.fieldErrors['password'];
+            _pinError = next.fieldErrors['pin'] ?? next.fieldErrors['password'];
           });
           _formKey.currentState!.validate();
         } else {
@@ -195,7 +186,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 20),
+                  icon: const Icon(
+                    Icons.arrow_back_ios,
+                    color: OpeiColors.pureBlack,
+                    size: 20,
+                  ),
                   onPressed: () => context.go('/login'),
                   tooltip: 'Back',
                 ),
@@ -204,8 +199,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   child: Text(
                     'Create account',
                     style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -264,7 +259,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             ),
             SizedBox(height: spacing * 1.5),
             Text(
-              'Password',
+              'PIN',
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: OpeiColors.grey700,
@@ -272,29 +267,34 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             ),
             SizedBox(height: spacing * 0.75),
             TextFormField(
-              controller: _passwordController,
-              obscureText: _obscurePassword,
+              controller: _pinController,
+              obscureText: _obscurePin,
               textInputAction: TextInputAction.done,
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(6),
+              ],
               enabled: signupState is! SignupLoading,
               decoration: _buildInputDecoration(
-                hint: 'Create a password',
-                icon: Icons.lock_outline,
+                hint: 'Create 6-digit PIN',
+                icon: Icons.pin_outlined,
                 suffix: IconButton(
                   icon: Icon(
-                    _obscurePassword
+                    _obscurePin
                         ? Icons.visibility_off_outlined
                         : Icons.visibility_outlined,
                     color: OpeiColors.grey600,
                   ),
                   onPressed: () {
-                    setState(() => _obscurePassword = !_obscurePassword);
+                    setState(() => _obscurePin = !_obscurePin);
                   },
                 ),
               ),
-              validator: _validatePassword,
+              validator: _validatePin,
               onChanged: (_) {
-                if (_passwordError != null) {
-                  setState(() => _passwordError = null);
+                if (_pinError != null) {
+                  setState(() => _pinError = null);
                   _formKey.currentState!.validate();
                 }
               },
@@ -302,7 +302,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             ),
             SizedBox(height: spacing),
             Text(
-              'Min. 8 characters with upper/lowercase, number and symbol.',
+              'Use a 6-digit numeric PIN.',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: OpeiColors.iosLabelSecondary,
               ),
@@ -332,10 +332,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
-              onPressed: () => context.go('/login'),
+                onPressed: () => context.go('/login'),
                 style: OutlinedButton.styleFrom(
                   minimumSize: Size.fromHeight(tokens.buttonHeight),
-                  side: const BorderSide(color: OpeiColors.pureBlack, width: 1.2),
+                  side: const BorderSide(
+                    color: OpeiColors.pureBlack,
+                    width: 1.2,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -365,10 +368,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             ),
           ),
           if (signupState is SignupLoading)
-            const ModalBarrier(
-              color: Colors.transparent,
-              dismissible: false,
-            ),
+            const ModalBarrier(color: Colors.transparent, dismissible: false),
           if (signupState is SignupLoading)
             Center(
               child: Container(

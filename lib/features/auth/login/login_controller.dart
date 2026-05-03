@@ -23,7 +23,7 @@ class LoginController extends Notifier<LoginState> {
 
   /// Attempts to log in the user with the provided credentials.
   /// Returns a map with 'success', 'userStage', and 'isEmailVerified' on success.
-  /// 
+  ///
   /// User stages from backend:
   /// - PENDING_EMAIL: User needs to verify email
   /// - PENDING_ADDRESS: User needs to submit address
@@ -41,9 +41,9 @@ class LoginController extends Notifier<LoginState> {
       }
 
       if (state.password.isEmpty) {
-        passwordError = 'Password is required';
-      } else if (state.password.length < 8) {
-        passwordError = 'Password must be at least 8 characters';
+        passwordError = 'PIN is required';
+      } else if (!RegExp(r'^\d{6}$').hasMatch(state.password)) {
+        passwordError = 'PIN must be exactly 6 digits';
       }
 
       state = state.copyWith(
@@ -67,7 +67,7 @@ class LoginController extends Notifier<LoginState> {
 
       debugPrint('✅ Login successful - User: ${response.user.email}');
       debugPrint('📊 User stage: ${response.user.userStage}');
-      
+
       // Persist email for downstream flows (e.g., verify email screen)
       // This ensures VerifyEmailScreen can recover the email even if route args are missing.
       try {
@@ -76,15 +76,19 @@ class LoginController extends Notifier<LoginState> {
       } catch (e) {
         debugPrint('⚠️ Failed to persist email to storage: $e');
       }
-      
+
       // Set auth session - this will trigger dependent providers to refresh
-      ref.read(authSessionProvider.notifier).setSession(
-        userId: response.user.id,
-        accessToken: response.accessToken,
-        userStage: response.user.userStage,
+      ref
+          .read(authSessionProvider.notifier)
+          .setSession(
+            userId: response.user.id,
+            accessToken: response.accessToken,
+            userStage: response.user.userStage,
+          );
+      debugPrint(
+        '✅ Auth session set - providers will refresh with new user data',
       );
-      debugPrint('✅ Auth session set - providers will refresh with new user data');
-      
+
       state = state.copyWith(isLoading: false);
 
       return {
@@ -112,7 +116,7 @@ class LoginController extends Notifier<LoginState> {
   String _mapApiErrorToMessage(ApiError error) {
     switch (error.statusCode) {
       case 401:
-        return 'Invalid email or password. Please try again.';
+        return 'Invalid email or PIN. Please try again.';
       case 403:
         return 'Your account is not active. Please contact support.';
       case 429:
