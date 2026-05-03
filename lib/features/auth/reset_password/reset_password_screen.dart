@@ -152,6 +152,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final state = ref.watch(resetPasswordControllerProvider(widget.email));
     final isLoading = state.isLoading;
 
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -161,9 +164,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.surfaceMuted,
+        backgroundColor: OpeiBrand.surface,
+        resizeToAvoidBottomInset: false,
         appBar: OpeiAppBar(
-          backgroundColor: OpeiBrand.surfaceMuted,
+          backgroundColor: OpeiBrand.surface,
           onBack: isLoading
               ? null
               : () =>
@@ -175,37 +179,42 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.opaque,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Reset your PIN',
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
-                            color: OpeiBrand.ink,
-                            height: 1.15,
+            child: AnimatedPadding(
+              duration: OpeiBrand.motionFast,
+              curve: OpeiBrand.motionCurve,
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+                      physics: const ClampingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Reset your\nPIN',
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -1.0,
+                              color: OpeiBrand.ink,
+                              height: 1.1,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text.rich(
+                          const SizedBox(height: 8),
+                          Text.rich(
                           TextSpan(
                             text: 'Enter the 6-digit code we sent to ',
                             style: const TextStyle(
                               fontFamily: kPrimaryFontFamily,
-                              fontSize: 14,
+                              fontSize: 14.5,
                               fontWeight: FontWeight.w400,
                               color: OpeiBrand.inkSecondary,
-                              letterSpacing: -0.2,
-                              height: 1.4,
+                              letterSpacing: -0.1,
+                              height: 1.45,
                             ),
                             children: [
                               TextSpan(
@@ -221,10 +230,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 28),
                         if (state.errorMessage != null) ...[
                           _ErrorBanner(message: state.errorMessage!),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: 16),
                         ],
                         OpeiTextField(
                           controller: _codeController,
@@ -348,14 +357,57 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                     ),
                   ),
                 ),
-                _BottomBar(
-                  isLoading: isLoading,
-                  enabled: _isFormValid && !isLoading,
-                  onReset: _handleSubmit,
-                  onResend: () =>
-                      context.canPop() ? context.pop() : context.go('/login'),
-                ),
-              ],
+                  Padding(
+                    padding:
+                        EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OpeiPrimaryButton(
+                          label: 'Reset PIN',
+                          loading: isLoading,
+                          onPressed: _isFormValid && !isLoading
+                              ? _handleSubmit
+                              : null,
+                          trailingIcon: Icons.arrow_forward_rounded,
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              "Didn't get a code?",
+                              style: TextStyle(
+                                fontFamily: kPrimaryFontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: OpeiBrand.inkSecondary,
+                                letterSpacing: -0.1,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () => context.canPop()
+                                  ? context.pop()
+                                  : context.go('/login'),
+                              child: const Text(
+                                'Request new',
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: OpeiBrand.primary,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -410,49 +462,3 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
-class _BottomBar extends StatelessWidget {
-  final bool isLoading;
-  final bool enabled;
-  final VoidCallback onReset;
-  final VoidCallback onResend;
-
-  const _BottomBar({
-    required this.isLoading,
-    required this.enabled,
-    required this.onReset,
-    required this.onResend,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: OpeiBrand.surface,
-        border: Border(top: BorderSide(color: OpeiBrand.hairline, width: 1)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        10 + MediaQuery.of(context).viewPadding.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          OpeiPrimaryButton(
-            label: 'Reset PIN',
-            loading: isLoading,
-            onPressed: enabled ? onReset : null,
-            trailingIcon: Icons.arrow_forward_rounded,
-          ),
-          const SizedBox(height: 2),
-          OpeiSecondaryLink(
-            label: "Didn't get the code?",
-            actionLabel: 'Request new',
-            onTap: onResend,
-          ),
-        ],
-      ),
-    );
-  }
-}

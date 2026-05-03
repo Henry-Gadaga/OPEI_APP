@@ -60,6 +60,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final state = ref.watch(forgotPasswordControllerProvider);
     final isLoading = state.isLoading;
 
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -69,9 +72,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.surfaceMuted,
+        backgroundColor: OpeiBrand.surface,
+        resizeToAvoidBottomInset: false,
         appBar: OpeiAppBar(
-          backgroundColor: OpeiBrand.surfaceMuted,
+          backgroundColor: OpeiBrand.surface,
           onBack: () =>
               context.canPop() ? context.pop() : context.go('/login'),
         ),
@@ -80,82 +84,132 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.opaque,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
-                    physics: const ClampingScrollPhysics(),
+            child: AnimatedPadding(
+              duration: OpeiBrand.motionFast,
+              curve: OpeiBrand.motionCurve,
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+                      physics: const ClampingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Forgot your\nPIN?',
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -1.0,
+                              color: OpeiBrand.ink,
+                              height: 1.1,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            "Enter your email and we'll send a code to reset it.",
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w400,
+                              color: OpeiBrand.inkSecondary,
+                              letterSpacing: -0.1,
+                              height: 1.45,
+                            ),
+                          ),
+                          const SizedBox(height: 28),
+                          if (state.errorMessage != null) ...[
+                            _MessageBanner(
+                              message: state.errorMessage!,
+                              isError: true,
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          if (state.successMessage != null) ...[
+                            _MessageBanner(
+                              message: state.successMessage!,
+                              isError: false,
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                          OpeiTextField(
+                            controller: _emailController,
+                            focusNode: _emailFocusNode,
+                            label: 'Email address',
+                            hint: 'name@example.com',
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.done,
+                            enabled: !isLoading,
+                            autofocus: true,
+                            errorText: state.emailError,
+                            onChanged: (value) {
+                              ref
+                                  .read(
+                                    forgotPasswordControllerProvider.notifier,
+                                  )
+                                  .updateEmail(value);
+                            },
+                            onSubmitted: (_) => _handleSubmit(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          'Forgot your PIN?',
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
-                            color: OpeiBrand.ink,
-                            height: 1.15,
-                          ),
+                        OpeiPrimaryButton(
+                          label: 'Send code',
+                          loading: isLoading,
+                          onPressed: _isFormValid && !isLoading
+                              ? _handleSubmit
+                              : null,
+                          trailingIcon: Icons.arrow_forward_rounded,
                         ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          "Enter your email and we'll send you a code to reset it.",
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: OpeiBrand.inkSecondary,
-                            letterSpacing: -0.2,
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 22),
-                        if (state.errorMessage != null) ...[
-                          _MessageBanner(
-                            message: state.errorMessage!,
-                            isError: true,
-                          ),
-                          const SizedBox(height: 14),
-                        ],
-                        if (state.successMessage != null) ...[
-                          _MessageBanner(
-                            message: state.successMessage!,
-                            isError: false,
-                          ),
-                          const SizedBox(height: 14),
-                        ],
-                        OpeiTextField(
-                          controller: _emailController,
-                          focusNode: _emailFocusNode,
-                          label: 'Email address',
-                          hint: 'name@example.com',
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.done,
-                          enabled: !isLoading,
-                          autofocus: true,
-                          errorText: state.emailError,
-                          onChanged: (value) {
-                            ref
-                                .read(forgotPasswordControllerProvider.notifier)
-                                .updateEmail(value);
-                          },
-                          onSubmitted: (_) => _handleSubmit(),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Remembered it?',
+                              style: TextStyle(
+                                fontFamily: kPrimaryFontFamily,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: OpeiBrand.inkSecondary,
+                                letterSpacing: -0.1,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () => context.canPop()
+                                  ? context.pop()
+                                  : context.go('/login'),
+                              child: const Text(
+                                'Sign in',
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: OpeiBrand.primary,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                ),
-                _BottomBar(
-                  isLoading: isLoading,
-                  enabled: _isFormValid && !isLoading,
-                  onSendCode: _handleSubmit,
-                  onSignIn: () =>
-                      context.canPop() ? context.pop() : context.go('/login'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -206,49 +260,3 @@ class _MessageBanner extends StatelessWidget {
   }
 }
 
-class _BottomBar extends StatelessWidget {
-  final bool isLoading;
-  final bool enabled;
-  final VoidCallback onSendCode;
-  final VoidCallback onSignIn;
-
-  const _BottomBar({
-    required this.isLoading,
-    required this.enabled,
-    required this.onSendCode,
-    required this.onSignIn,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: OpeiBrand.surface,
-        border: Border(top: BorderSide(color: OpeiBrand.hairline, width: 1)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        10 + MediaQuery.of(context).viewPadding.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          OpeiPrimaryButton(
-            label: 'Send code',
-            loading: isLoading,
-            onPressed: enabled ? onSendCode : null,
-            trailingIcon: Icons.arrow_forward_rounded,
-          ),
-          const SizedBox(height: 2),
-          OpeiSecondaryLink(
-            label: 'Remembered it?',
-            actionLabel: 'Sign in',
-            onTap: onSignIn,
-          ),
-        ],
-      ),
-    );
-  }
-}

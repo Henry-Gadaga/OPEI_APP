@@ -132,6 +132,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(loginControllerProvider);
     final isLoading = state.isLoading;
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -142,9 +144,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.surfaceMuted,
+        backgroundColor: OpeiBrand.surface,
+        resizeToAvoidBottomInset: false,
         appBar: OpeiAppBar(
-          backgroundColor: OpeiBrand.surfaceMuted,
+          backgroundColor: OpeiBrand.surface,
           onBack: () => context.go('/welcome'),
         ),
         body: SafeArea(
@@ -152,139 +155,181 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           child: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.opaque,
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Welcome back',
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
-                            color: OpeiBrand.ink,
-                            height: 1.15,
+            child: AnimatedPadding(
+              duration: OpeiBrand.motionFast,
+              curve: OpeiBrand.motionCurve,
+              padding: EdgeInsets.only(bottom: bottomInset),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+                      physics: const ClampingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Welcome\nback',
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 32,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -1.0,
+                              color: OpeiBrand.ink,
+                              height: 1.1,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          'Sign in with your email and 6-digit PIN.',
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: OpeiBrand.inkSecondary,
-                            letterSpacing: -0.2,
-                            height: 1.4,
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Sign in with your email and 6-digit PIN.',
+                            style: TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w400,
+                              color: OpeiBrand.inkSecondary,
+                              letterSpacing: -0.1,
+                              height: 1.45,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 22),
-                        if (state.errorMessage != null) ...[
-                          _ErrorBanner(message: state.errorMessage!),
-                          const SizedBox(height: 14),
-                        ],
-                        OpeiTextField(
-                          controller: _emailController,
-                          focusNode: _emailFocusNode,
-                          label: 'Email address',
-                          hint: 'name@example.com',
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          enabled: !isLoading,
-                          errorText: state.emailError,
-                          onChanged: (value) {
-                            ref
-                                .read(loginControllerProvider.notifier)
-                                .updateEmail(value);
-                          },
-                          onSubmitted: (_) => _pinFocusNode.requestFocus(),
-                        ),
-                        const SizedBox(height: 14),
-                        OpeiTextField(
-                          controller: _pinController,
-                          focusNode: _pinFocusNode,
-                          label: '6-digit PIN',
-                          hint: '••••••',
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.done,
-                          enabled: !isLoading,
-                          errorText: state.passwordError,
-                          obscureText: _obscurePin,
-                          maxLength: 6,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
+                          const SizedBox(height: 28),
+                          if (state.errorMessage != null) ...[
+                            _ErrorBanner(message: state.errorMessage!),
+                            const SizedBox(height: 16),
                           ],
-                          suffix: IconButton(
-                            visualDensity: VisualDensity.compact,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            splashRadius: 16,
-                            icon: Icon(
-                              _obscurePin
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: OpeiBrand.inkTertiary,
-                              size: 18,
-                            ),
-                            onPressed: () =>
-                                setState(() => _obscurePin = !_obscurePin),
+                          OpeiTextField(
+                            controller: _emailController,
+                            focusNode: _emailFocusNode,
+                            label: 'Email address',
+                            hint: 'name@example.com',
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            enabled: !isLoading,
+                            errorText: state.emailError,
+                            onChanged: (value) {
+                              ref
+                                  .read(loginControllerProvider.notifier)
+                                  .updateEmail(value);
+                            },
+                            onSubmitted: (_) => _pinFocusNode.requestFocus(),
                           ),
-                          onChanged: (value) {
-                            ref
-                                .read(loginControllerProvider.notifier)
-                                .updatePassword(value);
-                          },
-                          onSubmitted: (_) => _handleLogin(),
-                        ),
-                        const SizedBox(height: 10),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: isLoading
-                                ? null
-                                : () => context.push('/forgot-password'),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 6,
+                          const SizedBox(height: 14),
+                          OpeiTextField(
+                            controller: _pinController,
+                            focusNode: _pinFocusNode,
+                            label: '6-digit PIN',
+                            hint: '••••••',
+                            keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.done,
+                            enabled: !isLoading,
+                            errorText: state.passwordError,
+                            obscureText: _obscurePin,
+                            maxLength: 6,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(6),
+                            ],
+                            suffix: IconButton(
+                              visualDensity: VisualDensity.compact,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
                               ),
-                              minimumSize: const Size(0, 0),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              foregroundColor: OpeiBrand.primary,
+                              splashRadius: 16,
+                              icon: Icon(
+                                _obscurePin
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                color: OpeiBrand.inkTertiary,
+                                size: 18,
+                              ),
+                              onPressed: () =>
+                                  setState(() => _obscurePin = !_obscurePin),
                             ),
-                            child: const Text(
-                              'Forgot PIN?',
+                            onChanged: (value) {
+                              ref
+                                  .read(loginControllerProvider.notifier)
+                                  .updatePassword(value);
+                            },
+                            onSubmitted: (_) => _handleLogin(),
+                          ),
+                          const SizedBox(height: 10),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: isLoading
+                                  ? null
+                                  : () => context.push('/forgot-password'),
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 6),
+                                child: Text(
+                                  'Forgot PIN?',
+                                  style: TextStyle(
+                                    fontFamily: kPrimaryFontFamily,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: OpeiBrand.primary,
+                                    letterSpacing: -0.1,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Seamless CTA — no box/border
+                  Padding(
+                    padding:
+                        EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        OpeiPrimaryButton(
+                          label: 'Sign in',
+                          loading: isLoading,
+                          onPressed: _isFormValid && !isLoading
+                              ? _handleLogin
+                              : null,
+                          trailingIcon: Icons.arrow_forward_rounded,
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'New to Opei?',
                               style: TextStyle(
                                 fontFamily: kPrimaryFontFamily,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: OpeiBrand.primary,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: OpeiBrand.inkSecondary,
                                 letterSpacing: -0.1,
                               ),
                             ),
-                          ),
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () => context.go('/signup'),
+                              child: const Text(
+                                'Create account',
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: OpeiBrand.primary,
+                                  letterSpacing: -0.1,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                ),
-                _BottomBar(
-                  isLoading: isLoading,
-                  enabled: _isFormValid && !isLoading,
-                  onSignIn: _handleLogin,
-                  onCreateAccount: () => context.go('/signup'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -339,49 +384,3 @@ class _ErrorBanner extends StatelessWidget {
   }
 }
 
-class _BottomBar extends StatelessWidget {
-  final bool isLoading;
-  final bool enabled;
-  final VoidCallback onSignIn;
-  final VoidCallback onCreateAccount;
-
-  const _BottomBar({
-    required this.isLoading,
-    required this.enabled,
-    required this.onSignIn,
-    required this.onCreateAccount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: OpeiBrand.surface,
-        border: Border(top: BorderSide(color: OpeiBrand.hairline, width: 1)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        12,
-        24,
-        10 + MediaQuery.of(context).viewPadding.bottom,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          OpeiPrimaryButton(
-            label: 'Sign in',
-            loading: isLoading,
-            onPressed: enabled ? onSignIn : null,
-            trailingIcon: Icons.arrow_forward_rounded,
-          ),
-          const SizedBox(height: 2),
-          OpeiSecondaryLink(
-            label: 'New to Opei?',
-            actionLabel: 'Create account',
-            onTap: onCreateAccount,
-          ),
-        ],
-      ),
-    );
-  }
-}
