@@ -129,12 +129,20 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: OpeiColors.pureBlack,
+                                color: OpeiBrand.primary,
                                 borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: OpeiBrand.primary
+                                        .withValues(alpha: 0.25),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
                               child: const Icon(
-                                Icons.add,
-                                color: OpeiColors.pureWhite,
+                                Icons.add_rounded,
+                                color: Colors.white,
                                 size: 20,
                               ),
                             ),
@@ -204,67 +212,8 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                      const _CardsLoadingPlaceholder(),
                      SizedBox(height: spacing * 3),
                   ] else if (showEmptyState) ...[
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: tokens.contentMaxWidth),
-                        child: SizedBox(
-                          height: 220,
-                          child: const VirtualCardHero(),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: spacing * 2.25),
-                    Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: tokens.contentMaxWidth),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Use Your Visa Card For',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                            ),
-                            SizedBox(height: spacing * 1.25),
-                            const CardUseCasesList(),
-                          ],
-                        ),
-                      ),
-                    ),
+                    _CardsEmptyState(onCreateCard: _startCardCreationFlow),
                     SizedBox(height: spacing * 2),
-                    Center(
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: CupertinoButton(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: tokens.horizontalPadding,
-                            vertical: spacing * 1.6,
-                          ),
-                          color: OpeiColors.pureBlack,
-                          borderRadius: BorderRadius.circular(14),
-                          onPressed: _startCardCreationFlow,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.add, color: OpeiColors.pureWhite, size: 16),
-                              SizedBox(width: 8),
-                              Text(
-                                'Create Card',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: OpeiColors.pureWhite,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: spacing * 2.5),
                   ] else ...[
                     SizedBox(height: spacing * 1.5),
                   ],
@@ -1933,6 +1882,199 @@ class _CardStatusPill extends StatelessWidget {
   }
 }
 
+// ── Cards empty state ────────────────────────────────────────────────────────
+
+class _CardsEmptyState extends StatelessWidget {
+  final VoidCallback onCreateCard;
+  const _CardsEmptyState({required this.onCreateCard});
+
+  static const _features = [
+    (Icons.subscriptions_outlined, 'Subscriptions', 'Netflix, Spotify & more'),
+    (Icons.shopping_bag_outlined, 'Online Shopping', 'Shop from any store'),
+    (Icons.flight_outlined, 'Travel & Tickets', 'Flights and hotels'),
+    (Icons.public, 'Global Payments', 'Anywhere Visa is accepted'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ── Card preview ──────────────────────────────────────────
+        const SizedBox(height: 8),
+        const VirtualCardHero(),
+        const SizedBox(height: 24),
+
+        // ── Headline + subtitle ───────────────────────────────────
+        const Text(
+          'Your Opei Visa Card',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: OpeiBrand.ink,
+            letterSpacing: -0.6,
+            height: 1.1,
+          ),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Pay anywhere Visa is accepted —\nsubscriptions, travel, and shopping.',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 13.5,
+            fontWeight: FontWeight.w500,
+            color: OpeiBrand.inkSecondary,
+            height: 1.45,
+            letterSpacing: -0.1,
+          ),
+        ),
+        const SizedBox(height: 22),
+
+        // ── CTA button ────────────────────────────────────────────
+        // Faded brand-blue background with bright brand-blue label,
+        // matching the feature-tile icon style (tint bg + primary fg).
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: onCreateCard,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: OpeiBrand.primaryTint,
+              foregroundColor: OpeiBrand.primary,
+              elevation: 0,
+              shadowColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add_rounded, size: 18, color: OpeiBrand.primary),
+                SizedBox(width: 7),
+                Text(
+                  'Create card',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                    color: OpeiBrand.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
+
+        // ── Feature grid (2 × 2) ──────────────────────────────────
+        Row(
+          children: [
+            Expanded(
+              child: _FeatureTile(
+                icon: _features[0].$1,
+                title: _features[0].$2,
+                subtitle: _features[0].$3,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _FeatureTile(
+                icon: _features[1].$1,
+                title: _features[1].$2,
+                subtitle: _features[1].$3,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _FeatureTile(
+                icon: _features[2].$1,
+                title: _features[2].$2,
+                subtitle: _features[2].$3,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _FeatureTile(
+                icon: _features[3].$1,
+                title: _features[3].$2,
+                subtitle: _features[3].$3,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _FeatureTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  const _FeatureTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: OpeiBrand.hairline, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: OpeiBrand.primaryTint,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 18, color: OpeiBrand.primary),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.2,
+              height: 1.15,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+              height: 1.3,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 class VirtualCardHero extends StatelessWidget {
   const VirtualCardHero({super.key});
 
@@ -1944,98 +2086,198 @@ class VirtualCardHero extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 360),
         child: AspectRatio(
           aspectRatio: 1.586,
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF1A1A1A),
-                  Color(0xFF2D2D2D),
-                  Color(0xFF1A1A1A),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: OpeiColors.pureBlack.withValues(alpha: 0.12),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Soft brand glow under the card
+              Positioned(
+                left: 14,
+                right: 14,
+                bottom: -6,
+                top: 14,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF0F4DA2).withValues(alpha: 0.24),
+                        blurRadius: 26,
+                        offset: const Offset(0, 14),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  top: 24,
-                  left: 24,
-                  right: 24,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              ),
+              // Card body — matches the real "Sky Blue" card gradient
+              // used after a card is created (CardColorPalette.defaultOption)
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xFF5AA9F5), // sky highlight
+                      Color(0xFF1F7BDF), // mid brand blue
+                      Color(0xFF0F4DA2), // deep navy base
+                    ],
+                    stops: [0.0, 0.55, 1.0],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Stack(
+                  clipBehavior: Clip.hardEdge,
+                  children: [
+                    // Decorative diagonal sheen
+                    Positioned(
+                      top: -40,
+                      right: -40,
+                      child: Container(
+                        width: 180,
+                        height: 180,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.06),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -50,
+                      left: -30,
+                      child: Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.05),
+                        ),
+                      ),
+                    ),
+                    // Top row: Opei logo + chip + VISA
+                    Positioned(
+                      top: 22,
+                      left: 22,
+                      right: 22,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
+                          const Text(
                             'Opei',
                             style: TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: -0.4,
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            width: 30,
+                            height: 22,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Color(0xFFEED88A),
+                                  Color(0xFFB6892E),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          const Text(
+                            'VISA',
+                            style: TextStyle(
                               fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: OpeiColors.pureWhite.withValues(alpha: 0.9),
-                              letterSpacing: -0.1,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              letterSpacing: 1.5,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
                         ],
                       ),
-                      const Spacer(),
-                      Text(
-                        'VISA',
+                    ),
+                    // Card number
+                    Positioned(
+                      bottom: 56,
+                      left: 22,
+                      right: 22,
+                      child: Text(
+                        '••••  ••••  ••••  ••••',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: OpeiColors.pureWhite.withValues(alpha: 0.9),
-                          letterSpacing: 2,
+                          color: Colors.white.withValues(alpha: 0.95),
+                          letterSpacing: 3,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  bottom: 24,
-                  left: 24,
-                  right: 24,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '••••    ••••    ••••    ••••',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                          color: OpeiColors.pureWhite.withValues(alpha: 0.9),
-                          letterSpacing: 3.5,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                    ),
+                    // Bottom row: holder + expiry placeholders
+                    Positioned(
+                      bottom: 18,
+                      left: 22,
+                      right: 22,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            'Virtual Visa Card',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: OpeiColors.pureWhite.withValues(alpha: 0.7),
-                              letterSpacing: 0.5,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'CARD HOLDER',
+                                style: TextStyle(
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              const Text(
+                                'YOUR NAME',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'EXPIRES',
+                                style: TextStyle(
+                                  fontSize: 8.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              const Text(
+                                '••/••',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -2063,7 +2305,7 @@ class CardUseCasesList extends StatelessWidget {
         final useCase = entry.value;
         final isLast = index == useCases.length - 1;
         return Padding(
-          padding: EdgeInsets.only(bottom: isLast ? 0 : 6),
+          padding: EdgeInsets.only(bottom: isLast ? 0 : 8),
           child: UseCaseTile(useCase: useCase),
         );
       }).toList(),
@@ -2088,31 +2330,25 @@ class UseCaseTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: OpeiColors.pureWhite,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: OpeiColors.pureBlack.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: OpeiBrand.hairline, width: 1),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
-                color: OpeiColors.iosSurfaceMuted,
-                borderRadius: BorderRadius.circular(9),
+                color: OpeiBrand.primaryTint,
+                borderRadius: BorderRadius.circular(11),
               ),
               child: Icon(
                 useCase.icon,
-                size: 20,
-                color: OpeiColors.pureBlack,
+                size: 19,
+                color: OpeiBrand.primary,
               ),
             ),
             const SizedBox(width: 12),
@@ -2122,18 +2358,23 @@ class UseCaseTile extends StatelessWidget {
                 children: [
                   Text(
                     useCase.title,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: OpeiBrand.ink,
+                      letterSpacing: -0.2,
+                    ),
                   ),
-                  const SizedBox(height: 1),
+                  const SizedBox(height: 2),
                   Text(
                     useCase.subtitle,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiBrand.inkSecondary,
+                      letterSpacing: -0.1,
+                      height: 1.3,
+                    ),
                   ),
                 ],
               ),

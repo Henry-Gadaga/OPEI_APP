@@ -1487,7 +1487,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                               navigator.pop();
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: OpeiColors.pureBlack,
+                              backgroundColor: OpeiBrand.primary,
                               foregroundColor: OpeiColors.pureWhite,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
@@ -1775,7 +1775,7 @@ class _CompactToggleButtonState extends State<_CompactToggleButton>
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
             color: widget.isSelected
-                ? OpeiColors.pureBlack
+                ? OpeiBrand.primary
                 : OpeiColors.iosSurfaceMuted,
             borderRadius: BorderRadius.circular(8),
           ),
@@ -1787,7 +1787,7 @@ class _CompactToggleButtonState extends State<_CompactToggleButton>
                     strokeWidth: 1.6,
                     color: widget.isSelected
                         ? OpeiColors.pureWhite
-                        : OpeiColors.pureBlack,
+                        : OpeiBrand.primary,
                   ),
                 )
               : Text(
@@ -1797,7 +1797,7 @@ class _CompactToggleButtonState extends State<_CompactToggleButton>
                     fontWeight: FontWeight.w600,
                     color: widget.isSelected
                         ? OpeiColors.pureWhite
-                        : OpeiColors.pureBlack,
+                        : OpeiBrand.ink,
                     fontFamily: '.SF Pro Text',
                     letterSpacing: -0.2,
                     height: 1.0,
@@ -1862,12 +1862,12 @@ class _PaymentMethodChipState extends State<_PaymentMethodChip>
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
             color: widget.isSelected
-                ? OpeiColors.pureBlack
+                ? OpeiBrand.primary
                 : OpeiColors.iosSurfaceMuted,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: widget.isSelected
-                  ? OpeiColors.pureBlack
+                  ? OpeiBrand.primary
                   : OpeiColors.iosSeparator.withValues(alpha: 0.25),
               width: 0.5,
             ),
@@ -1879,7 +1879,7 @@ class _PaymentMethodChipState extends State<_PaymentMethodChip>
                   fontWeight: FontWeight.w600,
                   color: widget.isSelected
                       ? OpeiColors.pureWhite
-                      : OpeiColors.pureBlack,
+                      : OpeiBrand.ink,
                   letterSpacing: -0.1,
                 ),
           ),
@@ -2277,7 +2277,7 @@ class _ProfileErrorCard extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => onRetry(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
@@ -2326,7 +2326,7 @@ class _ProfileEmptyCard extends StatelessWidget {
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF111111), Color(0xFF303030)],
+                colors: [Color(0xFF2257E0), Color(0xFF3D7BFF)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -2380,7 +2380,7 @@ class _ProfileEmptyCard extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 elevation: 0,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16)),
@@ -3184,7 +3184,7 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                 TextButton.icon(
                   onPressed: _handleAddMethod,
                   style: TextButton.styleFrom(
-                    backgroundColor: OpeiColors.pureBlack,
+                    backgroundColor: OpeiBrand.primary,
                     foregroundColor: OpeiColors.pureWhite,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -3255,7 +3255,7 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                         ElevatedButton(
                           onPressed: () => _loadMethods(asRefresh: true),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: OpeiColors.pureBlack,
+                            backgroundColor: OpeiBrand.primary,
                             foregroundColor: OpeiColors.pureWhite,
                             padding: const EdgeInsets.symmetric(
                                 vertical: 11, horizontal: 18),
@@ -3519,7 +3519,7 @@ class _SelectAdPaymentMethodSheetState
                     ? null
                     : () => Navigator.of(context).pop(_selectedId),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: OpeiColors.pureBlack,
+                  backgroundColor: OpeiBrand.primary,
                   foregroundColor: OpeiColors.pureWhite,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -3877,8 +3877,8 @@ class _OrdersFilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final background =
-        isSelected ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted;
-    final foreground = isSelected ? OpeiColors.pureWhite : OpeiColors.pureBlack;
+        isSelected ? OpeiBrand.primary : OpeiColors.iosSurfaceMuted;
+    final foreground = isSelected ? OpeiColors.pureWhite : OpeiBrand.ink;
 
     return GestureDetector(
       onTap: onTap,
@@ -3889,7 +3889,7 @@ class _OrdersFilterChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? OpeiColors.pureBlack
+                ? OpeiBrand.primary
                 : OpeiColors.iosSeparator.withValues(alpha: 0.25),
             width: isSelected ? 1 : 0.5,
           ),
@@ -4114,7 +4114,7 @@ class _OrdersErrorState extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () => onRetry(),
               style: ElevatedButton.styleFrom(
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -4426,7 +4426,7 @@ class _OrderCardState extends State<_OrderCard>
                   child: ElevatedButton(
                     onPressed: _openDetails,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: OpeiColors.pureBlack,
+                      backgroundColor: OpeiBrand.primary,
                       foregroundColor: OpeiColors.pureWhite,
                       padding: const EdgeInsets.symmetric(vertical: 11),
                       shape: RoundedRectangleBorder(
@@ -4579,8 +4579,8 @@ class _MyAdsFilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final background =
-        isSelected ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted;
-    final foreground = isSelected ? OpeiColors.pureWhite : OpeiColors.pureBlack;
+        isSelected ? OpeiBrand.primary : OpeiColors.iosSurfaceMuted;
+    final foreground = isSelected ? OpeiColors.pureWhite : OpeiBrand.ink;
 
     return GestureDetector(
       onTap: onTap,
@@ -4591,7 +4591,7 @@ class _MyAdsFilterChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
-                ? OpeiColors.pureBlack
+                ? OpeiBrand.primary
                 : OpeiColors.iosSeparator.withValues(alpha: 0.25),
             width: isSelected ? 1 : 0.5,
           ),
@@ -5242,7 +5242,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide:
-                    const BorderSide(color: OpeiColors.pureBlack, width: 0.8),
+                    const BorderSide(color: OpeiBrand.primary, width: 0.8),
               ),
             ),
             style: TextStyle(fontSize: 12),
@@ -5285,7 +5285,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
             child: ElevatedButton(
               onPressed: _isRatingSubmitting ? null : _handleSubmitRating,
               style: ElevatedButton.styleFrom(
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 shape: RoundedRectangleBorder(
@@ -5348,7 +5348,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
             child: ElevatedButton(
               onPressed: _isProofSubmitting ? null : _openSubmitProofSheet,
               style: ElevatedButton.styleFrom(
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 shape: RoundedRectangleBorder(
@@ -5415,7 +5415,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               onPressed:
                   _isReleaseSubmitting ? null : _promptReleaseConfirmation,
               style: ElevatedButton.styleFrom(
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 shape: RoundedRectangleBorder(
@@ -5450,11 +5450,11 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: isActive ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted,
+        color: isActive ? OpeiBrand.primary : OpeiColors.iosSurfaceMuted,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isActive
-              ? OpeiColors.pureBlack
+              ? OpeiBrand.primary
               : OpeiColors.iosSeparator.withValues(alpha: 0.25),
           width: isActive ? 0.8 : 0.5,
         ),
@@ -5464,7 +5464,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w600,
-          color: isActive ? OpeiColors.pureWhite : OpeiColors.pureBlack,
+          color: isActive ? OpeiColors.pureWhite : OpeiBrand.ink,
           letterSpacing: -0.1,
         ),
       ),
@@ -5844,7 +5844,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 ElevatedButton(
                   onPressed: () => Navigator.of(dialogContext).pop(true),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: OpeiColors.pureBlack,
+                    backgroundColor: OpeiBrand.primary,
                     foregroundColor: OpeiColors.pureWhite,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 18, vertical: 12),
@@ -6543,7 +6543,7 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          const BorderSide(color: OpeiColors.pureBlack, width: 1),
+                          const BorderSide(color: OpeiBrand.primary, width: 1),
                     ),
                   ),
                 ),
@@ -6575,7 +6575,7 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
                       child: ElevatedButton(
                         onPressed: _handleSubmit,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: OpeiColors.pureBlack,
+                          backgroundColor: OpeiBrand.primary,
                           foregroundColor: OpeiColors.pureWhite,
                           padding: const EdgeInsets.symmetric(vertical: 13),
                           shape: RoundedRectangleBorder(
@@ -7872,7 +7872,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                         child: ElevatedButton(
                           onPressed: _isSubmitting ? null : _buildNextAction(),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: OpeiColors.pureBlack,
+                            backgroundColor: OpeiBrand.primary,
                             foregroundColor: OpeiColors.pureWhite,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12)),
@@ -8069,7 +8069,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
             icon: const Icon(Icons.add_rounded,
                 size: 16, color: OpeiColors.pureWhite),
             style: TextButton.styleFrom(
-              backgroundColor: OpeiColors.pureBlack,
+              backgroundColor: OpeiBrand.primary,
               foregroundColor: OpeiColors.pureWhite,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               shape: RoundedRectangleBorder(
@@ -8384,7 +8384,7 @@ class _TextField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide:
-                  const BorderSide(color: OpeiColors.pureBlack, width: 1),
+                  const BorderSide(color: OpeiBrand.primary, width: 1),
             ),
           ),
         ),
@@ -8991,7 +8991,7 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                   icon: const Icon(Icons.add_rounded,
                       size: 16, color: OpeiColors.pureWhite),
                   style: TextButton.styleFrom(
-                    backgroundColor: OpeiColors.pureBlack,
+                    backgroundColor: OpeiBrand.primary,
                     foregroundColor: OpeiColors.pureWhite,
                     padding:
                         const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -9954,7 +9954,7 @@ class _AdSummaryCardState extends State<_AdSummaryCard>
               TextButton(
                 onPressed: widget.onOpenDetails,
                 style: TextButton.styleFrom(
-                  backgroundColor: OpeiColors.pureBlack,
+                  backgroundColor: OpeiBrand.primary,
                   foregroundColor: OpeiColors.pureWhite,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -10495,7 +10495,7 @@ class _AmountField extends StatelessWidget {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide:
-                  const BorderSide(color: OpeiColors.pureBlack, width: 1),
+                  const BorderSide(color: OpeiBrand.primary, width: 1),
             ),
             hintText: '0.00',
             hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -11134,7 +11134,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide:
-                    const BorderSide(color: OpeiColors.pureBlack, width: 1),
+                    const BorderSide(color: OpeiBrand.primary, width: 1),
               ),
               hintText: '0.00',
               hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -11222,7 +11222,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
             child: ElevatedButton(
               onPressed: _isSubmitting ? null : _handleSubmit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 13),
                 shape: RoundedRectangleBorder(
@@ -11523,7 +11523,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
             child: ElevatedButton(
               onPressed: widget.onViewOrders,
               style: ElevatedButton.styleFrom(
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 shape: RoundedRectangleBorder(
@@ -12408,7 +12408,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
             child: ElevatedButton(
               onPressed: widget.onViewOrders,
               style: ElevatedButton.styleFrom(
-                backgroundColor: OpeiColors.pureBlack,
+                backgroundColor: OpeiBrand.primary,
                 foregroundColor: OpeiColors.pureWhite,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -12470,7 +12470,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       child: ElevatedButton(
         onPressed: disabled ? null : _showUploadProofSheet,
         style: ElevatedButton.styleFrom(
-          backgroundColor: OpeiColors.pureBlack,
+          backgroundColor: OpeiBrand.primary,
           foregroundColor: OpeiColors.pureWhite,
           padding: const EdgeInsets.symmetric(vertical: 12),
           shape:
@@ -13385,7 +13385,7 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
                   child: ElevatedButton(
                     onPressed: _handleDone,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: OpeiColors.pureBlack,
+                      backgroundColor: OpeiBrand.primary,
                       foregroundColor: OpeiColors.pureWhite,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -13507,7 +13507,7 @@ Future<bool> showP2PCancelTradeWarningDialog(BuildContext context) async {
               ElevatedButton(
                 onPressed: () => Navigator.of(dialogContext).pop(true),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: OpeiColors.pureBlack,
+                  backgroundColor: OpeiBrand.primary,
                   foregroundColor: OpeiColors.pureWhite,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
@@ -13810,7 +13810,7 @@ class _UploadProofSheet extends StatelessWidget {
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide:
-                      const BorderSide(color: OpeiColors.pureBlack, width: 1.5),
+                      const BorderSide(color: OpeiBrand.primary, width: 1.5),
                 ),
               ),
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -13828,7 +13828,7 @@ class _UploadProofSheet extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: canSubmit ? onConfirm : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: OpeiColors.pureBlack,
+                  backgroundColor: OpeiBrand.primary,
                   foregroundColor: OpeiColors.pureWhite,
                   disabledBackgroundColor:
                       OpeiColors.iosSeparator.withValues(alpha: 0.3),

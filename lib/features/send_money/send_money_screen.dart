@@ -163,7 +163,7 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                   width: 44,
                   height: 44,
                   decoration: const BoxDecoration(
-                    color: OpeiColors.pureBlack,
+                    color: OpeiBrand.primary,
                     shape: BoxShape.circle,
                   ),
                   child: Center(

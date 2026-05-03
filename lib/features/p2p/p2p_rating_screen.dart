@@ -255,7 +255,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                     child: ElevatedButton(
                       onPressed: _isSubmitting ? null : _submitRating,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: OpeiColors.pureBlack,
+                        backgroundColor: OpeiBrand.primary,
                         foregroundColor: OpeiColors.pureWhite,
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         shape: RoundedRectangleBorder(
@@ -320,10 +320,10 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        color: isActive ? OpeiColors.pureBlack : OpeiColors.iosSurfaceMuted,
+        color: isActive ? OpeiBrand.primary : OpeiBrand.surfaceMuted,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isActive ? OpeiColors.pureBlack : OpeiColors.iosSeparator,
+          color: isActive ? OpeiBrand.primary : OpeiBrand.hairline,
           width: isActive ? 1 : 0.5,
         ),
       ),
@@ -332,7 +332,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w500,
-          color: isActive ? OpeiColors.pureWhite : OpeiColors.pureBlack,
+          color: isActive ? Colors.white : OpeiBrand.ink,
           letterSpacing: -0.2,
         ),
       ),

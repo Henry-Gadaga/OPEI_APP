@@ -498,13 +498,13 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                 width: 70,
                 height: 70,
                 decoration: BoxDecoration(
-                  color: OpeiColors.pureBlack.withValues(alpha: 0.05),
+                  color: OpeiBrand.danger.withValues(alpha: 0.10),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.logout_rounded,
                   size: 32,
-                  color: OpeiColors.pureBlack,
+                  color: OpeiBrand.danger,
                 ),
               ),
               SizedBox(height: spacing * 2),
@@ -542,13 +542,14 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                               BorderRadius.circular(tokens.buttonRadius),
                         ),
                         side: BorderSide(
-                          color: OpeiColors.pureBlack.withValues(alpha: 0.15),
+                          color: OpeiBrand.hairlineStrong,
                         ),
                       ),
                       child: Text(
                         'Stay signed in',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w600,
+                          color: OpeiBrand.ink,
                         ),
                       ),
                     ),
@@ -558,7 +559,7 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                     child: ElevatedButton(
                       onPressed: _isProcessing ? null : _confirmLogout,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: OpeiColors.pureBlack,
+                        backgroundColor: OpeiBrand.danger,
                         foregroundColor: OpeiColors.pureWhite,
                         padding:
                             EdgeInsets.symmetric(vertical: spacing * 1.5),

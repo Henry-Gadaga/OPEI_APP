@@ -53,26 +53,25 @@ extension TextStyleExtensions on TextStyle {
   TextStyle withSize(double size) => copyWith(fontSize: size);
 }
 
-/// Legacy palette kept for backwards compatibility.
-///
-/// Values are now aliased to the [OpeiBrand] tokens so every screen that still
-/// references `OpeiColors.iosLabelSecondary`, `OpeiColors.errorRed`, etc.
-/// automatically inherits the unified signup theme. Greys and the
-/// pureWhite / pureBlack constants are kept untouched for explicit usage.
+/// Legacy palette — fully aliased to [OpeiBrand] tokens so every screen that
+/// still references `OpeiColors.*` automatically inherits the unified theme.
 class OpeiColors {
-  static const pureWhite = Color(0xFFFFFFFF);
-  static const pureBlack = Color(0xFF000000);
+  // Surfaces
+  static const pureWhite = Color(0xFFFFFFFF); // OpeiBrand.surface
+  // Ink — dark navy instead of pure black so text/icons match the brand scale
+  static const pureBlack = Color(0xFF0B1220); // = OpeiBrand.ink
 
-  static const grey50 = Color(0xFFFAFAFA);
-  static const grey100 = Color(0xFFF5F5F5);
-  static const grey200 = Color(0xFFEEEEEE);
-  static const grey300 = Color(0xFFE0E0E0);
-  static const grey400 = Color(0xFFBDBDBD);
-  static const grey500 = Color(0xFF9E9E9E);
-  static const grey600 = Color(0xFF757575);
-  static const grey700 = Color(0xFF616161);
-  static const grey800 = Color(0xFF424242);
-  static const grey900 = Color(0xFF212121);
+  // Grey scale — remapped to OpeiBrand neutrals for visual consistency
+  static const grey50  = Color(0xFFFAFBFD); // = OpeiBrand.surfaceElevated
+  static const grey100 = Color(0xFFF5F7FB); // = OpeiBrand.surfaceMuted
+  static const grey200 = Color(0xFFEBEEF4); // = OpeiBrand.hairline
+  static const grey300 = Color(0xFFEBEEF4); // = OpeiBrand.hairline
+  static const grey400 = Color(0xFFD4D9E3); // = OpeiBrand.hairlineStrong
+  static const grey500 = Color(0xFF8A93A6); // = OpeiBrand.inkTertiary
+  static const grey600 = Color(0xFF5B6477); // = OpeiBrand.inkSecondary
+  static const grey700 = Color(0xFF3C4556); // mid ink
+  static const grey800 = Color(0xFF1E2840); // near ink
+  static const grey900 = Color(0xFF0B1220); // = OpeiBrand.ink
 
   // Semantic — aligned with OpeiBrand tokens
   static const errorRed = Color(0xFFE0394A); // = OpeiBrand.danger
