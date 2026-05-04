@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
 import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
-import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/bouncing_dots.dart';
+import 'package:opei/widgets/opei_pin_pad.dart';
 
 class QuickAuthSetupScreen extends ConsumerWidget {
   final bool popOnComplete;
@@ -28,7 +28,7 @@ class QuickAuthSetupScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.message),
-            backgroundColor: OpeiColors.errorRed,
+            backgroundColor: OpeiBrand.danger,
           ),
         );
         ref.read(quickAuthSetupControllerProvider.notifier).reset();
@@ -40,40 +40,46 @@ class QuickAuthSetupScreen extends ConsumerWidget {
     }
 
     if (state is QuickAuthSetupLoading) {
-      return const _VerifyingPinView();
+      return const _SavingPinView();
     }
 
-    return const _VerifyingPinView();
+    return const _SavingPinView();
   }
 }
 
-class _VerifyingPinView extends StatelessWidget {
-  const _VerifyingPinView();
+class _SavingPinView extends StatelessWidget {
+  const _SavingPinView();
 
   @override
   Widget build(BuildContext context) {
-    final spacing = context.responsiveSpacingUnit;
     return ResponsiveScaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Verifying your PIN',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            SizedBox(height: spacing),
-            Text(
-              'Hang tight, just a moment...',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
-            ),
-            SizedBox(height: spacing * 3.5),
-            const BouncingDots(),
-          ],
+      body: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Text(
+                'Saving your PIN',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Hang tight, just a moment…',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: OpeiBrand.inkSecondary,
+                ),
+              ),
+              SizedBox(height: 28),
+              BouncingDots(),
+            ],
+          ),
         ),
       ),
     );
@@ -87,149 +93,157 @@ class _PinEntryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final spacing = context.responsiveSpacingUnit;
+    final isConfirming = state.isConfirming;
     return ResponsiveScaffold(
-      body: Padding(
-        padding: EdgeInsets.symmetric(vertical: spacing * 2),
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        icon: const Icon(Icons.arrow_back_ios, size: 20),
-                        onPressed: () => ref
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints:
+                    BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                  child: Column(
+                    children: [
+                      _BackBar(
+                        onBack: () => ref
                             .read(quickAuthSetupControllerProvider.notifier)
                             .reset(),
                       ),
-                    ),
-                    SizedBox(height: spacing),
-                    Text(
-                      state.isConfirming ? 'Confirm PIN' : 'Create PIN',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: spacing),
-                    Text(
-                      state.isConfirming
-                          ? 'Enter your PIN again to confirm'
-                          : 'Create a 6-digit PIN',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: OpeiColors.grey600,
-                          ),
-                    ),
-                    if (state.errorMessage != null) ...[
-                      SizedBox(height: spacing * 2),
+                      const SizedBox(height: 12),
+                      _Glyph(isConfirming: isConfirming),
+                      const SizedBox(height: 22),
                       Text(
-                        state.errorMessage!,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: OpeiColors.errorRed,
-                            ),
+                        isConfirming ? 'Confirm PIN' : 'Create PIN',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: OpeiBrand.ink,
+                          letterSpacing: -0.6,
+                          height: 1.1,
+                        ),
                       ),
+                      const SizedBox(height: 6),
+                      Text(
+                        isConfirming
+                            ? 'Enter your PIN again to confirm'
+                            : 'Choose a 6-digit PIN to sign in faster',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: OpeiBrand.inkSecondary,
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                      const SizedBox(height: 36),
+                      OpeiPinDots(
+                        filled: state.pin.length,
+                        errored: state.errorMessage != null,
+                      ),
+                      const SizedBox(height: 18),
+                      _ErrorLine(message: state.errorMessage),
+                      const SizedBox(height: 28),
+                      OpeiPinKeypad(
+                        onDigit: (d) => ref
+                            .read(quickAuthSetupControllerProvider.notifier)
+                            .addDigit(d),
+                        onDelete: () => ref
+                            .read(quickAuthSetupControllerProvider.notifier)
+                            .removeDigit(),
+                      ),
+                      const SizedBox(height: 12),
                     ],
-                    SizedBox(height: spacing * 4),
-                    _buildPinDots(state.pin),
-                    SizedBox(height: spacing * 2),
-                  ],
+                  ),
                 ),
               ),
-            ),
-            _buildNumericKeypad(context, ref),
-            SizedBox(height: spacing * 2),
-          ],
+            );
+          },
         ),
       ),
     );
   }
+}
 
-  Widget _buildPinDots(String pin) => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(
-          6,
-          (index) => Container(
-            width: 16,
-            height: 16,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: index < pin.length
-                  ? OpeiColors.pureBlack
-                  : Colors.transparent,
-              border: Border.all(
-                color: index < pin.length
-                    ? OpeiColors.pureBlack
-                    : OpeiColors.grey300,
-                width: 2,
-              ),
-              shape: BoxShape.circle,
+class _BackBar extends StatelessWidget {
+  final VoidCallback onBack;
+  const _BackBar({required this.onBack});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 40,
+          height: 40,
+          child: IconButton(
+            padding: EdgeInsets.zero,
+            iconSize: 20,
+            onPressed: onBack,
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: OpeiBrand.ink,
             ),
           ),
         ),
-      );
+        const Spacer(),
+      ],
+    );
+  }
+}
 
-  Widget _buildNumericKeypad(BuildContext context, WidgetRef ref) {
-    final buttons = [
-      ['1', '2', '3'],
-      ['4', '5', '6'],
-      ['7', '8', '9'],
-      ['', '0', 'del'],
-    ];
+class _Glyph extends StatelessWidget {
+  final bool isConfirming;
+  const _Glyph({required this.isConfirming});
 
-    return Column(
-      children: buttons
-          .map((row) => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: row.map((button) {
-                  if (button.isEmpty) {
-                    return const SizedBox(width: 80, height: 80);
-                  }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        color: OpeiBrand.primary.withValues(alpha: 0.10),
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Icon(
+          isConfirming
+              ? Icons.lock_outline_rounded
+              : Icons.lock_outline_rounded,
+          size: 28,
+          color: OpeiBrand.primary,
+        ),
+      ),
+    );
+  }
+}
 
-                  return GestureDetector(
-                    onTap: () {
-                      if (button == 'del') {
-                        ref
-                            .read(quickAuthSetupControllerProvider.notifier)
-                            .removeDigit();
-                      } else {
-                        ref
-                            .read(quickAuthSetupControllerProvider.notifier)
-                            .addDigit(button);
-                      }
-                    },
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      margin: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: button == 'del'
-                            ? Colors.transparent
-                            : const Color(0xFFF5F5F7),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: button == 'del'
-                            ? const Icon(Icons.backspace_outlined,
-                                size: 24, color: OpeiColors.pureBlack)
-                            : Text(
-                                button,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                              ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ))
-          .toList(),
+class _ErrorLine extends StatelessWidget {
+  final String? message;
+  const _ErrorLine({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: message == null
+          ? const SizedBox(height: 16, key: ValueKey('empty'))
+          : Padding(
+              key: const ValueKey('msg'),
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                message!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: OpeiBrand.danger,
+                  letterSpacing: -0.1,
+                ),
+              ),
+            ),
     );
   }
 }

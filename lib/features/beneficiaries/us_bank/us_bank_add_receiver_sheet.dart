@@ -253,6 +253,8 @@ class _UsBankAddReceiverSheetState
             Flexible(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.manual,
                 padding: EdgeInsets.fromLTRB(16, 16, 16, 20 + bottomPadding),
                 child: Form(
                   key: _formKey,
@@ -573,14 +575,18 @@ class _UsBankAddReceiverSheetState
                           onPressed: canSubmit ? _submit : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: OpeiBrand.primary,
-                            disabledBackgroundColor:
-                                OpeiBrand.primary.withValues(alpha: 0.28),
+                            disabledBackgroundColor: OpeiBrand.surfaceMuted,
                             foregroundColor: Colors.white,
-                            disabledForegroundColor:
-                                Colors.white.withValues(alpha: 0.85),
+                            disabledForegroundColor: OpeiBrand.inkPlaceholder,
                             elevation: 0,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(14),
+                              side: BorderSide(
+                                color: canSubmit
+                                    ? Colors.transparent
+                                    : OpeiBrand.hairline,
+                                width: 1,
+                              ),
                             ),
                           ),
                           child: state.isCreating
@@ -794,61 +800,100 @@ class _CardRow extends StatelessWidget {
 // Picker / selector widgets
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// Compact inline pill row (like iOS segmented control).
+/// Smooth sliding-indicator segmented control, iOS-style.
 class _Pill extends StatelessWidget {
   final List<(String, String)> options;
   final String selected;
   final ValueChanged<String> onSelect;
+  final double segmentWidth;
+  final double height;
+
   const _Pill({
     required this.options,
     required this.selected,
     required this.onSelect,
+    this.segmentWidth = 78,
+    this.height = 32,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: OpeiBrand.hairline,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: options.map((opt) {
-          final active = opt.$1 == selected;
-          return GestureDetector(
-            onTap: () => onSelect(opt.$1),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              curve: Curves.easeOutCubic,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+    final n = options.length;
+    final activeIndex = options.indexWhere((o) => o.$1 == selected);
+    final alignX = n <= 1 ? 0.0 : (activeIndex / (n - 1)) * 2 - 1;
+
+    return SizedBox(
+      width: segmentWidth * n + 6,
+      height: height,
+      child: Stack(
+        children: [
+          // Track
+          Positioned.fill(
+            child: DecoratedBox(
               decoration: BoxDecoration(
-                color: active ? OpeiBrand.surface : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: active
-                    ? [
-                        BoxShadow(
-                          color: OpeiBrand.ink.withValues(alpha: 0.06),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ]
-                    : null,
+                color: const Color(0xFFF0F2F6),
+                borderRadius: BorderRadius.circular(9),
               ),
-              child: Text(
-                opt.$2,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w700,
-                  color: active ? OpeiBrand.ink : OpeiBrand.inkSecondary,
-                  letterSpacing: -0.1,
+            ),
+          ),
+          // Sliding white indicator tile
+          Padding(
+            padding: const EdgeInsets.all(3),
+            child: AnimatedAlign(
+              duration: const Duration(milliseconds: 240),
+              curve: Curves.easeOutCubic,
+              alignment: Alignment(alignX, 0),
+              child: FractionallySizedBox(
+                widthFactor: 1 / n,
+                heightFactor: 1.0,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: OpeiBrand.surface,
+                    borderRadius: BorderRadius.circular(7),
+                    boxShadow: [
+                      BoxShadow(
+                        color: OpeiBrand.ink.withValues(alpha: 0.05),
+                        blurRadius: 3,
+                        offset: const Offset(0, 1),
+                      ),
+                      BoxShadow(
+                        color: OpeiBrand.ink.withValues(alpha: 0.04),
+                        blurRadius: 1,
+                        offset: const Offset(0, 0.5),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          );
-        }).toList(),
+          ),
+          // Tap targets + animated text colour
+          Row(
+            children: options.map((opt) {
+              final active = opt.$1 == selected;
+              return Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onSelect(opt.$1),
+                  child: Center(
+                    child: AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 240),
+                      curve: Curves.easeOutCubic,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color:
+                            active ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+                        letterSpacing: -0.1,
+                      ),
+                      child: Text(opt.$2),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

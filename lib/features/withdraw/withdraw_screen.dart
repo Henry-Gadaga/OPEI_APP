@@ -99,18 +99,6 @@ class WithdrawOptionsSheet extends StatelessWidget {
           ),
           const _RowDivider(),
           _WithdrawRow(
-            title: 'Alipay',
-            subtitle: 'Send via Alipay',
-            onTap: () {},
-          ),
-          const _RowDivider(),
-          _WithdrawRow(
-            title: 'WeChat Pay',
-            subtitle: 'Send via WeChat Pay',
-            onTap: () {},
-          ),
-          const _RowDivider(),
-          _WithdrawRow(
             title: 'P2P Exchange',
             subtitle: 'Sell to buyers and get paid directly',
             onTap: () {
