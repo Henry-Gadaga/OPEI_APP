@@ -16,6 +16,8 @@ import 'package:opei/data/repositories/crypto_repository.dart';
 import 'package:opei/data/repositories/p2p_repository.dart';
 import 'package:opei/data/repositories/wallet_repository.dart';
 import 'package:opei/data/repositories/transaction_repository.dart';
+import 'package:opei/data/repositories/beneficiary_repository.dart';
+import 'package:opei/data/repositories/remittance_repository.dart';
 import 'package:opei/features/profile/profile_controller.dart';
 
 export 'package:opei/data/repositories/auth_repository.dart';
@@ -205,6 +207,16 @@ final p2pRepositoryProvider = Provider<P2PRepository>((ref) {
 final cardRepositoryProvider = Provider<CardRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return CardRepository(apiClient);
+});
+
+final beneficiaryRepositoryProvider = Provider<BeneficiaryRepository>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return BeneficiaryRepository(apiClient);
+});
+
+final remittanceRepositoryProvider = Provider<RemittanceRepository>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return RemittanceRepository(apiClient);
 });
 
 final profileControllerProvider =

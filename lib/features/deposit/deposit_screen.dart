@@ -15,76 +15,152 @@ class DepositOptionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+
     return Container(
       decoration: const BoxDecoration(
-        color: OpeiColors.pureWhite,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: OpeiColors.iosLabelTertiary,
-                borderRadius: BorderRadius.circular(2),
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 14),
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: OpeiBrand.hairlineStrong,
+              borderRadius: BorderRadius.circular(99),
             ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Add Money',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Choose how you want to add funds to your wallet.',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 15,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
-                  ),
-                  const SizedBox(height: 28),
-                  DepositOptionCard(
-                    iconAsset: 'assets/images/exchange.svg',
-                    title: 'P2P Exchange',
-                    description: 'Bank transfer, Mobile Payments and more',
-                    onTap: () {
-                      context.pop();
-                      context.push(
-                        '/p2p?intent=buy',
-                        extra: const {'disableTransition': true},
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 4),
-                  DepositOptionCard(
-                    iconAsset: 'assets/icons/usdicon.svg',
-                    title: 'USD Deposit',
-                    description: 'Fund your wallet with on-chain USD stablecoins',
-                    onTap: () {
-                      context.pop();
-                      context.push('/deposit/crypto-currency');
-                    },
-                  ),
-                ],
-              ),
+          ),
+          const SizedBox(height: 22),
+
+          const Text(
+            'Add Money',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.4,
+              height: 1.0,
             ),
-          ],
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            'Choose how you want to add funds',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          const _DepositRowDivider(),
+          _DepositRow(
+            title: 'P2P Exchange',
+            subtitle: 'Bank transfer, Mobile Payments and more',
+            onTap: () {
+              context.pop();
+              context.push(
+                '/p2p?intent=buy',
+                extra: const {'disableTransition': true},
+              );
+            },
+          ),
+          const _DepositRowDivider(),
+          _DepositRow(
+            title: 'USD Stablecoin',
+            subtitle: 'Receive USDT or USDC to your Opei wallet',
+            onTap: () {
+              context.pop();
+              context.push('/deposit/crypto-currency');
+            },
+          ),
+          const _DepositRowDivider(),
+
+          SizedBox(height: 16 + bottomPadding),
+        ],
+      ),
+    );
+  }
+}
+
+class _DepositRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _DepositRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        splashColor: OpeiBrand.primary.withValues(alpha: 0.04),
+        highlightColor: OpeiBrand.surfaceMuted,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiBrand.ink,
+                        letterSpacing: -0.25,
+                        height: 1.15,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.1,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: OpeiBrand.inkTertiary,
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+}
+
+class _DepositRowDivider extends StatelessWidget {
+  const _DepositRowDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline);
   }
 }
 

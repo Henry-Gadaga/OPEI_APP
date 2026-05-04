@@ -28,7 +28,7 @@ class Environment {
     ),
     AppEnvironment.prod: _EnvironmentConfig(
       name: 'Production',
-      apiBaseUrl: 'https://api.opeiapi.com',
+      apiBaseUrl: 'https://apii.opeiapi.com',
       apiVersion: 'v1',
       sentryDsn: 'https://4fadee834f3f650265108cfd2a0c3064@o4510534698598400.ingest.us.sentry.io/4510622379868160',
     ),

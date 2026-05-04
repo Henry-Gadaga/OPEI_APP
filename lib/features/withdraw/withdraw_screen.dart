@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/utils/error_helper.dart';
+import 'package:opei/core/navigation/opei_page_transitions.dart';
+import 'package:opei/features/beneficiaries/bank_transfer_country_sheet.dart';
+import 'package:opei/features/beneficiaries/mobile_money_receivers_screen.dart';
 import 'package:opei/features/withdraw/withdraw_controller.dart';
 import 'package:opei/features/withdraw/withdraw_state.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
@@ -19,82 +22,341 @@ class WithdrawOptionsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
-    final effectiveBottomSpacing = bottomPadding > 0 ? bottomPadding : 16.0;
 
     return Container(
       decoration: const BoxDecoration(
-        color: OpeiColors.pureWhite,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: SafeArea(
-        top: false,
-        bottom: false,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: effectiveBottomSpacing),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 12),
-            Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: OpeiColors.iosLabelTertiary,
-                borderRadius: BorderRadius.circular(2),
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Handle ─────────────────────────────────────
+          const SizedBox(height: 14),
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: OpeiBrand.hairlineStrong,
+              borderRadius: BorderRadius.circular(99),
             ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Withdraw',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Choose how you want to move funds out of your wallet',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontSize: 15,
-                          color: OpeiColors.iosLabelSecondary,
-                        ),
-                  ),
-                  const SizedBox(height: 28),
-                  WithdrawOptionCard(
-                    iconAsset: 'assets/images/exchange.svg',
-                    title: 'P2P Exchange',
-                    description: 'Bank transfer, Mobile Payments and more',
-                    onTap: () {
-                      context.pop();
+          ),
+          const SizedBox(height: 22),
+
+          // ── Centered title ──────────────────────────────
+          const Text(
+            'Withdraw',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.4,
+              height: 1.0,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            'Choose a withdrawal method',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ── Options ─────────────────────────────────────
+          const _RowDivider(),
+          _WithdrawRow(
+            title: 'Mobile Money',
+            subtitle: 'M-Pesa, Airtel Money & more',
+            onTap: () {
+              Navigator.of(context).pop();
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const _MobileMoneyCountrySheet(),
+              );
+            },
+          ),
+          const _RowDivider(),
+          _WithdrawRow(
+            title: 'Bank Transfer',
+            subtitle: 'Send to Bank Account',
+            onTap: () {
+              Navigator.of(context).pop();
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (_) => const BankTransferCountrySheet(),
+              );
+            },
+          ),
+          const _RowDivider(),
+          _WithdrawRow(
+            title: 'Alipay',
+            subtitle: 'Send via Alipay',
+            onTap: () {},
+          ),
+          const _RowDivider(),
+          _WithdrawRow(
+            title: 'WeChat Pay',
+            subtitle: 'Send via WeChat Pay',
+            onTap: () {},
+          ),
+          const _RowDivider(),
+          _WithdrawRow(
+            title: 'P2P Exchange',
+            subtitle: 'Sell to buyers and get paid directly',
+            onTap: () {
+              context.pop();
               context.push(
                 '/p2p?intent=sell',
                 extra: const {'disableTransition': true},
               );
-                    },
-                  ),
-                  const SizedBox(height: 4),
-                  WithdrawOptionCard(
-                    iconAsset: 'assets/icons/usdicon.svg',
-                    title: 'USD Withdrawal',
-                    description: 'Move USD stablecoins back to your own wallet',
-                    onTap: () {
-                      context.pop();
-                      context.push('/withdraw/crypto-currency');
-                    },
-                  ),
-                ],
-              ),
+            },
+          ),
+          const _RowDivider(),
+          _WithdrawRow(
+            title: 'USD Stablecoin',
+            subtitle: 'Send USDT or USDC to your crypto wallet',
+            onTap: () {
+              context.pop();
+              context.push('/withdraw/crypto-currency');
+            },
+          ),
+          const _RowDivider(),
+
+          SizedBox(height: 16 + bottomPadding),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MOBILE MONEY — COUNTRY SELECTION SHEET
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _MobileMoneyCountrySheet extends StatelessWidget {
+  const _MobileMoneyCountrySheet();
+
+  static const _countries = [
+    ('🇬🇭', 'Ghana', 'GH'),
+    ('🇰🇪', 'Kenya', 'KE'),
+    ('🇺🇬', 'Uganda', 'UG'),
+    ('🇷🇼', 'Rwanda', 'RW'),
+    ('🇸🇳', 'Senegal', 'SN'),
+    ('🇨🇮', "Côte d'Ivoire", 'CI'),
+    ('🇨🇲', 'Cameroon', 'CM'),
+    ('🇨🇩', 'DR Congo', 'CD'),
+    ('🇬🇦', 'Gabon', 'GA'),
+    ('🇬🇲', 'Gambia', 'GM'),
+    ('🇿🇲', 'Zambia', 'ZM'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Handle ─────────────────────────────────────
+          const SizedBox(height: 14),
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: OpeiBrand.hairlineStrong,
+              borderRadius: BorderRadius.circular(99),
             ),
-          ],
+          ),
+          const SizedBox(height: 22),
+
+          // ── Header ─────────────────────────────────────
+          const Text(
+            'Select country',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.4,
+              height: 1.0,
+            ),
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            'Mobile Money supported countries',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
+          ),
+          const SizedBox(height: 22),
+
+          // ── Country list ────────────────────────────────
+          const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline),
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _countries.length,
+            separatorBuilder: (context, i) => const Divider(
+              height: 1,
+              thickness: 0.5,
+              color: OpeiBrand.hairline,
+            ),
+            itemBuilder: (context, i) {
+              final (flag, name, code) = _countries[i];
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    final navigator = Navigator.of(context);
+                    navigator.pop();
+                    navigator.push(
+                      OpeiPageRoute(
+                        builder: (_) => MobileMoneyReceiversScreen(
+                          country: code,
+                          countryName: name,
+                          flag: flag,
+                        ),
+                      ),
+                    );
+                  },
+                  splashColor: OpeiBrand.primary.withValues(alpha: 0.04),
+                  highlightColor: OpeiBrand.surfaceMuted,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    child: Row(
+                      children: [
+                        Text(
+                          flag,
+                          style: const TextStyle(fontSize: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: OpeiBrand.ink,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          code,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: OpeiBrand.inkTertiary,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline),
+
+          SizedBox(height: 16 + bottomPadding),
+        ],
+      ),
+    );
+  }
+}
+
+class _WithdrawRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _WithdrawRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        splashColor: OpeiBrand.primary.withValues(alpha: 0.04),
+        highlightColor: OpeiBrand.surfaceMuted,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiBrand.ink,
+                        letterSpacing: -0.25,
+                        height: 1.15,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.1,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 18,
+                color: OpeiBrand.inkTertiary,
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+}
+
+class _RowDivider extends StatelessWidget {
+  const _RowDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline);
   }
 }
 

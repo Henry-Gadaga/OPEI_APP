@@ -133,6 +133,135 @@ class ErrorHelper {
       }
     }
 
+    if (context == 'payout') {
+      if (error.statusCode == 401) {
+        return 'Your session expired. Please sign in again.';
+      }
+      if (error.statusCode == 404) {
+        if (msg.contains('beneficiary')) {
+          return 'Receiver not found. They may have been removed.';
+        }
+        if (msg.contains('review')) {
+          return 'This quote is no longer available. Please try again.';
+        }
+        return 'We couldn\'t find that record. Please try again.';
+      }
+      if (error.statusCode == 409) {
+        return 'This payout was already submitted.';
+      }
+      if (error.statusCode == 502) {
+        return 'Mobile money provider is unreachable right now. Please try again shortly.';
+      }
+      if (error.statusCode != null && error.statusCode! >= 500) {
+        return 'Something went wrong on our side. Please try again shortly.';
+      }
+      if (error.statusCode == 400) {
+        if (msg.contains('insufficient') || msg.contains('reserve failed')) {
+          return 'Your balance is too low to send this amount.';
+        }
+        if (msg.contains('expired') || msg.contains('inactive')) {
+          return 'This quote expired. Please request a new one.';
+        }
+        if (msg.contains('exchange rate') || msg.contains('rate')) {
+          return 'Exchange rate is unavailable right now. Please try again.';
+        }
+        if (msg.contains('amount')) {
+          return 'Please enter a valid amount.';
+        }
+        return error.message;
+      }
+    }
+
+    if (context == 'us_bank') {
+      if (error.statusCode == 401) {
+        return 'Your session expired. Please sign in again.';
+      }
+      if (error.statusCode == 502) {
+        if (msg.contains('provider marked') || msg.contains('failed')) {
+          return 'Your bank rejected this account. Double-check the routing and account numbers, then try again.';
+        }
+        return 'Bank network is unavailable right now. Please try again shortly.';
+      }
+      if (error.statusCode == 503) {
+        return 'Bank service is temporarily unavailable. Please try again shortly.';
+      }
+      if (error.statusCode != null && error.statusCode! >= 500) {
+        return 'Something went wrong on our side. Please try again shortly.';
+      }
+      if (error.statusCode == 400) {
+        if (msg.contains('routing')) {
+          return 'Routing number must be exactly 9 digits.';
+        }
+        if (msg.contains('account number') || msg.contains('accountnumber')) {
+          return 'Account number must be between 4 and 17 digits.';
+        }
+        if (msg.contains('ach') && msg.contains('business')) {
+          return 'ACH transfers are only available for individual beneficiaries. Choose Wire for businesses.';
+        }
+        if (msg.contains('destination.type') ||
+            msg.contains('transfer type')) {
+          return 'Transfer type must be Wire or ACH.';
+        }
+        if (msg.contains('accounttype') || msg.contains('account type')) {
+          return 'Account type must be Checking or Savings.';
+        }
+        if (msg.contains('beneficiary.type') ||
+            msg.contains('beneficiary type')) {
+          return 'Beneficiary type must be Individual or Business.';
+        }
+        if (msg.contains('country')) {
+          return 'Country must be a valid 2-letter code (e.g. US).';
+        }
+        if (msg.contains('postcode') || msg.contains('post code')) {
+          return 'Please check the post code.';
+        }
+        if (msg.contains('validation') ||
+            msg.contains('invalid') ||
+            msg.contains('bad request') ||
+            msg.contains('[')) {
+          return 'Please check the bank details and try again.';
+        }
+        return error.message;
+      }
+      if (msg.contains('provider marked')) {
+        return 'Your bank rejected this account. Double-check the details and try again.';
+      }
+    }
+
+    if (context == 'beneficiary') {
+      if (error.statusCode == 401) {
+        return 'Your session expired. Please sign in again.';
+      }
+      if (error.statusCode == 404) {
+        return 'No receivers found yet.';
+      }
+      if (error.statusCode == 502 || error.statusCode == 503) {
+        return 'Mobile money provider is unreachable right now. Please try again shortly.';
+      }
+      if (error.statusCode != null && error.statusCode! >= 500) {
+        return 'Something went wrong on our side. Please try again shortly.';
+      }
+      if (error.statusCode == 400) {
+        if (msg.contains('phone') || msg.contains('account number') || msg.contains('accountnumber') || msg.contains('digits')) {
+          return 'That phone number doesn\'t look right. Please check and try again.';
+        }
+        if (msg.contains('network')) {
+          return 'That network isn\'t supported for this country.';
+        }
+        if (msg.contains('account name') || msg.contains('accountname') || msg.contains('first and last')) {
+          return 'Please enter the receiver\'s full name (first and last).';
+        }
+        if (msg.contains('validation') || msg.contains('invalid') || msg.contains('bad request') || msg.contains('[')) {
+          return 'Please check the receiver details and try again.';
+        }
+        return error.message;
+      }
+      if (msg.contains('provider marked beneficiary as failed') ||
+          msg.contains('provider marked')) {
+        return 'The mobile money provider couldn\'t verify this number. Please double-check it.';
+      }
+    }
+
     if (context == 'withdraw') {
       if (error.statusCode == 401) {
         return 'Your session expired. Please sign in again.';
