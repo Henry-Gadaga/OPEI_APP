@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/services/quick_auth_service.dart';
@@ -23,12 +24,10 @@ class _FakeQuickAuthController extends QuickAuthController {
   _FakeQuickAuthController({
     required this.initialState,
     this.onAddDigit,
-    this.onLogoutAndResetPin,
   });
 
   final QuickAuthState initialState;
   final void Function(String digit)? onAddDigit;
-  final VoidCallback? onLogoutAndResetPin;
 
   @override
   QuickAuthState build() => initialState;
@@ -41,11 +40,6 @@ class _FakeQuickAuthController extends QuickAuthController {
   @override
   void removeDigit() {
     // no-op
-  }
-
-  @override
-  Future<void> logoutAndResetPin() async {
-    onLogoutAndResetPin?.call();
   }
 }
 
@@ -108,10 +102,12 @@ void main() {
         ),
       );
 
-      expect(find.text('tester'), findsOneWidget);
+      // Avatar shows the first initial of the email-derived username
+      // ("tester" -> "T").
+      expect(find.text('T'), findsOneWidget);
       expect(find.text(errorText), findsOneWidget);
       expect(find.text('Forgot PIN?'), findsOneWidget);
-      expect(find.text('Use Password Instead'), findsOneWidget);
+      expect(find.text('Use password instead'), findsOneWidget);
     });
 
     testWidgets('tapping keypad digit delegates to controller', (tester) async {
@@ -133,23 +129,25 @@ void main() {
       expect(tappedDigits, ['5']);
     });
 
-    testWidgets('tapping Forgot PIN triggers logout flow', (tester) async {
-      var logoutCalled = false;
-
+    testWidgets(
+        'tapping Forgot PIN routes to forgot-password and clears quick-auth gate',
+        (tester) async {
       await _pumpQuickAuthScreen(
         tester,
         quickAuthService: quickAuthService,
         storage: storage,
         controller: _FakeQuickAuthController(
           initialState: QuickAuthPinEntry(),
-          onLogoutAndResetPin: () => logoutCalled = true,
         ),
+        useRouter: true,
       );
 
       await tester.tap(find.text('Forgot PIN?'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      expect(logoutCalled, isTrue);
+      // The router should have transitioned to the stubbed forgot-password
+      // route — the stub screen renders 'Forgot Password Screen'.
+      expect(find.text('Forgot Password Screen'), findsOneWidget);
     });
   });
 }
@@ -159,9 +157,48 @@ Future<void> _pumpQuickAuthScreen(
   required QuickAuthService quickAuthService,
   required SecureStorageService storage,
   required QuickAuthController controller,
+  bool useRouter = false,
 }) async {
   await tester.binding.setSurfaceSize(const Size(414, 896));
   addTearDown(() => tester.binding.setSurfaceSize(null));
+
+  final theme = ThemeData.from(
+    colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+  ).copyWith(
+    textTheme: ThemeData.light().textTheme.copyWith(
+          bodyMedium: ThemeData.light()
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: OpeiColors.pureBlack),
+        ),
+  );
+
+  Widget app;
+  if (useRouter) {
+    final router = GoRouter(
+      initialLocation: '/quick-auth',
+      routes: [
+        GoRoute(
+          path: '/quick-auth',
+          builder: (_, _) => const QuickAuthScreen(),
+        ),
+        GoRoute(
+          path: '/login',
+          builder: (_, _) => const _StubScreen(label: 'Login Screen'),
+        ),
+        GoRoute(
+          path: '/forgot-password',
+          builder: (_, _) =>
+              const _StubScreen(label: 'Forgot Password Screen'),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    app = MaterialApp.router(theme: theme, routerConfig: router);
+  } else {
+    app = MaterialApp(theme: theme, home: const QuickAuthScreen());
+  }
+
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -172,20 +209,19 @@ Future<void> _pumpQuickAuthScreen(
         quickAuthSetupControllerProvider
             .overrideWith(() => _FakeQuickAuthSetupController()),
       ],
-      child: MaterialApp(
-        theme: ThemeData.from(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        ).copyWith(
-          textTheme: ThemeData.light().textTheme.copyWith(
-                bodyMedium: ThemeData.light()
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: OpeiColors.pureBlack),
-              ),
-        ),
-        home: const QuickAuthScreen(),
-      ),
+      child: app,
     ),
   );
   await tester.pumpAndSettle();
+}
+
+class _StubScreen extends StatelessWidget {
+  const _StubScreen({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(body: Center(child: Text(label)));
+  }
 }

@@ -5,22 +5,42 @@ import 'package:go_router/go_router.dart';
 import 'package:opei/features/auth/login/login_controller.dart';
 import 'package:opei/features/auth/login/login_screen.dart';
 import 'package:opei/features/auth/login/login_state.dart';
+import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Login flow integration', () {
-    testWidgets('shows validation errors when attempting empty login', (tester) async {
-      await _pumpLoginFlowApp(tester);
+    testWidgets(
+        'Sign in button is disabled when the form is empty',
+        (tester) async {
+      var loginCalled = false;
 
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Sign in'));
-      await tester.pumpAndSettle();
+      await _pumpLoginFlowApp(
+        tester,
+        onLogin: (_) async {
+          loginCalled = true;
+          return null;
+        },
+      );
 
-      expect(find.text('Email is required'), findsOneWidget);
-      expect(find.text('Password is required'), findsOneWidget);
+      // Primary CTA is the OpeiPrimaryButton labeled "Sign in" — disabled
+      // until both a valid email and a 6-digit PIN are entered.
+      final button = tester.widget<OpeiPrimaryButton>(
+        find.byType(OpeiPrimaryButton),
+      );
+      expect(button.onPressed, isNull);
+
+      // Tapping it (or its label) is a no-op while disabled, so the
+      // controller is never invoked.
+      await tester.tap(find.text('Sign in'));
+      await tester.pump();
+      expect(loginCalled, isFalse);
     });
 
-    testWidgets('navigates to verify email when backend reports pending email stage', (tester) async {
+    testWidgets(
+        'navigates to verify email when backend reports pending email stage',
+        (tester) async {
       await _pumpLoginFlowApp(
         tester,
         onLogin: (_) async => {
@@ -29,9 +49,14 @@ void main() {
         },
       );
 
-      await tester.enterText(find.byType(TextField).at(0), 'tester@example.com');
-      await tester.enterText(find.byType(TextField).at(1), 'password123');
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Sign in'));
+      // Login screen now uses email + 6-digit PIN (not arbitrary password).
+      final fields = find.byType(TextFormField);
+      expect(fields, findsNWidgets(2));
+      await tester.enterText(fields.at(0), 'tester@example.com');
+      await tester.enterText(fields.at(1), '123456');
+      await tester.pump();
+
+      await tester.tap(find.byType(OpeiPrimaryButton));
       await tester.pumpAndSettle();
 
       expect(find.text('verify-email:autoSend=true'), findsOneWidget);
@@ -43,7 +68,9 @@ Future<void> _pumpLoginFlowApp(
   WidgetTester tester, {
   Future<Map<String, dynamic>?> Function(LoginState state)? onLogin,
 }) async {
-  await tester.binding.setSurfaceSize(const Size(600, 1100));
+  // Wider surface so the bottom "New to Opei? Create account" row doesn't
+  // hit the layout-overflow assertion under the test-time Ahem font.
+  await tester.binding.setSurfaceSize(const Size(720, 1200));
   addTearDown(() => tester.binding.setSurfaceSize(null));
 
   final router = GoRouter(
@@ -59,6 +86,19 @@ Future<void> _pumpLoginFlowApp(
           final autoSend = state.uri.queryParameters['autoSend'];
           return _StubScreen(label: 'verify-email:autoSend=$autoSend');
         },
+      ),
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const _StubScreen(label: 'welcome-screen'),
+      ),
+      GoRoute(
+        path: '/signup',
+        builder: (context, state) => const _StubScreen(label: 'signup-screen'),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) =>
+            const _StubScreen(label: 'forgot-password-screen'),
       ),
     ],
   );
@@ -79,7 +119,9 @@ Future<void> _pumpLoginFlowApp(
       ],
       child: MaterialApp.router(
         routerConfig: router,
-        theme: ThemeData.from(colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo)),
+        theme: ThemeData.from(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        ),
       ),
     ),
   );
@@ -94,15 +136,6 @@ class _TestLoginController extends LoginController {
 
   @override
   Future<Map<String, dynamic>?> login() async {
-    final validation = _validate(state);
-    if (validation != null) {
-      state = state.copyWith(
-        emailError: validation.emailError,
-        passwordError: validation.passwordError,
-      );
-      return null;
-    }
-
     state = state.copyWith(isLoading: true, clearErrors: true);
     try {
       final result = await onLogin(state);
@@ -116,46 +149,6 @@ class _TestLoginController extends LoginController {
       return null;
     }
   }
-
-  _ValidationResult? _validate(LoginState currentState) {
-    String? emailError;
-    String? passwordError;
-
-    final email = currentState.email.trim();
-    if (email.isEmpty) {
-      emailError = 'Email is required';
-    } else if (!_isValidEmail(email)) {
-      emailError = 'Please enter a valid email';
-    }
-
-    final password = currentState.password;
-    if (password.isEmpty) {
-      passwordError = 'Password is required';
-    } else if (password.length < 8) {
-      passwordError = 'Password must be at least 8 characters';
-    }
-
-    if (emailError != null || passwordError != null) {
-      return _ValidationResult(
-        emailError: emailError,
-        passwordError: passwordError,
-      );
-    }
-
-    return null;
-  }
-
-  bool _isValidEmail(String email) {
-    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-    return emailRegex.hasMatch(email);
-  }
-}
-
-class _ValidationResult {
-  final String? emailError;
-  final String? passwordError;
-
-  _ValidationResult({this.emailError, this.passwordError});
 }
 
 class _StubScreen extends StatelessWidget {

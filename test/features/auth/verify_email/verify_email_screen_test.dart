@@ -18,8 +18,16 @@ void main() {
         initialState: VerifyEmailState.initial('user@example.com'),
       );
 
-      expect(find.text('user@example.com'), findsOneWidget);
-      expect(find.byType(CodeInputBox), findsNWidgets(6));
+      // Email rendered as a TextSpan inside a RichText subtitle, plus 6 OTP
+      // boxes (each backed by a TextFormField).
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is RichText &&
+              w.text.toPlainText().contains('user@example.com'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(TextFormField), findsNWidgets(6));
       harness.dispose();
     });
 

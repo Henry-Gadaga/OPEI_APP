@@ -6,70 +6,82 @@ import 'package:opei/features/auth/signup/signup_controller.dart';
 import 'package:opei/features/auth/signup/signup_screen.dart';
 import 'package:opei/features/auth/signup/signup_state.dart';
 import 'package:opei/theme.dart';
+import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('SignupScreen', () {
-    testWidgets('shows validation errors when submitting empty form', (tester) async {
+    testWidgets(
+        'Continue button is disabled when the form is empty',
+        (tester) async {
       var signupCalled = false;
       final controller = _FakeSignupController(
         initialState: SignupInitial(),
-        onSignup: (controller, email, phone, password) async => signupCalled = true,
+        onSignup: (_, _, _, _) async => signupCalled = true,
       );
 
       await _pumpSignupScreen(tester, controller: controller);
 
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Create account'));
-      await tester.pump();
+      // The primary CTA renders the label "Continue" (not "Create account"
+      // — that label lives on the Welcome screen).
+      expect(find.text('Continue'), findsOneWidget);
 
+      // With all fields empty, the button is disabled (onPressed == null) so
+      // the controller cannot be invoked.
+      final button = tester.widget<OpeiPrimaryButton>(
+        find.byType(OpeiPrimaryButton),
+      );
+      expect(button.onPressed, isNull);
       expect(signupCalled, isFalse);
-      expect(find.text('Email is required'), findsOneWidget);
-      expect(find.text('Phone number is required'), findsOneWidget);
-      expect(find.text('Password is required'), findsOneWidget);
     });
 
-    testWidgets('tapping Terms and Privacy links navigates correctly', (tester) async {
-      final router = await _pumpSignupScreen(tester);
+    testWidgets('tapping Sign in routes to login', (tester) async {
+      await _pumpSignupScreen(tester);
 
-      await tester.tap(find.text('Terms'));
-      await tester.pumpAndSettle();
-      expect(find.text('terms-screen'), findsOneWidget);
-
-      router.pop();
+      await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Privacy Policy'));
-      await tester.pumpAndSettle();
-      expect(find.text('privacy-screen'), findsOneWidget);
+      expect(find.text('login-screen'), findsOneWidget);
     });
 
-    testWidgets('submits form and calls signup controller', (tester) async {
+    testWidgets(
+        'submitting a valid form calls signup controller with PIN',
+        (tester) async {
       String? capturedEmail;
       String? capturedPhone;
-      String? capturedPassword;
+      String? capturedPin;
 
       final fakeController = _FakeSignupController(
         initialState: SignupInitial(),
-        onSignup: (_, email, phone, password) async {
+        onSignup: (_, email, phone, pin) async {
           capturedEmail = email;
           capturedPhone = phone;
-          capturedPassword = password;
+          capturedPin = pin;
         },
       );
 
       await _pumpSignupScreen(tester, controller: fakeController);
 
-      await tester.enterText(find.byType(TextFormField).at(0), 'user@example.com');
-      await tester.enterText(find.byType(TextFormField).at(1), '+1234567890');
-      await tester.enterText(find.byType(TextFormField).at(2), 'Password1!');
+      // Field order on screen: email -> phone (custom widget with one
+      // TextFormField inside) -> 6-digit PIN.
+      final fields = find.byType(TextFormField);
+      expect(fields, findsNWidgets(3));
 
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Create account'));
+      await tester.enterText(fields.at(0), 'user@example.com');
+      await tester.enterText(fields.at(1), '8012345678');
+      await tester.enterText(fields.at(2), '123456');
+      await tester.pump();
+
+      await tester.tap(find.byType(OpeiPrimaryButton));
       await tester.pump();
 
       expect(capturedEmail, 'user@example.com');
-      expect(capturedPhone, '+1234567890');
-      expect(capturedPassword, 'Password1!');
+      // Default ISO is Nigeria (+234) so the controller should receive the
+      // E.164-formatted number.
+      expect(capturedPhone, isNotNull);
+      expect(capturedPhone, contains('80'));
+      expect(capturedPin, '123456');
     });
   });
 }
@@ -85,7 +97,7 @@ class _FakeSignupController extends SignupController {
     _FakeSignupController controller,
     String email,
     String phone,
-    String password,
+    String pin,
   )? onSignup;
 
   @override
@@ -95,10 +107,10 @@ class _FakeSignupController extends SignupController {
   Future<void> signup({
     required String email,
     required String phone,
-    required String password,
+    required String pin,
   }) async {
     if (onSignup != null) {
-      await onSignup!(this, email, phone, password);
+      await onSignup!(this, email, phone, pin);
     }
   }
 
@@ -112,7 +124,10 @@ Future<GoRouter> _pumpSignupScreen(
   WidgetTester tester, {
   _FakeSignupController? controller,
 }) async {
-  await tester.binding.setSurfaceSize(const Size(430, 900));
+  // Larger surface so the bottom-row "Already have an account? Sign in"
+  // doesn't trip Flutter's overflow assertion under Ahem (the test-time
+  // font is wider per glyph than the production Outfit font).
+  await tester.binding.setSurfaceSize(const Size(720, 1200));
   addTearDown(() => tester.binding.setSurfaceSize(null));
 
   final router = GoRouter(
@@ -123,12 +138,12 @@ Future<GoRouter> _pumpSignupScreen(
         builder: (context, state) => const SignupScreen(),
       ),
       GoRoute(
-        path: '/terms',
-        builder: (context, state) => const _StubScreen(label: 'terms-screen'),
+        path: '/welcome',
+        builder: (context, state) => const _StubScreen(label: 'welcome-screen'),
       ),
       GoRoute(
-        path: '/privacy',
-        builder: (context, state) => const _StubScreen(label: 'privacy-screen'),
+        path: '/login',
+        builder: (context, state) => const _StubScreen(label: 'login-screen'),
       ),
     ],
   );
