@@ -117,42 +117,57 @@ class OpeiPinKeypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final buttonSize = _resolveButtonSize(context);
-    final spacing = buttonSize * 0.18;
-    return ConstrainedBox(
-      constraints:
-          BoxConstraints(maxWidth: buttonSize * 3 + spacing * 2 + 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final row in const [
-            ['1', '2', '3'],
-            ['4', '5', '6'],
-            ['7', '8', '9'],
-            ['leading', '0', 'del'],
-          ])
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: spacing / 2),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < row.length; i++) ...[
-                    if (i > 0) SizedBox(width: spacing),
-                    _buildKey(context, row[i], buttonSize),
+    // Slightly bigger gutter than before so keys feel breathable while
+    // still letting the row span more of the screen width.
+    final spacing = buttonSize * 0.20;
+    final totalWidth = buttonSize * 3 + spacing * 2;
+    // FittedBox scaleDown keeps the keypad at its designed size when
+    // there's room, and gently shrinks it when a tight parent
+    // constraint (e.g. inside an `IntrinsicHeight` test surface) would
+    // otherwise cause an overflow. We never scale up.
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.center,
+      child: SizedBox(
+        width: totalWidth,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final row in const [
+              ['1', '2', '3'],
+              ['4', '5', '6'],
+              ['7', '8', '9'],
+              ['leading', '0', 'del'],
+            ])
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: spacing / 2),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    for (var i = 0; i < row.length; i++) ...[
+                      if (i > 0) SizedBox(width: spacing),
+                      _buildKey(context, row[i], buttonSize),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
+  /// Per-key size, sized so the full row spans most of the available
+  /// width on common phones (the parent screen leaves ~24-32px of
+  /// horizontal padding). The previous brackets were ~10-15% smaller,
+  /// which left obvious dead space on the left/right.
   double _resolveButtonSize(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    if (width >= 420) return 78;
-    if (width >= 380) return 72;
-    if (width >= 340) return 66;
-    return 60;
+    if (width >= 600) return 96;
+    if (width >= 420) return 90;
+    if (width >= 380) return 84;
+    if (width >= 340) return 76;
+    return 68;
   }
 
   Widget _buildKey(BuildContext context, String key, double size) {
@@ -168,7 +183,6 @@ class OpeiPinKeypad extends StatelessWidget {
     return _KeyTile(
       size: size,
       enabled: enabled,
-      transparentBg: isDelete,
       onTap: () {
         if (!enabled) return;
         HapticFeedback.selectionClick();
@@ -181,16 +195,16 @@ class OpeiPinKeypad extends StatelessWidget {
       child: isDelete
           ? const Icon(
               Icons.backspace_outlined,
-              size: 22,
+              size: 24,
               color: OpeiBrand.ink,
             )
           : Text(
               key,
               style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w500,
+                fontSize: 30,
+                fontWeight: FontWeight.w400,
                 color: OpeiBrand.ink,
-                letterSpacing: -0.4,
+                letterSpacing: -0.3,
                 height: 1.0,
               ),
             ),
@@ -203,56 +217,63 @@ class _KeyTile extends StatefulWidget {
   final VoidCallback onTap;
   final Widget child;
   final bool enabled;
-  final bool transparentBg;
   const _KeyTile({
     required this.size,
     required this.onTap,
     required this.child,
     required this.enabled,
-    required this.transparentBg,
   });
 
   @override
   State<_KeyTile> createState() => _KeyTileState();
 }
 
-class _KeyTileState extends State<_KeyTile> {
-  bool _pressed = false;
+class _KeyTileState extends State<_KeyTile>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _flash = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 80),
+    reverseDuration: const Duration(milliseconds: 200),
+  );
+
+  @override
+  void dispose() {
+    _flash.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails _) => _flash.forward();
+  void _onTapUp(TapUpDetails _) {
+    _flash.reverse();
+    widget.onTap();
+  }
+  void _onTapCancel() => _flash.reverse();
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown:
-          widget.enabled ? (_) => setState(() => _pressed = true) : null,
-      onTapCancel:
-          widget.enabled ? () => setState(() => _pressed = false) : null,
-      onTapUp: widget.enabled
-          ? (_) {
-              setState(() => _pressed = false);
-              widget.onTap();
-            }
-          : null,
-      child: AnimatedScale(
-        scale: _pressed ? 0.94 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 140),
+      onTapDown: widget.enabled ? _onTapDown : null,
+      onTapUp: widget.enabled ? _onTapUp : null,
+      onTapCancel: widget.enabled ? _onTapCancel : null,
+      child: AnimatedBuilder(
+        animation: _flash,
+        builder: (context, child) => Container(
           width: widget.size,
           height: widget.size,
           decoration: BoxDecoration(
-            color: widget.transparentBg
-                ? (_pressed
-                    ? OpeiBrand.hairline
-                    : Colors.transparent)
-                : (_pressed
-                    ? OpeiBrand.hairline
-                    : OpeiBrand.surfaceMuted),
+            // Borderless: background is invisible at rest and fades in
+            // as a very faint circle on press — clean bank/Revolut style.
+            color: Color.lerp(
+              Colors.transparent,
+              const Color(0xFFE8E8EC),
+              _flash.value,
+            ),
             shape: BoxShape.circle,
           ),
-          child: Center(child: widget.child),
+          child: Center(child: child),
         ),
+        child: widget.child,
       ),
     );
   }

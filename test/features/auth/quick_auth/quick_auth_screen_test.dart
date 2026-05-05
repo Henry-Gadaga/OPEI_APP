@@ -100,7 +100,7 @@ void main() {
   });
 
   group('QuickAuthScreen', () {
-    testWidgets('displays username initials and error message', (tester) async {
+    testWidgets('displays PIN heading and error message', (tester) async {
       const errorText = 'Invalid PIN';
 
       await _pumpQuickAuthScreen(
@@ -112,12 +112,11 @@ void main() {
         ),
       );
 
-      // Avatar shows the first initial of the email-derived username
-      // ("tester" -> "T").
-      expect(find.text('T'), findsOneWidget);
+      // No avatar is shown in the redesigned screen — just clean heading text.
+      expect(find.text('Enter your PIN'), findsOneWidget);
       expect(find.text(errorText), findsOneWidget);
       expect(find.text('Forgot PIN?'), findsOneWidget);
-      expect(find.text('Use password instead'), findsOneWidget);
+      expect(find.text('Use password'), findsOneWidget);
     });
 
     testWidgets('tapping keypad digit delegates to controller', (tester) async {

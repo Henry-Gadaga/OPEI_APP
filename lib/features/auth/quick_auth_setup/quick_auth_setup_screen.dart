@@ -5,7 +5,7 @@ import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_controller.
 import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
-import 'package:opei/widgets/bouncing_dots.dart';
+import 'package:opei/widgets/opei_activity_indicator.dart';
 import 'package:opei/widgets/opei_pin_pad.dart';
 
 class QuickAuthSetupScreen extends ConsumerWidget {
@@ -58,26 +58,27 @@ class _SavingPinView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: const [
+              OpeiActivityIndicator(size: 52, strokeWidth: 2.6),
+              SizedBox(height: 24),
               Text(
-                'Saving your PIN',
+                'Saving',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: OpeiBrand.ink,
                   letterSpacing: -0.3,
                 ),
               ),
-              SizedBox(height: 8),
+              SizedBox(height: 6),
               Text(
-                'Hang tight, just a moment…',
+                'One moment please',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 13.5,
                   fontWeight: FontWeight.w500,
                   color: OpeiBrand.inkSecondary,
+                  letterSpacing: -0.1,
                 ),
               ),
-              SizedBox(height: 28),
-              BouncingDots(),
             ],
           ),
         ),

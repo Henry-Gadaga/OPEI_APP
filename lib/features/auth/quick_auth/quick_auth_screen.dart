@@ -10,7 +10,7 @@ import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_controller.
 import 'package:opei/features/dashboard/dashboard_controller.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
-import 'package:opei/widgets/bouncing_dots.dart';
+import 'package:opei/widgets/opei_activity_indicator.dart';
 import 'package:opei/widgets/opei_pin_pad.dart';
 
 class QuickAuthScreen extends ConsumerStatefulWidget {
@@ -22,7 +22,6 @@ class QuickAuthScreen extends ConsumerStatefulWidget {
 
 class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   bool _hasPinSetup = false;
-  String _userName = '';
   bool _isReady = false;
 
   // Biometric login state. _biometricEnabled drives the keypad icon and
@@ -52,7 +51,6 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
       if (!mounted) return;
       setState(() {
         _hasPinSetup = false;
-        _userName = 'User';
         _isReady = true;
       });
       return;
@@ -82,7 +80,6 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     setState(() {
       _userId = userIdentifier;
       _hasPinSetup = hasPin;
-      _userName = user?.email.split('@').first ?? 'User';
       _biometricEnabled = biometricEnabled;
       _isFaceBiometric = isFace;
       _showBiometricBanner = showBanner;
@@ -168,140 +165,117 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
 
     final pinState = state is QuickAuthPinEntry ? state : QuickAuthPinEntry();
 
-    return ResponsiveScaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
       body: AnimatedOpacity(
         opacity: _isReady ? 1 : 0,
-        duration: const Duration(milliseconds: 280),
+        duration: const Duration(milliseconds: 260),
         curve: Curves.easeOut,
-        child: AnimatedSlide(
-          offset: _isReady ? Offset.zero : const Offset(0, 0.04),
-          duration: const Duration(milliseconds: 350),
-          curve: Curves.easeOutCubic,
-          child: SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      minHeight: (constraints.maxHeight - 12).clamp(0.0, double.infinity),
-                    ),
-                    child: IntrinsicHeight(
-                      child: Column(
-                        children: [
-                  // ── Top zone: identity + dots (takes all spare space) ──
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                children: [
+                  // ── Top spacer + heading ─────────────────────────────────
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _Avatar(
-                          initial: _userName.isNotEmpty
-                              ? _userName[0].toUpperCase()
-                              : 'U',
-                        ),
-                        const SizedBox(height: 18),
-                        const Text(
-                          'Welcome back',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w700,
-                            color: OpeiBrand.ink,
-                            letterSpacing: -0.7,
-                            height: 1.1,
+                        if (!_hasPinSetup) ...[
+                          const Icon(
+                            Icons.lock_outline_rounded,
+                            size: 32,
+                            color: OpeiBrand.inkTertiary,
                           ),
-                        ),
-                        const SizedBox(height: 5),
+                          const SizedBox(height: 16),
+                        ],
                         Text(
                           _hasPinSetup
-                              ? 'Enter your 6-digit PIN to continue'
-                              : 'No quick PIN is set up on this device',
+                              ? 'Enter your PIN'
+                              : 'No PIN set up',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: OpeiBrand.ink,
+                            letterSpacing: -0.6,
+                            height: 1.15,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          _hasPinSetup
+                              ? 'Use your 6-digit PIN to sign in'
+                              : 'Set up a PIN in your account settings',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w400,
                             color: OpeiBrand.inkSecondary,
                             letterSpacing: -0.1,
                           ),
                         ),
-                        const SizedBox(height: 28),
-                        if (_hasPinSetup) ...[
-                          if (_showBiometricBanner)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 24),
-                              child: _BiometricOptInBanner(
-                                isFace: _isFaceBiometric,
-                                isLoading: _enrollingBiometric,
-                                onEnable: _handleEnableBiometric,
-                                onDismiss: _handleDismissBiometricBanner,
-                              ),
+                        if (_hasPinSetup && _showBiometricBanner) ...[
+                          const SizedBox(height: 24),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 28),
+                            child: _BiometricOptInBanner(
+                              isFace: _isFaceBiometric,
+                              isLoading: _enrollingBiometric,
+                              onEnable: _handleEnableBiometric,
+                              onDismiss: _handleDismissBiometricBanner,
                             ),
+                          ),
+                        ],
+                        if (_hasPinSetup) ...[
+                          const SizedBox(height: 36),
                           OpeiPinDots(
                             filled: pinState.pin.length,
                             errored: pinState.errorMessage != null,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                           _ErrorLine(message: pinState.errorMessage),
-                        ] else ...[
-                          const SizedBox(height: 12),
-                          Container(
-                            width: 52,
-                            height: 52,
-                            decoration: BoxDecoration(
-                              color: OpeiBrand.surfaceMuted,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: OpeiBrand.hairline, width: 1),
-                            ),
-                            child: const Icon(Icons.lock_outline_rounded,
-                                size: 24, color: OpeiBrand.inkTertiary),
-                          ),
                         ],
                       ],
                     ),
                   ),
 
-                  // ── Bottom zone: keypad + links (natural height) ───────
+                  // ── Keypad zone ──────────────────────────────────────────
                   if (_hasPinSetup)
-                    OpeiPinKeypad(
-                      onDigit: (d) => ref
-                          .read(quickAuthControllerProvider.notifier)
-                          .addDigit(d),
-                      onDelete: () => ref
-                          .read(quickAuthControllerProvider.notifier)
-                          .removeDigit(),
-                      leadingAction: _biometricEnabled
-                          ? _BiometricKey(
-                              isFace: _isFaceBiometric,
-                              onTap: _handleTriggerBiometric,
-                            )
-                          : null,
-                    ),
-                  const SizedBox(height: 8),
-                  _BottomLinks(
-                    onUsePassword: () {
-                      // Reset quick-auth gate so the router guard doesn't
-                      // bounce the user back here after they sign in with a
-                      // different account from /login.
-                      ref.read(quickAuthStatusProvider.notifier).reset();
-                      context.go('/login');
-                    },
-                    onForgotPin: () {
-                      // Reset the quick-auth gate so the router guard
-                      // doesn't bounce the user back here while they
-                      // recover their account, then route to the standard
-                      // forgot-password flow.
-                      ref.read(quickAuthStatusProvider.notifier).reset();
-                      context.go('/forgot-password');
-                    },
-                  ),
-                        ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: OpeiPinKeypad(
+                        onDigit: (d) => ref
+                            .read(quickAuthControllerProvider.notifier)
+                            .addDigit(d),
+                        onDelete: () => ref
+                            .read(quickAuthControllerProvider.notifier)
+                            .removeDigit(),
+                        leadingAction: _biometricEnabled
+                            ? _BiometricKey(
+                                isFace: _isFaceBiometric,
+                                onTap: _handleTriggerBiometric,
+                              )
+                            : null,
                       ),
                     ),
+
+                  // ── Bottom links ─────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 8),
+                    child: _BottomLinks(
+                      onUsePassword: () {
+                        ref.read(quickAuthStatusProvider.notifier).reset();
+                        context.go('/login');
+                      },
+                      onForgotPin: () {
+                        ref.read(quickAuthStatusProvider.notifier).reset();
+                        context.go('/forgot-password');
+                      },
+                    ),
                   ),
-                );
-              },
-            ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -370,70 +344,29 @@ class _VerifyingView extends StatelessWidget {
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Verifying your PIN',
+            children: const [
+              OpeiActivityIndicator(size: 52, strokeWidth: 2.6),
+              SizedBox(height: 24),
+              Text(
+                'Verifying',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: OpeiBrand.ink,
                   letterSpacing: -0.3,
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Hang tight, just a moment…',
+              SizedBox(height: 6),
+              Text(
+                'One moment please',
                 style: TextStyle(
-                  fontSize: 13,
+                  fontSize: 13.5,
                   fontWeight: FontWeight.w500,
                   color: OpeiBrand.inkSecondary,
+                  letterSpacing: -0.1,
                 ),
               ),
-              const SizedBox(height: 28),
-              const BouncingDots(),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Avatar extends StatelessWidget {
-  final String initial;
-  const _Avatar({required this.initial});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 76,
-      height: 76,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            OpeiBrand.primary,
-            OpeiBrand.primary.withValues(alpha: 0.78),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: OpeiBrand.primary.withValues(alpha: 0.25),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Text(
-          initial,
-          style: const TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-            letterSpacing: -0.5,
           ),
         ),
       ),
@@ -603,38 +536,44 @@ class _BottomLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         TextButton(
           onPressed: onUsePassword,
           style: TextButton.styleFrom(
             foregroundColor: OpeiBrand.inkSecondary,
             padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: const Text(
-            'Use password instead',
+            'Use password',
             style: TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
               letterSpacing: -0.1,
             ),
           ),
         ),
-        const SizedBox(height: 2),
+        Container(
+          width: 1,
+          height: 14,
+          color: OpeiBrand.hairline,
+        ),
         TextButton(
           onPressed: onForgotPin,
           style: TextButton.styleFrom(
-            foregroundColor: OpeiBrand.danger,
+            foregroundColor: OpeiBrand.inkSecondary,
             padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: const Text(
             'Forgot PIN?',
             style: TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
               letterSpacing: -0.1,
             ),
           ),
