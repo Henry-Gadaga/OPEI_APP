@@ -871,8 +871,12 @@ class QuickAuthSettingsSection extends ConsumerStatefulWidget {
 
 class _QuickAuthSettingsSectionState
     extends ConsumerState<QuickAuthSettingsSection> {
-  bool _isLoadingPinStatus = true;
+  bool _isLoadingStatus = true;
   bool _hasPinSetup = false;
+  bool _biometricAvailable = false;
+  bool _biometricEnabled = false;
+  bool _isFaceBiometric = false;
+  bool _togglingBiometric = false;
 
   @override
   void initState() {
@@ -882,17 +886,93 @@ class _QuickAuthSettingsSectionState
 
   Future<void> _loadQuickAuthStatus() async {
     final quickAuthService = ref.read(quickAuthServiceProvider);
-    
+
     setState(() {
-      _isLoadingPinStatus = true;
+      _isLoadingStatus = true;
     });
 
     final hasPin = await quickAuthService.hasPinSetup(widget.userId);
+    final canUseBio = await quickAuthService.canUseBiometric();
+    final biometricEnabled = canUseBio
+        ? await quickAuthService.isBiometricEnabled(widget.userId)
+        : false;
+    final isFace = canUseBio ? await quickAuthService.hasFaceBiometric() : false;
 
+    if (!mounted) return;
     setState(() {
       _hasPinSetup = hasPin;
-      _isLoadingPinStatus = false;
+      _biometricAvailable = canUseBio;
+      _biometricEnabled = biometricEnabled;
+      _isFaceBiometric = isFace;
+      _isLoadingStatus = false;
     });
+  }
+
+  Future<void> _handleToggleBiometric(bool turnOn) async {
+    if (_togglingBiometric) return;
+    final quickAuthService = ref.read(quickAuthServiceProvider);
+    final messenger = ScaffoldMessenger.of(context);
+
+    setState(() => _togglingBiometric = true);
+
+    try {
+      if (turnOn) {
+        final ok = await quickAuthService.authenticateWithBiometric(
+          _isFaceBiometric
+              ? 'Set up Face ID for quick sign-in'
+              : 'Set up fingerprint for quick sign-in',
+        );
+        if (!mounted) return;
+        if (ok) {
+          await quickAuthService.enableBiometric(widget.userId);
+          await quickAuthService.markBiometricPromptShown(widget.userId);
+          if (!mounted) return;
+          setState(() {
+            _biometricEnabled = true;
+            _togglingBiometric = false;
+          });
+        } else {
+          // User cancelled the OS prompt — silently return without
+          // showing an error (this is expected behavior).
+          setState(() => _togglingBiometric = false);
+        }
+      } else {
+        await quickAuthService.disableBiometric(widget.userId);
+        if (!mounted) return;
+        setState(() {
+          _biometricEnabled = false;
+          _togglingBiometric = false;
+        });
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              _isFaceBiometric
+                  ? 'Face ID sign-in disabled.'
+                  : 'Fingerprint sign-in disabled.',
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            backgroundColor: OpeiBrand.ink,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error toggling biometric: $e');
+      if (!mounted) return;
+      setState(() => _togglingBiometric = false);
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not update biometric settings. Please try again.',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          backgroundColor: OpeiBrand.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -903,14 +983,167 @@ class _QuickAuthSettingsSectionState
         ProfileActionItem(
           icon: Icons.pin_outlined,
           label: 'PIN Authentication',
-          subtitle: _isLoadingPinStatus 
-              ? 'Loading...' 
+          subtitle: _isLoadingStatus
+              ? 'Loading...'
               : _hasPinSetup
                   ? 'Enabled'
                   : 'Disabled',
           onTap: null,
+        ),
+        if (_biometricAvailable && !_isLoadingStatus)
+          _BiometricSettingsRow(
+            isFace: _isFaceBiometric,
+            enabled: _biometricEnabled,
+            isLoading: _togglingBiometric,
+            onChanged: _handleToggleBiometric,
           ),
       ],
+    );
+  }
+}
+
+class _BiometricSettingsRow extends StatelessWidget {
+  final bool isFace;
+  final bool enabled;
+  final bool isLoading;
+  final ValueChanged<bool> onChanged;
+
+  const _BiometricSettingsRow({
+    required this.isFace,
+    required this.enabled,
+    required this.isLoading,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final label = isFace ? 'Face ID Sign-in' : 'Fingerprint Sign-in';
+    final subtitle = enabled
+        ? 'Enabled — sign in with a glance'
+        : isFace
+            ? 'Use Face ID instead of typing your PIN'
+            : 'Use your fingerprint instead of typing your PIN';
+    final iconData = isFace ? Icons.face_outlined : Icons.fingerprint;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Icon(iconData, color: OpeiColors.grey600, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: context.textStyles.bodyLarge?.copyWith(
+                    color: OpeiColors.pureBlack,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: context.textStyles.bodySmall
+                      ?.copyWith(color: OpeiColors.grey600),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          if (isLoading)
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                color: OpeiBrand.primary,
+                strokeWidth: 2,
+              ),
+            )
+          else
+            _OpeiSwitch(value: enabled, onChanged: onChanged),
+        ],
+      ),
+    );
+  }
+}
+
+/// Sleek, brand-aware toggle. Restrained colour: neutral hairline when off,
+/// brand primary when on. The thumb slides with an `easeOutCubic` curve
+/// and dips to 92% scale on press for tactile feedback.
+class _OpeiSwitch extends StatefulWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _OpeiSwitch({required this.value, required this.onChanged});
+
+  @override
+  State<_OpeiSwitch> createState() => _OpeiSwitchState();
+}
+
+class _OpeiSwitchState extends State<_OpeiSwitch> {
+  bool _pressed = false;
+
+  static const double _trackWidth = 46;
+  static const double _trackHeight = 28;
+  static const double _thumbSize = 22;
+  static const double _padding = 3;
+
+  @override
+  Widget build(BuildContext context) {
+    final isOn = widget.value;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTapUp: (_) {
+        setState(() => _pressed = false);
+        widget.onChanged(!isOn);
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOutCubic,
+        width: _trackWidth,
+        height: _trackHeight,
+        padding: const EdgeInsets.all(_padding),
+        decoration: BoxDecoration(
+          color: isOn
+              ? OpeiBrand.primary
+              : OpeiColors.grey300,
+          borderRadius: BorderRadius.circular(_trackHeight / 2),
+        ),
+        child: AnimatedAlign(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          alignment:
+              isOn ? Alignment.centerRight : Alignment.centerLeft,
+          child: AnimatedScale(
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOut,
+            scale: _pressed ? 0.92 : 1.0,
+            child: Container(
+              width: _thumbSize,
+              height: _thumbSize,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.10),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

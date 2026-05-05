@@ -25,6 +25,16 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   String _userName = '';
   bool _isReady = false;
 
+  // Biometric login state. _biometricEnabled drives the keypad icon and
+  // the auto-prompt; _showBiometricBanner is computed once at load time
+  // from canUseBiometric + isBiometricEnabled + wasBiometricPromptShown.
+  String? _userId;
+  bool _biometricEnabled = false;
+  bool _isFaceBiometric = false;
+  bool _showBiometricBanner = false;
+  bool _enrollingBiometric = false;
+  bool _autoPromptedBiometric = false;
+
   @override
   void initState() {
     super.initState();
@@ -50,12 +60,94 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
 
     final hasPin = await quickAuthService.hasPinSetup(userIdentifier);
 
+    // Resolve biometric availability + enabled state in parallel.
+    final canUseBio = await quickAuthService.canUseBiometric();
+    final biometricEnabled = canUseBio
+        ? await quickAuthService.isBiometricEnabled(userIdentifier)
+        : false;
+    final isFace = canUseBio
+        ? await quickAuthService.hasFaceBiometric()
+        : false;
+    final promptShown =
+        await quickAuthService.wasBiometricPromptShown(userIdentifier);
+
+    // Show the inline opt-in banner to existing users (have PIN, no
+    // biometric yet, hardware available, not previously dismissed).
+    final showBanner = hasPin &&
+        canUseBio &&
+        !biometricEnabled &&
+        !promptShown;
+
     if (!mounted) return;
     setState(() {
+      _userId = userIdentifier;
       _hasPinSetup = hasPin;
       _userName = user?.email.split('@').first ?? 'User';
+      _biometricEnabled = biometricEnabled;
+      _isFaceBiometric = isFace;
+      _showBiometricBanner = showBanner;
       _isReady = true;
     });
+
+    // Auto-prompt biometric on screen open (after first paint) when the
+    // user has already enabled it. Falls back gracefully to PIN if the
+    // user cancels the OS prompt.
+    if (biometricEnabled && hasPin && !_autoPromptedBiometric) {
+      _autoPromptedBiometric = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(quickAuthControllerProvider.notifier).verifyBiometric();
+      });
+    }
+  }
+
+  Future<void> _handleEnableBiometric() async {
+    if (_userId == null || _enrollingBiometric) return;
+    final quickAuthService = ref.read(quickAuthServiceProvider);
+
+    setState(() => _enrollingBiometric = true);
+
+    try {
+      final ok = await quickAuthService.authenticateWithBiometric(
+        _isFaceBiometric
+            ? 'Set up Face ID for quick sign-in'
+            : 'Set up fingerprint for quick sign-in',
+      );
+
+      if (!mounted) return;
+
+      if (ok) {
+        await quickAuthService.enableBiometric(_userId!);
+        await quickAuthService.markBiometricPromptShown(_userId!);
+        if (!mounted) return;
+        setState(() {
+          _biometricEnabled = true;
+          _showBiometricBanner = false;
+          _enrollingBiometric = false;
+        });
+      } else {
+        // User cancelled the OS prompt — keep banner visible so they
+        // can try again, no error toast.
+        setState(() => _enrollingBiometric = false);
+      }
+    } catch (e) {
+      debugPrint('❌ Failed to enable biometric: $e');
+      if (!mounted) return;
+      setState(() => _enrollingBiometric = false);
+    }
+  }
+
+  Future<void> _handleDismissBiometricBanner() async {
+    if (_userId == null) return;
+    final quickAuthService = ref.read(quickAuthServiceProvider);
+    await quickAuthService.markBiometricPromptShown(_userId!);
+    if (!mounted) return;
+    setState(() => _showBiometricBanner = false);
+  }
+
+  void _handleTriggerBiometric() {
+    if (!_biometricEnabled) return;
+    ref.read(quickAuthControllerProvider.notifier).verifyBiometric();
   }
 
   @override
@@ -132,8 +224,18 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                             letterSpacing: -0.1,
                           ),
                         ),
-                        const SizedBox(height: 36),
+                        const SizedBox(height: 28),
                         if (_hasPinSetup) ...[
+                          if (_showBiometricBanner)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 24),
+                              child: _BiometricOptInBanner(
+                                isFace: _isFaceBiometric,
+                                isLoading: _enrollingBiometric,
+                                onEnable: _handleEnableBiometric,
+                                onDismiss: _handleDismissBiometricBanner,
+                              ),
+                            ),
                           OpeiPinDots(
                             filled: pinState.pin.length,
                             errored: pinState.errorMessage != null,
@@ -168,6 +270,12 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                       onDelete: () => ref
                           .read(quickAuthControllerProvider.notifier)
                           .removeDigit(),
+                      leadingAction: _biometricEnabled
+                          ? _BiometricKey(
+                              isFace: _isFaceBiometric,
+                              onTap: _handleTriggerBiometric,
+                            )
+                          : null,
                     ),
                   const SizedBox(height: 8),
                   _BottomLinks(
@@ -357,6 +465,130 @@ class _ErrorLine extends StatelessWidget {
                 ),
               ),
             ),
+    );
+  }
+}
+
+class _BiometricOptInBanner extends StatelessWidget {
+  final bool isFace;
+  final bool isLoading;
+  final VoidCallback onEnable;
+  final VoidCallback onDismiss;
+
+  const _BiometricOptInBanner({
+    required this.isFace,
+    required this.isLoading,
+    required this.onEnable,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final label = isFace ? 'Use Face ID for faster sign-in'
+        : 'Use fingerprint for faster sign-in';
+    final iconData = isFace ? Icons.face_outlined : Icons.fingerprint;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+      decoration: BoxDecoration(
+        color: OpeiBrand.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: OpeiBrand.primary.withValues(alpha: 0.16),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: OpeiBrand.primary.withValues(alpha: 0.10),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(iconData, size: 20, color: OpeiBrand.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: OpeiBrand.ink,
+                letterSpacing: -0.1,
+                height: 1.25,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (isLoading)
+            const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: OpeiBrand.primary,
+              ),
+            )
+          else ...[
+            TextButton(
+              onPressed: onEnable,
+              style: TextButton.styleFrom(
+                foregroundColor: OpeiBrand.primary,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                minimumSize: const Size(0, 32),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text(
+                'Enable',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.1,
+                ),
+              ),
+            ),
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints:
+                  const BoxConstraints(minWidth: 28, minHeight: 28),
+              iconSize: 16,
+              onPressed: onDismiss,
+              icon: const Icon(Icons.close,
+                  color: OpeiBrand.inkTertiary),
+              tooltip: 'Dismiss',
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _BiometricKey extends StatelessWidget {
+  final bool isFace;
+  final VoidCallback onTap;
+
+  const _BiometricKey({required this.isFace, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Center(
+        child: Icon(
+          isFace ? Icons.face_outlined : Icons.fingerprint,
+          size: 32,
+          color: OpeiBrand.primary,
+        ),
+      ),
     );
   }
 }

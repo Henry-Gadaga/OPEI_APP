@@ -160,6 +160,43 @@ class QuickAuthService {
     }
   }
 
+  /// Returns true when the device's primary biometric is Face ID (iOS) or
+  /// face unlock (Android). Used purely to pick the right icon and copy
+  /// in the UI (face vs fingerprint).
+  Future<bool> hasFaceBiometric() async {
+    try {
+      final available = await _localAuth.getAvailableBiometrics();
+      return available.contains(BiometricType.face);
+    } catch (e) {
+      debugPrint('❌ Error reading biometric types: $e');
+      return false;
+    }
+  }
+
+  /// Records that we've shown the "Enable biometric login" banner to this
+  /// user once. Used so existing users only see the inline prompt one
+  /// time on the quick-auth screen (they can still toggle it on later
+  /// from Profile > Security Settings).
+  Future<void> markBiometricPromptShown(String userIdentifier) async {
+    try {
+      final key = _getUserKey(userIdentifier, 'biometric_prompt_shown');
+      await _storage.write(key: key, value: 'true');
+    } catch (e) {
+      debugPrint('❌ Error marking biometric prompt shown: $e');
+    }
+  }
+
+  Future<bool> wasBiometricPromptShown(String userIdentifier) async {
+    try {
+      final key = _getUserKey(userIdentifier, 'biometric_prompt_shown');
+      final value = await _storage.read(key: key);
+      return value == 'true';
+    } catch (e) {
+      debugPrint('❌ Error reading biometric prompt-shown flag: $e');
+      return false;
+    }
+  }
+
   Future<void> enableBiometric(String userIdentifier) async {
     try {
       final key = _getUserKey(userIdentifier, 'biometric_enabled');
@@ -248,6 +285,7 @@ class QuickAuthService {
         _getUserKey(userIdentifier, 'pin_salt'),
         _getUserKey(userIdentifier, 'pin_hash'),
         _getUserKey(userIdentifier, 'biometric_enabled'),
+        _getUserKey(userIdentifier, 'biometric_prompt_shown'),
       ];
       
       for (final key in keys) {
@@ -270,6 +308,7 @@ class QuickAuthService {
         _getUserKey(userIdentifier, 'pin_salt'),
         _getUserKey(userIdentifier, 'pin_hash'),
         _getUserKey(userIdentifier, 'biometric_enabled'),
+        _getUserKey(userIdentifier, 'biometric_prompt_shown'),
       ];
 
       if (removeSetupFlag) {

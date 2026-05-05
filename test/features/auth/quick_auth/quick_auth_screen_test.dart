@@ -87,6 +87,16 @@ void main() {
         .thenAnswer((_) async => 'user-123');
     when(() => quickAuthService.hasPinSetup('user-123'))
         .thenAnswer((_) async => true);
+    // Biometric layer: stub all methods so tests run on a "device without
+    // biometric hardware" — the screen's PIN-only path is unchanged.
+    when(() => quickAuthService.canUseBiometric())
+        .thenAnswer((_) async => false);
+    when(() => quickAuthService.hasFaceBiometric())
+        .thenAnswer((_) async => false);
+    when(() => quickAuthService.isBiometricEnabled('user-123'))
+        .thenAnswer((_) async => false);
+    when(() => quickAuthService.wasBiometricPromptShown('user-123'))
+        .thenAnswer((_) async => true);
   });
 
   group('QuickAuthScreen', () {
