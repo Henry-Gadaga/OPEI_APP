@@ -77,6 +77,20 @@ class LoginController extends Notifier<LoginState> {
         debugPrint('⚠️ Failed to persist email to storage: $e');
       }
 
+      // Pre-clear the quick-auth gate for verified users BEFORE setSession
+      // refreshes the router. Otherwise, if the previous app boot left
+      // quickAuthStatus = requiresVerification (e.g. user came here via
+      // "Use password instead"), the redirect guard would immediately
+      // bounce the new session to /quick-auth, causing the "no quick PIN
+      // set up" UI to flash for the new account before enrollment finishes.
+      if (response.user.userStage.toUpperCase() == 'VERIFIED') {
+        ref
+            .read(quickAuthStatusProvider.notifier)
+            .setStatus(QuickAuthStatus.satisfied);
+      } else {
+        ref.read(quickAuthStatusProvider.notifier).reset();
+      }
+
       // Set auth session - this will trigger dependent providers to refresh
       ref
           .read(authSessionProvider.notifier)

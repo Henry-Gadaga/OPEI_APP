@@ -96,71 +96,70 @@ class _PinEntryScreen extends ConsumerWidget {
     final isConfirming = state.isConfirming;
     return ResponsiveScaffold(
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(minHeight: constraints.maxHeight),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-                  child: Column(
-                    children: [
-                      _BackBar(
-                        onBack: () => ref
-                            .read(quickAuthSetupControllerProvider.notifier)
-                            .reset(),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+          child: Column(
+            children: [
+              // Back bar
+              _BackBar(
+                onBack: () => ref
+                    .read(quickAuthSetupControllerProvider.notifier)
+                    .reset(),
+              ),
+
+              // ── Top zone: glyph + title + dots (takes all spare space) ─
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _Glyph(isConfirming: isConfirming),
+                    const SizedBox(height: 18),
+                    Text(
+                      isConfirming ? 'Confirm PIN' : 'Create PIN',
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: OpeiBrand.ink,
+                        letterSpacing: -0.7,
+                        height: 1.1,
                       ),
-                      const SizedBox(height: 12),
-                      _Glyph(isConfirming: isConfirming),
-                      const SizedBox(height: 22),
-                      Text(
-                        isConfirming ? 'Confirm PIN' : 'Create PIN',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                          color: OpeiBrand.ink,
-                          letterSpacing: -0.6,
-                          height: 1.1,
-                        ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      isConfirming
+                          ? 'Enter your PIN again to confirm'
+                          : 'Choose a 6-digit PIN to sign in faster',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.1,
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        isConfirming
-                            ? 'Enter your PIN again to confirm'
-                            : 'Choose a 6-digit PIN to sign in faster',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: OpeiBrand.inkSecondary,
-                          letterSpacing: -0.1,
-                        ),
-                      ),
-                      const SizedBox(height: 36),
-                      OpeiPinDots(
-                        filled: state.pin.length,
-                        errored: state.errorMessage != null,
-                      ),
-                      const SizedBox(height: 18),
-                      _ErrorLine(message: state.errorMessage),
-                      const SizedBox(height: 28),
-                      OpeiPinKeypad(
-                        onDigit: (d) => ref
-                            .read(quickAuthSetupControllerProvider.notifier)
-                            .addDigit(d),
-                        onDelete: () => ref
-                            .read(quickAuthSetupControllerProvider.notifier)
-                            .removeDigit(),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(height: 36),
+                    OpeiPinDots(
+                      filled: state.pin.length,
+                      errored: state.errorMessage != null,
+                    ),
+                    const SizedBox(height: 12),
+                    _ErrorLine(message: state.errorMessage),
+                  ],
                 ),
               ),
-            );
-          },
+
+              // ── Bottom zone: keypad (natural height) ───────────────────
+              OpeiPinKeypad(
+                onDigit: (d) => ref
+                    .read(quickAuthSetupControllerProvider.notifier)
+                    .addDigit(d),
+                onDelete: () => ref
+                    .read(quickAuthSetupControllerProvider.notifier)
+                    .removeDigit(),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );

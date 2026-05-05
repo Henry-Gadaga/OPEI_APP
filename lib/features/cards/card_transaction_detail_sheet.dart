@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:opei/data/models/card_transaction.dart';
 import 'package:opei/theme.dart';
-import 'package:opei/widgets/reference_copy_value.dart';
 
 Future<void> showCardTransactionDetailSheet(
   BuildContext context,
@@ -11,6 +11,8 @@ Future<void> showCardTransactionDetailSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
+    barrierColor: Colors.black.withValues(alpha: 0.45),
+    useSafeArea: false,
     builder: (context) => CardTransactionDetailSheet(transaction: transaction),
   );
 }
@@ -22,212 +24,446 @@ class CardTransactionDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final entries = _buildEntries();
-    final methodLabel = transaction.normalizedMethod;
+    final isCredit = transaction.isCredit;
+    final amountColor =
+        isCredit ? const Color(0xFF137A33) : OpeiBrand.ink;
+    final iconBg =
+        isCredit ? const Color(0xFFE6F6EA) : OpeiBrand.surfaceMuted;
+    final iconFg =
+        isCredit ? const Color(0xFF137A33) : OpeiBrand.ink;
+    final iconData =
+        isCredit ? Icons.south_rounded : Icons.north_rounded;
 
-    return FractionallySizedBox(
-      heightFactor: 0.82,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(28),
-          topRight: Radius.circular(28),
-        ),
-        child: Material(
-          color: OpeiColors.pureWhite,
-          child: Column(
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OpeiColors.iosSurfaceMuted,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Expanded(
-                child: ListView(
-                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-                  children: [
-                    Text(
-                      transaction.title,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.5,
-                          ),
+    // Strip sign characters — we convey direction via colour and icon
+    final amountDisplay = transaction.formattedAmount
+        .replaceAll('+', '')
+        .replaceAll('−', '')
+        .replaceAll('-', '')
+        .trim();
+
+    final status = transaction.normalizedStatus.toUpperCase();
+
+    final entries = <_Entry>[
+      if (transaction.normalizedType.isNotEmpty)
+        _Entry('Type', transaction.normalizedType),
+      if (transaction.normalizedTransactionType.isNotEmpty)
+        _Entry('Transaction type', transaction.normalizedTransactionType),
+      _Entry('Direction', isCredit ? 'Incoming' : 'Outgoing'),
+      _Entry('Currency', transaction.currencyLabel),
+      if (transaction.balanceAfterDetail.isNotEmpty)
+        _Entry('Card balance after', transaction.balanceAfterDetail),
+      if (transaction.normalizedMethod.isNotEmpty)
+        _Entry('Method', transaction.normalizedMethod),
+      if ((transaction.reference ?? '').trim().isNotEmpty)
+        _Entry('Reference', transaction.reference!.trim(), isCopy: true),
+    ];
+
+    final narrative = (transaction.narrative ?? '').trim();
+    final bottomPad = MediaQuery.of(context).padding.bottom;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.82,
+      ),
+      decoration: const BoxDecoration(
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Handle + close ─────────────────────────────────────────
+            _Handle(onClose: () => Navigator.of(context).maybePop()),
+
+            // ── Header: icon · title + date · status ───────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: iconBg,
+                      borderRadius: BorderRadius.circular(13),
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    child: Icon(iconData, color: iconFg, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          transaction.formattedAmount,
-                          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w700,
-                                color: transaction.isCredit
-                                    ? OpeiColors.successGreen
-                                    : OpeiColors.errorRed,
-                              ),
+                          transaction.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: OpeiBrand.ink,
+                            letterSpacing: -0.3,
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        if (transaction.normalizedStatus.isNotEmpty)
-                          _StatusPill(label: transaction.normalizedStatus),
-                        if (transaction.normalizedType.isNotEmpty) ...[
-                          const SizedBox(width: 8),
-                          _StatusPill(label: transaction.normalizedType, inverted: true),
+                        if (transaction.formattedDate.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            transaction.formattedDate,
+                            style: const TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: OpeiBrand.inkSecondary,
+                            ),
+                          ),
                         ],
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    if (transaction.formattedDate.isNotEmpty)
-                      Text(
-                        transaction.formattedDate,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 12,
-                              color: OpeiColors.iosLabelSecondary,
-                            ),
+                  ),
+                  const SizedBox(width: 10),
+                  _StatusChip(status: status),
+                ],
+              ),
+            ),
+
+            // ── Amount ─────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  amountDisplay,
+                  style: TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    color: amountColor,
+                    letterSpacing: -1.0,
+                    height: 1.0,
+                  ),
+                ),
+              ),
+            ),
+
+            // ── Divider ────────────────────────────────────────────────
+            const Divider(height: 1, thickness: 0.6, color: OpeiBrand.hairline),
+
+            // ── Detail rows ────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  for (var i = 0; i < entries.length; i++)
+                    _DetailRow(
+                      entry: entries[i],
+                      showDivider: i != entries.length - 1 ||
+                          narrative.isNotEmpty,
+                    ),
+                ],
+              ),
+            ),
+
+            // ── Narrative / note ───────────────────────────────────────
+            if (narrative.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'NOTE',
+                      style: TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: OpeiBrand.inkTertiary,
+                        letterSpacing: 0.6,
                       ),
-                    if (methodLabel.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        'Method • $methodLabel',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 12,
-                              color: OpeiColors.iosLabelSecondary,
-                            ),
+                    ),
+                    const SizedBox(height: 5),
+                    SelectableText(
+                      narrative,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w500,
+                        color: OpeiBrand.ink,
+                        height: 1.4,
                       ),
-                    ],
-                    const SizedBox(height: 24),
-                    ...entries.map((entry) => _DetailRow(entry: entry)),
+                    ),
                   ],
                 ),
               ),
-            ],
-          ),
+
+            SizedBox(height: 20 + bottomPad),
+          ],
         ),
       ),
     );
   }
-
-  List<_DetailEntry> _buildEntries() {
-    final entries = <_DetailEntry>[
-      _DetailEntry('Card Balance After', transaction.balanceAfterDetail),
-      _DetailEntry('Type', transaction.normalizedType),
-      _DetailEntry('Transaction Type', transaction.normalizedTransactionType),
-      _DetailEntry('Narrative', transaction.narrative?.trim() ?? '', multiline: true),
-      _DetailEntry('Status', transaction.normalizedStatus),
-      _DetailEntry('Currency', transaction.currencyLabel),
-      _DetailEntry('Reference', transaction.reference?.trim() ?? ''),
-    ];
-
-    return entries.where((entry) => entry.value.trim().isNotEmpty).toList(growable: false);
-  }
 }
 
-class _StatusPill extends StatelessWidget {
-  final String label;
-  final bool inverted;
+// ─────────────────────────────────────────────────────────────────────────────
+// Handle + close
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const _StatusPill({required this.label, this.inverted = false});
+class _Handle extends StatelessWidget {
+  final VoidCallback onClose;
+  const _Handle({required this.onClose});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final normalized = label.trim();
-    final background = inverted
-        ? OpeiColors.pureBlack
-        : OpeiColors.iosSurfaceMuted;
-    final foreground = inverted
-        ? OpeiColors.pureWhite
-        : OpeiColors.pureBlack;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        normalized,
-        style: theme.textTheme.labelSmall?.copyWith(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
-              color: foreground,
+    return SizedBox(
+      height: 34,
+      child: Stack(
+        children: [
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 34,
+              height: 4,
+              decoration: BoxDecoration(
+                color: OpeiBrand.hairlineStrong,
+                borderRadius: BorderRadius.circular(99),
+              ),
             ),
+          ),
+          Positioned(
+            top: 5,
+            right: 6,
+            child: GestureDetector(
+              onTap: onClose,
+              child: Container(
+                width: 26,
+                height: 26,
+                decoration: const BoxDecoration(
+                  color: OpeiBrand.surfaceMuted,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: const Icon(
+                  Icons.close_rounded,
+                  size: 15,
+                  color: OpeiBrand.inkSecondary,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _DetailEntry {
+// ─────────────────────────────────────────────────────────────────────────────
+// Status chip
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _StatusChip extends StatelessWidget {
+  final String status;
+  const _StatusChip({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    if (status.isEmpty) return const SizedBox.shrink();
+
+    Color bg;
+    Color fg;
+    String label;
+
+    switch (status) {
+      case 'COMPLETED':
+      case 'SUCCESS':
+        bg = const Color(0xFFE6F6EA);
+        fg = const Color(0xFF137A33);
+        label = 'Completed';
+        break;
+      case 'PENDING':
+      case 'PROCESSING':
+        bg = const Color(0xFFFFF6E0);
+        fg = const Color(0xFF8A5A00);
+        label = 'Pending';
+        break;
+      case 'FAILED':
+      case 'DECLINED':
+        bg = const Color(0xFFFDECEC);
+        fg = OpeiBrand.danger;
+        label = status == 'FAILED' ? 'Failed' : 'Declined';
+        break;
+      default:
+        bg = OpeiBrand.surfaceMuted;
+        fg = OpeiBrand.inkSecondary;
+        label = status.isNotEmpty
+            ? status[0] + status.substring(1).toLowerCase()
+            : '';
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 5,
+            height: 5,
+            decoration: BoxDecoration(color: fg, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: fg,
+              letterSpacing: 0.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Detail row
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _Entry {
   final String label;
   final String value;
-  final bool multiline;
-
-  const _DetailEntry(this.label, this.value, {this.multiline = false});
+  final bool isCopy;
+  const _Entry(this.label, this.value, {this.isCopy = false});
 }
 
 class _DetailRow extends StatelessWidget {
-  final _DetailEntry entry;
-
-  const _DetailRow({required this.entry});
+  final _Entry entry;
+  final bool showDivider;
+  const _DetailRow({required this.entry, required this.showDivider});
 
   @override
   Widget build(BuildContext context) {
-    final valueText = entry.value.trim();
+    final val = entry.value.trim().isEmpty ? '—' : entry.value.trim();
 
-    if (entry.label.toLowerCase() == 'reference') {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 18),
-        child: ReferenceCopyValue(
-          label: entry.label,
-          reference: valueText,
-          labelOnTop: true,
-          labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
-                fontSize: 13,
-                color: OpeiColors.iosLabelSecondary,
-                letterSpacing: 0.2,
+    return Container(
+      decoration: showDivider
+          ? const BoxDecoration(
+              border: Border(
+                bottom:
+                    BorderSide(color: OpeiBrand.hairline, width: 0.5),
               ),
-          valueStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+            )
+          : null,
+      padding: const EdgeInsets.symmetric(vertical: 11),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             entry.label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  fontSize: 13,
-                  color: OpeiColors.iosLabelSecondary,
-                  letterSpacing: 0.2,
-                ),
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
           ),
-          const SizedBox(height: 6),
-          entry.multiline
-              ? SelectableText(
-                  valueText,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                )
-              : Text(
-                  valueText,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                ),
+          const Spacer(),
+          Flexible(
+            child: entry.isCopy
+                ? _CopyValue(value: val)
+                : Text(
+                    val,
+                    textAlign: TextAlign.right,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w600,
+                      color: OpeiBrand.ink,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Tap-to-copy reference
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CopyValue extends StatefulWidget {
+  final String value;
+  const _CopyValue({required this.value});
+
+  @override
+  State<_CopyValue> createState() => _CopyValueState();
+}
+
+class _CopyValueState extends State<_CopyValue> {
+  bool _copied = false;
+
+  Future<void> _copy() async {
+    await Clipboard.setData(ClipboardData(text: widget.value));
+    if (!mounted) return;
+    setState(() => _copied = true);
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+    setState(() => _copied = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _copy,
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Flexible(
+            child: Text(
+              widget.value,
+              textAlign: TextAlign.right,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w600,
+                color: OpeiBrand.ink,
+                letterSpacing: -0.1,
+              ),
+            ),
+          ),
+          const SizedBox(width: 5),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            child: Icon(
+              _copied ? Icons.check_rounded : Icons.copy_rounded,
+              key: ValueKey(_copied),
+              size: 13,
+              color: _copied
+                  ? const Color(0xFF137A33)
+                  : OpeiBrand.inkTertiary,
+            ),
+          ),
         ],
       ),
     );

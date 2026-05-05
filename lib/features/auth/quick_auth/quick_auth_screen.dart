@@ -86,82 +86,101 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeOutCubic,
           child: SafeArea(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(minHeight: constraints.maxHeight),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 16),
-                          _Avatar(initial: _userName.isNotEmpty
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+              child: Column(
+                children: [
+                  // ── Top zone: identity + dots (takes all spare space) ──
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _Avatar(
+                          initial: _userName.isNotEmpty
                               ? _userName[0].toUpperCase()
-                              : 'U'),
-                          const SizedBox(height: 22),
-                          const Text(
-                            'Welcome back',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.w700,
-                              color: OpeiBrand.ink,
-                              letterSpacing: -0.6,
-                              height: 1.1,
-                            ),
+                              : 'U',
+                        ),
+                        const SizedBox(height: 18),
+                        const Text(
+                          'Welcome back',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            color: OpeiBrand.ink,
+                            letterSpacing: -0.7,
+                            height: 1.1,
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _hasPinSetup
-                                ? 'Enter your 6-digit PIN to continue'
-                                : 'No quick PIN is set up on this device',
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: OpeiBrand.inkSecondary,
-                              letterSpacing: -0.1,
-                            ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          _hasPinSetup
+                              ? 'Enter your 6-digit PIN to continue'
+                              : 'No quick PIN is set up on this device',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: OpeiBrand.inkSecondary,
+                            letterSpacing: -0.1,
                           ),
-                          const SizedBox(height: 36),
-                          if (_hasPinSetup) ...[
-                            OpeiPinDots(
-                              filled: pinState.pin.length,
-                              errored: pinState.errorMessage != null,
-                            ),
-                            const SizedBox(height: 18),
-                            _ErrorLine(message: pinState.errorMessage),
-                            const SizedBox(height: 28),
-                            OpeiPinKeypad(
-                              onDigit: (d) => ref
-                                  .read(quickAuthControllerProvider.notifier)
-                                  .addDigit(d),
-                              onDelete: () => ref
-                                  .read(quickAuthControllerProvider.notifier)
-                                  .removeDigit(),
-                            ),
-                          ] else ...[
-                            const SizedBox(height: 24),
-                            const Icon(Icons.lock_outline_rounded,
-                                size: 36, color: OpeiBrand.inkTertiary),
-                            const SizedBox(height: 32),
-                          ],
-                          const SizedBox(height: 24),
-                          _BottomLinks(
-                            onUsePassword: () => context.go('/login'),
-                            onForgotPin: () => ref
-                                .read(quickAuthControllerProvider.notifier)
-                                .logoutAndResetPin(),
+                        ),
+                        const SizedBox(height: 36),
+                        if (_hasPinSetup) ...[
+                          OpeiPinDots(
+                            filled: pinState.pin.length,
+                            errored: pinState.errorMessage != null,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
+                          _ErrorLine(message: pinState.errorMessage),
+                        ] else ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: OpeiBrand.surfaceMuted,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: OpeiBrand.hairline, width: 1),
+                            ),
+                            child: const Icon(Icons.lock_outline_rounded,
+                                size: 24, color: OpeiBrand.inkTertiary),
+                          ),
                         ],
-                      ),
+                      ],
                     ),
                   ),
-                );
-              },
+
+                  // ── Bottom zone: keypad + links (natural height) ───────
+                  if (_hasPinSetup)
+                    OpeiPinKeypad(
+                      onDigit: (d) => ref
+                          .read(quickAuthControllerProvider.notifier)
+                          .addDigit(d),
+                      onDelete: () => ref
+                          .read(quickAuthControllerProvider.notifier)
+                          .removeDigit(),
+                    ),
+                  const SizedBox(height: 8),
+                  _BottomLinks(
+                    onUsePassword: () {
+                      // Reset quick-auth gate so the router guard doesn't
+                      // bounce the user back here after they sign in with a
+                      // different account from /login.
+                      ref.read(quickAuthStatusProvider.notifier).reset();
+                      context.go('/login');
+                    },
+                    onForgotPin: () {
+                      // Reset the quick-auth gate so the router guard
+                      // doesn't bounce the user back here while they
+                      // recover their account, then route to the standard
+                      // forgot-password flow.
+                      ref.read(quickAuthStatusProvider.notifier).reset();
+                      context.go('/forgot-password');
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
