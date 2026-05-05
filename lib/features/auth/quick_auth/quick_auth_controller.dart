@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io' show SocketException;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/features/auth/quick_auth/quick_auth_state.dart';
 
@@ -95,6 +97,21 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       state = QuickAuthSuccess();
     } catch (e) {
       debugPrint('❌ Quick auth failed: $e');
+
+      // Network/timeout/server errors should never log the user out: their
+      // PIN was correct and their refresh token is still valid, they're
+      // simply offline. Show an inline message and let them retry once
+      // they're back online. Real auth errors (401/403) fall through to
+      // the existing logout-and-redirect path.
+      if (_isTransientNetworkError(e)) {
+        quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
+        state = QuickAuthPinEntry(
+          errorMessage:
+              'No internet connection. Please check your network and try again.',
+        );
+        return;
+      }
+
       quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
       _resetFailedAttempts();
       state = QuickAuthFailed('Authentication failed. Please login again.');
@@ -149,6 +166,18 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       state = QuickAuthSuccess();
     } catch (e) {
       debugPrint('❌ Biometric auth failed: $e');
+
+      // Same offline-friendly handling as PIN verification: keep the
+      // session, surface a network error, let the user retry.
+      if (_isTransientNetworkError(e)) {
+        quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
+        state = QuickAuthPinEntry(
+          errorMessage:
+              'No internet connection. Please check your network and try again.',
+        );
+        return;
+      }
+
       quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
       state = QuickAuthFailed('Authentication failed. Please login again.');
     }
@@ -194,6 +223,26 @@ class QuickAuthController extends Notifier<QuickAuthState> {
     state = QuickAuthPinEntry(errorMessage: attemptMessage);
     await Future.delayed(const Duration(milliseconds: 1500));
     state = QuickAuthPinEntry();
+  }
+
+  /// Returns true when [error] looks like a transient network/server hiccup
+  /// the user can retry — as opposed to a real authentication failure.
+  ///
+  /// `ApiClient` wraps Dio connection/timeout errors into [ApiError] with no
+  /// `statusCode`, so the absence of a status code is the cleanest signal.
+  /// 5xx responses are also treated as transient. Everything else (401/403
+  /// auth failures, 400 validation, etc.) falls through and is handled by
+  /// the existing logout flow.
+  bool _isTransientNetworkError(Object error) {
+    if (error is ApiError) {
+      if (error.statusCode == null) return true;
+      final code = error.statusCode!;
+      if (code >= 500 && code < 600) return true;
+      return false;
+    }
+    if (error is SocketException) return true;
+    if (error is TimeoutException) return true;
+    return false;
   }
 
   Future<void> _forceLogoutAfterTooManyAttempts() async {
