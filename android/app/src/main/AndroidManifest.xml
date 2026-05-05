@@ -1,9 +1,24 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!--
+      Opei is a fintech app. Photo / video access is only needed for one-time
+      uploads (KYC documents, P2P payment proofs, dispute attachments) which
+      use the Android Photo Picker on Android 13+ (no permission required) or
+      Storage Access Framework on older versions (uses READ_EXTERNAL_STORAGE
+      capped at API 32 below). The two broad media permissions are stripped
+      from the merged manifest to comply with Google Play's Photo and Video
+      Permissions policy.
+    -->
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_IMAGES"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.READ_MEDIA_VIDEO"
+        tools:node="remove" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
