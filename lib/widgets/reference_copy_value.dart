@@ -123,7 +123,14 @@ class _ReferenceCopyValueState extends State<ReferenceCopyValue> {
         : Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(widget.label, style: resolvedLabelStyle),
+              Flexible(
+                child: Text(
+                  widget.label,
+                  style: resolvedLabelStyle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(child: valueRow),
             ],

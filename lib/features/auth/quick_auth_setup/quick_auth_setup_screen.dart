@@ -27,7 +27,7 @@ class QuickAuthSetupScreen extends ConsumerWidget {
       } else if (next is QuickAuthSetupError) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(next.message),
+            content: Text(next.message, maxLines: 4, overflow: TextOverflow.ellipsis),
             backgroundColor: OpeiBrand.danger,
           ),
         );

@@ -506,7 +506,11 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
                       final error = ref.read(depositControllerProvider).error;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(error ?? 'Failed to fetch deposit address'),
+                          content: Text(
+                            error ?? 'Failed to fetch deposit address',
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           backgroundColor: const Color(0xFFFF3B30),
                           behavior: SnackBarBehavior.floating,
                           margin: const EdgeInsets.all(16),

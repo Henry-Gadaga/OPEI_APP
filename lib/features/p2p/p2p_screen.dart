@@ -232,7 +232,9 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       final friendly = error is String
           ? error
           : 'We couldn’t cancel this trade. Please try again.';
-      messenger?.showSnackBar(SnackBar(content: Text(friendly)));
+      messenger?.showSnackBar(SnackBar(
+        content: Text(friendly, maxLines: 4, overflow: TextOverflow.ellipsis),
+      ));
     }
   }
 
@@ -394,7 +396,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_friendlyGenericError(e))),
+        SnackBar(content: Text(_friendlyGenericError(e), maxLines: 4, overflow: TextOverflow.ellipsis)),
       );
     } finally {
       if (mounted) {
@@ -1691,32 +1693,35 @@ class _NavItemState extends State<_NavItem>
         scale: _scaleAnimation,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                widget.isSelected ? widget.selectedIcon : widget.icon,
-                size: 22,
-                color: widget.isSelected
-                    ? OpeiColors.pureBlack
-                    : OpeiColors.iosLabelTertiary,
-              ),
-              const SizedBox(height: 2),
-              Text(
-                widget.label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 10,
-                      fontWeight:
-                          widget.isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: widget.isSelected
-                          ? OpeiColors.pureBlack
-                          : OpeiColors.iosLabelTertiary,
-                      letterSpacing: -0.1,
-                    ),
-              ),
-            ],
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  widget.isSelected ? widget.selectedIcon : widget.icon,
+                  size: 22,
+                  color: widget.isSelected
+                      ? OpeiColors.pureBlack
+                      : OpeiColors.iosLabelTertiary,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  widget.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 10,
+                        fontWeight:
+                            widget.isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: widget.isSelected
+                            ? OpeiColors.pureBlack
+                            : OpeiColors.iosLabelTertiary,
+                        letterSpacing: -0.1,
+                      ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -5904,7 +5909,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       router.push('/p2p/rate-trade', extra: updated);
     } catch (error, _) {
       messenger?.showSnackBar(
-        SnackBar(content: Text(_mapReleaseError(error))),
+        SnackBar(content: Text(_mapReleaseError(error), maxLines: 4, overflow: TextOverflow.ellipsis)),
       );
 
       if (mounted) {
@@ -6122,7 +6127,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       final friendly = error is String
           ? error
           : 'We couldn’t cancel this trade. Please try again.';
-      messenger?.showSnackBar(SnackBar(content: Text(friendly)));
+      messenger?.showSnackBar(SnackBar(
+        content: Text(friendly, maxLines: 4, overflow: TextOverflow.ellipsis),
+      ));
     }
   }
 
@@ -7096,7 +7103,9 @@ class _MyAdDetailSheet extends ConsumerWidget {
           return;
         }
         ScaffoldMessenger.maybeOf(context)
-            ?.showSnackBar(SnackBar(content: Text(message)));
+            ?.showSnackBar(SnackBar(
+          content: Text(message, maxLines: 4, overflow: TextOverflow.ellipsis),
+        ));
         Navigator.of(context).pop();
       } catch (error) {
         if (!context.mounted) {
@@ -7106,7 +7115,9 @@ class _MyAdDetailSheet extends ConsumerWidget {
             ? error
             : 'We couldn\'t deactivate this ad. Please try again.';
         ScaffoldMessenger.maybeOf(context)
-            ?.showSnackBar(SnackBar(content: Text(friendly)));
+            ?.showSnackBar(SnackBar(
+          content: Text(friendly, maxLines: 4, overflow: TextOverflow.ellipsis),
+        ));
       }
     }
 

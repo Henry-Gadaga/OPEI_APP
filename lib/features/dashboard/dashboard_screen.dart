@@ -1152,44 +1152,52 @@ class _NavTileState extends State<_NavTile>
       onTapCancel: () => _c.reverse(),
       child: ScaleTransition(
         scale: _s,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Active dot indicator above icon
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              width: widget.active ? 20 : 0,
-              height: 3,
-              decoration: BoxDecoration(
-                color: widget.active ? activeColor : Colors.transparent,
-                borderRadius: BorderRadius.circular(999),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Active dot indicator above icon
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                width: widget.active ? 20 : 0,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: widget.active ? activeColor : Colors.transparent,
+                  borderRadius: BorderRadius.circular(999),
+                ),
               ),
-            ),
-            const SizedBox(height: 5),
-            AnimatedScale(
-              scale: widget.active ? 1.08 : 1.0,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutCubic,
-              child: Icon(
-                widget.active ? widget.item.filled : widget.item.outline,
-                size: 22,
-                color: widget.active ? activeColor : inactiveColor,
+              const SizedBox(height: 5),
+              AnimatedScale(
+                scale: widget.active ? 1.08 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                child: Icon(
+                  widget.active ? widget.item.filled : widget.item.outline,
+                  size: 22,
+                  color: widget.active ? activeColor : inactiveColor,
+                ),
               ),
-            ),
-            const SizedBox(height: 3),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: TextStyle(
-                fontFamily: kPrimaryFontFamily,
-                fontSize: 9.5,
-                fontWeight:
-                    widget.active ? FontWeight.w700 : FontWeight.w500,
-                color: widget.active ? activeColor : inactiveColor,
-                letterSpacing: -0.1,
+              const SizedBox(height: 3),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 9.5,
+                  fontWeight:
+                      widget.active ? FontWeight.w700 : FontWeight.w500,
+                  color: widget.active ? activeColor : inactiveColor,
+                  letterSpacing: -0.1,
+                ),
+                child: Text(
+                  widget.item.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              child: Text(widget.item.label),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
