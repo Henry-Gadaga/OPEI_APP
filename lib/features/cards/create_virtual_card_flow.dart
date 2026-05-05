@@ -414,7 +414,6 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             TextButton.icon(
               onPressed: isProcessing ? null : controller.backToAmountEntry,
@@ -426,12 +425,20 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
                 textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
             ),
+            const Spacer(),
             if (state.amount != null)
-              Text(
-                state.amount!.format(includeCurrencySymbol: true),
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 17,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    state.amount!.format(includeCurrencySymbol: true),
+                    maxLines: 1,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17,
+                    ),
+                  ),
                 ),
               ),
           ],
@@ -627,10 +634,30 @@ class _PreviewRow extends StatelessWidget {
     );
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: labelStyle),
-        Text(value, style: valueStyle),
+        Flexible(
+          flex: 4,
+          child: Text(
+            label,
+            style: labelStyle,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Flexible(
+          flex: 6,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Text(
+              value,
+              style: valueStyle,
+              maxLines: 1,
+            ),
+          ),
+        ),
       ],
     );
   }

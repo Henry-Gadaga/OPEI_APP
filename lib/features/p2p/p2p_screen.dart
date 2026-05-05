@@ -1704,6 +1704,8 @@ class _NavItemState extends State<_NavItem>
               const SizedBox(height: 2),
               Text(
                 widget.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontSize: 10,
                       fontWeight:
@@ -7109,6 +7111,9 @@ class _MyAdDetailSheet extends ConsumerWidget {
     }
 
     return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.88,
+      ),
       decoration: const BoxDecoration(
         color: OpeiColors.pureWhite,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -7281,21 +7286,35 @@ class _MyAdDetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: OpeiColors.iosLabelSecondary,
+        Flexible(
+          flex: 4,
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
         ),
-        Text(
-          value,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
+        const SizedBox(width: 12),
+        Flexible(
+          flex: 6,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ),
       ],

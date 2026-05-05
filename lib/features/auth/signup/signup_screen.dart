@@ -120,7 +120,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
+        ),
         backgroundColor: OpeiBrand.danger,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),

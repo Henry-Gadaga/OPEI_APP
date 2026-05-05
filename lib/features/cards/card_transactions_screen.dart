@@ -412,16 +412,19 @@ class _TransactionCardPreview extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
-                'VISA',
-                style: TextStyle(
-                  color: OpeiColors.pureWhite.withValues(alpha: 0.92),
-                  fontSize: 32,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 3.0,
-                  fontStyle: FontStyle.italic,
-                  height: 0.9,
-                  fontFamily: '',
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'VISA',
+                  style: TextStyle(
+                    color: OpeiColors.pureWhite.withValues(alpha: 0.92),
+                    fontSize: 32,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 3.0,
+                    fontStyle: FontStyle.italic,
+                    height: 0.9,
+                    fontFamily: '',
+                  ),
                 ),
               ),
             ],
