@@ -30,6 +30,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow Opei to capture documents and selfies for verification.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Allow Opei to use Face ID for fast and secure sign-in to your account.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allow Opei to confirm your location for compliance and fraud checks.</string>
 	<key>NSMicrophoneUsageDescription</key>
