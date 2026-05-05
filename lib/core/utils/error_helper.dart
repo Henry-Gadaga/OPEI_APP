@@ -352,7 +352,11 @@ class ErrorHelper {
 void showError(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(message),
+      content: Text(
+        message,
+        maxLines: 4,
+        overflow: TextOverflow.ellipsis,
+      ),
       backgroundColor: const Color(0xFFFF3B30),
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.all(16),
@@ -365,7 +369,11 @@ void showError(BuildContext context, String message) {
 void showSuccess(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text(message),
+      content: Text(
+        message,
+        maxLines: 4,
+        overflow: TextOverflow.ellipsis,
+      ),
       backgroundColor: const Color(0xFF34C759),
       behavior: SnackBarBehavior.floating,
       margin: const EdgeInsets.all(16),

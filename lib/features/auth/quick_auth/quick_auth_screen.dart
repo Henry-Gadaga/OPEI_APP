@@ -86,10 +86,16 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
           duration: const Duration(milliseconds: 350),
           curve: Curves.easeOutCubic,
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-              child: Column(
-                children: [
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: constraints.maxHeight - 12),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
                   // ── Top zone: identity + dots (takes all spare space) ──
                   Expanded(
                     child: Column(
@@ -179,8 +185,12 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                       context.go('/forgot-password');
                     },
                   ),
-                ],
-              ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -227,7 +237,11 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          maxLines: 4,
+          overflow: TextOverflow.ellipsis,
+        ),
         backgroundColor: OpeiBrand.danger,
       ),
     );

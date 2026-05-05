@@ -81,11 +81,17 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       child: Scaffold(
         backgroundColor: OpeiBrand.surface,
         body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 8, 24, 16 + bottomPad * 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(24, 8, 24, 16 + bottomPad * 0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight - 24),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
                 // ── Brand block ──────────────────────────────────────────
                 const Spacer(flex: 5),
                 FadeTransition(
@@ -203,8 +209,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     ),
                   ),
                 ),
-              ],
-            ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),

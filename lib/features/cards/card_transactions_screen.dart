@@ -282,9 +282,17 @@ class _CardTransactionTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Text(
-                        transaction.formattedAmount,
-                        style: amountStyle,
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 140),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            transaction.formattedAmount,
+                            style: amountStyle,
+                            maxLines: 1,
+                          ),
+                        ),
                       ),
                     ],
                   ),

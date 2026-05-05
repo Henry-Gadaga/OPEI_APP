@@ -96,10 +96,16 @@ class _PinEntryScreen extends ConsumerWidget {
     final isConfirming = state.isConfirming;
     return ResponsiveScaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
-          child: Column(
-            children: [
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 12),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
               // Back bar
               _BackBar(
                 onBack: () => ref
@@ -158,8 +164,12 @@ class _PinEntryScreen extends ConsumerWidget {
                     .removeDigit(),
               ),
               const SizedBox(height: 8),
-            ],
-          ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
