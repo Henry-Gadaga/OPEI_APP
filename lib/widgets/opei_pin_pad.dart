@@ -232,8 +232,8 @@ class _KeyTileState extends State<_KeyTile>
     with SingleTickerProviderStateMixin {
   late final AnimationController _flash = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 80),
-    reverseDuration: const Duration(milliseconds: 200),
+    duration: const Duration(milliseconds: 60),
+    reverseDuration: const Duration(milliseconds: 160),
   );
 
   @override
@@ -262,11 +262,11 @@ class _KeyTileState extends State<_KeyTile>
           width: widget.size,
           height: widget.size,
           decoration: BoxDecoration(
-            // Borderless: background is invisible at rest and fades in
-            // as a very faint circle on press — clean bank/Revolut style.
+            // Borderless: barely-visible press flash — just enough to
+            // register the tap without looking like a heavy button.
             color: Color.lerp(
               Colors.transparent,
-              const Color(0xFFE8E8EC),
+              const Color(0x18000000),
               _flash.value,
             ),
             shape: BoxShape.circle,

@@ -420,11 +420,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<T?> _presentResponsiveSheet<T>({
     required WidgetBuilder builder,
     bool enableDrag = true,
+    bool dismissOnBarrierTap = false,
   }) {
     return showResponsiveBottomSheet<T>(
       context: context,
       builder: builder,
       enableDrag: enableDrag,
+      dismissOnBarrierTap: dismissOnBarrierTap,
       barrierColor: Colors.black.withValues(alpha: 0.35),
     );
   }
@@ -432,7 +434,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _handleLogout(BuildContext context, controller) async {
     final success = await _presentResponsiveSheet<bool>(
       builder: (_) => _LogoutConfirmationSheet(controller: controller),
-      enableDrag: false,
+      enableDrag: true,
+      dismissOnBarrierTap: true,
     );
 
     if (success == true && context.mounted) {
@@ -453,145 +456,123 @@ class _LogoutConfirmationSheet extends StatefulWidget {
 
 class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
   bool _isProcessing = false;
+  static const _logoutActionRed = Color(0xFFC93F4A);
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = context.responsiveSpacingUnit;
-    final tokens = context.responsiveTokens;
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: bottomInset + spacing * 2),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: OpeiColors.pureWhite,
-          borderRadius: BorderRadius.circular(tokens.dialogRadius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 30,
-              offset: const Offset(0, 16),
+    return Container(
+      decoration: const BoxDecoration(
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Drag handle ────────────────────────────────────
+          const SizedBox(height: 14),
+          Container(
+            width: 36,
+            height: 4,
+            decoration: BoxDecoration(
+              color: OpeiBrand.hairlineStrong,
+              borderRadius: BorderRadius.circular(99),
             ),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            spacing * 2.5,
-            spacing * 2.25,
-            spacing * 2.5,
-            spacing * 2,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OpeiColors.grey300,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-              SizedBox(height: spacing * 2),
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  color: OpeiBrand.danger.withValues(alpha: 0.10),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.logout_rounded,
-                  size: 32,
-                  color: OpeiBrand.danger,
-                ),
-              ),
-              SizedBox(height: spacing * 2),
-              Text(
-                'Sign out of Opei?',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                  letterSpacing: -0.2,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: spacing),
-              Text(
-                'You’ll need to enter your email and PIN again next time.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.iosLabelSecondary,
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: spacing * 3),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _isProcessing
-                          ? null
-                          : () => Navigator.of(context).pop(false),
-                      style: OutlinedButton.styleFrom(
-                        padding:
-                            EdgeInsets.symmetric(vertical: spacing * 1.5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(tokens.buttonRadius),
-                        ),
-                        side: BorderSide(
-                          color: OpeiBrand.hairlineStrong,
-                        ),
-                      ),
-                      child: Text(
-                        'Stay signed in',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: OpeiBrand.ink,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: spacing * 1.5),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isProcessing ? null : _confirmLogout,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: OpeiBrand.danger,
-                        foregroundColor: OpeiColors.pureWhite,
-                        padding:
-                            EdgeInsets.symmetric(vertical: spacing * 1.5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(tokens.buttonRadius),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: _isProcessing
-                          ? SizedBox(
-                              height: spacing * 2.25,
-                              width: spacing * 2.25,
-                              child: const CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: OpeiColors.pureWhite,
-                              ),
-                            )
-                          : Text(
-                              'Log out',
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: OpeiColors.pureWhite,
-                              ),
-                            ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          const SizedBox(height: 22),
+
+          // ── Centered title ─────────────────────────────────
+          const Text(
+            'Log out',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.4,
+              height: 1.0,
+            ),
           ),
-        ),
+          const SizedBox(height: 6),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              'You’ll need to sign in again next time',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w500,
+                color: OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+                height: 1.35,
+              ),
+            ),
+          ),
+          const SizedBox(height: 26),
+
+          // ── Actions ────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            child: SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _isProcessing ? null : _confirmLogout,
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: _logoutActionRed,
+                  foregroundColor: Colors.white,
+                  disabledBackgroundColor:
+                      _logoutActionRed.withValues(alpha: 0.55),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(OpeiBrand.radiusCta),
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                child: _isProcessing
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                        ),
+                      )
+                    : const Text('Log out'),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+            child: TextButton(
+              onPressed: _isProcessing
+                  ? null
+                  : () => Navigator.of(context).pop(false),
+              style: TextButton.styleFrom(
+                foregroundColor: OpeiBrand.inkSecondary,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(height: bottomInset + 8),
+        ],
       ),
     );
   }
