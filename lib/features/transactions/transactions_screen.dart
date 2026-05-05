@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opei/core/money/money.dart';
-import 'package:opei/data/models/wallet_transaction.dart';
+import 'package:opei/data/models/transaction_summary.dart';
 import 'package:opei/features/dashboard/widgets/transaction_widgets.dart';
 import 'package:opei/features/transactions/transactions_controller.dart';
 import 'package:opei/features/transactions/transactions_state.dart';
@@ -18,12 +17,38 @@ class TransactionsScreen extends ConsumerStatefulWidget {
 }
 
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
+  final ScrollController _scrollController = ScrollController();
+  static const double _kLoadMoreThreshold = 360;
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(transactionsControllerProvider.notifier).ensureLoaded();
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    final remaining = position.maxScrollExtent - position.pixels;
+    if (remaining > _kLoadMoreThreshold) return;
+
+    final state = ref.read(transactionsControllerProvider);
+    if (!state.hasMore) return;
+    if (state.isLoadingMore) return;
+    if (state.isLoading || state.isRefreshing) return;
+    if (state.loadMoreError != null) return;
+
+    ref.read(transactionsControllerProvider.notifier).loadMore();
   }
 
   @override
@@ -31,8 +56,8 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     final state = ref.watch(transactionsControllerProvider);
     final controller = ref.read(transactionsControllerProvider.notifier);
 
-    final hasContent = state.transactions.isNotEmpty;
-    final summary = hasContent ? _Summary.from(state.transactions) : null;
+    final summary = state.summary;
+    final hasList = state.transactions.isNotEmpty;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark.copyWith(
@@ -49,6 +74,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             displacement: 28,
             onRefresh: () => controller.refresh(),
             child: CustomScrollView(
+              controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics(),
               ),
@@ -59,16 +85,20 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                     isRefreshing: state.isRefreshing,
                   ),
                 ),
-                if (summary != null)
+                if (summary != null && !summary.isEmpty)
                   SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                      child: _SummaryCard(summary: summary),
-                    ),
+                    child: _SummaryCard(summary: summary),
                   ),
                 SliverToBoxAdapter(
                   child: _buildBody(context, state, controller),
                 ),
+                if (hasList)
+                  SliverToBoxAdapter(
+                    child: _ListFooter(
+                      state: state,
+                      onRetry: () => controller.loadMore(),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -122,14 +152,13 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // thin separator between summary / header and list
         const SizedBox(height: 20),
         Container(height: 0.6, color: OpeiBrand.hairline),
         AnimatedOpacity(
           duration: const Duration(milliseconds: 180),
           opacity: state.isRefreshing ? 0.7 : 1,
           child: Padding(
-            padding: const EdgeInsets.only(top: 4, bottom: 32),
+            padding: const EdgeInsets.only(top: 4),
             child: TransactionGroupsView(
               transactions: state.transactions,
               onTransactionTap: (tx) =>
@@ -139,6 +168,106 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
         ),
       ],
     );
+  }
+}
+
+// =====================================================================
+// Pagination footer — spinner, retry, or end-of-list marker
+// =====================================================================
+
+class _ListFooter extends StatelessWidget {
+  final TransactionsState state;
+  final VoidCallback onRetry;
+
+  const _ListFooter({required this.state, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPad = MediaQuery.of(context).padding.bottom + 24;
+
+    if (state.isLoadingMore) {
+      return Padding(
+        padding: EdgeInsets.fromLTRB(20, 20, 20, bottomPad),
+        child: const Center(
+          child: SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.2,
+              valueColor: AlwaysStoppedAnimation<Color>(OpeiBrand.primary),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (state.loadMoreError != null) {
+      return Padding(
+        padding: EdgeInsets.fromLTRB(20, 20, 20, bottomPad),
+        child: Column(
+          children: [
+            Text(
+              state.loadMoreError!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w500,
+                color: OpeiBrand.inkSecondary,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onRetry,
+                borderRadius: BorderRadius.circular(999),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: OpeiBrand.primaryTint,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: const Text(
+                    'Try again',
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: OpeiBrand.primary,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (!state.hasMore) {
+      return Padding(
+        padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
+        child: const Center(
+          child: Text(
+            "You're all caught up",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: OpeiBrand.inkTertiary,
+              letterSpacing: 0.1,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Has more but not loading yet — reserve a bit of space for the trigger.
+    return SizedBox(height: bottomPad + 16);
   }
 }
 
@@ -209,83 +338,25 @@ class _Header extends StatelessWidget {
 }
 
 // =====================================================================
-// Summary card — last 30 days inflow / outflow
+// Summary card — backend-computed inflow / outflow (last 30 days)
 // =====================================================================
 
-class _Summary {
-  final Money inflow;
-  final Money outflow;
-  final int inflowCount;
-  final int outflowCount;
-  final String currency;
-
-  const _Summary({
-    required this.inflow,
-    required this.outflow,
-    required this.inflowCount,
-    required this.outflowCount,
-    required this.currency,
-  });
-
-  factory _Summary.from(List<WalletTransaction> txs) {
-    final cutoff = DateTime.now().subtract(const Duration(days: 30));
-    final currency = txs.isNotEmpty ? txs.first.currency : 'USD';
-
-    int inCents = 0, outCents = 0;
-    int inN = 0, outN = 0;
-
-    for (final t in txs) {
-      final date = t.createdAt;
-      if (date == null || date.isBefore(cutoff)) continue;
-      // Only count completed / no-status to avoid pending fluff
-      final s = t.status?.trim().toUpperCase() ?? '';
-      final isFailed = s == 'FAILED' || s == 'CANCELLED' || s == 'CANCELED';
-      if (isFailed) continue;
-
-      if (t.isIncoming) {
-        inCents += t.amountCents.abs();
-        inN++;
-      } else {
-        outCents += t.amountCents.abs();
-        outN++;
-      }
-    }
-
-    return _Summary(
-      inflow: Money.fromCents(inCents, currency: currency),
-      outflow: Money.fromCents(outCents, currency: currency),
-      inflowCount: inN,
-      outflowCount: outN,
-      currency: currency,
-    );
-  }
-
-  bool get isEmpty => inflowCount == 0 && outflowCount == 0;
-}
-
 class _SummaryCard extends StatelessWidget {
-  final _Summary summary;
+  final TransactionSummary summary;
 
   const _SummaryCard({required this.summary});
 
   @override
   Widget build(BuildContext context) {
-    if (summary.isEmpty) return const SizedBox.shrink();
-
     return Container(
       decoration: BoxDecoration(
         color: OpeiBrand.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: OpeiBrand.hairline, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: OpeiBrand.ink.withValues(alpha: 0.025),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        border: const Border(
+          top: BorderSide(color: OpeiBrand.hairline, width: 0.6),
+          bottom: BorderSide(color: OpeiBrand.hairline, width: 0.6),
+        ),
       ),
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -300,9 +371,9 @@ class _SummaryCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Last 30 days',
-                style: TextStyle(
+              Text(
+                _rangeLabel(summary),
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -322,9 +393,7 @@ class _SummaryCard extends StatelessWidget {
                     iconBg: const Color(0xFFE6F6EA),
                     iconFg: const Color(0xFF137A33),
                     label: 'Money in',
-                    amount: summary.inflow.format(includeCurrencySymbol: true),
-                    sub:
-                        '${summary.inflowCount} ${summary.inflowCount == 1 ? 'inflow' : 'inflows'}',
+                    amount: summary.totalIn.format(includeCurrencySymbol: true),
                     amountColor: const Color(0xFF137A33),
                   ),
                 ),
@@ -335,9 +404,8 @@ class _SummaryCard extends StatelessWidget {
                     iconBg: OpeiBrand.surfaceMuted,
                     iconFg: OpeiBrand.ink,
                     label: 'Money out',
-                    amount: summary.outflow.format(includeCurrencySymbol: true),
-                    sub:
-                        '${summary.outflowCount} ${summary.outflowCount == 1 ? 'payment' : 'payments'}',
+                    amount:
+                        summary.totalOut.format(includeCurrencySymbol: true),
                     amountColor: OpeiBrand.ink,
                   ),
                 ),
@@ -348,6 +416,19 @@ class _SummaryCard extends StatelessWidget {
       ),
     );
   }
+
+  static String _rangeLabel(TransactionSummary summary) {
+    final from = summary.from;
+    final to = summary.to;
+    if (from == null || to == null) {
+      return 'Last 30 days';
+    }
+    final days = to.difference(from).inDays;
+    if (days >= 28 && days <= 31) return 'Last 30 days';
+    if (days >= 6 && days <= 8) return 'Last 7 days';
+    if (days >= 89 && days <= 92) return 'Last 90 days';
+    return 'Last $days days';
+  }
 }
 
 class _StatTile extends StatelessWidget {
@@ -356,7 +437,6 @@ class _StatTile extends StatelessWidget {
   final Color iconFg;
   final String label;
   final String amount;
-  final String sub;
   final Color amountColor;
 
   const _StatTile({
@@ -365,7 +445,6 @@ class _StatTile extends StatelessWidget {
     required this.iconFg,
     required this.label,
     required this.amount,
-    required this.sub,
     required this.amountColor,
   });
 
@@ -414,16 +493,6 @@ class _StatTile extends StatelessWidget {
                 color: amountColor,
                 letterSpacing: -0.6,
               ),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            sub,
-            style: const TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 11.5,
-              fontWeight: FontWeight.w500,
-              color: OpeiBrand.inkTertiary,
             ),
           ),
         ],

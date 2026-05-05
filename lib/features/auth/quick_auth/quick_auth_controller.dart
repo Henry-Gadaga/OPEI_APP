@@ -134,10 +134,17 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       );
       
       if (!isAuthenticated) {
-        state =
-            QuickAuthPinEntry(errorMessage: 'Biometric authentication failed');
+        const failureMessage = 'Biometric authentication failed';
+        state = QuickAuthPinEntry(errorMessage: failureMessage);
         await Future.delayed(const Duration(seconds: 2));
-        state = QuickAuthPinEntry();
+
+        // Don't wipe a PIN the user may have started typing while the
+        // banner was showing — only clear our own error.
+        final current = state;
+        if (current is QuickAuthPinEntry &&
+            current.errorMessage == failureMessage) {
+          state = QuickAuthPinEntry();
+        }
         return;
       }
 
@@ -222,7 +229,16 @@ class QuickAuthController extends Notifier<QuickAuthState> {
 
     state = QuickAuthPinEntry(errorMessage: attemptMessage);
     await Future.delayed(const Duration(milliseconds: 1500));
-    state = QuickAuthPinEntry();
+
+    // Only auto-clear the error banner if the user hasn't started typing
+    // a new PIN in the meantime. addDigit() sets errorMessage to null on
+    // input, so a non-matching errorMessage means we should leave the
+    // user's in-progress entry alone.
+    final current = state;
+    if (current is QuickAuthPinEntry &&
+        current.errorMessage == attemptMessage) {
+      state = QuickAuthPinEntry();
+    }
   }
 
   /// Returns true when [error] looks like a transient network/server hiccup

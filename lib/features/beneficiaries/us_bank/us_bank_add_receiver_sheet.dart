@@ -805,15 +805,14 @@ class _Pill extends StatelessWidget {
   final List<(String, String)> options;
   final String selected;
   final ValueChanged<String> onSelect;
-  final double segmentWidth;
-  final double height;
+
+  static const double segmentWidth = 78;
+  static const double height = 32;
 
   const _Pill({
     required this.options,
     required this.selected,
     required this.onSelect,
-    this.segmentWidth = 78,
-    this.height = 32,
   });
 
   @override

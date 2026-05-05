@@ -39,9 +39,12 @@ class TransactionDetailSheet extends StatelessWidget {
         .replaceAll('-', '')
         .trim();
 
+    final counterparty = transaction.counterpartyName?.trim();
     final entries = <_Entry>[
       _Entry('Type', transaction.humanizedTransactionType),
       _Entry('Direction', isIncoming ? 'Incoming' : 'Outgoing'),
+      if (counterparty != null && counterparty.isNotEmpty)
+        _Entry(isIncoming ? 'From' : 'To', counterparty),
       _Entry('Currency', transaction.currency.toUpperCase()),
       _Entry('Reference', transaction.displayReference, isCopy: true),
       if (transaction.formattedCreatedDateTime.isNotEmpty)

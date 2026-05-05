@@ -148,9 +148,8 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
       onCards: widget.onCardsTap,
     );
 
-    final whitePanel = _ActivityWhitePanel(
+    final whitePanelContent = _ActivityPanelContent(
       dash: dash,
-      onRefresh: () => controller.refreshBalance(),
       onViewAll: widget.onActivityTap,
       onRetry: () => controller.refreshBalance(showSpinner: false),
     );
@@ -161,14 +160,36 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
         bottom: false,
         child: Stack(
           children: [
-            // ---- live content ----
+            // ---- live content (single scroll, one refresh) ----
             Opacity(
               opacity: ready ? 1 : 0,
-              child: Column(
-                children: [
-                  topSection,
-                  Expanded(child: whitePanel),
-                ],
+              child: RefreshIndicator(
+                color: Colors.white,
+                backgroundColor: OpeiBrand.primary,
+                displacement: 56,
+                edgeOffset: 0,
+                onRefresh: () => controller.refreshBalance(),
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  slivers: [
+                    SliverToBoxAdapter(child: topSection),
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(28),
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          color: Colors.white,
+                          child: whitePanelContent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             // ---- loading skeleton ----
@@ -278,44 +299,7 @@ class _TopFixedSection extends StatelessWidget {
   }
 }
 
-// ── Full-width white panel: rounded top, fills to bottom nav ─────────
-
-class _ActivityWhitePanel extends StatelessWidget {
-  final DashboardState dash;
-  final Future<void> Function() onRefresh;
-  final VoidCallback onViewAll;
-  final VoidCallback onRetry;
-
-  const _ActivityWhitePanel({
-    required this.dash,
-    required this.onRefresh,
-    required this.onViewAll,
-    required this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: Container(
-        width: double.infinity,
-        color: Colors.white,
-        child: RefreshIndicator(
-          color: OpeiBrand.primary,
-          backgroundColor: Colors.white,
-          displacement: 28,
-          triggerMode: RefreshIndicatorTriggerMode.onEdge,
-          onRefresh: onRefresh,
-          child: _ActivityPanelContent(
-            dash: dash,
-            onViewAll: onViewAll,
-            onRetry: onRetry,
-          ),
-        ),
-      ),
-    );
-  }
-}
+// ── White panel content (no internal scroll; outer ListView scrolls) ─
 
 class _ActivityPanelContent extends StatelessWidget {
   final DashboardState dash;
@@ -364,59 +348,59 @@ class _ActivityPanelContent extends StatelessWidget {
       );
     }
 
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(
-        parent: BouncingScrollPhysics(),
-      ),
+    return Padding(
       padding: EdgeInsets.fromLTRB(0, 18, 0, 24 + mqBottom),
-      children: [
-        // header
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 12, 12),
-          child: Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Recent activity',
-                  style: TextStyle(
-                    fontFamily: kPrimaryFontFamily,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: OpeiBrand.ink,
-                    letterSpacing: -0.3,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 12, 12),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Recent activity',
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: OpeiBrand.ink,
+                      letterSpacing: -0.3,
+                    ),
                   ),
                 ),
-              ),
-              GestureDetector(
-                onTap: onViewAll,
-                behavior: HitTestBehavior.opaque,
-                child: const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'See all',
-                        style: TextStyle(
-                          fontFamily: kPrimaryFontFamily,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: OpeiBrand.primary,
-                          letterSpacing: -0.1,
+                GestureDetector(
+                  onTap: onViewAll,
+                  behavior: HitTestBehavior.opaque,
+                  child: const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'See all',
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: OpeiBrand.primary,
+                            letterSpacing: -0.1,
+                          ),
                         ),
-                      ),
-                      Icon(Icons.chevron_right_rounded,
-                          size: 16, color: OpeiBrand.primary),
-                    ],
+                        Icon(Icons.chevron_right_rounded,
+                            size: 16, color: OpeiBrand.primary),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        body,
-      ],
+          body,
+        ],
+      ),
     );
   }
 }
@@ -655,105 +639,128 @@ class _BalanceBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Greeting label
-        Text(
-          hasName ? '$greeting, $firstName' : greeting,
-          style: TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: Colors.white.withValues(alpha: 0.70),
-            letterSpacing: -0.1,
+        // Greeting label (constrained, never overflows)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            hasName ? '$greeting, $firstName' : greeting,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withValues(alpha: 0.70),
+              letterSpacing: -0.1,
+            ),
           ),
         ),
         const SizedBox(height: 10),
-        // Balance + eye toggle on same row
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
-              child: AnimatedOpacity(
-                key: ValueKey(hidden ? 'h' : amount),
-                duration: const Duration(milliseconds: 180),
-                opacity: dimForRefresh ? 0.7 : 1,
-                child: Text(
-                  hidden ? '••••••' : amount,
-                  style: const TextStyle(
-                    fontFamily: kPrimaryFontFamily,
-                    fontSize: 40,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                    letterSpacing: -1.4,
-                    height: 1.02,
+        // Balance + eye toggle (FittedBox keeps long amounts on one line)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  child: AnimatedOpacity(
+                    key: ValueKey(hidden ? 'h' : amount),
+                    duration: const Duration(milliseconds: 180),
+                    opacity: dimForRefresh ? 0.7 : 1,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.center,
+                      child: Text(
+                        hidden ? '••••••' : amount,
+                        maxLines: 1,
+                        style: const TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 40,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -1.4,
+                          height: 1.02,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: onToggle,
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Icon(
-                  hidden
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  size: 18,
-                  color: Colors.white.withValues(alpha: 0.70),
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: onToggle,
+                child: Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Icon(
+                    hidden
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 18,
+                    color: Colors.white.withValues(alpha: 0.70),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 10),
-        // Compact wallet pill
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(
-                color: Colors.white.withValues(alpha: 0.18), width: 0.7),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.account_balance_wallet_outlined,
-                  size: 12, color: Colors.white.withValues(alpha: 0.85)),
-              const SizedBox(width: 5),
-              Text(
-                'USD Wallet',
-                style: TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white.withValues(alpha: 0.9),
-                  letterSpacing: -0.1,
-                ),
-              ),
-              if (hasHold) ...[
-                Container(
-                  width: 1,
-                  height: 12,
-                  margin: const EdgeInsets.symmetric(horizontal: 8),
-                  color: Colors.white.withValues(alpha: 0.3),
-                ),
-                Icon(Icons.lock_outline_rounded,
-                    size: 11, color: Colors.white.withValues(alpha: 0.85)),
-                const SizedBox(width: 3),
+        // Compact wallet pill (constrained so long held amounts ellipsis)
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.18), width: 0.7),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.account_balance_wallet_outlined,
+                    size: 12, color: Colors.white.withValues(alpha: 0.85)),
+                const SizedBox(width: 5),
                 Text(
-                  '$reserved held',
+                  'USD Wallet',
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white.withValues(alpha: 0.85),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white.withValues(alpha: 0.9),
+                    letterSpacing: -0.1,
                   ),
                 ),
+                if (hasHold) ...[
+                  Container(
+                    width: 1,
+                    height: 12,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    color: Colors.white.withValues(alpha: 0.3),
+                  ),
+                  Icon(Icons.lock_outline_rounded,
+                      size: 11, color: Colors.white.withValues(alpha: 0.85)),
+                  const SizedBox(width: 3),
+                  Flexible(
+                    child: Text(
+                      '$reserved held',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white.withValues(alpha: 0.85),
+                      ),
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
         if (dash.error != null && dash.error!.isNotEmpty) ...[

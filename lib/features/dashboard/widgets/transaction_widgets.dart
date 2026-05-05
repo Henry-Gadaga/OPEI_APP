@@ -205,15 +205,23 @@ class WalletTransactionTile extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Text(
-                            vm.amountLabel,
-                            style: TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w700,
-                              color: vm.amountColor,
-                              letterSpacing: -0.3,
-                              height: 1.15,
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 160),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                vm.amountLabel,
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: vm.amountColor,
+                                  letterSpacing: -0.3,
+                                  height: 1.15,
+                                ),
+                              ),
                             ),
                           ),
                         ],

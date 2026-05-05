@@ -16,6 +16,8 @@ class WalletTransaction {
   final String? direction;
   final String? source;
   final dynamic metadata;
+  final String? counterpartyName;
+  final String? counterpartyUserId;
 
   WalletTransaction({
     required this.id,
@@ -32,6 +34,8 @@ class WalletTransaction {
     this.direction,
     this.source,
     this.metadata,
+    this.counterpartyName,
+    this.counterpartyUserId,
   });
 
   int get amountCents => amount.cents;
@@ -77,6 +81,11 @@ class WalletTransaction {
   }
 
   String get listTitle {
+    final name = counterpartyName?.trim();
+    if (name != null && name.isNotEmpty) {
+      return name;
+    }
+
     if (isCryptoTransfer) {
       return isIncoming ? 'USD Deposit' : 'USD Withdrawal';
     }
@@ -88,6 +97,7 @@ class WalletTransaction {
       if (derived != null && derived.isNotEmpty) {
         return derived;
       }
+      return isIncoming ? 'Money received' : 'Money sent';
     }
     return humanizedTransactionType;
   }
@@ -200,6 +210,8 @@ class WalletTransaction {
     String? direction,
     String? source,
     dynamic metadata,
+    String? counterpartyName,
+    String? counterpartyUserId,
   }) {
     return WalletTransaction(
       id: id ?? this.id,
@@ -216,6 +228,8 @@ class WalletTransaction {
       direction: direction ?? this.direction,
       source: source ?? this.source,
       metadata: metadata ?? this.metadata,
+      counterpartyName: counterpartyName ?? this.counterpartyName,
+      counterpartyUserId: counterpartyUserId ?? this.counterpartyUserId,
     );
   }
 
@@ -453,6 +467,29 @@ class WalletTransaction {
       'origin',
     ]);
 
+    final counterpartyName = readString([
+      'counterpartyName',
+      'counterparty_name',
+      'counterparty',
+      'recipientName',
+      'recipient_name',
+      'beneficiaryName',
+      'beneficiary_name',
+      'senderName',
+      'sender_name',
+    ]);
+
+    final counterpartyUserId = readString([
+      'counterpartyUserId',
+      'counterparty_user_id',
+      'counterpartyId',
+      'counterparty_id',
+      'recipientId',
+      'recipient_id',
+      'senderId',
+      'sender_id',
+    ]);
+
     final metadata = json['metadata'];
 
     final createdAt = parseDate(
@@ -518,6 +555,9 @@ class WalletTransaction {
       direction: direction.isEmpty ? null : direction,
       source: source.isEmpty ? null : source,
       metadata: metadata,
+      counterpartyName: counterpartyName.isEmpty ? null : counterpartyName,
+      counterpartyUserId:
+          counterpartyUserId.isEmpty ? null : counterpartyUserId,
     );
   }
 
@@ -555,6 +595,30 @@ class WalletTransaction {
 
     return '$month $day, $year • $hour:$minuteLabel $period';
   }
+
+  static const _genericPlaceholderTokens = <String>{
+    'transaction',
+    'transactions',
+    'transfer',
+    'transfers',
+    'payment',
+    'payments',
+    'p2p',
+    'p2psend',
+    'p2preceive',
+    'sent',
+    'send',
+    'received',
+    'receive',
+    'opei',
+    'unknown',
+    'wallet',
+    'fund',
+    'funds',
+    'na',
+    'none',
+    'null',
+  };
 
   static String? _derivePeerToPeerName(String? raw) {
     if (raw == null) return null;
@@ -602,10 +666,11 @@ class WalletTransaction {
       return null;
     }
 
-    if (!working.contains(' ') && working.length >= 8) {
-      final midpoint = (working.length / 2).floor();
-      working =
-          '${working.substring(0, midpoint)} ${working.substring(midpoint)}';
+    // Reject generic placeholder strings that would otherwise be
+    // surfaced (or worse — split into a fake first/last name).
+    final compact = working.toLowerCase().replaceAll(RegExp(r'\s+'), '');
+    if (_genericPlaceholderTokens.contains(compact)) {
+      return null;
     }
 
     final parts = working

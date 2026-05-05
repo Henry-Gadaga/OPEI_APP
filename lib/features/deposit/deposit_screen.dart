@@ -715,14 +715,12 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
     final state = ref.watch(depositControllerProvider);
     final displayCurrency = state.selectedCurrency ?? currency;
     final displayNetwork = state.selectedNetwork ?? network;
-    final normalizedNetwork = displayNetwork.toLowerCase();
     final networkLabel = _resolveNetworkLabel(displayNetwork);
     final addressValue = state.addressResponse?.address ?? '';
     final hasAddress = addressValue.isNotEmpty;
     final networkIcon = _resolveNetworkIcon(displayNetwork);
 
     final textTheme = Theme.of(context).textTheme;
-    final disableScroll = normalizedNetwork == 'polygon' || normalizedNetwork == 'ethereum';
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
 
@@ -755,10 +753,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
             horizontal: tokens.horizontalPadding,
             vertical: spacing * 1.5,
           ),
-          physics: disableScroll
-              ? const NeverScrollableScrollPhysics()
-              : const ClampingScrollPhysics(),
-          shrinkWrap: disableScroll,
+          physics: const ClampingScrollPhysics(),
           children: [
             Text(
               'Scan to deposit',

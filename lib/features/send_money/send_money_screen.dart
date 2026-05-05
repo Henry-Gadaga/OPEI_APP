@@ -67,8 +67,14 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            20,
+            20,
+            20 + MediaQuery.of(context).viewInsets.bottom,
+          ),
           child: _buildStepContent(context, state),
         ),
       ),
@@ -361,22 +367,34 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
 
   Widget _buildDetailRow(BuildContext context, String label, String value, {bool isTotal = false, bool isLabel = false, bool isHighlight = false}) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: isLabel || isTotal || isHighlight ? OpeiColors.pureBlack : OpeiColors.grey600,
-                fontWeight: isLabel || isTotal || isHighlight ? FontWeight.w600 : FontWeight.w400,
-              ),
+        Flexible(
+          flex: 4,
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: isLabel || isTotal || isHighlight ? OpeiColors.pureBlack : OpeiColors.grey600,
+                  fontWeight: isLabel || isTotal || isHighlight ? FontWeight.w600 : FontWeight.w400,
+                ),
+          ),
         ),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: isTotal || isHighlight ? FontWeight.w700 : FontWeight.w600,
-                fontSize: isTotal ? 18 : null,
-                color: isHighlight ? OpeiColors.successGreen : null,
-              ),
+        const SizedBox(width: 12),
+        Flexible(
+          flex: 6,
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontWeight: isTotal || isHighlight ? FontWeight.w700 : FontWeight.w600,
+                  fontSize: isTotal ? 18 : null,
+                  color: isHighlight ? OpeiColors.successGreen : null,
+                ),
+          ),
         ),
       ],
     );

@@ -13,11 +13,14 @@ final transactionsControllerProvider =
 );
 
 class TransactionsController extends Notifier<TransactionsState> {
+  static const int _kPageSize = 25;
+
   late TransactionRepository _transactionRepository;
   bool _sessionListenerAttached = false;
   String? _activeUserId;
   int? _lastSessionNonce;
   bool _isFetching = false;
+  bool _isLoadingMore = false;
 
   @override
   TransactionsState build() {
@@ -41,6 +44,59 @@ class TransactionsController extends Notifier<TransactionsState> {
 
   Future<void> refresh() async {
     await _fetchTransactions(force: true, asRefresh: true);
+  }
+
+  Future<void> loadMore() async {
+    if (_isLoadingMore || _isFetching) return;
+    if (!state.hasMore) return;
+    if (state.transactions.isEmpty) return;
+
+    final userId = await _resolveActiveUserId();
+    if (userId == null) return;
+    if (state.lastFetchedUserId != userId) return;
+
+    _isLoadingMore = true;
+    final nextPage = state.currentPage + 1;
+    state = state.copyWith(
+      isLoadingMore: true,
+      clearLoadMoreError: true,
+    );
+
+    try {
+      final result = await _transactionRepository.getAllTransactions(
+        userId,
+        page: nextPage,
+        limit: _kPageSize,
+      );
+
+      // De-dupe by id in case of overlap between pages.
+      final existingIds = state.transactions.map((tx) => tx.id).toSet();
+      final merged = [
+        ...state.transactions,
+        ...result.items.where((tx) => !existingIds.contains(tx.id)),
+      ];
+
+      state = state.copyWith(
+        transactions: merged,
+        isLoadingMore: false,
+        currentPage: result.page,
+        pageSize: result.limit,
+        hasMore: result.hasMore,
+        summary: result.summary ?? state.summary,
+      );
+
+      debugPrint(
+          '➕ Appended page $nextPage (${result.items.length} more). Total: ${merged.length}. hasMore=${result.hasMore}');
+    } catch (error) {
+      final friendly = ErrorHelper.getErrorMessage(error);
+      debugPrint('❌ Failed to load page $nextPage: $friendly');
+      state = state.copyWith(
+        isLoadingMore: false,
+        loadMoreError: friendly,
+      );
+    } finally {
+      _isLoadingMore = false;
+    }
   }
 
   Future<void> _fetchTransactions({required bool force, bool asRefresh = false}) async {
@@ -81,19 +137,27 @@ class TransactionsController extends Notifier<TransactionsState> {
     );
 
     try {
-      final result = await _transactionRepository.getAllTransactions(userId);
+      final result = await _transactionRepository.getAllTransactions(
+        userId,
+        page: 1,
+        limit: _kPageSize,
+      );
 
       state = state.copyWith(
         transactions: result.items,
         isLoading: false,
         isRefreshing: false,
         clearError: true,
+        clearLoadMoreError: true,
         currentPage: result.page,
         pageSize: result.limit,
         hasMore: result.hasMore,
+        summary: result.summary,
+        clearSummary: result.summary == null,
       );
 
-      debugPrint('🧾 Loaded ${result.items.length} transactions for $userId');
+      debugPrint(
+          '🧾 Loaded ${result.items.length} transactions for $userId (page 1, hasMore=${result.hasMore})');
     } catch (error) {
       final friendly = ErrorHelper.getErrorMessage(error);
       debugPrint('❌ Failed to load transactions for $userId: $friendly');
