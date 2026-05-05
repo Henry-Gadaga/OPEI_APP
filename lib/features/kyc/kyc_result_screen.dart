@@ -45,7 +45,9 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
               physics: const ClampingScrollPhysics(),
               padding: const EdgeInsets.all(24),
               child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+                constraints: BoxConstraints(
+                  minHeight: (constraints.maxHeight - 48).clamp(0.0, double.infinity),
+                ),
                 child: Center(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),

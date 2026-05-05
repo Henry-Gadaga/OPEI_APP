@@ -87,7 +87,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 physics: const ClampingScrollPhysics(),
                 padding: EdgeInsets.fromLTRB(24, 8, 24, 16 + bottomPad * 0),
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight - 24),
+                  constraints: BoxConstraints(
+                    minHeight: (constraints.maxHeight - 24).clamp(0.0, double.infinity),
+                  ),
                   child: IntrinsicHeight(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -92,7 +92,9 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                   physics: const ClampingScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: constraints.maxHeight - 12),
+                    constraints: BoxConstraints(
+                      minHeight: (constraints.maxHeight - 12).clamp(0.0, double.infinity),
+                    ),
                     child: IntrinsicHeight(
                       child: Column(
                         children: [
