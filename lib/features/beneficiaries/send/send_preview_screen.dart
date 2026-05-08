@@ -123,6 +123,12 @@ class SendPreviewScreen extends ConsumerWidget {
                     const _SectionLabel('PAYMENT BREAKDOWN'),
                     const SizedBox(height: 6),
                     _BreakdownCard(review: review),
+                    const SizedBox(height: 12),
+                    const _SectionLabel('DESCRIPTION'),
+                    const SizedBox(height: 6),
+                    _DescriptionCard(
+                      value: state.paymentDescription.trim(),
+                    ),
 
                     if (review.expiresAt != null) ...[
                       const SizedBox(height: 12),
@@ -479,6 +485,34 @@ class _BreakdownCard extends StatelessWidget {
             emphasized: true,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DescriptionCard extends StatelessWidget {
+  final String value;
+  const _DescriptionCard({required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: OpeiBrand.surfaceMuted,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: OpeiBrand.hairline, width: 1),
+      ),
+      child: Text(
+        value,
+        style: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: OpeiBrand.ink,
+          letterSpacing: -0.1,
+          height: 1.35,
+        ),
       ),
     );
   }

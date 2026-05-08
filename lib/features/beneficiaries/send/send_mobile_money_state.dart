@@ -9,6 +9,7 @@ class SendMobileMoneyState {
   /// unit of the receiver's local currency (e.g. UGX 1000 → 1000, since
   /// UGX has no subunit; KES 10.00 → 1000 since KES has 2 decimals).
   final int targetAmountMinor;
+  final String paymentDescription;
 
   // ── Review (preview) ──
   final bool isReviewing;
@@ -28,6 +29,7 @@ class SendMobileMoneyState {
   const SendMobileMoneyState({
     required this.beneficiary,
     this.targetAmountMinor = 0,
+    this.paymentDescription = '',
     this.isReviewing = false,
     this.reviewError,
     this.review,
@@ -43,6 +45,7 @@ class SendMobileMoneyState {
 
   SendMobileMoneyState copyWith({
     int? targetAmountMinor,
+    String? paymentDescription,
     bool? isReviewing,
     String? reviewError,
     bool clearReviewError = false,
@@ -62,6 +65,7 @@ class SendMobileMoneyState {
     return SendMobileMoneyState(
       beneficiary: beneficiary,
       targetAmountMinor: targetAmountMinor ?? this.targetAmountMinor,
+      paymentDescription: paymentDescription ?? this.paymentDescription,
       isReviewing: isReviewing ?? this.isReviewing,
       reviewError: clearReviewError ? null : (reviewError ?? this.reviewError),
       review: clearReview ? null : (review ?? this.review),

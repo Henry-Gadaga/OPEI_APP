@@ -177,6 +177,7 @@ class SendResultScreen extends ConsumerWidget {
                         flag: flag,
                         countryName: countryName,
                         receiverName: receiverName,
+                        description: state.paymentDescription.trim(),
                         amountUsd: review.requiredAmountUsd,
                         feeUsd: review.feeAmountUsd,
                         totalUsd: review.totalDebitAmountUsd,
@@ -219,6 +220,7 @@ class _ReceiptCard extends StatelessWidget {
   final String flag;
   final String countryName;
   final String receiverName;
+  final String description;
   final String amountUsd;
   final String feeUsd;
   final String totalUsd;
@@ -231,6 +233,7 @@ class _ReceiptCard extends StatelessWidget {
     required this.flag,
     required this.countryName,
     required this.receiverName,
+    required this.description,
     required this.amountUsd,
     required this.feeUsd,
     required this.totalUsd,
@@ -387,6 +390,10 @@ class _ReceiptCard extends StatelessWidget {
           ),
           const _Sep(),
           _Row(label: 'Date', value: dateText),
+          if (description.isNotEmpty) ...[
+            const _Sep(),
+            _Row(label: 'Description', value: description),
+          ],
           if (reference.isNotEmpty) ...[
             const _Sep(),
             _Row(label: 'Reference', value: reference, mono: true),

@@ -42,6 +42,14 @@ class SendMobileMoneyController extends Notifier<SendMobileMoneyState> {
     );
   }
 
+  void setPaymentDescription(String value) {
+    state = state.copyWith(
+      paymentDescription: value,
+      clearReviewError: true,
+      clearReview: true,
+    );
+  }
+
   // ── Step 1: Review ────────────────────────────────────────────────────────
 
   /// Calls `POST /reviews` for the selected receiver and current amount.
@@ -52,12 +60,23 @@ class SendMobileMoneyController extends Notifier<SendMobileMoneyState> {
   /// The remittance service computes the USD debit on the wallet from there.
   Future<bool> createReview() async {
     final userId = ref.read(authSessionProvider).userId;
+    final normalizedDescription = _normalizedDescription(state.paymentDescription);
     if (userId == null) {
       state = state.copyWith(reviewError: 'Please sign in to continue.');
       return false;
     }
     if (state.targetAmountMinor <= 0) {
       state = state.copyWith(reviewError: 'Enter an amount above 0.');
+      return false;
+    }
+    if (normalizedDescription.length < 3) {
+      state = state.copyWith(
+          reviewError: 'Enter a clear description (at least 3 characters).');
+      return false;
+    }
+    if (normalizedDescription.length > 120) {
+      state = state.copyWith(
+          reviewError: 'Description is too long (max 120 characters).');
       return false;
     }
 
@@ -85,12 +104,25 @@ class SendMobileMoneyController extends Notifier<SendMobileMoneyState> {
   /// Confirms the payout: initiates → finalizes. Returns `true` if both API
   /// calls completed (regardless of `PENDING_WEBHOOK`, which the UI treats as
   /// a non-terminal "processing" state).
-  Future<bool> confirmAndSend({String description = 'Mobile money payout'}) async {
+  Future<bool> confirmAndSend() async {
     final userId = ref.read(authSessionProvider).userId;
     final review = state.review;
+    final description = _normalizedDescription(state.paymentDescription);
     if (userId == null || review == null) {
       state = state.copyWith(
           initiateError: 'Missing review or session. Please try again.');
+      return false;
+    }
+    if (description.length < 3) {
+      state = state.copyWith(
+        initiateError: 'Please go back and add a valid description.',
+      );
+      return false;
+    }
+    if (description.length > 120) {
+      state = state.copyWith(
+        initiateError: 'Description is too long. Use 120 characters or less.',
+      );
       return false;
     }
 
@@ -143,4 +175,6 @@ class SendMobileMoneyController extends Notifier<SendMobileMoneyState> {
   void clearFinalizeError() =>
       state = state.copyWith(clearFinalizeError: true);
   void clearReviewError() => state = state.copyWith(clearReviewError: true);
+
+  String _normalizedDescription(String raw) => raw.trim();
 }

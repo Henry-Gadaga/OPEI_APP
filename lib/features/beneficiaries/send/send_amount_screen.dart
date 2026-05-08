@@ -32,7 +32,9 @@ class SendAmountScreen extends ConsumerStatefulWidget {
 
 class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
   final _amountCtrl = TextEditingController();
-  String? _localError;
+  final _descriptionCtrl = TextEditingController();
+  String? _amountError;
+  String? _descriptionError;
 
   late final ({
     String code,
@@ -51,11 +53,17 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
             : '')
         .toUpperCase();
     _meta = BeneficiaryRepository.currencyMetaFor(country);
+    final currentState =
+        ref.read(sendMobileMoneyControllerProvider(widget.beneficiary));
+    if (currentState.paymentDescription.isNotEmpty) {
+      _descriptionCtrl.text = currentState.paymentDescription;
+    }
   }
 
   @override
   void dispose() {
     _amountCtrl.dispose();
+    _descriptionCtrl.dispose();
     super.dispose();
   }
 
@@ -77,10 +85,17 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
   }
 
   void _onAmountChanged(String text) {
-    if (_localError != null) setState(() => _localError = null);
+    if (_amountError != null) setState(() => _amountError = null);
     ref
         .read(sendMobileMoneyControllerProvider(widget.beneficiary).notifier)
         .setTargetAmountMinor(_parseToMinor(text));
+  }
+
+  void _onDescriptionChanged(String text) {
+    if (_descriptionError != null) setState(() => _descriptionError = null);
+    ref
+        .read(sendMobileMoneyControllerProvider(widget.beneficiary).notifier)
+        .setPaymentDescription(text);
   }
 
   void _setQuick(int majorAmount) {
@@ -96,11 +111,32 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
 
   Future<void> _onContinue() async {
     FocusScope.of(context).unfocus();
-    if (_parseToMinor(_amountCtrl.text) <= 0) {
-      setState(() => _localError =
-          'Enter an amount in ${_meta.code} above 0 to continue.');
+    final amountMinor = _parseToMinor(_amountCtrl.text);
+    final description = _descriptionCtrl.text.trim();
+    String? amountError;
+    String? descriptionError;
+
+    if (amountMinor <= 0) {
+      amountError = 'Enter an amount in ${_meta.code} above 0 to continue.';
+    }
+    if (description.length < 3) {
+      descriptionError = 'Enter a clear description (at least 3 characters).';
+    } else if (description.length > 120) {
+      descriptionError = 'Description is too long (max 120 characters).';
+    }
+
+    if (amountError != null || descriptionError != null) {
+      setState(() {
+        _amountError = amountError;
+        _descriptionError = descriptionError;
+      });
       return;
     }
+
+    ref
+        .read(sendMobileMoneyControllerProvider(widget.beneficiary).notifier)
+        .setPaymentDescription(description);
+
     final ok = await ref
         .read(sendMobileMoneyControllerProvider(widget.beneficiary).notifier)
         .createReview();
@@ -127,7 +163,6 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
         ref.watch(sendMobileMoneyControllerProvider(widget.beneficiary));
     final name = widget.beneficiary.accountName ?? 'Receiver';
     final masked = widget.beneficiary.accountNumberMasked ?? '';
-    final hasError = _localError != null || state.reviewError != null;
     final currentMinor = state.targetAmountMinor;
 
     return Scaffold(
@@ -181,16 +216,37 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
                       _AmountInput(
                         controller: _amountCtrl,
                         onChanged: _onAmountChanged,
-                        hasError: hasError,
+                        hasError: _amountError != null,
                         meta: _meta,
                       ),
 
-                      if (hasError) ...[
+                      if (_amountError != null) ...[
                         const SizedBox(height: 6),
                         Padding(
                           padding: const EdgeInsets.only(left: 4),
                           child: Text(
-                            _localError ?? state.reviewError ?? '',
+                            _amountError!,
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: OpeiBrand.danger,
+                              letterSpacing: -0.1,
+                            ),
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 14),
+                      _DescriptionInput(
+                        controller: _descriptionCtrl,
+                        onChanged: _onDescriptionChanged,
+                        hasError: _descriptionError != null,
+                      ),
+                      if (_descriptionError != null) ...[
+                        const SizedBox(height: 6),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Text(
+                            _descriptionError!,
                             style: const TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w600,
@@ -241,6 +297,21 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
                           ),
                         ],
                       ),
+                      if (state.reviewError?.isNotEmpty == true) ...[
+                        const SizedBox(height: 12),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Text(
+                            state.reviewError!,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: OpeiBrand.danger,
+                              letterSpacing: -0.1,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -501,6 +572,45 @@ class _AmountInput extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DescriptionInput extends StatelessWidget {
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final bool hasError;
+
+  const _DescriptionInput({
+    required this.controller,
+    required this.onChanged,
+    required this.hasError,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: OpeiBrand.surfaceMuted,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: hasError ? OpeiBrand.danger : OpeiBrand.hairline,
+          width: hasError ? 1.4 : 1,
+        ),
+      ),
+      child: TextField(
+        controller: controller,
+        onChanged: onChanged,
+        maxLength: 120,
+        textInputAction: TextInputAction.done,
+        decoration: const InputDecoration(
+          labelText: 'Description *',
+          hintText: 'What is this payment for?',
+          counterText: '',
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        ),
       ),
     );
   }
