@@ -1989,11 +1989,11 @@ class _CreateAdButtonState extends State<_CreateAdButton>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: OpeiColors.pureBlack,
+              color: OpeiBrand.primary,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
+                  color: OpeiBrand.primary.withValues(alpha: 0.22),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -2044,7 +2044,7 @@ class _ActiveFilterChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: OpeiColors.pureBlack,
+        color: OpeiBrand.primary,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -6817,7 +6817,7 @@ class _MyAdTypeBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(6),
-        color: OpeiColors.pureBlack,
+        color: OpeiBrand.primary,
       ),
       child: Text(
         typeLabel,

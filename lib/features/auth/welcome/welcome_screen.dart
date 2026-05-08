@@ -95,60 +95,24 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                 // ── Brand block ──────────────────────────────────────────
-                const Spacer(flex: 5),
-                FadeTransition(
-                  opacity: _fade,
-                  child: ScaleTransition(
-                    scale: _logoScale,
-                    child: Center(
-                      child: Hero(
-                        tag: 'opei-logo',
-                        child: Image.asset(
-                          'assets/icons/second.png',
-                          height: logoHeight,
-                          fit: BoxFit.contain,
-                          filterQuality: FilterQuality.high,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 40),
+                const Spacer(flex: 6),
                 FadeTransition(
                   opacity: _fade,
                   child: SlideTransition(
                     position: _copySlide,
-                    child: Column(
-                      children: const [
-                        Text(
-                          'All your USD\nin one place.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 34,
-                            fontWeight: FontWeight.w800,
-                            color: OpeiBrand.ink,
-                            letterSpacing: -1.1,
-                            height: 1.08,
+                    child: ScaleTransition(
+                      scale: _logoScale,
+                      child: Center(
+                        child: Hero(
+                          tag: 'opei-logo',
+                          child: Image.asset(
+                            'assets/icons/second.png',
+                            height: logoHeight,
+                            fit: BoxFit.contain,
+                            filterQuality: FilterQuality.high,
                           ),
                         ),
-                        SizedBox(height: 14),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            'Send, receive, save, and spend globally.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 15.5,
-                              fontWeight: FontWeight.w400,
-                              color: OpeiBrand.inkSecondary,
-                              letterSpacing: -0.2,
-                              height: 1.4,
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
