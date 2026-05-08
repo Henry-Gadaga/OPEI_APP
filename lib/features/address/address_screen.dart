@@ -10,6 +10,7 @@ import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/address/address_state.dart';
 import 'package:opei/theme.dart';
+import 'package:opei/widgets/onboarding/onboarding_progress.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 import 'package:opei/widgets/success_hero.dart';
 
@@ -80,8 +81,13 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
     }
   }
 
-  void _showError(String message) {
-    showError(context, message);
+  void _handleBack(BuildContext context) {
+    final router = GoRouter.of(context);
+    if (router.canPop()) {
+      router.pop();
+    } else {
+      context.go('/welcome');
+    }
   }
 
   @override
@@ -100,227 +106,352 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
           }
         } else if (next.fieldErrors.isEmpty) {
           if (!context.mounted) return;
-          _showError(next.errorMessage!);
+          showError(context, next.errorMessage!);
         }
       }
     });
 
-    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final media = MediaQuery.of(context);
+    final topPad = media.viewPadding.top;
+    final bottomPad = media.viewPadding.bottom;
     final isOnboarding = !widget.isFromProfile;
+
+    const headerContentHeight = 190.0;
+    final headerHeight = headerContentHeight + topPad;
+    const panelOverlap = 32.0;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: OpeiBrand.surface,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.surface,
-        appBar: OpeiAppBar(
-          backgroundColor: OpeiBrand.surface,
-          onBack: state.isLoading
-              ? null
-              : () {
-                  final router = GoRouter.of(context);
-                  if (router.canPop()) {
-                    router.pop();
-                  } else {
-                    context.go('/welcome');
-                  }
-                },
-        ),
-        body: SafeArea(
-          top: false,
-          child: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Progress bar — step 3 of 4 (only during onboarding)
-                if (isOnboarding)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 2, 24, 0),
-                    child: Row(
-                      children: List.generate(4, (i) {
-                        return Expanded(
-                          child: AnimatedContainer(
-                            duration: OpeiBrand.motion,
-                            curve: OpeiBrand.motionCurve,
-                            height: 3,
-                            margin: EdgeInsets.only(right: i < 3 ? 5 : 0),
-                            decoration: BoxDecoration(
-                              color: i < 3
-                                  ? OpeiBrand.primary
-                                  : OpeiBrand.hairline,
-                              borderRadius: BorderRadius.circular(99),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Your home\naddress',
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -1.0,
-                            color: OpeiBrand.ink,
-                            height: 1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          "Required to verify your account. Stays completely private.",
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w400,
-                            color: OpeiBrand.inkSecondary,
-                            letterSpacing: -0.1,
-                            height: 1.45,
-                          ),
-                        ),
-                        const SizedBox(height: 28),
-                        IgnorePointer(
-                          ignoring: state.isLoading,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _CountryPickerField(
-                                selectedCountry: state.selectedCountry,
-                                errorText: state.fieldErrors['country'],
-                                onTap: () => _openCountryPicker(
-                                  context: context,
-                                  selected: state.selectedCountry,
-                                  onSelected: controller.setCountry,
-                                ),
-                              ),
-                              const SizedBox(height: 14),
-                              OpeiTextField(
-                                controller: _addressCtrl,
-                                label: 'Address line',
-                                hint: '123 Main Street',
-                                textInputAction: TextInputAction.next,
-                                errorText: state.fieldErrors['addressLine'],
-                                onChanged: controller.updateAddressLine,
-                              ),
-                              const SizedBox(height: 14),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: OpeiTextField(
-                                      controller: _houseCtrl,
-                                      label: 'Apt / Suite',
-                                      hint: 'Apt 4B',
-                                      textInputAction: TextInputAction.next,
-                                      errorText:
-                                          state.fieldErrors['houseNumber'],
-                                      onChanged: controller.updateHouseNumber,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    flex: 3,
-                                    child: OpeiTextField(
-                                      controller: _zipCtrl,
-                                      label: 'ZIP code',
-                                      hint: '10001',
-                                      keyboardType: TextInputType.number,
-                                      textInputAction: TextInputAction.next,
-                                      errorText: state.fieldErrors['zipCode'],
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.allow(
-                                          RegExp(r'[A-Za-z0-9\- ]'),
-                                        ),
-                                        LengthLimitingTextInputFormatter(12),
-                                      ],
-                                      onChanged: controller.updateZipCode,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 14),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: OpeiTextField(
-                                      controller: _cityCtrl,
-                                      label: 'City',
-                                      hint: 'New York',
-                                      textInputAction: TextInputAction.next,
-                                      errorText: state.fieldErrors['city'],
-                                      onChanged: controller.updateCity,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: OpeiTextField(
-                                      controller: _stateCtrl,
-                                      label: 'State',
-                                      hint: 'NY',
-                                      textInputAction: TextInputAction.done,
-                                      errorText: state.fieldErrors['state'],
-                                      onChanged: controller.updateState,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if (state.isNigeria) ...[
-                                const SizedBox(height: 14),
-                                OpeiTextField(
-                                  controller: _bvnCtrl,
-                                  label: 'BVN',
-                                  hint: '11-digit Bank Verification Number',
-                                  keyboardType: TextInputType.number,
-                                  textInputAction: TextInputAction.done,
-                                  errorText: state.fieldErrors['bvn'],
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.digitsOnly,
-                                    LengthLimitingTextInputFormatter(11),
-                                  ],
-                                  helperText: state.fieldErrors['bvn'] == null
-                                      ? 'Required for Nigerian residents.'
-                                      : null,
-                                  onChanged: controller.updateBvn,
-                                ),
-                              ],
+        backgroundColor: OpeiBrand.primary,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Stack(
+            children: [
+              // ── Gradient header ────────────────────────────────────────────
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: headerHeight,
+                child: ClipRect(
+                  child: Stack(
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF1E55D8),
+                              Color(0xFF3D7BFF),
+                              Color(0xFF6E9DFF),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      Positioned(
+                        top: -60,
+                        right: -50,
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withValues(alpha: 0.09),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: -40,
+                        left: -30,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withValues(alpha: 0.07),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                // Seamless CTA — no box, same white surface
-                Padding(
-                  padding:
-                      EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
-                  child: OpeiPrimaryButton(
-                    label: 'Continue',
-                    loading: state.isLoading,
-                    onPressed: state.isValid && !state.isLoading
-                        ? () => controller.submitAddress(
-                              fromProfile: widget.isFromProfile,
-                            )
-                        : null,
-                    trailingIcon: Icons.arrow_forward_rounded,
+              ),
+
+              // ── White form card ────────────────────────────────────────────
+              Positioned(
+                top: headerHeight - panelOverlap,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: OpeiBrand.surface,
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(28)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.06),
+                        blurRadius: 24,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding:
+                              EdgeInsets.fromLTRB(24, 28, 24, 24 + bottomPad),
+                          physics: const ClampingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Where do you live?',
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.5,
+                                  color: OpeiBrand.ink,
+                                  height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Required to verify your account. Stays completely private.',
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: OpeiBrand.inkSecondary,
+                                  letterSpacing: -0.1,
+                                  height: 1.45,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              IgnorePointer(
+                                ignoring: state.isLoading,
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    _CountryPickerField(
+                                      selectedCountry: state.selectedCountry,
+                                      errorText: state.fieldErrors['country'],
+                                      onTap: () => _openCountryPicker(
+                                        context: context,
+                                        selected: state.selectedCountry,
+                                        onSelected: controller.setCountry,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 14),
+                                    OpeiTextField(
+                                      controller: _addressCtrl,
+                                      label: 'Address line',
+                                      hint: '123 Main Street',
+                                      textInputAction: TextInputAction.next,
+                                      errorText:
+                                          state.fieldErrors['addressLine'],
+                                      onChanged: controller.updateAddressLine,
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 2,
+                                          child: OpeiTextField(
+                                            controller: _houseCtrl,
+                                            label: 'Apt / Suite',
+                                            hint: 'Apt 4B',
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            errorText: state
+                                                .fieldErrors['houseNumber'],
+                                            onChanged:
+                                                controller.updateHouseNumber,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          flex: 3,
+                                          child: OpeiTextField(
+                                            controller: _zipCtrl,
+                                            label: 'ZIP code',
+                                            hint: '10001',
+                                            keyboardType: TextInputType.number,
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            errorText:
+                                                state.fieldErrors['zipCode'],
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.allow(
+                                                RegExp(r'[A-Za-z0-9\- ]'),
+                                              ),
+                                              LengthLimitingTextInputFormatter(
+                                                  12),
+                                            ],
+                                            onChanged: controller.updateZipCode,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 14),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: OpeiTextField(
+                                            controller: _cityCtrl,
+                                            label: 'City',
+                                            hint: 'New York',
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            errorText:
+                                                state.fieldErrors['city'],
+                                            onChanged: controller.updateCity,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: OpeiTextField(
+                                            controller: _stateCtrl,
+                                            label: 'State',
+                                            hint: 'NY',
+                                            textInputAction:
+                                                TextInputAction.done,
+                                            errorText:
+                                                state.fieldErrors['state'],
+                                            onChanged: controller.updateState,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (state.isNigeria) ...[
+                                      const SizedBox(height: 14),
+                                      OpeiTextField(
+                                        controller: _bvnCtrl,
+                                        label: 'BVN',
+                                        hint:
+                                            '11-digit Bank Verification Number',
+                                        keyboardType: TextInputType.number,
+                                        textInputAction: TextInputAction.done,
+                                        errorText: state.fieldErrors['bvn'],
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                          LengthLimitingTextInputFormatter(11),
+                                        ],
+                                        helperText:
+                                            state.fieldErrors['bvn'] == null
+                                                ? 'Required for Nigerian residents.'
+                                                : null,
+                                        onChanged: controller.updateBvn,
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                              OpeiPrimaryButton(
+                                label: 'Continue',
+                                loading: state.isLoading,
+                                onPressed: state.isValid && !state.isLoading
+                                    ? () => controller.submitAddress(
+                                          fromProfile: widget.isFromProfile,
+                                        )
+                                    : null,
+                                trailingIcon: Icons.arrow_forward_rounded,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+
+              // ── Header content ─────────────────────────────────────────────
+              Positioned(
+                top: topPad,
+                left: 0,
+                right: 0,
+                height: headerContentHeight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: state.isLoading
+                                ? null
+                                : () => _handleBack(context),
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          if (isOnboarding) ...[
+                            const Spacer(),
+                            const OnboardingProgress(
+                              stage: OnboardingStage.address,
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Home address',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.6,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        isOnboarding
+                            ? 'Step 3 of 4  •  Your residential details.'
+                            : 'Update your residential details.',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withValues(alpha: 0.85),
+                          letterSpacing: -0.1,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -328,6 +459,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   }
 }
 
+// ── Country picker field ──────────────────────────────────────────────────────
 class _CountryPickerField extends StatelessWidget {
   final Country? selectedCountry;
   final String? errorText;
@@ -406,7 +538,8 @@ class _CountryPickerField extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 15,
-                      fontWeight: hasValue ? FontWeight.w500 : FontWeight.w400,
+                      fontWeight:
+                          hasValue ? FontWeight.w500 : FontWeight.w400,
                       color: hasValue ? OpeiBrand.ink : OpeiBrand.inkTertiary,
                       letterSpacing: -0.2,
                     ),
@@ -639,7 +772,8 @@ class _AddressSuccessSheet extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Container(
               constraints: const BoxConstraints(maxWidth: 420),
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
               decoration: BoxDecoration(
                 color: OpeiBrand.surface,
                 borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),

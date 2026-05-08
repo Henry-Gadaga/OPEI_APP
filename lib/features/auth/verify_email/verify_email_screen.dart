@@ -9,7 +9,7 @@ import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/auth/verify_email/verify_email_state.dart';
 import 'package:opei/theme.dart';
-import 'package:opei/widgets/opei_premium/opei_premium.dart';
+import 'package:opei/widgets/onboarding/onboarding_progress.dart';
 
 class VerifyEmailScreen extends ConsumerStatefulWidget {
   final String? email;
@@ -61,7 +61,6 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
             email!,
             autoSendCode: widget.autoSendCode,
           );
-      // Auto-focus first box for fastest possible entry.
       if (_focusNodes.isNotEmpty) _focusNodes[0].requestFocus();
     });
   }
@@ -205,7 +204,6 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           ),
         ),
       );
-      // Re-focus first box for re-entry.
       _focusNodes[0].requestFocus();
     }
   }
@@ -239,7 +237,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
         }
       }
       if (previous != null && previous.isResending && !next.isResending) {
-        if (next.errorMessage == null && widget.autoSendCode && context.mounted) {
+        if (next.errorMessage == null &&
+            widget.autoSendCode &&
+            context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Text('Verification code sent'),
@@ -255,13 +255,19 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
       }
     });
 
-    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final media = MediaQuery.of(context);
+    final topPad = media.viewPadding.top;
+    final bottomPad = media.viewPadding.bottom;
+
+    const headerContentHeight = 190.0;
+    final headerHeight = headerContentHeight + topPad;
+    const panelOverlap = 32.0;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: OpeiBrand.surface,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
@@ -273,135 +279,55 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           await _handleBackNavigation();
         },
         child: Scaffold(
-          backgroundColor: OpeiBrand.surface,
-          appBar: OpeiAppBar(
-            backgroundColor: OpeiBrand.surface,
-            onBack: state.isLoading || _isLoggingOut
-                ? null
-                : () => _handleBackNavigation(),
-          ),
-          body: SafeArea(
-            top: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+          backgroundColor: OpeiBrand.primary,
+          body: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            behavior: HitTestBehavior.opaque,
+            child: Stack(
               children: [
-                // Progress bar — step 2 of 4
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 2, 24, 0),
-                  child: Row(
-                    children: List.generate(4, (i) {
-                      return Expanded(
-                        child: AnimatedContainer(
-                          duration: OpeiBrand.motion,
-                          curve: OpeiBrand.motionCurve,
-                          height: 3,
-                          margin: EdgeInsets.only(right: i < 3 ? 5 : 0),
-                          decoration: BoxDecoration(
-                            color: i < 2
-                                ? OpeiBrand.primary
-                                : OpeiBrand.hairline,
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
-                    physics: const ClampingScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                // ── Gradient header ──────────────────────────────────────────
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: headerHeight,
+                  child: ClipRect(
+                    child: Stack(
                       children: [
-                        const Text(
-                          'Check your\nemail',
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -1.0,
-                            color: OpeiBrand.ink,
-                            height: 1.1,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        RichText(
-                          text: TextSpan(
-                            style: const TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w400,
-                              color: OpeiBrand.inkSecondary,
-                              letterSpacing: -0.1,
-                              height: 1.45,
+                        Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFF1E55D8),
+                                Color(0xFF3D7BFF),
+                                Color(0xFF6E9DFF),
+                              ],
                             ),
-                            children: [
-                              const TextSpan(
-                                text: "We sent a 6-digit code to ",
-                              ),
-                              TextSpan(
-                                text: _email!,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: OpeiBrand.ink,
-                                ),
-                              ),
-                              const TextSpan(text: '.'),
-                            ],
                           ),
                         ),
-                        const SizedBox(height: 36),
-                        IgnorePointer(
-                          ignoring: state.isLoading || _isLoggingOut,
-                          child: _OtpRow(
-                            controllers: _controllers,
-                            focusNodes: _focusNodes,
-                            hasError: state.errorMessage != null,
-                            isDisabled: state.isLoading,
-                            onChanged: _onDigitChanged,
-                          ),
-                        ),
-                        if (state.errorMessage != null) ...[
-                          const SizedBox(height: 14),
-                          Text(
-                            state.errorMessage!,
-                            style: const TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: OpeiBrand.danger,
-                              letterSpacing: -0.1,
+                        Positioned(
+                          top: -60,
+                          right: -50,
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.09),
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                        const SizedBox(height: 28),
-                        Center(
-                          child: _ResendRow(
-                            canResend: state.canResend,
-                            timerText: state.timerText,
-                            onResend: _handleResend,
                           ),
                         ),
-                        const SizedBox(height: 6),
-                        Center(
-                          child: GestureDetector(
-                            onTap: state.isLoading || _isLoggingOut
-                                ? null
-                                : _handleBackNavigation,
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8),
-                              child: Text(
-                                'Wrong email? Start over',
-                                style: TextStyle(
-                                  fontFamily: kPrimaryFontFamily,
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w500,
-                                  color: OpeiBrand.inkSecondary,
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
+                        Positioned(
+                          bottom: -40,
+                          left: -30,
+                          child: Container(
+                            width: 140,
+                            height: 140,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.07),
                             ),
                           ),
                         ),
@@ -409,11 +335,209 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                     ),
                   ),
                 ),
-                // Loading strip — only visible while verifying
-                _BottomTrust(
-                  isLoading: state.isVerifying || _isLoggingOut,
-                  busyLabel: _isLoggingOut ? 'Signing out…' : 'Verifying…',
-                  bottomPad: bottomPad,
+
+                // ── White form card ──────────────────────────────────────────
+                Positioned(
+                  top: headerHeight - panelOverlap,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: OpeiBrand.surface,
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(28)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 24,
+                          offset: const Offset(0, -4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.fromLTRB(
+                                24, 28, 24, 24 + bottomPad),
+                            physics: const ClampingScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Check your inbox',
+                                  style: TextStyle(
+                                    fontFamily: kPrimaryFontFamily,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: -0.5,
+                                    color: OpeiBrand.ink,
+                                    height: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(
+                                      fontFamily: kPrimaryFontFamily,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: OpeiBrand.inkSecondary,
+                                      letterSpacing: -0.1,
+                                      height: 1.45,
+                                    ),
+                                    children: [
+                                      const TextSpan(
+                                          text: "We sent a 6-digit code to "),
+                                      TextSpan(
+                                        text: _email!,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: OpeiBrand.ink,
+                                        ),
+                                      ),
+                                      const TextSpan(text: '.'),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                IgnorePointer(
+                                  ignoring: state.isLoading || _isLoggingOut,
+                                  child: _OtpRow(
+                                    controllers: _controllers,
+                                    focusNodes: _focusNodes,
+                                    hasError: state.errorMessage != null,
+                                    isDisabled: state.isLoading,
+                                    onChanged: _onDigitChanged,
+                                  ),
+                                ),
+                                if (state.errorMessage != null) ...[
+                                  const SizedBox(height: 14),
+                                  Text(
+                                    state.errorMessage!,
+                                    style: const TextStyle(
+                                      fontFamily: kPrimaryFontFamily,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      color: OpeiBrand.danger,
+                                      letterSpacing: -0.1,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                                const SizedBox(height: 28),
+                                Center(
+                                  child: _ResendRow(
+                                    canResend: state.canResend,
+                                    timerText: state.timerText,
+                                    onResend: _handleResend,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Center(
+                                  child: GestureDetector(
+                                    onTap: state.isLoading || _isLoggingOut
+                                        ? null
+                                        : _handleBackNavigation,
+                                    child: const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 8),
+                                      child: Text(
+                                        'Wrong email? Start over',
+                                        style: TextStyle(
+                                          fontFamily: kPrimaryFontFamily,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w500,
+                                          color: OpeiBrand.inkSecondary,
+                                          letterSpacing: -0.1,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        // Verifying strip
+                        _BottomTrust(
+                          isLoading: state.isVerifying || _isLoggingOut,
+                          busyLabel:
+                              _isLoggingOut ? 'Signing out…' : 'Verifying…',
+                          bottomPad: bottomPad,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ── Header content ───────────────────────────────────────────
+                Positioned(
+                  top: topPad,
+                  left: 0,
+                  right: 0,
+                  height: headerContentHeight,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: state.isLoading || _isLoggingOut
+                                  ? null
+                                  : _handleBackNavigation,
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_back_rounded,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            const OnboardingProgress(
+                              stage: OnboardingStage.verify,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Verify email',
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: -0.6,
+                            height: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Step 2 of 4  •  Enter the 6-digit code we sent.',
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.85),
+                            letterSpacing: -0.1,
+                            height: 1.35,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -424,6 +548,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   }
 }
 
+// ── OTP row ──────────────────────────────────────────────────────────────────
 class _OtpRow extends StatelessWidget {
   final List<TextEditingController> controllers;
   final List<FocusNode> focusNodes;
@@ -527,7 +652,6 @@ class _OtpBoxState extends State<_OtpBox> {
       width: widget.width,
       height: widget.height,
       decoration: BoxDecoration(
-        // Always white inside (clear). Disabled state only changes border.
         color: OpeiBrand.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
@@ -645,8 +769,6 @@ class _BottomTrust extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Bottom strip only renders while we're verifying / signing out — keeps
-    // the screen ultra compact when idle.
     return AnimatedSize(
       duration: OpeiBrand.motionFast,
       curve: OpeiBrand.motionCurve,
@@ -660,12 +782,7 @@ class _BottomTrust extends StatelessWidget {
                   top: BorderSide(color: OpeiBrand.hairline, width: 1),
                 ),
               ),
-              padding: EdgeInsets.fromLTRB(
-                24,
-                14,
-                24,
-                14 + bottomPad,
-              ),
+              padding: EdgeInsets.fromLTRB(24, 14, 24, 14 + bottomPad),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,

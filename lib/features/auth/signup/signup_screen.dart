@@ -9,6 +9,7 @@ import 'package:opei/features/auth/signup/signup_controller.dart';
 import 'package:opei/features/auth/signup/signup_state.dart';
 import 'package:opei/features/auth/verify_email/verify_email_screen.dart';
 import 'package:opei/theme.dart';
+import 'package:opei/widgets/onboarding/onboarding_progress.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
@@ -18,29 +19,41 @@ class SignupScreen extends ConsumerStatefulWidget {
   ConsumerState<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends ConsumerState<SignupScreen> {
+class _SignupScreenState extends ConsumerState<SignupScreen>
+    with SingleTickerProviderStateMixin {
+  // ── Step tracking ─────────────────────────────────────────────────────
+  int _step = 0; // 0 = email, 1 = phone, 2 = PIN
+
+  // ── Controllers ───────────────────────────────────────────────────────
   final _emailController = TextEditingController();
   final _localPhoneController = TextEditingController();
   final _pinController = TextEditingController();
-
   final _emailFocus = FocusNode();
+  final _phoneFocus = FocusNode();
   final _pinFocus = FocusNode();
 
-  // Country picked for the phone number; defaults to Nigeria.
   String _phoneIso = kDefaultDialIso;
-
   bool _obscurePin = true;
 
   String? _emailError;
   String? _phoneError;
   String? _pinError;
 
+  // ── Step metadata ─────────────────────────────────────────────────────
+  // Title stays constant across all sub-steps so the flow feels like ONE
+  // continuous stage. The subtitle gives gentle context.
+  static const _subtitles = [
+    "Let's start with your email.",
+    "Now your phone number.",
+    "Choose a 6-digit PIN.",
+  ];
+
   @override
   void initState() {
     super.initState();
-    _emailController.addListener(_onAnyChange);
-    _localPhoneController.addListener(_onAnyChange);
-    _pinController.addListener(_onAnyChange);
+    _emailController.addListener(_rebuild);
+    _localPhoneController.addListener(_rebuild);
+    _pinController.addListener(_rebuild);
   }
 
   @override
@@ -49,88 +62,89 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _localPhoneController.dispose();
     _pinController.dispose();
     _emailFocus.dispose();
+    _phoneFocus.dispose();
     _pinFocus.dispose();
     super.dispose();
   }
 
-  void _onAnyChange() {
-    // Always rebuild so the bottom CTA reflects current form validity in
-    // real time (without waiting for the user to dismiss the keyboard).
-    if (!mounted) return;
-    setState(() {
-      if (_emailError != null &&
-          _validateEmail(_emailController.text) == null) {
-        _emailError = null;
-      }
-      if (_phoneError != null && _validatePhone() == null) {
-        _phoneError = null;
-      }
-      if (_pinError != null && _validatePin(_pinController.text) == null) {
-        _pinError = null;
-      }
-    });
+  void _rebuild() {
+    if (mounted) setState(() {});
   }
 
-  bool get _isFormValid =>
-      _validateEmail(_emailController.text) == null &&
-      _validatePhone() == null &&
-      _validatePin(_pinController.text) == null;
-
-  String? _validateEmail(String value) {
-    final v = value.trim();
-    if (v.isEmpty) return 'Email is required';
-    final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!regex.hasMatch(v)) return 'Please enter a valid email';
-    return null;
-  }
-
-  String? _validatePhone() {
-    return OpeiPhoneField.validate(_phoneIso, _localPhoneController.text);
-  }
-
-  String? _validatePin(String value) {
-    if (value.isEmpty) return 'PIN is required';
-    if (!RegExp(r'^\d{6}$').hasMatch(value)) {
-      return 'PIN must be exactly 6 digits';
+  // ── Validation ────────────────────────────────────────────────────────
+  String? _validateEmail(String v) {
+    final t = v.trim();
+    if (t.isEmpty) return 'Email is required';
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(t)) {
+      return 'Please enter a valid email';
     }
     return null;
   }
 
-  void _handleSignup() {
-    setState(() {
-      _emailError = _validateEmail(_emailController.text.trim());
-      _phoneError = _validatePhone();
-      _pinError = _validatePin(_pinController.text);
-    });
+  String? _validatePhone() =>
+      OpeiPhoneField.validate(_phoneIso, _localPhoneController.text);
 
-    if (_emailError != null || _phoneError != null || _pinError != null) {
-      return;
-    }
+  String? _validatePin(String v) {
+    if (v.isEmpty) return 'PIN is required';
+    if (!RegExp(r'^\d{6}$').hasMatch(v)) return 'PIN must be exactly 6 digits';
+    return null;
+  }
 
+  bool get _currentStepValid {
+    if (_step == 0) return _validateEmail(_emailController.text) == null;
+    if (_step == 1) return _validatePhone() == null;
+    return _validatePin(_pinController.text) == null;
+  }
+
+  // ── Navigation ────────────────────────────────────────────────────────
+  void _back() {
     FocusScope.of(context).unfocus();
-    final fullPhone =
-        OpeiPhoneField.e164(_phoneIso, _localPhoneController.text);
-    ref.read(signupControllerProvider.notifier).signup(
-          email: _emailController.text.trim(),
-          phone: fullPhone,
-          pin: _pinController.text,
-        );
+    if (_step == 0) {
+      context.go('/welcome');
+    } else {
+      setState(() => _step--);
+    }
+  }
+
+  void _next(bool isLoading) {
+    if (isLoading) return;
+    FocusScope.of(context).unfocus();
+
+    if (_step == 0) {
+      final err = _validateEmail(_emailController.text);
+      if (err != null) { setState(() => _emailError = err); return; }
+      setState(() { _emailError = null; _step = 1; });
+      Future.delayed(const Duration(milliseconds: 120),
+          () => _phoneFocus.requestFocus());
+    } else if (_step == 1) {
+      final err = _validatePhone();
+      if (err != null) { setState(() => _phoneError = err); return; }
+      setState(() { _phoneError = null; _step = 2; });
+      Future.delayed(const Duration(milliseconds: 120),
+          () => _pinFocus.requestFocus());
+    } else {
+      final err = _validatePin(_pinController.text);
+      if (err != null) { setState(() => _pinError = err); return; }
+      setState(() => _pinError = null);
+      final fullPhone =
+          OpeiPhoneField.e164(_phoneIso, _localPhoneController.text);
+      ref.read(signupControllerProvider.notifier).signup(
+            email: _emailController.text.trim(),
+            phone: fullPhone,
+            pin: _pinController.text,
+          );
+    }
   }
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          maxLines: 4,
-          overflow: TextOverflow.ellipsis,
-        ),
+        content: Text(message, maxLines: 4, overflow: TextOverflow.ellipsis),
         backgroundColor: OpeiBrand.danger,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
-        ),
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard)),
       ),
     );
   }
@@ -140,14 +154,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     final state = ref.watch(signupControllerProvider);
     final isLoading = state is SignupLoading;
 
-    ref.listen<SignupState>(signupControllerProvider, (previous, next) {
+    ref.listen<SignupState>(signupControllerProvider, (_, next) {
       if (next is SignupSuccess) {
-        Navigator.of(context).push(
-          OpeiPageRoute(
-            builder: (_) =>
-                VerifyEmailScreen(email: _emailController.text.trim()),
-          ),
-        );
+        Navigator.of(context).push(OpeiPageRoute(
+          builder: (_) =>
+              VerifyEmailScreen(email: _emailController.text.trim()),
+        ));
       } else if (next is SignupError) {
         if (next.fieldErrors.isNotEmpty) {
           setState(() {
@@ -159,229 +171,400 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 next.fieldErrors['password'] ??
                 _pinError;
           });
+          // Jump back to the step that has an error
+          if (next.fieldErrors.containsKey('email')) {
+            setState(() => _step = 0);
+          } else if (next.fieldErrors.containsKey('phone') ||
+              next.fieldErrors.containsKey('phoneNumber')) {
+            setState(() => _step = 1);
+          }
         } else {
           _showError(next.message);
         }
       }
     });
 
-    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final media = MediaQuery.of(context);
+    final topPad = media.viewPadding.top;
+    final bottomPad = media.viewPadding.bottom;
+
+    const headerContentHeight = 190.0;
+    final headerHeight = headerContentHeight + topPad;
+    const panelOverlap = 32.0;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: OpeiBrand.surface,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.surface,
-        appBar: OpeiAppBar(
-          backgroundColor: OpeiBrand.surface,
-          onBack: () => context.go('/welcome'),
-        ),
-        body: SafeArea(
-          top: false,
-          child: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // ── Progress strip ──────────────────────────────────────
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 2, 24, 0),
-                    child: Row(
-                      children: List.generate(4, (i) {
-                        return Expanded(
-                          child: AnimatedContainer(
-                            duration: OpeiBrand.motion,
-                            curve: OpeiBrand.motionCurve,
-                            height: 3,
-                            margin: EdgeInsets.only(right: i < 3 ? 5 : 0),
-                            decoration: BoxDecoration(
-                              color: i == 0
-                                  ? OpeiBrand.primary
-                                  : OpeiBrand.hairline,
-                              borderRadius: BorderRadius.circular(99),
-                            ),
+        backgroundColor: OpeiBrand.primary,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Stack(
+            children: [
+              // ── Gradient header ────────────────────────────────────
+              Positioned(
+                top: 0, left: 0, right: 0,
+                height: headerHeight,
+                child: ClipRect(
+                  child: Stack(children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF1E55D8),
+                            Color(0xFF3D7BFF),
+                            Color(0xFF6E9DFF),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: -60, right: -50,
+                      child: Container(
+                        width: 200, height: 200,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.09),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -40, left: -30,
+                      child: Container(
+                        width: 140, height: 140,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.white.withValues(alpha: 0.07),
+                        ),
+                      ),
+                    ),
+                  ]),
+                ),
+              ),
+
+              // ── White form panel ───────────────────────────────────
+              Positioned(
+                top: headerHeight - panelOverlap,
+                left: 0, right: 0, bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: OpeiBrand.surface,
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(28)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.06),
+                        blurRadius: 24,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(24, 28, 24, 24 + bottomPad),
+                    physics: const ClampingScrollPhysics(),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 320),
+                      reverseDuration: const Duration(milliseconds: 220),
+                      switchInCurve: Curves.easeOutQuart,
+                      switchOutCurve: Curves.easeInQuad,
+                      layoutBuilder: (current, previous) => Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          ...previous,
+                          if (current != null) current,
+                        ],
+                      ),
+                      transitionBuilder: (child, anim) {
+                        // Incoming: slide up gently from below + fade in.
+                        // Outgoing: fade out in place (no slide) so the
+                        // motion feels intentional, not chaotic.
+                        final slide = Tween<Offset>(
+                          begin: const Offset(0, 0.04),
+                          end: Offset.zero,
+                        ).animate(anim);
+                        return FadeTransition(
+                          opacity: anim,
+                          child: SlideTransition(
+                            position: slide,
+                            child: child,
                           ),
                         );
-                      }),
-                    ),
-                  ),
-
-                  // ── Scrollable content ──────────────────────────────────
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
-                      physics: const ClampingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Title block
-                          const Text(
-                            'Create your\naccount',
-                            style: TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -1.0,
-                              color: OpeiBrand.ink,
-                              height: 1.1,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            "We'll send a code to verify your email.",
-                            style: TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w400,
-                              color: OpeiBrand.inkSecondary,
-                              letterSpacing: -0.1,
-                              height: 1.45,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-
-                          // Form fields
-                          OpeiTextField(
-                            controller: _emailController,
-                            focusNode: _emailFocus,
-                            label: 'Email address',
-                            hint: 'name@example.com',
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            enabled: !isLoading,
-                            errorText: _emailError,
-                            onSubmitted: (_) =>
-                                FocusScope.of(context).nextFocus(),
-                          ),
-                          const SizedBox(height: 14),
-                          OpeiPhoneField(
-                            label: 'Phone number',
-                            enabled: !isLoading,
-                            selectedIso: _phoneIso,
-                            localNumber: _localPhoneController.text,
-                            errorText: _phoneError,
-                            onIsoChanged: (iso) {
-                              setState(() {
-                                _phoneIso = iso;
-                                _phoneError = null;
-                              });
-                            },
-                            onLocalNumberChanged: (v) {
-                              if (_localPhoneController.text != v) {
-                                _localPhoneController.value =
-                                    _localPhoneController.value.copyWith(
-                                  text: v,
-                                  selection: TextSelection.collapsed(
-                                    offset: v.length,
-                                  ),
-                                );
-                              }
-                            },
-                            onSubmitted: (_) => _pinFocus.requestFocus(),
-                          ),
-                          const SizedBox(height: 14),
-                          OpeiTextField(
-                            controller: _pinController,
-                            focusNode: _pinFocus,
-                            label: '6-digit PIN',
-                            hint: '••••••',
-                            keyboardType: TextInputType.number,
-                            textInputAction: TextInputAction.done,
-                            enabled: !isLoading,
-                            errorText: _pinError,
-                            obscureText: _obscurePin,
-                            maxLength: 6,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(6),
-                            ],
-                            helperText: _pinError == null
-                                ? 'Used to sign in and authorise payments.'
-                                : null,
-                            suffix: IconButton(
-                              visualDensity: VisualDensity.compact,
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(
-                                minWidth: 32,
-                                minHeight: 32,
-                              ),
-                              splashRadius: 16,
-                              icon: Icon(
-                                _obscurePin
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                                color: OpeiBrand.inkTertiary,
-                                size: 18,
-                              ),
-                              onPressed: () =>
-                                  setState(() => _obscurePin = !_obscurePin),
-                            ),
-                            onSubmitted: (_) => _handleSignup(),
-                          ),
-                        ],
+                      },
+                      child: KeyedSubtree(
+                        key: ValueKey(_step),
+                        child: _buildStepContent(isLoading, bottomPad),
                       ),
                     ),
                   ),
-
-                  // ── CTA area — seamless, no container box ───────────────
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        OpeiPrimaryButton(
-                          label: 'Continue',
-                          loading: isLoading,
-                          onPressed: _isFormValid && !isLoading
-                              ? _handleSignup
-                              : null,
-                          trailingIcon: Icons.arrow_forward_rounded,
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Already have an account?',
-                              style: TextStyle(
-                                fontFamily: kPrimaryFontFamily,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: OpeiBrand.inkSecondary,
-                                letterSpacing: -0.1,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            GestureDetector(
-                              onTap: () => context.go('/login'),
-                              child: const Text(
-                                'Sign in',
-                                style: TextStyle(
-                                  fontFamily: kPrimaryFontFamily,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: OpeiBrand.primary,
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+
+              // ── Header content ─────────────────────────────────────
+              Positioned(
+                top: topPad, left: 0, right: 0,
+                height: headerContentHeight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      // Back + step counter row
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: _back,
+                            child: Container(
+                              width: 36, height: 36,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          const OnboardingProgress(
+                            stage: OnboardingStage.account,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Create account',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.6,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 280),
+                        switchInCurve: Curves.easeOutQuart,
+                        switchOutCurve: Curves.easeInQuad,
+                        transitionBuilder: (child, anim) => FadeTransition(
+                          opacity: anim,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0, 0.5),
+                              end: Offset.zero,
+                            ).animate(anim),
+                            child: child,
+                          ),
+                        ),
+                        child: Text(
+                          _subtitles[_step],
+                          key: ValueKey(_step),
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white.withValues(alpha: 0.85),
+                            letterSpacing: -0.1,
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
+  }
+
+  Widget _buildStepContent(bool isLoading, double bottomPad) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // ── Field ──────────────────────────────────────────────────────
+        if (_step == 0) ...[
+          const _FieldLabel(text: 'Email address'),
+          const SizedBox(height: 8),
+          OpeiTextField(
+            controller: _emailController,
+            focusNode: _emailFocus,
+            label: '',
+            hint: 'name@example.com',
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
+            enabled: !isLoading,
+            errorText: _emailError,
+            prefix: const Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Icon(Icons.mail_outline_rounded,
+                  size: 18, color: OpeiBrand.inkTertiary),
+            ),
+            onChanged: (_) {
+              if (_emailError != null) setState(() => _emailError = null);
+            },
+            onSubmitted: (_) => _next(isLoading),
+          ),
+        ] else if (_step == 1) ...[
+          const _FieldLabel(text: 'Phone number'),
+          const SizedBox(height: 8),
+          OpeiPhoneField(
+            label: '',
+            enabled: !isLoading,
+            selectedIso: _phoneIso,
+            localNumber: _localPhoneController.text,
+            errorText: _phoneError,
+            onIsoChanged: (iso) =>
+                setState(() { _phoneIso = iso; _phoneError = null; }),
+            onLocalNumberChanged: (v) {
+              if (_localPhoneController.text != v) {
+                _localPhoneController.value =
+                    _localPhoneController.value.copyWith(
+                  text: v,
+                  selection: TextSelection.collapsed(offset: v.length),
+                );
+              }
+              if (_phoneError != null) setState(() => _phoneError = null);
+            },
+            onSubmitted: (_) => _next(isLoading),
+          ),
+        ] else ...[
+          const _FieldLabel(text: '6-digit PIN'),
+          const SizedBox(height: 8),
+          OpeiTextField(
+            controller: _pinController,
+            focusNode: _pinFocus,
+            label: '',
+            hint: '••••••',
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            enabled: !isLoading,
+            errorText: _pinError,
+            obscureText: _obscurePin,
+            maxLength: 6,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(6),
+            ],
+            prefix: const Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Icon(Icons.lock_outline_rounded,
+                  size: 18, color: OpeiBrand.inkTertiary),
+            ),
+            suffix: IconButton(
+              visualDensity: VisualDensity.compact,
+              padding: EdgeInsets.zero,
+              constraints:
+                  const BoxConstraints(minWidth: 32, minHeight: 32),
+              splashRadius: 16,
+              icon: Icon(
+                _obscurePin
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                color: OpeiBrand.inkTertiary,
+                size: 18,
+              ),
+              onPressed: () =>
+                  setState(() => _obscurePin = !_obscurePin),
+            ),
+            onChanged: (_) {
+              if (_pinError != null) setState(() => _pinError = null);
+            },
+            onSubmitted: (_) => _next(isLoading),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Keep this safe — it authorises all your payments.',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w400,
+              color: OpeiBrand.inkTertiary,
+              letterSpacing: -0.1,
+              height: 1.4,
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 32),
+
+        // ── Primary CTA ────────────────────────────────────────────────
+        OpeiPrimaryButton(
+          label: _step < 2 ? 'Continue' : 'Create account',
+          loading: isLoading,
+          onPressed: _currentStepValid && !isLoading
+              ? () => _next(isLoading)
+              : null,
+          trailingIcon: _step < 2
+              ? Icons.arrow_forward_rounded
+              : Icons.check_rounded,
+        ),
+
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Already have an account?',
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+              ),
+            ),
+            const SizedBox(width: 4),
+            GestureDetector(
+              onTap: () => context.go('/login'),
+              child: const Text(
+                'Sign in',
+                style: TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: OpeiBrand.primary,
+                  letterSpacing: -0.1,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _FieldLabel extends StatelessWidget {
+  final String text;
+  const _FieldLabel({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontFamily: kPrimaryFontFamily,
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
+        color: OpeiBrand.ink,
+        letterSpacing: -0.1,
+      ),
+    );
   }
 }
 

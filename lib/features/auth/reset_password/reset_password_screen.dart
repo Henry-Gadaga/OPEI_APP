@@ -71,6 +71,14 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     }
   }
 
+  void _handleBack() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/login');
+    }
+  }
+
   void _showSuccessSheet() {
     showModalBottomSheet(
       context: context,
@@ -152,260 +160,448 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final state = ref.watch(resetPasswordControllerProvider(widget.email));
     final isLoading = state.isLoading;
 
-    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final media = MediaQuery.of(context);
+    final topPad = media.viewPadding.top;
+    final bottomPad = media.viewPadding.bottom;
+
+    const headerContentHeight = 190.0;
+    final headerHeight = headerContentHeight + topPad;
+    const panelOverlap = 32.0;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark,
-        statusBarBrightness: Brightness.light,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
         systemNavigationBarColor: OpeiBrand.surface,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.surface,
-        appBar: OpeiAppBar(
-          backgroundColor: OpeiBrand.surface,
-          onBack: isLoading
-              ? null
-              : () =>
-                  context.canPop() ? context.pop() : context.go('/login'),
-          showBack: !isLoading,
-        ),
-        body: SafeArea(
-          top: false,
-          child: GestureDetector(
-            onTap: () => FocusScope.of(context).unfocus(),
-            behavior: HitTestBehavior.opaque,
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
-                      physics: const ClampingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Reset your\nPIN',
-                            style: TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -1.0,
-                              color: OpeiBrand.ink,
-                              height: 1.1,
-                            ),
+        backgroundColor: OpeiBrand.primary,
+        body: GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          behavior: HitTestBehavior.opaque,
+          child: Stack(
+            children: [
+              // ── Gradient header ────────────────────────────────────────
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: headerHeight,
+                child: ClipRect(
+                  child: Stack(
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF1E55D8),
+                              Color(0xFF3D7BFF),
+                              Color(0xFF6E9DFF),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Text.rich(
-                          TextSpan(
-                            text: 'Enter the 6-digit code we sent to ',
-                            style: const TextStyle(
-                              fontFamily: kPrimaryFontFamily,
-                              fontSize: 14.5,
-                              fontWeight: FontWeight.w400,
-                              color: OpeiBrand.inkSecondary,
-                              letterSpacing: -0.1,
-                              height: 1.45,
-                            ),
+                        ),
+                      ),
+                      Positioned(
+                        top: -60,
+                        right: -50,
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withValues(alpha: 0.09),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: -40,
+                        left: -30,
+                        child: Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withValues(alpha: 0.07),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // ── White form card ────────────────────────────────────────
+              Positioned(
+                top: headerHeight - panelOverlap,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: OpeiBrand.surface,
+                    borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(28)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.06),
+                        blurRadius: 24,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+                          physics: const ClampingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              TextSpan(
-                                text: widget.email,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
+                              const Text(
+                                'Code & new PIN',
+                                style: TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -0.5,
                                   color: OpeiBrand.ink,
+                                  height: 1.2,
                                 ),
                               ),
-                              const TextSpan(
-                                text: ' and choose a new 6-digit PIN.',
+                              const SizedBox(height: 6),
+                              Text.rich(
+                                TextSpan(
+                                  text: 'Enter the 6-digit code we sent to ',
+                                  style: const TextStyle(
+                                    fontFamily: kPrimaryFontFamily,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: OpeiBrand.inkSecondary,
+                                    letterSpacing: -0.1,
+                                    height: 1.45,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: widget.email,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: OpeiBrand.ink,
+                                      ),
+                                    ),
+                                    const TextSpan(
+                                      text: ' and choose your new PIN.',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              if (state.errorMessage != null) ...[
+                                _ErrorBanner(message: state.errorMessage!),
+                                const SizedBox(height: 16),
+                              ],
+                              OpeiTextField(
+                                controller: _codeController,
+                                focusNode: _codeFocusNode,
+                                label: 'Verification code',
+                                hint: '6-digit code',
+                                keyboardType: TextInputType.number,
+                                textInputAction: TextInputAction.next,
+                                enabled: !isLoading,
+                                autofocus: true,
+                                maxLength: 6,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(6),
+                                ],
+                                errorText: state.codeError,
+                                prefix: const Padding(
+                                  padding: EdgeInsets.only(right: 10),
+                                  child: Icon(
+                                    Icons.numbers_rounded,
+                                    size: 18,
+                                    color: OpeiBrand.inkTertiary,
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  ref
+                                      .read(resetPasswordControllerProvider(
+                                              widget.email)
+                                          .notifier)
+                                      .updateCode(value);
+                                },
+                                onSubmitted: (_) =>
+                                    _newPasswordFocusNode.requestFocus(),
+                              ),
+                              const SizedBox(height: 14),
+                              OpeiTextField(
+                                controller: _newPasswordController,
+                                focusNode: _newPasswordFocusNode,
+                                label: 'New 6-digit PIN',
+                                hint: '••••••',
+                                keyboardType: TextInputType.number,
+                                textInputAction: TextInputAction.next,
+                                enabled: !isLoading,
+                                obscureText: _obscureNewPassword,
+                                maxLength: 6,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(6),
+                                ],
+                                errorText: state.passwordError,
+                                prefix: const Padding(
+                                  padding: EdgeInsets.only(right: 10),
+                                  child: Icon(
+                                    Icons.lock_outline_rounded,
+                                    size: 18,
+                                    color: OpeiBrand.inkTertiary,
+                                  ),
+                                ),
+                                suffix: IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                    minHeight: 32,
+                                  ),
+                                  splashRadius: 16,
+                                  icon: Icon(
+                                    _obscureNewPassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    color: OpeiBrand.inkTertiary,
+                                    size: 18,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscureNewPassword =
+                                        !_obscureNewPassword,
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  ref
+                                      .read(resetPasswordControllerProvider(
+                                              widget.email)
+                                          .notifier)
+                                      .updateNewPassword(value);
+                                },
+                                onSubmitted: (_) =>
+                                    _confirmPasswordFocusNode.requestFocus(),
+                              ),
+                              const SizedBox(height: 14),
+                              OpeiTextField(
+                                controller: _confirmPasswordController,
+                                focusNode: _confirmPasswordFocusNode,
+                                label: 'Confirm new PIN',
+                                hint: '••••••',
+                                keyboardType: TextInputType.number,
+                                textInputAction: TextInputAction.done,
+                                enabled: !isLoading,
+                                obscureText: _obscureConfirmPassword,
+                                maxLength: 6,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                  LengthLimitingTextInputFormatter(6),
+                                ],
+                                errorText: state.confirmPasswordError,
+                                helperText: state.confirmPasswordError == null
+                                    ? "You'll use this to sign in and authorise payments."
+                                    : null,
+                                prefix: const Padding(
+                                  padding: EdgeInsets.only(right: 10),
+                                  child: Icon(
+                                    Icons.lock_outline_rounded,
+                                    size: 18,
+                                    color: OpeiBrand.inkTertiary,
+                                  ),
+                                ),
+                                suffix: IconButton(
+                                  visualDensity: VisualDensity.compact,
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(
+                                    minWidth: 32,
+                                    minHeight: 32,
+                                  ),
+                                  splashRadius: 16,
+                                  icon: Icon(
+                                    _obscureConfirmPassword
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    color: OpeiBrand.inkTertiary,
+                                    size: 18,
+                                  ),
+                                  onPressed: () => setState(
+                                    () => _obscureConfirmPassword =
+                                        !_obscureConfirmPassword,
+                                  ),
+                                ),
+                                onChanged: (value) {
+                                  ref
+                                      .read(resetPasswordControllerProvider(
+                                              widget.email)
+                                          .notifier)
+                                      .updateConfirmPassword(value);
+                                },
+                                onSubmitted: (_) => _handleSubmit(),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 28),
-                        if (state.errorMessage != null) ...[
-                          _ErrorBanner(message: state.errorMessage!),
-                          const SizedBox(height: 16),
-                        ],
-                        OpeiTextField(
-                          controller: _codeController,
-                          focusNode: _codeFocusNode,
-                          label: 'Verification code',
-                          hint: '6-digit code',
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.next,
-                          enabled: !isLoading,
-                          autofocus: true,
-                          maxLength: 6,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsets.fromLTRB(24, 20, 24, 20 + bottomPad),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            OpeiPrimaryButton(
+                              label: 'Reset PIN',
+                              loading: isLoading,
+                              onPressed: _isFormValid && !isLoading
+                                  ? _handleSubmit
+                                  : null,
+                              trailingIcon: Icons.check_rounded,
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  "Didn't get a code?",
+                                  style: TextStyle(
+                                    fontFamily: kPrimaryFontFamily,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: OpeiBrand.inkSecondary,
+                                    letterSpacing: -0.1,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                GestureDetector(
+                                  onTap: isLoading ? null : _handleBack,
+                                  child: const Text(
+                                    'Request new',
+                                    style: TextStyle(
+                                      fontFamily: kPrimaryFontFamily,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: OpeiBrand.primary,
+                                      letterSpacing: -0.1,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
-                          errorText: state.codeError,
-                          onChanged: (value) {
-                            ref
-                                .read(resetPasswordControllerProvider(
-                                        widget.email)
-                                    .notifier)
-                                .updateCode(value);
-                          },
-                          onSubmitted: (_) =>
-                              _newPasswordFocusNode.requestFocus(),
                         ),
-                        const SizedBox(height: 14),
-                        OpeiTextField(
-                          controller: _newPasswordController,
-                          focusNode: _newPasswordFocusNode,
-                          label: 'New 6-digit PIN',
-                          hint: '••••••',
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.next,
-                          enabled: !isLoading,
-                          obscureText: _obscureNewPassword,
-                          maxLength: 6,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
-                          ],
-                          errorText: state.passwordError,
-                          suffix: IconButton(
-                            visualDensity: VisualDensity.compact,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            splashRadius: 16,
-                            icon: Icon(
-                              _obscureNewPassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: OpeiBrand.inkTertiary,
-                              size: 18,
-                            ),
-                            onPressed: () => setState(
-                              () => _obscureNewPassword = !_obscureNewPassword,
-                            ),
-                          ),
-                          onChanged: (value) {
-                            ref
-                                .read(resetPasswordControllerProvider(
-                                        widget.email)
-                                    .notifier)
-                                .updateNewPassword(value);
-                          },
-                          onSubmitted: (_) =>
-                              _confirmPasswordFocusNode.requestFocus(),
-                        ),
-                        const SizedBox(height: 14),
-                        OpeiTextField(
-                          controller: _confirmPasswordController,
-                          focusNode: _confirmPasswordFocusNode,
-                          label: 'Confirm new PIN',
-                          hint: '••••••',
-                          keyboardType: TextInputType.number,
-                          textInputAction: TextInputAction.done,
-                          enabled: !isLoading,
-                          obscureText: _obscureConfirmPassword,
-                          maxLength: 6,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(6),
-                          ],
-                          errorText: state.confirmPasswordError,
-                          helperText: state.confirmPasswordError == null
-                              ? "You'll use this to sign in and authorise payments."
-                              : null,
-                          suffix: IconButton(
-                            visualDensity: VisualDensity.compact,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
-                            ),
-                            splashRadius: 16,
-                            icon: Icon(
-                              _obscureConfirmPassword
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              color: OpeiBrand.inkTertiary,
-                              size: 18,
-                            ),
-                            onPressed: () => setState(
-                              () => _obscureConfirmPassword =
-                                  !_obscureConfirmPassword,
-                            ),
-                          ),
-                          onChanged: (value) {
-                            ref
-                                .read(resetPasswordControllerProvider(
-                                        widget.email)
-                                    .notifier)
-                                .updateConfirmPassword(value);
-                          },
-                          onSubmitted: (_) => _handleSubmit(),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-                  Padding(
-                    padding:
-                        EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        OpeiPrimaryButton(
-                          label: 'Reset PIN',
-                          loading: isLoading,
-                          onPressed: _isFormValid && !isLoading
-                              ? _handleSubmit
-                              : null,
-                          trailingIcon: Icons.arrow_forward_rounded,
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              "Didn't get a code?",
-                              style: TextStyle(
-                                fontFamily: kPrimaryFontFamily,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: OpeiBrand.inkSecondary,
-                                letterSpacing: -0.1,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            GestureDetector(
-                              onTap: () => context.canPop()
-                                  ? context.pop()
-                                  : context.go('/login'),
-                              child: const Text(
-                                'Request new',
-                                style: TextStyle(
-                                  fontFamily: kPrimaryFontFamily,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: OpeiBrand.primary,
-                                  letterSpacing: -0.1,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
-            ),
+
+              // ── Header content ─────────────────────────────────────────
+              Positioned(
+                top: topPad,
+                left: 0,
+                right: 0,
+                height: headerContentHeight,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: isLoading ? null : _handleBack,
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          const _ResetProgress(stage: 1),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Reset PIN',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.6,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Enter the code and choose a new PIN.',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withValues(alpha: 0.85),
+                          letterSpacing: -0.1,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
+  }
+}
+
+/// 2-pill progress indicator for the forgot-PIN flow. Identical to the one
+/// used in forgot_password_screen.dart so the two screens feel like one flow.
+class _ResetProgress extends StatelessWidget {
+  final int stage; // 0 = request, 1 = reset
+  const _ResetProgress({required this.stage});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(2, (i) {
+        final completed = i < stage;
+        final active = i == stage;
+        return AnimatedContainer(
+          duration: OpeiBrand.motion,
+          curve: OpeiBrand.motionCurve,
+          width: active ? 24 : 8,
+          height: 6,
+          margin: const EdgeInsets.only(left: 4),
+          decoration: BoxDecoration(
+            color: completed || active
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.30),
+            borderRadius: BorderRadius.circular(99),
+          ),
+        );
+      }),
+    );
   }
 }
 
@@ -454,4 +650,3 @@ class _ErrorBanner extends StatelessWidget {
     );
   }
 }
-
