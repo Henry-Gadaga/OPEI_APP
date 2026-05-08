@@ -271,131 +271,337 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
       return const Center(child: Text('No preview available'));
     }
 
+    final receiver = state.lookupResult!;
+    final initial = receiver.bestDisplayName.trim().isEmpty
+        ? '?'
+        : receiver.bestDisplayName.trim()[0].toUpperCase();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 4),
-        Text(
-          'Review transfer',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                fontSize: 20,
-              ),
-        ),
-        const SizedBox(height: 18),
+        // ── Hero — what the recipient will receive ─────────────────────
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
           decoration: BoxDecoration(
-            color: OpeiColors.grey100,
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                OpeiBrand.primaryGradientStart,
+                OpeiBrand.primaryGradientEnd,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: OpeiBrand.primary.withValues(alpha: 0.18),
+                offset: const Offset(0, 8),
+                blurRadius: 22,
+              ),
+            ],
           ),
-          child: Column(
+          child: Row(
             children: [
-              _buildDetailRow(context, 'Sending to', state.lookupResult!.bestDisplayName, isLabel: true),
-              const SizedBox(height: 18),
-              _buildDetailRow(
-                context,
-                'Transfer amount',
-                preview.transferAmountMoney.format(includeCurrencySymbol: true),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'RECIPIENT GETS',
+                      style: TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white70,
+                        letterSpacing: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        preview.receiverCreditAmountMoney
+                            .format(includeCurrencySymbol: true),
+                        style: const TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.8,
+                          height: 1.05,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 10),
-              _buildDetailRow(
-                context,
-                'Fee',
-                preview.estimatedFeeMoney.format(includeCurrencySymbol: true),
-              ),
-              const SizedBox(height: 10),
-              _buildDetailRow(
-                context,
-                'Total debit',
-                preview.totalDebitMoney.format(includeCurrencySymbol: true),
-                isTotal: true,
-              ),
-              const SizedBox(height: 10),
-              _buildDetailRow(
-                context,
-                'Balance after',
-                preview.senderBalanceAfterMoney.format(includeCurrencySymbol: true),
-              ),
-              const SizedBox(height: 16),
-              Divider(color: OpeiColors.grey300.withValues(alpha: 0.6), height: 1),
-              const SizedBox(height: 16),
-              _buildDetailRow(
-                context,
-                'Recipient receives',
-                preview.receiverCreditAmountMoney.format(includeCurrencySymbol: true),
-                isHighlight: true,
+              const SizedBox(width: 12),
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.send_rounded,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
             ],
           ),
         ),
+
+        const SizedBox(height: 18),
+
+        // ── Section: Recipient ──────────────────────────────────────────
+        const _SendSectionLabel('RECIPIENT'),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          decoration: BoxDecoration(
+            color: OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline, width: 1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: OpeiBrand.primaryTint,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    initial,
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: OpeiBrand.primary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      receiver.bestDisplayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: OpeiBrand.ink,
+                        letterSpacing: -0.2,
+                        height: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      receiver.email,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: 0.1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 18),
+
+        // ── Section: Breakdown ──────────────────────────────────────────
+        const _SendSectionLabel('PAYMENT BREAKDOWN'),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline, width: 1),
+          ),
+          child: Column(
+            children: [
+              _SendPreviewRow(
+                label: 'Transfer amount',
+                value: preview.transferAmountMoney
+                    .format(includeCurrencySymbol: true),
+              ),
+              const _SendPreviewDivider(),
+              _SendPreviewRow(
+                label: 'Fee',
+                value: preview.estimatedFeeMoney
+                    .format(includeCurrencySymbol: true),
+              ),
+              const _SendPreviewDivider(),
+              _SendPreviewRow(
+                label: 'Total to charge',
+                value: preview.totalDebitMoney
+                    .format(includeCurrencySymbol: true),
+                emphasize: true,
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 18),
+
+        // ── Section: Wallet impact ──────────────────────────────────────
+        const _SendSectionLabel('AFTER THIS PAYMENT'),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          decoration: BoxDecoration(
+            color: OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline, width: 1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: OpeiBrand.primaryTint,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.account_balance_wallet_outlined,
+                  size: 18,
+                  color: OpeiBrand.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Wallet balance',
+                  style: TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: OpeiBrand.inkSecondary,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+              ),
+              Text(
+                preview.senderBalanceAfterMoney
+                    .format(includeCurrencySymbol: true),
+                style: const TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+
         if (state.errorMessage?.isNotEmpty == true) ...[
           const SizedBox(height: 14),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
             decoration: BoxDecoration(
-              color: OpeiColors.errorRed.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+              color: OpeiBrand.danger.withValues(alpha: 0.07),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: OpeiBrand.danger.withValues(alpha: 0.18),
+                width: 1,
+              ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.error_outline, color: OpeiColors.errorRed, size: 18),
-                const SizedBox(width: 10),
+                const Icon(Icons.error_outline_rounded,
+                    size: 14, color: OpeiBrand.danger),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     state.errorMessage!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: OpeiColors.errorRed,
-                        ),
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: OpeiBrand.danger,
+                      letterSpacing: -0.1,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
         ],
-        const SizedBox(height: 22),
-        ElevatedButton(
-          onPressed: state.isLoading ? null : _handleConfirmTransfer,
-          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-          child: state.isLoading
-              ? const CupertinoActivityIndicator(radius: 11, color: OpeiColors.pureWhite)
-              : const Text('Send now'),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value, {bool isTotal = false, bool isLabel = false, bool isHighlight = false}) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Flexible(
-          flex: 4,
-          child: Text(
-            label,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: isLabel || isTotal || isHighlight ? OpeiColors.pureBlack : OpeiColors.grey600,
-                  fontWeight: isLabel || isTotal || isHighlight ? FontWeight.w600 : FontWeight.w400,
+        const SizedBox(height: 28),
+
+        FilledButton(
+          onPressed: state.isLoading ? null : _handleConfirmTransfer,
+          style: FilledButton.styleFrom(
+            backgroundColor: OpeiBrand.primary,
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: OpeiBrand.primaryTintStrong,
+            disabledForegroundColor:
+                OpeiBrand.primary.withValues(alpha: 0.6),
+            minimumSize: const Size.fromHeight(54),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
+            ),
+          ),
+          child: state.isLoading
+              ? const CupertinoActivityIndicator(
+                  radius: 11, color: Colors.white)
+              : const Text(
+                  'Send now',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
                 ),
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: state.isLoading
+              ? null
+              : () => ref
+                  .read(sendMoneyControllerProvider.notifier)
+                  .goBack(),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            foregroundColor: OpeiBrand.primary,
+          ),
+          child: const Text(
+            'Edit amount',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.1,
+            ),
           ),
         ),
-        const SizedBox(width: 12),
-        Flexible(
-          flex: 6,
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: isTotal || isHighlight ? FontWeight.w700 : FontWeight.w600,
-                  fontSize: isTotal ? 18 : null,
-                  color: isHighlight ? OpeiColors.successGreen : null,
-                ),
-          ),
-        ),
+        const SizedBox(height: 4),
       ],
     );
   }
@@ -578,5 +784,87 @@ class _ResultStep extends ConsumerWidget {
       ],
     );
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Preview helpers — mirror the create-card flow's structure & spacing.
+
+class _SendSectionLabel extends StatelessWidget {
+  final String label;
+  const _SendSectionLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontFamily: kPrimaryFontFamily,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w800,
+          color: OpeiBrand.inkTertiary,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+}
+
+class _SendPreviewRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool emphasize;
+
+  const _SendPreviewRow({
+    required this.label,
+    required this.value,
+    this.emphasize = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              fontWeight: emphasize ? FontWeight.w700 : FontWeight.w500,
+              color: emphasize ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: emphasize ? 16 : 14,
+              fontWeight: emphasize ? FontWeight.w800 : FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.2,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SendPreviewDivider extends StatelessWidget {
+  const _SendPreviewDivider();
+
+  @override
+  Widget build(BuildContext context) => const Divider(
+        height: 1,
+        thickness: 0.5,
+        color: OpeiBrand.hairline,
+        indent: 14,
+        endIndent: 14,
+      );
 }
 

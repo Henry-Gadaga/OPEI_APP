@@ -11,7 +11,6 @@ import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_app_bar.dart';
 import 'package:opei/widgets/opei_premium/opei_primary_button.dart';
 
-/// Step 2 — review & confirm. Compact, structured banking layout.
 class SendPreviewScreen extends ConsumerWidget {
   final Beneficiary beneficiary;
   final String countryName;
@@ -67,7 +66,7 @@ class SendPreviewScreen extends ConsumerWidget {
     final canProceed = review.walletCheck?.canProceed ?? true;
     final shortfall = review.walletCheck?.shortfallCents ?? 0;
     final isBusy = state.isInitiating || state.isFinalizing;
-
+    final walletAfterCents = review.walletCheck?.remainingAvailableBalanceCents;
     final hasDescription = state.paymentDescription.trim().isNotEmpty;
 
     return Scaffold(
@@ -82,75 +81,77 @@ class SendPreviewScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
                 physics: const BouncingScrollPhysics(),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // ── Page title ─────────────────────────────────────
                     const Text(
-                      'Review payment',
+                      'Review transfer',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 22,
                         fontWeight: FontWeight.w800,
                         color: OpeiBrand.ink,
                         letterSpacing: -0.5,
                         height: 1.1,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     const Text(
                       'Check the details before confirming.',
                       style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w400,
                         color: OpeiBrand.inkSecondary,
                         letterSpacing: -0.1,
                       ),
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 20),
 
-                    // ── Hero amount card ─────────────────────────────
+                    // ── Hero amount ────────────────────────────────────
                     _AmountHero(review: review),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 16),
 
-                    // ── Section: Receiver ────────────────────────────
-                    const _SectionLabel('RECEIVER'),
-                    const SizedBox(height: 8),
-                    _ReceiverCard(
+                    // ── Unified details card ───────────────────────────
+                    _DetailsCard(
+                      review: review,
                       name: name,
                       masked: masked,
                       flag: flag,
                       countryName: countryName,
+                      walletAfterCents: walletAfterCents,
+                      description: hasDescription
+                          ? state.paymentDescription.trim()
+                          : null,
                     ),
-                    const SizedBox(height: 22),
 
-                    // ── Section: Breakdown ───────────────────────────
-                    const _SectionLabel('PAYMENT BREAKDOWN'),
-                    const SizedBox(height: 8),
-                    _BreakdownCard(review: review),
-
-                    if (hasDescription) ...[
-                      const SizedBox(height: 22),
-                      const _SectionLabel('DESCRIPTION'),
-                      const SizedBox(height: 8),
-                      _DescriptionCard(
-                        value: state.paymentDescription.trim(),
-                      ),
-                    ],
-
+                    // ── Status banners ─────────────────────────────────
                     if (review.expiresAt != null) ...[
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 10),
                       _ExpiryHint(expiresAt: review.expiresAt!),
                     ],
-
                     if (!canProceed) ...[
-                      const SizedBox(height: 14),
-                      _BalanceWarning(shortfallCents: shortfall),
+                      const SizedBox(height: 10),
+                      _StatusBanner(
+                        icon: Icons.warning_amber_rounded,
+                        iconColor: OpeiBrand.warning,
+                        bgColor: OpeiBrand.warning.withValues(alpha: 0.08),
+                        borderColor: OpeiBrand.warning.withValues(alpha: 0.22),
+                        message:
+                            'Your balance is \$${(shortfall / 100).toStringAsFixed(2)} short. Top up to continue.',
+                      ),
                     ],
-
                     if (state.initiateError != null ||
                         state.finalizeError != null) ...[
-                      const SizedBox(height: 14),
-                      _InlineError(
+                      const SizedBox(height: 10),
+                      _StatusBanner(
+                        icon: Icons.error_outline_rounded,
+                        iconColor: OpeiBrand.danger,
+                        bgColor: OpeiBrand.danger.withValues(alpha: 0.07),
+                        borderColor: OpeiBrand.danger.withValues(alpha: 0.18),
                         message:
                             (state.initiateError ?? state.finalizeError)!,
+                        messageColor: OpeiBrand.danger,
                       ),
                     ],
                   ],
@@ -158,11 +159,11 @@ class SendPreviewScreen extends ConsumerWidget {
               ),
             ),
 
-            // ── CTA bar ────────────────────────────────────────────────
+            // ── CTA ────────────────────────────────────────────────────
             Container(
               padding: EdgeInsets.fromLTRB(
                 20,
-                14,
+                12,
                 20,
                 MediaQuery.of(context).viewPadding.bottom + 16,
               ),
@@ -181,13 +182,14 @@ class SendPreviewScreen extends ConsumerWidget {
                           ? 'Reserving funds…'
                           : 'Sending payment…',
                       style: const TextStyle(
-                        fontSize: 12.5,
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: OpeiBrand.inkSecondary,
                         letterSpacing: -0.1,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 8),
                   ],
                   OpeiPrimaryButton(
                     label: 'Confirm & send',
@@ -208,35 +210,18 @@ class SendPreviewScreen extends ConsumerWidget {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _SectionLabel extends StatelessWidget {
-  final String label;
-  const _SectionLabel(this.label);
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 10.5,
-          fontWeight: FontWeight.w800,
-          color: OpeiBrand.inkTertiary,
-          letterSpacing: 1.0,
-        ),
-      ),
-    );
-  }
-}
-
 class _AmountHero extends StatelessWidget {
   final PayoutReview review;
   const _AmountHero({required this.review});
+
+  static String _fmt(int minor, String currency) =>
+      '${NumberFormat('#,##0.00').format(minor / 100)} $currency';
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -246,109 +231,124 @@ class _AmountHero extends StatelessWidget {
             OpeiBrand.primaryGradientEnd,
           ],
         ),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: OpeiBrand.primary.withValues(alpha: 0.18),
+            color: OpeiBrand.primary.withValues(alpha: 0.20),
             offset: const Offset(0, 8),
-            blurRadius: 22,
+            blurRadius: 20,
+            spreadRadius: -2,
           ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Left: you pay / they receive stack
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'THEY RECEIVE',
+                  'YOU PAY',
                   style: TextStyle(
-                    fontSize: 10,
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 9.5,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white70,
+                    color: Colors.white60,
                     letterSpacing: 1.4,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 3),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    _fmtMinor(
-                        review.payoutAmountMinor, review.payoutCurrency),
+                    '\$${review.totalDebitAmountUsd}',
                     style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
-                      letterSpacing: -0.7,
-                      height: 1.05,
+                      letterSpacing: -0.8,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  height: 1,
+                  color: Colors.white.withValues(alpha: 0.18),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'THEY RECEIVE',
+                  style: TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 9.5,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white60,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _fmt(review.payoutAmountMinor, review.payoutCurrency),
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -0.4,
+                      height: 1.0,
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
+          // Right: icon
           Container(
-            width: 1,
-            height: 48,
-            color: Colors.white.withValues(alpha: 0.28),
-          ),
-          const SizedBox(width: 14),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                const Text(
-                  'YOU PAY',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white70,
-                    letterSpacing: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    '\$${review.totalDebitAmountUsd}',
-                    maxLines: 1,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: -0.5,
-                      height: 1.05,
-                    ),
-                  ),
-                ),
-              ],
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.send_rounded,
+              color: Colors.white,
+              size: 18,
             ),
           ),
         ],
       ),
     );
   }
-
-  static String _fmtMinor(int minor, String currency) =>
-      '${NumberFormat('#,##0.00').format(minor / 100)} $currency';
 }
 
-class _ReceiverCard extends StatelessWidget {
+// Single unified details card — receiver + breakdown + wallet after + note
+class _DetailsCard extends StatelessWidget {
+  final PayoutReview review;
   final String name;
   final String masked;
   final String flag;
   final String countryName;
+  final int? walletAfterCents;
+  final String? description;
 
-  const _ReceiverCard({
+  const _DetailsCard({
+    required this.review,
     required this.name,
     required this.masked,
     required this.flag,
     required this.countryName,
+    required this.walletAfterCents,
+    required this.description,
   });
 
   String _initials(String n) {
@@ -361,184 +361,238 @@ class _ReceiverCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final showWalletAfter = walletAfterCents != null;
+    final walletUsd = showWalletAfter
+        ? '\$${(walletAfterCents! / 100).toStringAsFixed(2)}'
+        : null;
+
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       decoration: BoxDecoration(
         color: OpeiBrand.surfaceMuted,
-        borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: OpeiBrand.hairline, width: 1),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: OpeiBrand.primaryTint,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-                child: Center(
-                  child: Text(
-                    _initials(name),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: OpeiBrand.primary,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                right: -2,
-                bottom: -2,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: OpeiBrand.surface,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                        color: OpeiBrand.surfaceMuted, width: 1.5),
-                  ),
-                  child: Text(flag, style: const TextStyle(fontSize: 12)),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+          // ── Receiver row ─────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
+            child: Row(
               children: [
-                Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: OpeiBrand.ink,
-                    letterSpacing: -0.2,
-                    height: 1.2,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: OpeiBrand.primaryTint,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          _initials(name),
+                          style: const TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: OpeiBrand.primary,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: -2,
+                      bottom: -2,
+                      child: Container(
+                        width: 18,
+                        height: 18,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: OpeiBrand.surface,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              color: OpeiBrand.surfaceMuted, width: 1.5),
+                        ),
+                        child: Text(flag,
+                            style: const TextStyle(fontSize: 10)),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: OpeiBrand.ink,
+                          letterSpacing: -0.2,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        masked.isNotEmpty
+                            ? '$masked · $countryName'
+                            : countryName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: OpeiBrand.inkSecondary,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  masked.isNotEmpty
-                      ? '$masked · $countryName'
-                      : countryName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w500,
-                    color: OpeiBrand.inkSecondary,
-                    letterSpacing: 0.1,
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: OpeiBrand.success.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: const Text(
+                    'Recipient',
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: OpeiBrand.success,
+                      letterSpacing: 0.1,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
+          _Divider(),
 
-class _BreakdownCard extends StatelessWidget {
-  final PayoutReview review;
-  const _BreakdownCard({required this.review});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: OpeiBrand.surfaceMuted,
-        borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
-        border: Border.all(color: OpeiBrand.hairline, width: 1),
-      ),
-      child: Column(
-        children: [
-          _Row(label: 'Send amount', value: '\$${review.requiredAmountUsd}'),
-          const _Sep(),
-          _Row(label: 'Transfer fee', value: '\$${review.feeAmountUsd}'),
-          const _Sep(),
-          _Row(
-            label: 'Total to pay',
-            value: '\$${review.totalDebitAmountUsd}',
-            emphasized: true,
+          // ── Breakdown rows ────────────────────────────────────────
+          _DetailRow(
+            label: 'Send amount',
+            value: '\$${review.requiredAmountUsd}',
           ),
+          _Divider(),
+          _DetailRow(
+            label: 'Transfer fee',
+            value: '\$${review.feeAmountUsd}',
+          ),
+          _Divider(),
+          _DetailRow(
+            label: 'Total charged',
+            value: '\$${review.totalDebitAmountUsd}',
+            valueWeight: FontWeight.w800,
+            valueSize: 15,
+          ),
+
+          if (showWalletAfter) ...[
+            _Divider(),
+            _DetailRow(
+              label: 'Wallet after',
+              value: walletUsd!,
+              icon: Icons.account_balance_wallet_outlined,
+            ),
+          ],
+
+          if (description != null) ...[
+            _Divider(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Note',
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiBrand.inkSecondary,
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                  const Spacer(),
+                  const SizedBox(width: 24),
+                  Flexible(
+                    child: Text(
+                      description!,
+                      textAlign: TextAlign.right,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiBrand.ink,
+                        letterSpacing: -0.1,
+                        height: 1.35,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 }
 
-class _DescriptionCard extends StatelessWidget {
-  final String value;
-  const _DescriptionCard({required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      decoration: BoxDecoration(
-        color: OpeiBrand.surfaceMuted,
-        borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
-        border: Border.all(color: OpeiBrand.hairline, width: 1),
-      ),
-      child: Text(
-        value,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: OpeiBrand.ink,
-          letterSpacing: -0.1,
-          height: 1.4,
-        ),
-      ),
-    );
-  }
-}
-
-class _Row extends StatelessWidget {
+class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
-  final bool emphasized;
-  const _Row({
+  final IconData? icon;
+  final FontWeight valueWeight;
+  final double valueSize;
+
+  const _DetailRow({
     required this.label,
     required this.value,
-    this.emphasized = false,
+    this.icon,
+    this.valueWeight = FontWeight.w700,
+    this.valueSize = 13.5,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          if (icon != null) ...[
+            Icon(icon, size: 14, color: OpeiBrand.inkTertiary),
+            const SizedBox(width: 6),
+          ],
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
               fontSize: 13,
-              fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
-              color: emphasized ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
               letterSpacing: -0.1,
             ),
           ),
+          const Spacer(),
           Text(
             value,
             style: TextStyle(
-              fontSize: emphasized ? 16 : 14,
-              fontWeight: emphasized ? FontWeight.w800 : FontWeight.w700,
+              fontFamily: kPrimaryFontFamily,
+              fontSize: valueSize,
+              fontWeight: valueWeight,
               color: OpeiBrand.ink,
               letterSpacing: -0.2,
             ),
@@ -549,8 +603,7 @@ class _Row extends StatelessWidget {
   }
 }
 
-class _Sep extends StatelessWidget {
-  const _Sep();
+class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Divider(
         height: 1,
@@ -567,102 +620,67 @@ class _ExpiryHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Row(
-        children: [
-          const Icon(Icons.schedule_outlined,
-              size: 12, color: OpeiBrand.inkTertiary),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              'Quote expires at ${DateFormat.Hm().format(expiresAt.toLocal())}.',
-              style: const TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-                color: OpeiBrand.inkTertiary,
-                letterSpacing: -0.1,
-              ),
-            ),
+    return Row(
+      children: [
+        const Icon(Icons.schedule_outlined,
+            size: 12, color: OpeiBrand.inkTertiary),
+        const SizedBox(width: 6),
+        Text(
+          'Quote expires at ${DateFormat.Hm().format(expiresAt.toLocal())}',
+          style: const TextStyle(
+            fontFamily: kPrimaryFontFamily,
+            fontSize: 11.5,
+            fontWeight: FontWeight.w500,
+            color: OpeiBrand.inkTertiary,
+            letterSpacing: -0.1,
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BalanceWarning extends StatelessWidget {
-  final int shortfallCents;
-  const _BalanceWarning({required this.shortfallCents});
-
-  @override
-  Widget build(BuildContext context) {
-    final usd = (shortfallCents / 100).toStringAsFixed(2);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
-      decoration: BoxDecoration(
-        color: OpeiBrand.warning.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: OpeiBrand.warning.withValues(alpha: 0.30),
-          width: 1,
         ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.warning_amber_rounded,
-              size: 15, color: OpeiBrand.warning),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'Your balance is \$$usd short. Top up to continue.',
-              style: const TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w600,
-                color: OpeiBrand.ink,
-                letterSpacing: -0.1,
-                height: 1.35,
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
 
-class _InlineError extends StatelessWidget {
+class _StatusBanner extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final Color bgColor;
+  final Color borderColor;
   final String message;
-  const _InlineError({required this.message});
+  final Color messageColor;
+
+  const _StatusBanner({
+    required this.icon,
+    required this.iconColor,
+    required this.bgColor,
+    required this.borderColor,
+    required this.message,
+    this.messageColor = OpeiBrand.ink,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: BoxDecoration(
-        color: OpeiBrand.danger.withValues(alpha: 0.08),
+        color: bgColor,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: OpeiBrand.danger.withValues(alpha: 0.20),
-          width: 1,
-        ),
+        border: Border.all(color: borderColor, width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline_rounded,
-              size: 15, color: OpeiBrand.danger),
+          Icon(icon, size: 14, color: iconColor),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
-                fontSize: 11.5,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: OpeiBrand.danger,
+                color: messageColor,
                 letterSpacing: -0.1,
-                height: 1.35,
+                height: 1.4,
               ),
             ),
           ),

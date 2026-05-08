@@ -83,15 +83,22 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
     return PopScope(
       canPop: !_isFinishing,
       child: Scaffold(
-        backgroundColor: OpeiColors.pureWhite,
+        backgroundColor: OpeiBrand.surface,
         appBar: AppBar(
-          backgroundColor: OpeiColors.pureWhite,
+          backgroundColor: OpeiBrand.surface,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
+          scrolledUnderElevation: 0,
           automaticallyImplyLeading: false,
           title: Text(
             _appBarTitle(state.stage),
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.2,
+            ),
           ),
           centerTitle: true,
         ),
@@ -102,7 +109,7 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
             switchOutCurve: Curves.easeIn,
             child: Padding(
               key: ValueKey(state.stage),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
               child: _buildStage(state, theme),
             ),
           ),
@@ -144,66 +151,109 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
     final controller = ref.read(cardCreationControllerProvider.notifier);
     final hasError = state.errorMessage?.isNotEmpty == true;
     final isLoading = state.isBusy && !hasError;
-    final titleText = hasError ? "We couldn't start card setup" : 'Setting things up';
-    final subtitleText = hasError
-        ? 'Check the message below and try again.'
-        : "We're preparing your card details. This usually takes a few seconds.";
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 360),
+        constraints: const BoxConstraints(maxWidth: 320),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // ── Icon/Spinner ───────────────────────────────────────────
             Container(
-              width: 84,
-              height: 84,
+              width: 72,
+              height: 72,
               decoration: BoxDecoration(
-                color: OpeiColors.grey100,
+                gradient: hasError
+                    ? null
+                    : const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          OpeiBrand.primaryGradientStart,
+                          OpeiBrand.primaryGradientEnd,
+                        ],
+                      ),
+                color: hasError
+                    ? OpeiBrand.danger.withValues(alpha: 0.12)
+                    : null,
                 shape: BoxShape.circle,
+                boxShadow: hasError
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: OpeiBrand.primary.withValues(alpha: 0.22),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
               ),
               child: Center(
                 child: isLoading
-                    ? const CupertinoActivityIndicator(radius: 14)
+                    ? const CupertinoActivityIndicator(
+                        radius: 13,
+                        color: Colors.white,
+                      )
                     : Icon(
-                        hasError ? Icons.error_outline_rounded : Icons.hourglass_empty_rounded,
-                        color: OpeiColors.pureBlack,
-                        size: 34,
+                        hasError
+                            ? Icons.error_outline_rounded
+                            : Icons.credit_card_rounded,
+                        color: hasError ? OpeiBrand.danger : Colors.white,
+                        size: 30,
                       ),
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 20),
             Text(
-              titleText,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 19,
-                letterSpacing: -0.2,
+              hasError ? "Setup failed" : 'Creating your card',
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: OpeiBrand.ink,
+                letterSpacing: -0.4,
+                height: 1.2,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Text(
-              subtitleText,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: OpeiColors.iosLabelSecondary,
-                height: 1.38,
+              hasError
+                  ? 'Check the message below and try again.'
+                  : 'Preparing your card details.\nThis only takes a moment.',
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+                height: 1.45,
               ),
               textAlign: TextAlign.center,
             ),
-            if (state.errorMessage?.isNotEmpty == true) ...[
-              const SizedBox(height: 24),
-              _MessageBanner(message: state.errorMessage!, isError: true),
+            if (hasError) ...[
               const SizedBox(height: 20),
+              _MessageBanner(message: state.errorMessage!, isError: true),
+              const SizedBox(height: 16),
               FilledButton(
                 onPressed: () => controller.startRegistration(),
                 style: FilledButton.styleFrom(
-                  backgroundColor: OpeiColors.pureBlack,
-                  foregroundColor: OpeiColors.pureWhite,
-                  minimumSize: const Size(0, 50),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  backgroundColor: OpeiBrand.primary,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(OpeiBrand.radiusCta),
+                  ),
                 ),
-                child: const Text('Try again'),
+                child: const Text(
+                  'Try again',
+                  style: TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
+                ),
               ),
             ],
           ],
@@ -214,136 +264,259 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
 
   Widget _buildAmountEntry(ThemeData theme, CardCreationState state) {
     final controller = ref.read(cardCreationControllerProvider.notifier);
-
     final currency = (state.amount?.currency ?? 'USD').toUpperCase();
+    final amountText = _amountController.text.trim();
+    final parsedAmount =
+        double.tryParse(amountText.replaceAll(',', '')) ?? 0;
+    final hasAmount = parsedAmount > 0;
+    final canContinue = parsedAmount >= 2.00;
+    final fmtAmount = _displayAmount(amountText);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-          'Add your first funds',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 24,
-                  letterSpacing: -0.4,
-                ),
-              ),
-              const SizedBox(height: 10),
-              Text(
-          'Enter the amount you want to move onto your virtual card. You can top up again at any time.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.iosLabelSecondary,
-                  height: 1.35,
-                ),
-              ),
-        const SizedBox(height: 28),
-        Form(
-          key: _amountFormKey,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            decoration: BoxDecoration(
-              color: OpeiColors.pureWhite,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: OpeiColors.grey200, width: 1),
+    return Form(
+      key: _amountFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── Header label ────────────────────────────────────────────
+          const SizedBox(height: 8),
+          const Text(
+            'Initial load',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.5,
+              height: 1.1,
             ),
-            child: Row(
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'How much would you like to add to your new card?',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+              height: 1.4,
+            ),
+          ),
+
+          const Spacer(flex: 3),
+
+          // ── Hero amount ─────────────────────────────────────────────
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _amountFocusNode.requestFocus(),
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-              Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                    color: OpeiColors.iosSurfaceMuted,
-                    borderRadius: BorderRadius.circular(12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        '\$',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                          color: hasAmount
+                              ? OpeiBrand.ink
+                              : OpeiBrand.inkPlaceholder,
+                          letterSpacing: -0.5,
+                          height: 1.0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 2),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 240),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          hasAmount ? fmtAmount : '0',
+                          style: TextStyle(
+                            fontFamily: kPrimaryFontFamily,
+                            fontSize: 56,
+                            fontWeight: FontWeight.w800,
+                            color: hasAmount
+                                ? OpeiBrand.ink
+                                : OpeiBrand.inkPlaceholder,
+                            letterSpacing: -2.0,
+                            height: 1.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 14),
+                      child: Text(
+                        currency,
+                        style: const TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: OpeiBrand.inkTertiary,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: Text(
-                  currency,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: OpeiColors.iosLabelSecondary,
-                    letterSpacing: 0.6,
-                  ),
-                ),
-              ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: TextFormField(
+                // Invisible input captures keyboard
+                Positioned.fill(
+                  child: Opacity(
+                    opacity: 0.0,
+                    child: TextFormField(
                       controller: _amountController,
                       focusNode: _amountFocusNode,
                       enabled: !state.isBusy,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    textAlign: TextAlign.left,
-                      style: theme.textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.3,
-                      ),
-                      decoration: InputDecoration(
+                      autofocus: true,
+                      keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true),
+                      textAlign: TextAlign.center,
+                      showCursor: false,
+                      style: const TextStyle(fontSize: 56),
+                      decoration: const InputDecoration(
                         border: InputBorder.none,
-                        hintText: '0.00',
-                        hintStyle: theme.textTheme.displaySmall?.copyWith(
-                          color: OpeiColors.grey300,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.3,
-                        ),
-                        errorStyle: theme.textTheme.bodySmall?.copyWith(
-                          color: OpeiColors.errorRed,
-                          fontWeight: FontWeight.w500,
-                          height: 1.2,
-                        ),
                         contentPadding: EdgeInsets.zero,
+                        isCollapsed: true,
                       ),
                       textInputAction: TextInputAction.done,
                       validator: (value) {
                         final sanitized = value?.trim() ?? '';
-                        if (sanitized.isEmpty) {
-                          return 'Enter an amount to continue.';
-                        }
-                      final parsed =
-                          double.tryParse(sanitized.replaceAll(',', ''));
+                        if (sanitized.isEmpty) return 'Enter an amount';
+                        final parsed = double.tryParse(
+                            sanitized.replaceAll(',', ''));
                         if (parsed == null || parsed <= 0) {
-                          return 'Enter a valid amount above 0.00.';
+                          return 'Enter a valid amount';
                         }
                         if (parsed < 2.00) {
-                          return 'Minimum deposit is \$2.00.';
+                          return 'Minimum deposit is \$2.00';
                         }
                         return null;
                       },
+                      onChanged: (_) => setState(() {}),
                       onFieldSubmitted: (_) => _handlePreview(controller),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Minimum deposit is \$2.00',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: OpeiColors.iosLabelSecondary,
-                        letterSpacing: -0.1,
-                      ),
-                    ),
-        if (state.errorMessage?.isNotEmpty == true) ...[
-          const SizedBox(height: 16),
-          _MessageBanner(message: state.errorMessage!, isError: true),
-        ],
-        const Spacer(),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: FilledButton(
-            onPressed: state.isBusy ? null : () => _handlePreview(controller),
+          const SizedBox(height: 8),
+          Center(
+            child: AnimatedDefaultTextStyle(
+              duration: OpeiBrand.motionFast,
+              curve: OpeiBrand.motionCurve,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w500,
+                color: hasAmount && !canContinue
+                    ? OpeiBrand.danger
+                    : OpeiBrand.inkTertiary,
+                letterSpacing: -0.1,
+              ),
+              child: Text(
+                hasAmount && !canContinue
+                    ? 'Minimum deposit is \$2.00'
+                    : 'Funded from your wallet  •  Min \$2.00',
+              ),
+            ),
+          ),
+
+          const Spacer(flex: 2),
+
+          // ── Quick chips ─────────────────────────────────────────────
+          SizedBox(
+            height: 38,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.zero,
+              children: [
+                for (final v in const [10, 25, 50, 100, 250]) ...[
+                  _QuickAmountChip(
+                    value: v,
+                    isSelected: parsedAmount == v.toDouble(),
+                    onTap: state.isBusy
+                        ? null
+                        : () {
+                            final formatted = v.toString();
+                            _amountController.value = TextEditingValue(
+                              text: formatted,
+                              selection: TextSelection.collapsed(
+                                  offset: formatted.length),
+                            );
+                            setState(() {});
+                          },
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ],
+            ),
+          ),
+
+          if (state.errorMessage?.isNotEmpty == true) ...[
+            const SizedBox(height: 12),
+            _MessageBanner(message: state.errorMessage!, isError: true),
+          ],
+
+          const SizedBox(height: 24),
+
+          FilledButton(
+            onPressed: state.isBusy || !canContinue
+                ? null
+                : () => _handlePreview(controller),
             style: FilledButton.styleFrom(
-              backgroundColor: OpeiColors.pureBlack,
-              foregroundColor: OpeiColors.pureWhite,
+              backgroundColor: OpeiBrand.primary,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: OpeiBrand.primaryTintStrong,
+              disabledForegroundColor:
+                  OpeiBrand.primary.withValues(alpha: 0.6),
               minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
+              ),
             ),
             child: state.isBusy
-                ? const CupertinoActivityIndicator(radius: 11, color: OpeiColors.pureWhite)
-                : const Text('Continue', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: -0.1)),
+                ? const CupertinoActivityIndicator(
+                    radius: 11, color: Colors.white)
+                : const Text(
+                    'Continue',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
           ),
-        ),
-        const SizedBox(height: 16),
-      ],
+          const SizedBox(height: 4),
+        ],
+      ),
     );
+  }
+
+  /// Format the amount string with thousands separators while preserving the
+  /// trailing decimal as the user types it (e.g. `1234.5` -> `1,234.5`,
+  /// `1234.` -> `1,234.`, `1234` -> `1,234`).
+  String _displayAmount(String raw) {
+    if (raw.isEmpty) return '';
+    final trimmed = raw.replaceAll(',', '');
+    final parts = trimmed.split('.');
+    final intPart = parts.first;
+    final decimalPart = parts.length > 1 ? parts.sublist(1).join('') : null;
+    final intNumber = int.tryParse(intPart) ?? 0;
+    final formattedInt = intNumber.toString().replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
+    if (parts.length == 1) return formattedInt;
+    return '$formattedInt.${decimalPart ?? ''}';
   }
 
   void _handlePreview(CardCreationController controller) {
@@ -811,10 +984,60 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(
+          fontFamily: kPrimaryFontFamily,
           fontSize: 10.5,
           fontWeight: FontWeight.w800,
           color: OpeiBrand.inkTertiary,
           letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickAmountChip extends StatelessWidget {
+  final int value;
+  final bool isSelected;
+  final VoidCallback? onTap;
+
+  const _QuickAmountChip({
+    required this.value,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(99),
+        child: AnimatedContainer(
+          duration: OpeiBrand.motionFast,
+          curve: OpeiBrand.motionCurve,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? OpeiBrand.primary : OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(99),
+            border: Border.all(
+              color: isSelected
+                  ? OpeiBrand.primary
+                  : Colors.transparent,
+              width: 1,
+            ),
+          ),
+          child: Text(
+            '\$$value',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: isSelected ? Colors.white : OpeiBrand.ink,
+              letterSpacing: -0.2,
+            ),
+          ),
         ),
       ),
     );
