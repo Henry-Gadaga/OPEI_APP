@@ -68,6 +68,8 @@ class SendPreviewScreen extends ConsumerWidget {
     final shortfall = review.walletCheck?.shortfallCents ?? 0;
     final isBusy = state.isInitiating || state.isFinalizing;
 
+    final hasDescription = state.paymentDescription.trim().isNotEmpty;
+
     return Scaffold(
       backgroundColor: OpeiBrand.surface,
       appBar: const OpeiAppBar(),
@@ -77,72 +79,75 @@ class SendPreviewScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
                 physics: const BouncingScrollPhysics(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Review',
+                      'Review payment',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                         fontWeight: FontWeight.w800,
                         color: OpeiBrand.ink,
-                        letterSpacing: -0.4,
+                        letterSpacing: -0.5,
                         height: 1.1,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     const Text(
                       'Check the details before confirming.',
                       style: TextStyle(
-                        fontSize: 12.5,
+                        fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: OpeiBrand.inkSecondary,
                         letterSpacing: -0.1,
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 22),
 
                     // ── Hero amount card ─────────────────────────────
                     _AmountHero(review: review),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 22),
 
                     // ── Section: Receiver ────────────────────────────
                     const _SectionLabel('RECEIVER'),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     _ReceiverCard(
                       name: name,
                       masked: masked,
                       flag: flag,
                       countryName: countryName,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 22),
 
                     // ── Section: Breakdown ───────────────────────────
                     const _SectionLabel('PAYMENT BREAKDOWN'),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     _BreakdownCard(review: review),
-                    const SizedBox(height: 12),
-                    const _SectionLabel('DESCRIPTION'),
-                    const SizedBox(height: 6),
-                    _DescriptionCard(
-                      value: state.paymentDescription.trim(),
-                    ),
+
+                    if (hasDescription) ...[
+                      const SizedBox(height: 22),
+                      const _SectionLabel('DESCRIPTION'),
+                      const SizedBox(height: 8),
+                      _DescriptionCard(
+                        value: state.paymentDescription.trim(),
+                      ),
+                    ],
 
                     if (review.expiresAt != null) ...[
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       _ExpiryHint(expiresAt: review.expiresAt!),
                     ],
 
                     if (!canProceed) ...[
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       _BalanceWarning(shortfallCents: shortfall),
                     ],
 
                     if (state.initiateError != null ||
                         state.finalizeError != null) ...[
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 14),
                       _InlineError(
                         message:
                             (state.initiateError ?? state.finalizeError)!,
@@ -157,9 +162,9 @@ class SendPreviewScreen extends ConsumerWidget {
             Container(
               padding: EdgeInsets.fromLTRB(
                 20,
-                12,
+                14,
                 20,
-                MediaQuery.of(context).viewPadding.bottom + 14,
+                MediaQuery.of(context).viewPadding.bottom + 16,
               ),
               decoration: const BoxDecoration(
                 color: OpeiBrand.surface,
@@ -171,30 +176,16 @@ class SendPreviewScreen extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (isBusy) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(
-                          width: 12,
-                          height: 12,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1.6,
-                            color: OpeiBrand.primary,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          state.isInitiating
-                              ? 'Reserving funds…'
-                              : 'Sending payment…',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: OpeiBrand.inkSecondary,
-                            letterSpacing: -0.1,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      state.isInitiating
+                          ? 'Reserving funds…'
+                          : 'Sending payment…',
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.1,
+                      ),
                     ),
                     const SizedBox(height: 10),
                   ],
@@ -227,10 +218,10 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         label,
         style: const TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w800,
           color: OpeiBrand.inkTertiary,
-          letterSpacing: 0.9,
+          letterSpacing: 1.0,
         ),
       ),
     );
@@ -245,7 +236,7 @@ class _AmountHero extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -255,12 +246,12 @@ class _AmountHero extends StatelessWidget {
             OpeiBrand.primaryGradientEnd,
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: OpeiBrand.primary.withValues(alpha: 0.16),
-            offset: const Offset(0, 6),
-            blurRadius: 18,
+            color: OpeiBrand.primary.withValues(alpha: 0.18),
+            offset: const Offset(0, 8),
+            blurRadius: 22,
           ),
         ],
       ),
@@ -274,13 +265,13 @@ class _AmountHero extends StatelessWidget {
                 const Text(
                   'THEY RECEIVE',
                   style: TextStyle(
-                    fontSize: 9.5,
+                    fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: Colors.white70,
-                    letterSpacing: 1.2,
+                    letterSpacing: 1.4,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
@@ -288,10 +279,10 @@ class _AmountHero extends StatelessWidget {
                     _fmtMinor(
                         review.payoutAmountMinor, review.payoutCurrency),
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
-                      letterSpacing: -0.6,
+                      letterSpacing: -0.7,
                       height: 1.05,
                     ),
                   ),
@@ -299,13 +290,13 @@ class _AmountHero extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Container(
             width: 1,
-            height: 40,
-            color: Colors.white.withValues(alpha: 0.25),
+            height: 48,
+            color: Colors.white.withValues(alpha: 0.28),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -313,13 +304,13 @@ class _AmountHero extends StatelessWidget {
                 const Text(
                   'YOU PAY',
                   style: TextStyle(
-                    fontSize: 9.5,
+                    fontSize: 10,
                     fontWeight: FontWeight.w800,
                     color: Colors.white70,
-                    letterSpacing: 1.2,
+                    letterSpacing: 1.4,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerRight,
@@ -327,10 +318,10 @@ class _AmountHero extends StatelessWidget {
                     '\$${review.totalDebitAmountUsd}',
                     maxLines: 1,
                     style: const TextStyle(
-                      fontSize: 18,
+                      fontSize: 22,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
-                      letterSpacing: -0.4,
+                      letterSpacing: -0.5,
                       height: 1.05,
                     ),
                   ),
@@ -371,10 +362,10 @@ class _ReceiverCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 11, 12, 11),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
       decoration: BoxDecoration(
         color: OpeiBrand.surfaceMuted,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
         border: Border.all(color: OpeiBrand.hairline, width: 1),
       ),
       child: Row(
@@ -383,8 +374,8 @@ class _ReceiverCard extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
                   color: OpeiBrand.primaryTint,
                   borderRadius: BorderRadius.circular(99),
@@ -393,7 +384,7 @@ class _ReceiverCard extends StatelessWidget {
                   child: Text(
                     _initials(name),
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: OpeiBrand.primary,
                       letterSpacing: 0.2,
@@ -405,8 +396,8 @@ class _ReceiverCard extends StatelessWidget {
                 right: -2,
                 bottom: -2,
                 child: Container(
-                  width: 18,
-                  height: 18,
+                  width: 20,
+                  height: 20,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: OpeiBrand.surface,
@@ -414,13 +405,12 @@ class _ReceiverCard extends StatelessWidget {
                     border: Border.all(
                         color: OpeiBrand.surfaceMuted, width: 1.5),
                   ),
-                  child: Text(flag,
-                      style: const TextStyle(fontSize: 10)),
+                  child: Text(flag, style: const TextStyle(fontSize: 12)),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,14 +421,14 @@ class _ReceiverCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 13.5,
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: OpeiBrand.ink,
                     letterSpacing: -0.2,
-                    height: 1.15,
+                    height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 1),
+                const SizedBox(height: 2),
                 Text(
                   masked.isNotEmpty
                       ? '$masked · $countryName'
@@ -446,7 +436,7 @@ class _ReceiverCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontSize: 11.5,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w500,
                     color: OpeiBrand.inkSecondary,
                     letterSpacing: 0.1,
@@ -470,7 +460,7 @@ class _BreakdownCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: OpeiBrand.surfaceMuted,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
         border: Border.all(color: OpeiBrand.hairline, width: 1),
       ),
       child: Column(
@@ -498,20 +488,20 @@ class _DescriptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
         color: OpeiBrand.surfaceMuted,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
         border: Border.all(color: OpeiBrand.hairline, width: 1),
       ),
       child: Text(
         value,
         style: const TextStyle(
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
           color: OpeiBrand.ink,
           letterSpacing: -0.1,
-          height: 1.35,
+          height: 1.4,
         ),
       ),
     );
@@ -531,14 +521,14 @@ class _Row extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
             style: TextStyle(
-              fontSize: 12.5,
+              fontSize: 13,
               fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
               color: emphasized ? OpeiBrand.ink : OpeiBrand.inkSecondary,
               letterSpacing: -0.1,
@@ -547,7 +537,7 @@ class _Row extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: emphasized ? 14.5 : 13,
+              fontSize: emphasized ? 16 : 14,
               fontWeight: emphasized ? FontWeight.w800 : FontWeight.w700,
               color: OpeiBrand.ink,
               letterSpacing: -0.2,
@@ -562,8 +552,13 @@ class _Row extends StatelessWidget {
 class _Sep extends StatelessWidget {
   const _Sep();
   @override
-  Widget build(BuildContext context) =>
-      const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline);
+  Widget build(BuildContext context) => const Divider(
+        height: 1,
+        thickness: 0.5,
+        color: OpeiBrand.hairline,
+        indent: 14,
+        endIndent: 14,
+      );
 }
 
 class _ExpiryHint extends StatelessWidget {

@@ -60,43 +60,52 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
     return FractionallySizedBox(
       heightFactor: _sheetHeightFactor(context),
       alignment: Alignment.bottomCenter,
-      child: SafeArea(
-        top: false,
-        child: AnimatedPadding(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OpeiBrand.hairlineStrong,
-                  borderRadius: BorderRadius.circular(99),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: _buildHeader(context, state),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    child: _buildStepContent(context, state),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: OpeiBrand.surface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(OpeiBrand.radiusSheet),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: OpeiBrand.hairlineStrong,
+                    borderRadius: BorderRadius.circular(99),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 14),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildHeader(context, state),
+                ),
+                const SizedBox(height: 4),
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: _buildStepContent(context, state),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -273,19 +282,22 @@ class _PreviewStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final preview = state.preview;
 
     if (preview == null) {
-      return Column(
-        key: const ValueKey('preview-step-empty'),
+      return const Column(
+        key: ValueKey('preview-step-empty'),
         children: [
-          const SizedBox(height: 40),
-          const CupertinoActivityIndicator(radius: 14),
-          const SizedBox(height: 16),
+          SizedBox(height: 40),
+          CupertinoActivityIndicator(radius: 14),
+          SizedBox(height: 16),
           Text(
-            'Loading preview...',
-            style: theme.textTheme.bodyMedium,
+            'Loading preview…',
+            style: TextStyle(
+              fontSize: 13,
+              color: OpeiBrand.inkSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       );
@@ -299,19 +311,16 @@ class _PreviewStep extends ConsumerWidget {
       key: const ValueKey('preview-step'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 8),
-        Text(
-          'Review',
-          style: theme.textTheme.bodyMedium?.copyWith(
-                color: OpeiBrand.inkSecondary,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-          textAlign: TextAlign.center,
+        // ── Hero amount ─────────────────────────────────────────────────
+        _HeroAmount(
+          amount: preview.topUpAmountMoney.format(includeCurrencySymbol: true),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
+
+        // ── Breakdown ────────────────────────────────────────────────────
+        _SectionLabel('PAYMENT BREAKDOWN'),
+        const SizedBox(height: 8),
         Container(
-          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: OpeiBrand.surfaceMuted,
             borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
@@ -321,37 +330,87 @@ class _PreviewStep extends ConsumerWidget {
             children: [
               _PreviewRow(
                 label: 'Top-up amount',
-                value: preview.topUpAmountMoney.format(includeCurrencySymbol: true),
+                value: preview.topUpAmountMoney
+                    .format(includeCurrencySymbol: true),
               ),
-              const SizedBox(height: 10),
+              const _Divider(),
               _PreviewRow(
                 label: 'Fee',
                 value: preview.feeMoney.format(includeCurrencySymbol: true),
               ),
-              const SizedBox(height: 10),
+              const _Divider(),
               _PreviewRow(
-                label: 'Total debit',
-                value: preview.totalDebitMoney.format(includeCurrencySymbol: true),
+                label: 'Total to pay',
+                value: preview.totalDebitMoney
+                    .format(includeCurrencySymbol: true),
                 isEmphasis: true,
-              ),
-              const SizedBox(height: 10),
-              const Divider(color: OpeiBrand.hairline, height: 1, thickness: 0.6),
-              const SizedBox(height: 10),
-              _PreviewRow(
-                label: 'Wallet balance after',
-                value: preview.walletBalanceAfterMoney.format(includeCurrencySymbol: true),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+
+        const SizedBox(height: 18),
+
+        // ── Wallet impact ───────────────────────────────────────────────
+        _SectionLabel('AFTER THIS PAYMENT'),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          decoration: BoxDecoration(
+            color: OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline, width: 1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: OpeiBrand.primaryTint,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.account_balance_wallet_outlined,
+                  size: 18,
+                  color: OpeiBrand.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'Wallet balance',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: OpeiBrand.inkSecondary,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+              ),
+              Text(
+                preview.walletBalanceAfterMoney
+                    .format(includeCurrencySymbol: true),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
+          ),
+        ),
+
         if (infoMessage?.isNotEmpty == true) ...[
+          const SizedBox(height: 14),
           _StatusBanner(
             message: infoMessage!,
             variant: isBlocking ? _BannerVariant.warning : _BannerVariant.error,
           ),
-          const SizedBox(height: 12),
         ],
+
+        const SizedBox(height: 22),
         _PrimaryButton(
           onPressed: (state.isSubmitting || !preview.canTopUp)
               ? null
@@ -359,7 +418,7 @@ class _PreviewStep extends ConsumerWidget {
                   FocusManager.instance.primaryFocus?.unfocus();
                   await controller.confirmTopUp();
                 },
-          label: 'Confirm',
+          label: 'Confirm top-up',
           isLoading: state.isSubmitting,
         ),
         const SizedBox(height: 8),
@@ -371,20 +430,114 @@ class _PreviewStep extends ConsumerWidget {
                   ref.read(cardTopUpControllerProvider.notifier).goBack();
                 },
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 9),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             foregroundColor: OpeiBrand.primary,
           ),
-          child: Text(
+          child: const Text(
             'Edit amount',
-            style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.1,
+            ),
           ),
         ),
       ],
     );
   }
+}
+
+class _HeroAmount extends StatelessWidget {
+  final String amount;
+  const _HeroAmount({required this.amount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            OpeiBrand.primaryGradientStart,
+            OpeiBrand.primaryGradientEnd,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: OpeiBrand.primary.withValues(alpha: 0.18),
+            offset: const Offset(0, 8),
+            blurRadius: 22,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'YOU\'RE TOPPING UP',
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: Colors.white70,
+              letterSpacing: 1.4,
+            ),
+          ),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              amount,
+              style: const TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: -0.8,
+                height: 1.05,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String label;
+  const _SectionLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 10.5,
+          fontWeight: FontWeight.w800,
+          color: OpeiBrand.inkTertiary,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+  @override
+  Widget build(BuildContext context) => const Divider(
+        height: 1,
+        thickness: 0.5,
+        color: OpeiBrand.hairline,
+        indent: 14,
+        endIndent: 14,
+      );
 }
 
 class _ResultStep extends ConsumerWidget {
@@ -531,34 +684,38 @@ class _PreviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.bodyMedium?.copyWith(
-                color: isEmphasis ? OpeiBrand.ink : OpeiBrand.inkSecondary,
-                fontWeight: isEmphasis ? FontWeight.w600 : FontWeight.w500,
-                fontSize: 13,
-              ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            softWrap: false,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: isEmphasis ? FontWeight.w600 : FontWeight.w600,
-                  fontSize: isEmphasis ? 15 : 13,
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: isEmphasis ? FontWeight.w700 : FontWeight.w500,
+              color: isEmphasis ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 10),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontSize: isEmphasis ? 15 : 13.5,
+                  fontWeight: isEmphasis ? FontWeight.w800 : FontWeight.w700,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
