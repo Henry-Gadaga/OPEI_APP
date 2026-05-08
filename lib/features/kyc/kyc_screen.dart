@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -577,7 +578,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         tintColor = const Color(0xFFFDEBEE);
         title = 'Sign in again';
         actionText = 'Go to sign in';
-        onAction = () => context.go('/login');
+        onAction = () => unawaited(_handleSignInAgainAction());
         break;
       case KycErrorType.serviceUnavailable:
       case KycErrorType.general:
@@ -645,6 +646,18 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleSignInAgainAction() async {
+    try {
+      await ref.read(authRepositoryProvider).logout();
+    } catch (e) {
+      debugPrint('⚠️ KYC sign-in-again logout failed: $e');
+    }
+
+    ref.read(authSessionProvider.notifier).clearSession();
+    if (!mounted) return;
+    context.go('/login');
   }
 
   Widget _buildCompletedView() {

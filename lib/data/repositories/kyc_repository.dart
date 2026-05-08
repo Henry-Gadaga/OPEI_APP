@@ -13,7 +13,7 @@ class KycRepository {
       debugPrint('🔐 Creating KYC session...');
       
       final response = await _apiClient.post<Map<String, dynamic>>(
-        '/kyc/session',
+        '/kyc/session/app',
         data: {},
       );
 
