@@ -24,10 +24,12 @@ class ExpressAgentScreen extends ConsumerStatefulWidget {
 class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+  int _lastTabIndex = 0;
 
   List<ExpressOrder> _available = const <ExpressOrder>[];
   List<ExpressOrder> _mine = const <ExpressOrder>[];
   bool _loading = true;
+  bool _loadingRequestInFlight = false;
   String? _error;
   String? _acceptingId;
 
@@ -35,19 +37,35 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _lastTabIndex = _tabController.index;
+    _tabController.addListener(_handleTabChanged);
     _load();
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_handleTabChanged);
     _tabController.dispose();
     super.dispose();
   }
 
+  void _handleTabChanged() {
+    // Trigger refresh once a swipe/tap tab transition has completed.
+    if (_tabController.indexIsChanging) return;
+    if (_tabController.index == _lastTabIndex) return;
+    _lastTabIndex = _tabController.index;
+    _load();
+  }
+
   Future<void> _load() async {
+    if (_loadingRequestInFlight) return;
+    _loadingRequestInFlight = true;
     setState(() {
       _loading = true;
       _error = null;
+      // Clear stale lists so only loader is visible while fetching.
+      _available = const <ExpressOrder>[];
+      _mine = const <ExpressOrder>[];
     });
     try {
       final repo = ref.read(expressOrderRepositoryProvider);
@@ -73,6 +91,8 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
         _error = ErrorHelper.getErrorMessage(e);
         _loading = false;
       });
+    } finally {
+      _loadingRequestInFlight = false;
     }
   }
 
@@ -202,6 +222,10 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
             color: OpeiBrand.surface,
             child: TabBar(
               controller: _tabController,
+              onTap: (index) {
+                // Always refresh immediately on tab open to avoid stale flashes.
+                _load();
+              },
               labelColor: OpeiBrand.primary,
               unselectedLabelColor: OpeiBrand.inkTertiary,
               indicatorColor: OpeiBrand.primary,

@@ -31,6 +31,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   WebViewController? _webViewController;
   bool _isWebViewLoading = true;
   bool _handledCallbackNavigation = false;
+  bool _isStartingVerification = false;
 
   @override
   Widget build(BuildContext context) {
@@ -297,7 +298,9 @@ class _KycScreenState extends ConsumerState<KycScreen> {
             padding: EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
             child: OpeiPrimaryButton(
               label: 'Start verification',
-              onPressed: _handleStartVerification,
+              onPressed: _isStartingVerification
+                  ? null
+                  : _handleStartVerification,
               trailingIcon: Icons.arrow_forward_rounded,
             ),
           ),
@@ -307,13 +310,21 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   }
 
   Future<void> _handleStartVerification() async {
+    if (_isStartingVerification) return;
+    setState(() => _isStartingVerification = true);
     debugPrint('🔘 Start verification button pressed');
-    if (!kIsWeb) {
-      final granted = await _ensureKycPermissions();
-      if (!granted) return;
+    try {
+      if (!kIsWeb) {
+        final granted = await _ensureKycPermissions();
+        if (!granted) return;
+      }
+      if (!mounted) return;
+      ref.read(kycControllerProvider.notifier).initializeKycSession();
+    } finally {
+      if (mounted) {
+        setState(() => _isStartingVerification = false);
+      }
     }
-    if (!mounted) return;
-    ref.read(kycControllerProvider.notifier).initializeKycSession();
   }
 
   Future<bool> _ensureKycPermissions() async {
@@ -331,7 +342,27 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       permissions.add(Permission.photos);
     }
 
-    final results = await permissions.toList().request();
+    Map<Permission, PermissionStatus> results;
+    try {
+      results = await permissions.toList().request();
+    } on PlatformException catch (e) {
+      if (e.code == 'PermissionHandler.PermissionManager' && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'A permission request is already in progress. Please wait a moment and try again.',
+            ),
+            backgroundColor: OpeiBrand.warning,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            ),
+          ),
+        );
+      }
+      return false;
+    }
     final allGranted = results.values
         .every((status) => status.isGranted || status.isLimited);
     if (allGranted) return true;
@@ -553,7 +584,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         tintColor = const Color(0xFFFFF7E6);
         title = 'Under review';
         actionText = 'Back';
-        onAction = () => context.pop();
+        onAction = _navigateBackOrDashboard;
         break;
       case KycErrorType.wrongStage:
         icon = Icons.info_rounded;
@@ -569,7 +600,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         tintColor = const Color(0xFFFDEBEE);
         title = 'Account inactive';
         actionText = 'Back';
-        onAction = () => context.pop();
+        onAction = _navigateBackOrDashboard;
         break;
       case KycErrorType.unauthorized:
       case KycErrorType.notFound:
@@ -646,6 +677,15 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         ],
       ),
     );
+  }
+
+  void _navigateBackOrDashboard() {
+    final router = GoRouter.of(context);
+    if (router.canPop()) {
+      context.pop();
+      return;
+    }
+    context.go('/dashboard');
   }
 
   Future<void> _handleSignInAgainAction() async {

@@ -831,14 +831,14 @@ class _BottomBar extends StatelessWidget {
                   letterSpacing: -0.2,
                 ),
               ),
-              const SizedBox(width: 5),
-              Icon(
-                isLast
-                    ? Icons.check_rounded
-                    : Icons.arrow_forward_rounded,
-                size: 16,
-                color: Colors.white,
-              ),
+              if (!isLast) ...[
+                const SizedBox(width: 5),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  size: 16,
+                  color: Colors.white,
+                ),
+              ],
             ],
           ),
         ),

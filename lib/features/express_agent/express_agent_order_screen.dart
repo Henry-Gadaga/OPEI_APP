@@ -436,11 +436,13 @@ class _ExpressAgentOrderScreenState
                 if (canDispute) ...[
                   SizedBox(
                     width: double.infinity,
-                    height: 46,
-                    child: OutlinedButton(
+                    height: 50,
+                    child: ElevatedButton(
                       onPressed: _openingDispute ? null : _openDispute,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: OpeiBrand.danger),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: OpeiBrand.danger,
+                        disabledBackgroundColor: OpeiBrand.hairlineStrong,
+                        elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                             OpeiBrand.radiusCard,
@@ -453,7 +455,7 @@ class _ExpressAgentOrderScreenState
                               height: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.2,
-                                color: OpeiBrand.danger,
+                                color: Colors.white,
                               ),
                             )
                           : const Text(
@@ -462,7 +464,7 @@ class _ExpressAgentOrderScreenState
                                 fontFamily: kPrimaryFontFamily,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
-                                color: OpeiBrand.danger,
+                                color: Colors.white,
                               ),
                             ),
                     ),

@@ -62,6 +62,7 @@ Future<void> main() async {
       options.dsn = _sentryDsn;
       options.tracesSampleRate = 0.2;
       options.enableAutoSessionTracking = true;
+      options.enableTombstone = true;
       options.sendDefaultPii = false;
       options.environment = Environment.name;
     }, appRunner: bootstrapAndRun);

@@ -99,6 +99,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       DashboardHomeScreen(
         onProfileTap: () => _goTo(profileIndex),
         onActivityTap: () => _goTo(2),
+        onCardsTap: () => _goTo(1),
       ),
       const CardsScreen(),
       const TransactionsScreen(),
@@ -157,11 +158,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 class DashboardHomeScreen extends ConsumerStatefulWidget {
   final VoidCallback onProfileTap;
   final VoidCallback onActivityTap;
+  final VoidCallback onCardsTap;
 
   const DashboardHomeScreen({
     super.key,
     required this.onProfileTap,
     required this.onActivityTap,
+    required this.onCardsTap,
   });
 
   @override
@@ -216,6 +219,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
         dismissOnBarrierTap: true,
         builder: (_) => const WithdrawOptionsSheet(),
       ),
+      onCards: widget.onCardsTap,
       onRetryWallet: () => controller.retryWalletOnly(),
     );
 
@@ -311,6 +315,7 @@ class _TopFixedSection extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onSend;
   final VoidCallback onWithdraw;
+  final VoidCallback onCards;
   final VoidCallback onRetryWallet;
 
   const _TopFixedSection({
@@ -325,6 +330,7 @@ class _TopFixedSection extends StatelessWidget {
     required this.onAdd,
     required this.onSend,
     required this.onWithdraw,
+    required this.onCards,
     required this.onRetryWallet,
   });
 
@@ -357,6 +363,7 @@ class _TopFixedSection extends StatelessWidget {
             onAdd: onAdd,
             onSend: onSend,
             onWithdraw: onWithdraw,
+            onCards: onCards,
           ),
         ),
         const SizedBox(height: 28),
@@ -920,11 +927,13 @@ class _ActionRow extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onSend;
   final VoidCallback onWithdraw;
+  final VoidCallback onCards;
 
   const _ActionRow({
     required this.onAdd,
     required this.onSend,
     required this.onWithdraw,
+    required this.onCards,
   });
 
   @override
@@ -944,9 +953,9 @@ class _ActionRow extends StatelessWidget {
           onTap: onWithdraw,
         ),
         _ActionChip(
-          icon: Icons.account_balance_rounded,
-          label: 'Bank Accounts',
-          onTap: () {},
+          icon: Icons.credit_card_rounded,
+          label: 'Cards',
+          onTap: onCards,
         ),
       ],
     );
@@ -1201,12 +1210,11 @@ class _BottomNav extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(top: BorderSide(color: OpeiBrand.hairline, width: 0.8)),
         boxShadow: [
           BoxShadow(
-            color: OpeiBrand.ink.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, -4),
+            color: OpeiBrand.ink.withValues(alpha: 0.014),
+            blurRadius: 10,
+            offset: const Offset(0, -1),
           ),
         ],
       ),

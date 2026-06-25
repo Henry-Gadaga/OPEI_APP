@@ -439,22 +439,15 @@ class _ConfirmBar extends StatelessWidget {
                     color: Colors.white,
                   ),
                 )
-              : const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Confirm order',
-                      style: TextStyle(
-                        fontFamily: kPrimaryFontFamily,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                        letterSpacing: -0.2,
-                      ),
-                    ),
-                    SizedBox(width: 6),
-                    Icon(Icons.check_rounded, size: 16, color: Colors.white),
-                  ],
+              : const Text(
+                  'Confirm order',
+                  style: TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: -0.2,
+                  ),
                 ),
         ),
       ),
