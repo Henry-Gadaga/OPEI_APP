@@ -21,12 +21,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _pinFocusNode = FocusNode();
   bool _obscurePin = true;
+  bool _biometricShortcutAvailable = false;
+  bool _isFaceBiometric = false;
 
   @override
   void initState() {
     super.initState();
     _emailController.addListener(_onAnyChange);
     _pinController.addListener(_onAnyChange);
+    _loadBiometricShortcutAvailability();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.invalidate(loginControllerProvider);
       _emailController.clear();
@@ -54,6 +57,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final emailOk = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
     final pinOk = RegExp(r'^\d{6}$').hasMatch(pin);
     return emailOk && pinOk;
+  }
+
+  Future<void> _loadBiometricShortcutAvailability() async {
+    final quickAuthService = ref.read(quickAuthServiceProvider);
+    final storage = ref.read(secureStorageServiceProvider);
+
+    final user = await storage.getUser();
+    var userIdentifier = user?.id;
+    userIdentifier ??= await quickAuthService.getRegisteredUserId();
+
+    if (userIdentifier == null) return;
+
+    final hasPin = await quickAuthService.hasPinSetup(userIdentifier);
+    final canUseBiometric = await quickAuthService.canUseBiometric();
+    final biometricEnabled = canUseBiometric
+        ? await quickAuthService.isBiometricEnabled(userIdentifier)
+        : false;
+    final isFace = canUseBiometric
+        ? await quickAuthService.hasFaceBiometric()
+        : false;
+
+    if (!mounted) return;
+    setState(() {
+      _biometricShortcutAvailable =
+          hasPin && canUseBiometric && biometricEnabled;
+      _isFaceBiometric = isFace;
+    });
+  }
+
+  void _handleBiometricSignIn() {
+    FocusScope.of(context).unfocus();
+    context.go('/quick-auth');
   }
 
   Future<void> _handleLogin() async {
@@ -372,11 +407,52 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         OpeiPrimaryButton(
                           label: 'Sign in',
                           loading: isLoading,
-                          onPressed:
-                              _isFormValid && !isLoading ? _handleLogin : null,
+                          onPressed: _isFormValid && !isLoading
+                              ? _handleLogin
+                              : null,
                           trailingIcon: Icons.arrow_forward_rounded,
                         ),
 
+                        if (_biometricShortcutAvailable) ...[
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 50,
+                            child: OutlinedButton.icon(
+                              onPressed: isLoading
+                                  ? null
+                                  : _handleBiometricSignIn,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: OpeiBrand.ink,
+                                side: const BorderSide(
+                                  color: OpeiBrand.hairlineStrong,
+                                  width: 1,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    OpeiBrand.radiusCta,
+                                  ),
+                                ),
+                              ),
+                              icon: Icon(
+                                _isFaceBiometric
+                                    ? Icons.face_outlined
+                                    : Icons.fingerprint,
+                                size: 18,
+                              ),
+                              label: Text(
+                                _isFaceBiometric
+                                    ? 'Use Face ID'
+                                    : 'Use fingerprint',
+                                style: const TextStyle(
+                                  fontFamily: kPrimaryFontFamily,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -0.2,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 22),
                         // Divider with "or"
                         Row(
@@ -389,8 +465,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                             ),
                             Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 12),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
                               child: Text(
                                 'or',
                                 style: TextStyle(
@@ -515,35 +592,6 @@ class _FieldLabel extends StatelessWidget {
   }
 }
 
-class _SecurityBadge extends StatelessWidget {
-  const _SecurityBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        Icon(
-          Icons.shield_outlined,
-          size: 13,
-          color: OpeiBrand.inkTertiary,
-        ),
-        SizedBox(width: 6),
-        Text(
-          '256-bit encryption · Bank-level security',
-          style: TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 11.5,
-            fontWeight: FontWeight.w500,
-            color: OpeiBrand.inkTertiary,
-            letterSpacing: 0.0,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _ErrorBanner extends StatelessWidget {
   final String message;
 
@@ -589,4 +637,3 @@ class _ErrorBanner extends StatelessWidget {
     );
   }
 }
-

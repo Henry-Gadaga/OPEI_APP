@@ -1,162 +1,169 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opei/core/money/money.dart';
-import 'package:opei/data/models/card_creation_preview.dart';
-import 'package:opei/features/cards/card_creation_controller.dart';
-import 'package:opei/features/cards/card_creation_state.dart';
-import 'package:opei/features/cards/cards_controller.dart';
-import 'package:opei/features/cards/cards_state.dart';
+import 'package:opei/data/models/promo_card_create_result.dart';
+import 'package:opei/data/models/promo_card_prepare.dart';
 import 'package:opei/features/cards/create_virtual_card_flow.dart';
+import 'package:opei/features/cards/promo_card_creation_controller.dart';
+import 'package:opei/features/cards/promo_card_creation_state.dart';
 import 'package:opei/theme.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('CreateVirtualCardFlow', () {
-    testWidgets('shows registration error state and retries on tap', (tester) async {
-      var startRegistrationCalls = 0;
+    testWidgets('shows prepare error state and retries on tap', (tester) async {
+      var prepareCalls = 0;
 
-      final controller = _FakeCardCreationController(
-        initialState: const CardCreationState(
-          stage: CardCreationStage.registering,
+      final controller = _FakePromoCardCreationController(
+        initialState: const PromoCardCreationState(
+          stage: PromoCardStage.preparing,
           errorMessage: 'Network down',
         ),
-        onStartRegistration: () => startRegistrationCalls++,
+        onPrepare: () => prepareCalls++,
       );
 
       await _pumpCreateVirtualCardFlow(tester, controller: controller);
 
-      expect(find.text("We couldn't start card setup"), findsOneWidget);
+      expect(find.text('Couldn\'t load card details'), findsOneWidget);
+      expect(find.text('Network down'), findsOneWidget);
       expect(find.text('Try again'), findsOneWidget);
-      // One call happens during initState.
-      expect(startRegistrationCalls, 1);
+      // One prepare call happens from initState post-frame callback.
+      expect(prepareCalls, 1);
 
       await tester.tap(find.text('Try again'));
       await tester.pump();
 
-      expect(startRegistrationCalls, 2);
+      expect(prepareCalls, 2);
     });
 
-    testWidgets('submitting amount entry calls loadPreview with parsed amount', (tester) async {
-      Money? capturedAmount;
+    testWidgets('confirm stage submits card creation', (tester) async {
+      var createCalls = 0;
 
-      final controller = _FakeCardCreationController(
-        initialState: const CardCreationState(stage: CardCreationStage.amountEntry),
-        onLoadPreview: (amount) => capturedAmount = amount,
+      final controller = _FakePromoCardCreationController(
+        initialState: PromoCardCreationState(
+          stage: PromoCardStage.confirm,
+          prepare: _prepare(canCreate: true),
+        ),
+        onCreateCard: () => createCalls++,
       );
 
       await _pumpCreateVirtualCardFlow(tester, controller: controller);
 
-      await tester.enterText(find.byType(TextFormField), '25.50');
-      await tester.tap(find.text('Continue'));
+      expect(find.text('PAYMENT SUMMARY'), findsOneWidget);
+      expect(find.text('Create my card'), findsOneWidget);
+
+      await tester.tap(find.text('Create my card'));
       await tester.pump();
 
-      expect(capturedAmount, isNotNull);
-      expect(capturedAmount!.cents, 2550);
+      expect(createCalls, 1);
     });
 
-    testWidgets('shows insufficient funds banner in preview and allows editing amount', (tester) async {
-      var backToAmountCalled = false;
-
-      final controller = _FakeCardCreationController(
-        initialState: CardCreationState(
-          stage: CardCreationStage.preview,
-          amount: Money.fromMajor(51),
-          preview: CardCreationPreview(
-            canCreate: true,
-            cardWillReceive: Money.fromMajor(49),
-            creationFee: Money.fromMajor(2),
-            totalToCharge: Money.fromMajor(51),
-            walletBalance: Money.fromMajor(40),
-            walletBalanceAfter: Money.fromMajor(-5),
+    testWidgets('shows top-up UI when wallet balance is insufficient', (tester) async {
+      final controller = _FakePromoCardCreationController(
+        initialState: PromoCardCreationState(
+          stage: PromoCardStage.confirm,
+          prepare: _prepare(
+            canCreate: false,
+            walletBalanceCents: 4000,
+            totalToChargeCents: 5100,
           ),
         ),
-        onBackToAmountEntry: () => backToAmountCalled = true,
+      );
+
+      await _pumpCreateVirtualCardFlow(tester, controller: controller);
+
+      expect(find.text('Top up your wallet to continue card creation.'), findsOneWidget);
+      expect(find.text('TOP UP REQUIRED'), findsOneWidget);
+      expect(find.text('Add to continue'), findsOneWidget);
+      expect(find.text('Add funds'), findsOneWidget);
+    });
+
+    testWidgets('success stage renders completion UI', (tester) async {
+      final controller = _FakePromoCardCreationController(
+        initialState: const PromoCardCreationState(
+          stage: PromoCardStage.success,
+          result: PromoCardCreateResult(
+            cardId: 'card_123',
+            reference: 'ref_abc',
+            status: 'pending',
+            initialLoadCents: 1000,
+            creationFeeCents: 200,
+            totalChargedCents: 1200,
+            sweepCents: 100,
+            referralRewardCents: 0,
+          ),
+        ),
       );
 
       await _pumpCreateVirtualCardFlow(tester, controller: controller);
 
       expect(
-        find.text(
-          'Wallet balance is too low to cover this card creation. Please add funds and try again.',
-        ),
+        find.text('Card on its way!'),
         findsOneWidget,
       );
-      expect(find.text('Summary'), findsOneWidget);
-      expect(find.widgetWithText(FilledButton, 'Add funds to continue'), findsOneWidget);
-
-      final editFinder = find.text('Edit amount');
-      expect(editFinder, findsOneWidget);
-      await tester.tap(editFinder);
-      await tester.pump();
-
-      expect(backToAmountCalled, isTrue);
+      expect(find.text('ref_abc'), findsOneWidget);
+      expect(find.text('Done'), findsOneWidget);
     });
   });
 }
 
-class _FakeCardCreationController extends CardCreationController {
-  _FakeCardCreationController({
+class _FakePromoCardCreationController extends PromoCardCreationController {
+  _FakePromoCardCreationController({
     required this.initialState,
-    this.onStartRegistration,
-    this.onLoadPreview,
-    this.onBackToAmountEntry,
+    this.onPrepare,
+    this.onCreateCard,
   });
 
-  final CardCreationState initialState;
-  final VoidCallback? onStartRegistration;
-  final ValueSetter<Money>? onLoadPreview;
-  final VoidCallback? onBackToAmountEntry;
+  final PromoCardCreationState initialState;
+  final VoidCallback? onPrepare;
+  final VoidCallback? onCreateCard;
 
   @override
-  CardCreationState build() => initialState;
+  PromoCardCreationState build() => initialState;
 
   @override
   void reset() {}
 
   @override
-  Future<void> startRegistration() async {
-    onStartRegistration?.call();
+  Future<void> prepare() async {
+    onPrepare?.call();
   }
 
   @override
-  Future<void> loadPreview(Money amount) async {
-    onLoadPreview?.call(amount);
-  }
-
-  @override
-  Future<void> submitCreation() async {
-    // no-op for tests
-  }
-
-  @override
-  void backToAmountEntry() {
-    onBackToAmountEntry?.call();
+  Future<void> createCard() async {
+    onCreateCard?.call();
   }
 }
 
-class _FakeCardsController extends CardsController {
-  _FakeCardsController();
-
-  @override
-  CardsState build() => const CardsState();
-
-  @override
-  Future<void> refresh() async {
-    // no-op
-  }
-
-  @override
-  Future<bool> preloadCardDetails(String cardId, {bool reveal = true}) async {
-    return true;
-  }
+PromoCardPrepare _prepare({
+  required bool canCreate,
+  int walletBalanceCents = 200000,
+  int totalToChargeCents = 5100,
+}) {
+  return PromoCardPrepare(
+    success: true,
+    canCreate: canCreate,
+    reason: null,
+    cardUserId: 'user_1',
+    alreadyRegistered: true,
+    walletBalanceCents: walletBalanceCents,
+    walletBalanceAfterCents: walletBalanceCents - totalToChargeCents,
+    isFirstCard: true,
+    promoReferralEligible: false,
+    creationFeeCents: 200,
+    initialLoadCents: 4800,
+    sweepCents: 100,
+    cardWillReceiveCents: 4800,
+    totalToChargeCents: totalToChargeCents,
+    referralRewardCents: 0,
+    feeVersion: 1,
+  );
 }
 
 Future<void> _pumpCreateVirtualCardFlow(
   WidgetTester tester, {
-  required CardCreationController controller,
-  CardsController? cardsController,
+  required PromoCardCreationController controller,
 }) async {
   await tester.binding.setSurfaceSize(const Size(600, 1024));
   addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -164,8 +171,7 @@ Future<void> _pumpCreateVirtualCardFlow(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        cardCreationControllerProvider.overrideWith(() => controller),
-        cardsControllerProvider.overrideWith(() => cardsController ?? _FakeCardsController()),
+        promoCardCreationControllerProvider.overrideWith(() => controller),
       ],
       child: MaterialApp(
         theme: ThemeData.from(
@@ -183,5 +189,7 @@ Future<void> _pumpCreateVirtualCardFlow(
     ),
   );
 
-  await tester.pumpAndSettle();
+  // Flush first frame + post-frame callback without waiting on indefinite animations.
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 350));
 }

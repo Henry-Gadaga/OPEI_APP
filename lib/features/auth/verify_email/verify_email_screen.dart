@@ -22,8 +22,10 @@ class VerifyEmailScreen extends ConsumerStatefulWidget {
 }
 
 class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
-  final List<TextEditingController> _controllers =
-      List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers = List.generate(
+    6,
+    (_) => TextEditingController(),
+  );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   String? _email;
   bool _isInitialized = false;
@@ -57,10 +59,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(verifyEmailControllerProvider.notifier).initialize(
-            email!,
-            autoSendCode: widget.autoSendCode,
-          );
+      ref
+          .read(verifyEmailControllerProvider.notifier)
+          .initialize(email!, autoSendCode: widget.autoSendCode);
       if (_focusNodes.isNotEmpty) _focusNodes[0].requestFocus();
     });
   }
@@ -221,14 +222,16 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
     final state = ref.watch(verifyEmailControllerProvider);
 
-    ref.listen<VerifyEmailState>(verifyEmailControllerProvider,
-        (previous, next) async {
+    ref.listen<VerifyEmailState>(verifyEmailControllerProvider, (
+      previous,
+      next,
+    ) async {
       if (previous != null && previous.isVerifying && !next.isVerifying) {
         if (next.errorMessage == null) {
           final storage = ref.read(secureStorageServiceProvider);
           await storage.clearEmail();
           if (!context.mounted) return;
-          context.go('/address');
+          context.go('/referral');
         } else {
           for (final c in _controllers) {
             c.clear();
@@ -346,7 +349,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                     decoration: BoxDecoration(
                       color: OpeiBrand.surface,
                       borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(28)),
+                        top: Radius.circular(28),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.06),
@@ -361,7 +365,11 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                         Expanded(
                           child: SingleChildScrollView(
                             padding: EdgeInsets.fromLTRB(
-                                24, 28, 24, 24 + bottomPad),
+                              24,
+                              28,
+                              24,
+                              24 + bottomPad,
+                            ),
                             physics: const ClampingScrollPhysics(),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,7 +398,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                                     ),
                                     children: [
                                       const TextSpan(
-                                          text: "We sent a 6-digit code to "),
+                                        text: "We sent a 6-digit code to ",
+                                      ),
                                       TextSpan(
                                         text: _email!,
                                         style: const TextStyle(
@@ -442,8 +451,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                                         ? null
                                         : _handleBackNavigation,
                                     child: const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 8),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 8,
+                                      ),
                                       child: Text(
                                         'Wrong email? Start over',
                                         style: TextStyle(
@@ -464,8 +474,9 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                         // Verifying strip
                         _BottomTrust(
                           isLoading: state.isVerifying || _isLoggingOut,
-                          busyLabel:
-                              _isLoggingOut ? 'Signing out…' : 'Verifying…',
+                          busyLabel: _isLoggingOut
+                              ? 'Signing out…'
+                              : 'Verifying…',
                           bottomPad: bottomPad,
                         ),
                       ],
@@ -641,10 +652,10 @@ class _OtpBoxState extends State<_OtpBox> {
     final color = widget.hasError
         ? OpeiBrand.danger
         : isFocused
-            ? OpeiBrand.primary
-            : hasValue
-                ? OpeiBrand.hairlineStrong
-                : OpeiBrand.hairline;
+        ? OpeiBrand.primary
+        : hasValue
+        ? OpeiBrand.hairlineStrong
+        : OpeiBrand.hairline;
 
     return AnimatedContainer(
       duration: OpeiBrand.motionFast,

@@ -33,7 +33,9 @@ class DashboardState {
   });
 
   bool get showSkeleton =>
-      wallet == null || (!transactionsHydrated && transactionsError == null);
+      // Keep skeleton only while wallet is actively loading with no error.
+      (isLoading && wallet == null && error == null) ||
+      (!transactionsHydrated && transactionsError == null);
 
   bool get showTransactionsSkeleton =>
       !transactionsHydrated && transactionsError == null;

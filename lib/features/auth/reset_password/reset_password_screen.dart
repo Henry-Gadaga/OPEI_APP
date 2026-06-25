@@ -467,8 +467,10 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               trailingIcon: Icons.check_rounded,
                             ),
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 4,
                               children: [
                                 const Text(
                                   "Didn't get a code?",
@@ -480,7 +482,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                     letterSpacing: -0.1,
                                   ),
                                 ),
-                                const SizedBox(width: 4),
                                 GestureDetector(
                                   onTap: isLoading ? null : _handleBack,
                                   child: const Text(

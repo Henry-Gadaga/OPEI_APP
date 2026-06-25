@@ -62,6 +62,15 @@ class DepositOptionsSheet extends StatelessWidget {
 
           const _DepositRowDivider(),
           _DepositRow(
+            title: 'Express P2P',
+            subtitle: 'Pay local currency, get USD fast',
+            onTap: () {
+              context.pop();
+              context.push('/express-p2p');
+            },
+          ),
+          const _DepositRowDivider(),
+          _DepositRow(
             title: 'P2P Exchange',
             subtitle: 'Bank transfer, Mobile Payments and more',
             onTap: () {

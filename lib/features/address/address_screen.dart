@@ -30,6 +30,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   final _addressCtrl = TextEditingController();
   final _houseCtrl = TextEditingController();
   final _bvnCtrl = TextEditingController();
+  bool _isCancelling = false;
 
   @override
   void initState() {
@@ -70,8 +71,9 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
     );
 
     if (result == true) {
-      final refreshFuture =
-          ref.read(profileControllerProvider.notifier).refreshProfile();
+      final refreshFuture = ref
+          .read(profileControllerProvider.notifier)
+          .refreshProfile();
       if (router.canPop()) {
         router.pop();
       } else {
@@ -82,6 +84,11 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   }
 
   void _handleBack(BuildContext context) {
+    if (!widget.isFromProfile) {
+      context.go('/referral');
+      return;
+    }
+
     final router = GoRouter.of(context);
     if (router.canPop()) {
       router.pop();
@@ -90,10 +97,54 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
     }
   }
 
+  Future<void> _cancelOnboarding() async {
+    if (widget.isFromProfile || _isCancelling) return;
+
+    final shouldCancel = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Cancel setup?'),
+          content: const Text(
+            'You will be signed out and returned to home. '
+            'You can continue onboarding after logging in again.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Keep going'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Cancel setup'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldCancel != true || !mounted) return;
+
+    setState(() => _isCancelling = true);
+    final authRepository = ref.read(authRepositoryProvider);
+    final sessionNotifier = ref.read(authSessionProvider.notifier);
+
+    try {
+      await authRepository.logout();
+    } catch (_) {
+      // best-effort logout
+    }
+
+    sessionNotifier.clearSession();
+    if (!mounted) return;
+    context.go('/welcome');
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(addressControllerProvider);
     final controller = ref.read(addressControllerProvider.notifier);
+    final isBusy = state.isLoading || _isCancelling;
 
     ref.listen<AddressState>(addressControllerProvider, (previous, next) {
       if (previous != null && previous.isLoading && !next.isLoading) {
@@ -195,8 +246,9 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: OpeiBrand.surface,
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(28)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.06),
@@ -210,8 +262,12 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                     children: [
                       Expanded(
                         child: SingleChildScrollView(
-                          padding:
-                              EdgeInsets.fromLTRB(24, 28, 24, 24 + bottomPad),
+                          padding: EdgeInsets.fromLTRB(
+                            24,
+                            28,
+                            24,
+                            24 + bottomPad,
+                          ),
                           physics: const ClampingScrollPhysics(),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,7 +297,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                               ),
                               const SizedBox(height: 24),
                               IgnorePointer(
-                                ignoring: state.isLoading,
+                                ignoring: isBusy,
                                 child: Column(
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
@@ -299,7 +355,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                                 RegExp(r'[A-Za-z0-9\- ]'),
                                               ),
                                               LengthLimitingTextInputFormatter(
-                                                  12),
+                                                12,
+                                              ),
                                             ],
                                             onChanged: controller.updateZipCode,
                                           ),
@@ -353,8 +410,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                         ],
                                         helperText:
                                             state.fieldErrors['bvn'] == null
-                                                ? 'Required for Nigerian residents.'
-                                                : null,
+                                            ? 'Required for Nigerian residents.'
+                                            : null,
                                         onChanged: controller.updateBvn,
                                       ),
                                     ],
@@ -365,13 +422,24 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                               OpeiPrimaryButton(
                                 label: 'Continue',
                                 loading: state.isLoading,
-                                onPressed: state.isValid && !state.isLoading
+                                onPressed: state.isValid && !isBusy
                                     ? () => controller.submitAddress(
-                                          fromProfile: widget.isFromProfile,
-                                        )
+                                        fromProfile: widget.isFromProfile,
+                                      )
                                     : null,
                                 trailingIcon: Icons.arrow_forward_rounded,
                               ),
+                              if (isOnboarding) ...[
+                                const SizedBox(height: 8),
+                                Center(
+                                  child: TextButton(
+                                    onPressed: isBusy
+                                        ? null
+                                        : _cancelOnboarding,
+                                    child: const Text('Cancel setup'),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -396,9 +464,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: state.isLoading
-                                ? null
-                                : () => _handleBack(context),
+                            onTap: isBusy ? null : () => _handleBack(context),
                             child: Container(
                               width: 36,
                               height: 36,
@@ -538,8 +604,7 @@ class _CountryPickerField extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 15,
-                      fontWeight:
-                          hasValue ? FontWeight.w500 : FontWeight.w400,
+                      fontWeight: hasValue ? FontWeight.w500 : FontWeight.w400,
                       color: hasValue ? OpeiBrand.ink : OpeiBrand.inkTertiary,
                       letterSpacing: -0.2,
                     ),
@@ -598,10 +663,7 @@ class _CountryPickerSheet extends StatefulWidget {
   final Country? selected;
   final ValueChanged<Country> onSelected;
 
-  const _CountryPickerSheet({
-    required this.selected,
-    required this.onSelected,
-  });
+  const _CountryPickerSheet({required this.selected, required this.onSelected});
 
   @override
   State<_CountryPickerSheet> createState() => _CountryPickerSheetState();
@@ -618,9 +680,11 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
       } else {
         final ql = q.toLowerCase();
         _filtered = allowedCountries
-            .where((c) =>
-                c.name.toLowerCase().contains(ql) ||
-                c.iso.toLowerCase().contains(ql))
+            .where(
+              (c) =>
+                  c.name.toLowerCase().contains(ql) ||
+                  c.iso.toLowerCase().contains(ql),
+            )
             .toList();
       }
     });
@@ -699,7 +763,9 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                     onTap: () => widget.onSelected(country),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 14),
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
                       child: Row(
                         children: [
                           Container(
@@ -772,8 +838,7 @@ class _AddressSuccessSheet extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Container(
               constraints: const BoxConstraints(maxWidth: 420),
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
               decoration: BoxDecoration(
                 color: OpeiBrand.surface,
                 borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),

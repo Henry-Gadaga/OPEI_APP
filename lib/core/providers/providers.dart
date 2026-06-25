@@ -14,10 +14,12 @@ import 'package:opei/data/repositories/transfer_repository.dart';
 import 'package:opei/data/repositories/card_repository.dart';
 import 'package:opei/data/repositories/crypto_repository.dart';
 import 'package:opei/data/repositories/p2p_repository.dart';
+import 'package:opei/data/repositories/express_order_repository.dart';
 import 'package:opei/data/repositories/wallet_repository.dart';
 import 'package:opei/data/repositories/transaction_repository.dart';
 import 'package:opei/data/repositories/beneficiary_repository.dart';
 import 'package:opei/data/repositories/remittance_repository.dart';
+import 'package:opei/data/repositories/referral_repository.dart';
 import 'package:opei/features/profile/profile_controller.dart';
 
 export 'package:opei/data/repositories/auth_repository.dart';
@@ -27,11 +29,7 @@ export 'package:opei/features/kyc/kyc_controller.dart';
 export 'package:opei/features/profile/profile_controller.dart';
 
 // Auth Session State to track login/logout changes
-enum QuickAuthStatus {
-  unknown,
-  requiresVerification,
-  satisfied,
-}
+enum QuickAuthStatus { unknown, requiresVerification, satisfied }
 
 class AuthSession {
   final String? userId;
@@ -74,8 +72,8 @@ class QuickAuthStatusNotifier extends Notifier<QuickAuthStatus> {
 
 final quickAuthStatusProvider =
     NotifierProvider<QuickAuthStatusNotifier, QuickAuthStatus>(
-  QuickAuthStatusNotifier.new,
-);
+      QuickAuthStatusNotifier.new,
+    );
 
 class AuthSessionNotifier extends Notifier<AuthSession> {
   @override
@@ -118,9 +116,7 @@ final authSessionProvider = NotifierProvider<AuthSessionNotifier, AuthSession>(
 );
 
 final secureStorageProvider = Provider<FlutterSecureStorage>((ref) {
-  return const FlutterSecureStorage(
-    aOptions: AndroidOptions(),
-  );
+  return const FlutterSecureStorage(aOptions: AndroidOptions());
 });
 
 final secureStorageServiceProvider = Provider<SecureStorageService>((ref) {
@@ -167,8 +163,9 @@ final kycRepositoryProvider = Provider<KycRepository>((ref) {
   return KycRepository(apiClient);
 });
 
-final passwordResetRepositoryProvider =
-    Provider<PasswordResetRepository>((ref) {
+final passwordResetRepositoryProvider = Provider<PasswordResetRepository>((
+  ref,
+) {
   final apiClient = ref.watch(apiClientProvider);
   return PasswordResetRepository(apiClient);
 });
@@ -209,6 +206,12 @@ final cardRepositoryProvider = Provider<CardRepository>((ref) {
   return CardRepository(apiClient);
 });
 
+final expressOrderRepositoryProvider = Provider<ExpressOrderRepository>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  final storage = ref.watch(secureStorageServiceProvider);
+  return ExpressOrderRepository(apiClient, storage);
+});
+
 final beneficiaryRepositoryProvider = Provider<BeneficiaryRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   return BeneficiaryRepository(apiClient);
@@ -219,7 +222,10 @@ final remittanceRepositoryProvider = Provider<RemittanceRepository>((ref) {
   return RemittanceRepository(apiClient);
 });
 
+final referralRepositoryProvider = Provider<ReferralRepository>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return ReferralRepository(apiClient);
+});
+
 final profileControllerProvider =
-    NotifierProvider<ProfileController, ProfileState>(
-  ProfileController.new,
-);
+    NotifierProvider<ProfileController, ProfileState>(ProfileController.new);

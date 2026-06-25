@@ -15,6 +15,10 @@ final dashboardControllerProvider =
 );
 
 class DashboardController extends Notifier<DashboardState> {
+  static const Duration _walletLoadTimeout = Duration(seconds: 15);
+  static const String _walletTimeoutMessage =
+      "We couldn't load your balance right now. Please retry.";
+
   late WalletRepository _walletRepository;
   late TransactionRepository _transactionRepository;
   bool _sessionListenerAttached = false;
@@ -54,6 +58,10 @@ class DashboardController extends Notifier<DashboardState> {
       _fetchBalance(force: true, asRefresh: showSpinner),
       _fetchRecentTransactions(force: true, asRefresh: showSpinner),
     ]);
+  }
+
+  Future<void> retryWalletOnly() async {
+    await _fetchBalance(force: true, asRefresh: false);
   }
 
   Future<void> _fetchBalance(
@@ -98,7 +106,8 @@ class DashboardController extends Notifier<DashboardState> {
     );
 
     try {
-      final wallet = await _walletRepository.getWallet(userId);
+      final wallet =
+          await _walletRepository.getWallet(userId).timeout(_walletLoadTimeout);
 
       state = state.copyWith(
         wallet: wallet,
@@ -111,6 +120,13 @@ class DashboardController extends Notifier<DashboardState> {
 
       debugPrint(
           '💼 Wallet synced for $userId: ${wallet?.formattedAvailableBalance ?? 'no wallet'}');
+    } on TimeoutException {
+      debugPrint('⏱ Wallet request timed out for $userId after 15 seconds.');
+      state = state.copyWith(
+        isLoading: false,
+        isRefreshing: false,
+        error: _walletTimeoutMessage,
+      );
     } catch (error) {
       final friendly = ErrorHelper.getErrorMessage(error);
       debugPrint('❌ Failed to sync wallet for $userId: $friendly');

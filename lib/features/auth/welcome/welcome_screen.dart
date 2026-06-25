@@ -133,8 +133,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           onPressed: () => context.go('/signup'),
                         ),
                         const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 4,
                           children: [
                             const Text(
                               'Already have an account?',
@@ -146,7 +148,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                                 letterSpacing: -0.1,
                               ),
                             ),
-                            const SizedBox(width: 4),
                             GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               onTap: () => context.go('/login'),

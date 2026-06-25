@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/providers/express_agent_access_provider.dart';
 import 'package:opei/data/models/full_profile_response.dart';
 import 'package:opei/features/cards/cards_screen.dart';
+import 'package:opei/features/express_agent/express_agent_screen.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
 import 'package:opei/features/dashboard/dashboard_state.dart';
 import 'package:opei/features/dashboard/widgets/transaction_widgets.dart';
@@ -34,30 +36,100 @@ const _kHeroGradient = LinearGradient(
 // ROOT SHELL — houses the 5-tab bottom nav
 // ============================================================
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   int _selectedIndex = 0;
+  bool _requestedAgentStatus = false;
 
   void _goTo(int index) => setState(() => _selectedIndex = index);
 
   @override
   Widget build(BuildContext context) {
-    final screens = [
+    final authSession = ref.watch(authSessionProvider);
+    final agentAccess = ref.watch(expressAgentAccessProvider);
+    final isVerifiedSession =
+        authSession.isAuthenticated &&
+        (authSession.userStage ?? '').toUpperCase() == 'VERIFIED';
+    final waitingForAgentAccess = isVerifiedSession && !agentAccess.loaded;
+
+    // Safety net: if dashboard renders before the app-level listener runs, kick
+    // the fetch once so nav composition is decided before first paint.
+    if (waitingForAgentAccess && !_requestedAgentStatus) {
+      _requestedAgentStatus = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(expressAgentAccessProvider.notifier).refresh();
+      });
+    }
+    if (!waitingForAgentAccess) {
+      _requestedAgentStatus = false;
+    }
+
+    // Prevent the "Agent tab flash": wait for the status request to resolve and
+    // render the bottom nav only once we know the final tab set.
+    if (waitingForAgentAccess) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.4,
+              color: OpeiBrand.primary,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // The Agent tab is shown only for registered Express agents.
+    final showAgentTab = agentAccess.isAgent;
+
+    // Tab order: Home · Cards · Activity · [Agent] · Profile
+    final profileIndex = showAgentTab ? 4 : 3;
+
+    final screens = <Widget>[
       DashboardHomeScreen(
-        onProfileTap: () => _goTo(3),
-        onCardsTap: () => _goTo(1),
+        onProfileTap: () => _goTo(profileIndex),
         onActivityTap: () => _goTo(2),
       ),
       const CardsScreen(),
       const TransactionsScreen(),
+      if (showAgentTab) const ExpressAgentScreen(),
       const ProfileScreen(),
     ];
+
+    final navItems = <_NavDef>[
+      const _NavDef(Icons.home_outlined, Icons.home_rounded, 'Home'),
+      const _NavDef(
+        Icons.credit_card_outlined,
+        Icons.credit_card_rounded,
+        'Cards',
+      ),
+      const _NavDef(
+        Icons.receipt_long_outlined,
+        Icons.receipt_long_rounded,
+        'Activity',
+      ),
+      if (showAgentTab)
+        const _NavDef(Icons.bolt_outlined, Icons.bolt_rounded, 'Agent'),
+      const _NavDef(
+        Icons.person_outline_rounded,
+        Icons.person_rounded,
+        'Profile',
+      ),
+    ];
+
+    // Keep the selected index valid if the tab set shrinks (e.g. logout/login
+    // as a non-agent while this screen is alive).
+    final effectiveIndex = _selectedIndex.clamp(0, screens.length - 1);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
@@ -67,9 +139,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       child: Scaffold(
         backgroundColor: Colors.white,
-        body: IndexedStack(index: _selectedIndex, children: screens),
+        body: IndexedStack(index: effectiveIndex, children: screens),
         bottomNavigationBar: _BottomNav(
-          selectedIndex: _selectedIndex,
+          items: navItems,
+          selectedIndex: effectiveIndex,
           onTap: _goTo,
         ),
       ),
@@ -83,13 +156,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
 class DashboardHomeScreen extends ConsumerStatefulWidget {
   final VoidCallback onProfileTap;
-  final VoidCallback onCardsTap;
   final VoidCallback onActivityTap;
 
   const DashboardHomeScreen({
     super.key,
     required this.onProfileTap,
-    required this.onCardsTap,
     required this.onActivityTap,
   });
 
@@ -107,8 +178,9 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
     final profile = ref.watch(profileControllerProvider);
     final controller = ref.read(dashboardControllerProvider.notifier);
 
-    final walletReady = dash.wallet != null && !dash.showSkeleton;
-    final txReady = dash.transactionsHydrated && !dash.showTransactionsSkeleton;
+    final walletReady = dash.hasAttemptedInitialLoad && !dash.isLoading;
+    final txReady =
+        dash.hasAttemptedTransactionsLoad && !dash.isLoadingTransactions;
     final ready = walletReady && txReady;
 
     if (!dash.hasAttemptedInitialLoad) {
@@ -131,8 +203,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
       hasName: hasName,
       dash: dash,
       hidden: _balanceHidden,
-      onToggleHidden: () =>
-          setState(() => _balanceHidden = !_balanceHidden),
+      onToggleHidden: () => setState(() => _balanceHidden = !_balanceHidden),
       onProfileTap: widget.onProfileTap,
       onAdd: () => showResponsiveBottomSheet(
         context: context,
@@ -145,7 +216,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
         dismissOnBarrierTap: true,
         builder: (_) => const WithdrawOptionsSheet(),
       ),
-      onCards: widget.onCardsTap,
+      onRetryWallet: () => controller.retryWalletOnly(),
     );
 
     final whitePanelContent = _ActivityPanelContent(
@@ -160,31 +231,29 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
         bottom: false,
         child: Stack(
           children: [
-            // ---- live content (single scroll, one refresh) ----
+            // ---- live content: fixed header + independently scrolling panel ----
             Opacity(
               opacity: ready ? 1 : 0,
               child: RefreshIndicator(
-                color: Colors.white,
-                backgroundColor: OpeiBrand.primary,
-                displacement: 56,
-                edgeOffset: 0,
+                color: OpeiBrand.primary,
+                backgroundColor: Colors.white,
+                displacement: 29,
+                triggerMode: RefreshIndicatorTriggerMode.anywhere,
                 onRefresh: () => controller.refreshBalance(),
-                child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(
-                    parent: BouncingScrollPhysics(),
-                  ),
-                  slivers: [
-                    SliverToBoxAdapter(child: topSection),
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(28),
-                        ),
-                        child: Container(
-                          width: double.infinity,
-                          color: Colors.white,
-                          child: whitePanelContent,
+                child: Column(
+                  children: [
+                    // Keep the hero/header fixed; only activity panel scrolls.
+                    topSection,
+                    Expanded(
+                      child: Container(
+                        color: Colors.white,
+                        child: CustomScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(
+                            parent: ClampingScrollPhysics(),
+                          ),
+                          slivers: [
+                            SliverToBoxAdapter(child: whitePanelContent),
+                          ],
                         ),
                       ),
                     ),
@@ -242,7 +311,7 @@ class _TopFixedSection extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onSend;
   final VoidCallback onWithdraw;
-  final VoidCallback onCards;
+  final VoidCallback onRetryWallet;
 
   const _TopFixedSection({
     required this.pad,
@@ -256,7 +325,7 @@ class _TopFixedSection extends StatelessWidget {
     required this.onAdd,
     required this.onSend,
     required this.onWithdraw,
-    required this.onCards,
+    required this.onRetryWallet,
   });
 
   @override
@@ -266,10 +335,7 @@ class _TopFixedSection extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.fromLTRB(pad, 10, pad, 0),
-          child: _TopBar(
-            firstName: firstName,
-            onProfileTap: onProfileTap,
-          ),
+          child: _TopBar(firstName: firstName, onProfileTap: onProfileTap),
         ),
         const SizedBox(height: 48),
         Padding(
@@ -281,6 +347,7 @@ class _TopFixedSection extends StatelessWidget {
             dash: dash,
             hidden: hidden,
             onToggle: onToggleHidden,
+            onRetry: onRetryWallet,
           ),
         ),
         const SizedBox(height: 52),
@@ -290,7 +357,6 @@ class _TopFixedSection extends StatelessWidget {
             onAdd: onAdd,
             onSend: onSend,
             onWithdraw: onWithdraw,
-            onCards: onCards,
           ),
         ),
         const SizedBox(height: 28),
@@ -305,7 +371,6 @@ class _ActivityPanelContent extends StatelessWidget {
   final DashboardState dash;
   final VoidCallback onViewAll;
   final VoidCallback onRetry;
-
   const _ActivityPanelContent({
     required this.dash,
     required this.onViewAll,
@@ -341,29 +406,44 @@ class _ActivityPanelContent extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: TransactionGroupsView(
             transactions: transactions,
-            onTransactionTap: (tx) =>
-                showTransactionDetailSheet(context, tx),
+            onTransactionTap: (tx) => showTransactionDetailSheet(context, tx),
           ),
         ),
       );
     }
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(0, 18, 0, 24 + mqBottom),
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 24 + mqBottom),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
+          // ── Drag-handle pill ──────────────────────────────────
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 6),
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: OpeiBrand.hairline,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+          ),
+          // ── Section header ────────────────────────────────────
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 12, 12),
+            padding: const EdgeInsets.fromLTRB(20, 10, 12, 10),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Expanded(
                   child: Text(
                     'Recent activity',
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: OpeiBrand.ink,
                       letterSpacing: -0.3,
@@ -373,24 +453,34 @@ class _ActivityPanelContent extends StatelessWidget {
                 GestureDetector(
                   onTap: onViewAll,
                   behavior: HitTestBehavior.opaque,
-                  child: const Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    child: Row(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: OpeiBrand.primaryTint,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           'See all',
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
-                            fontSize: 13,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: OpeiBrand.primary,
                             letterSpacing: -0.1,
                           ),
                         ),
-                        Icon(Icons.chevron_right_rounded,
-                            size: 16, color: OpeiBrand.primary),
+                        SizedBox(width: 2),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 12,
+                          color: OpeiBrand.primary,
+                        ),
                       ],
                     ),
                   ),
@@ -421,8 +511,11 @@ class _PanelEmptyState extends StatelessWidget {
               color: OpeiBrand.surfaceMuted,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.receipt_long_rounded,
-                size: 26, color: OpeiBrand.inkSecondary),
+            child: const Icon(
+              Icons.receipt_long_rounded,
+              size: 26,
+              color: OpeiBrand.inkSecondary,
+            ),
           ),
           const SizedBox(height: 14),
           const Text(
@@ -458,8 +551,7 @@ class _PanelErrorState extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _PanelErrorState(
-      {required this.message, required this.onRetry});
+  const _PanelErrorState({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -474,8 +566,11 @@ class _PanelErrorState extends StatelessWidget {
               color: const Color(0xFFFFF0F0),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.wifi_off_rounded,
-                size: 26, color: OpeiBrand.danger),
+            child: const Icon(
+              Icons.wifi_off_rounded,
+              size: 26,
+              color: OpeiBrand.danger,
+            ),
           ),
           const SizedBox(height: 14),
           const Text(
@@ -505,8 +600,7 @@ class _PanelErrorState extends StatelessWidget {
           GestureDetector(
             onTap: onRetry,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               decoration: BoxDecoration(
                 color: OpeiBrand.primaryTint,
                 borderRadius: BorderRadius.circular(999),
@@ -552,12 +646,17 @@ class _TopBar extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.16),
               shape: BoxShape.circle,
               border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.20), width: 0.8),
+                color: Colors.white.withValues(alpha: 0.20),
+                width: 0.8,
+              ),
             ),
             alignment: Alignment.center,
             child: initials.isEmpty
-                ? const Icon(Icons.person_outline_rounded,
-                    color: Colors.white, size: 19)
+                ? const Icon(
+                    Icons.person_outline_rounded,
+                    color: Colors.white,
+                    size: 19,
+                  )
                 : Text(
                     initials,
                     style: const TextStyle(
@@ -569,10 +668,7 @@ class _TopBar extends StatelessWidget {
                   ),
           ),
         ),
-        _TopAction(
-          icon: Icons.notifications_none_rounded,
-          onTap: () {},
-        ),
+        _TopAction(icon: Icons.notifications_none_rounded, onTap: () {}),
       ],
     );
   }
@@ -601,7 +697,9 @@ class _TopAction extends StatelessWidget {
           color: Colors.white.withValues(alpha: 0.16),
           shape: BoxShape.circle,
           border: Border.all(
-              color: Colors.white.withValues(alpha: 0.20), width: 0.8),
+            color: Colors.white.withValues(alpha: 0.20),
+            width: 0.8,
+          ),
         ),
         child: Icon(icon, size: 19, color: Colors.white),
       ),
@@ -618,6 +716,7 @@ class _BalanceBlock extends StatelessWidget {
   final DashboardState dash;
   final bool hidden;
   final VoidCallback onToggle;
+  final VoidCallback onRetry;
 
   const _BalanceBlock({
     required this.greeting,
@@ -626,13 +725,16 @@ class _BalanceBlock extends StatelessWidget {
     required this.dash,
     required this.hidden,
     required this.onToggle,
+    required this.onRetry,
   });
 
   @override
   Widget build(BuildContext context) {
     final wallet = dash.wallet;
     final amount = wallet?.formattedAvailableBalance ?? r'$0.00';
-    final reserved = wallet?.reservedBalance.format(includeCurrencySymbol: true);
+    final reserved = wallet?.reservedBalance.format(
+      includeCurrencySymbol: true,
+    );
     final hasHold = wallet != null && wallet.reservedBalance.cents > 0;
     final dimForRefresh = dash.isRefreshing && wallet != null;
 
@@ -717,13 +819,18 @@ class _BalanceBlock extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.18), width: 0.7),
+                color: Colors.white.withValues(alpha: 0.18),
+                width: 0.7,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.account_balance_wallet_outlined,
-                    size: 12, color: Colors.white.withValues(alpha: 0.85)),
+                Icon(
+                  Icons.account_balance_wallet_outlined,
+                  size: 12,
+                  color: Colors.white.withValues(alpha: 0.85),
+                ),
                 const SizedBox(width: 5),
                 Text(
                   'USD Wallet',
@@ -742,8 +849,11 @@ class _BalanceBlock extends StatelessWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 8),
                     color: Colors.white.withValues(alpha: 0.3),
                   ),
-                  Icon(Icons.lock_outline_rounded,
-                      size: 11, color: Colors.white.withValues(alpha: 0.85)),
+                  Icon(
+                    Icons.lock_outline_rounded,
+                    size: 11,
+                    color: Colors.white.withValues(alpha: 0.85),
+                  ),
                   const SizedBox(width: 3),
                   Flexible(
                     child: Text(
@@ -774,6 +884,30 @@ class _BalanceBlock extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.8),
             ),
           ),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: onRetry,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.18),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.24),
+                  width: 0.8,
+                ),
+              ),
+              child: const Text(
+                'Retry',
+                style: TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
         ],
       ],
     );
@@ -786,13 +920,11 @@ class _ActionRow extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onSend;
   final VoidCallback onWithdraw;
-  final VoidCallback onCards;
 
   const _ActionRow({
     required this.onAdd,
     required this.onSend,
     required this.onWithdraw,
-    required this.onCards,
   });
 
   @override
@@ -802,13 +934,20 @@ class _ActionRow extends StatelessWidget {
       children: [
         _ActionChip(icon: Icons.add_rounded, label: 'Add', onTap: onAdd),
         _ActionChip(
-            icon: Icons.arrow_upward_rounded, label: 'Send', onTap: onSend),
+          icon: Icons.arrow_upward_rounded,
+          label: 'Send',
+          onTap: onSend,
+        ),
         _ActionChip(
-            icon: Icons.arrow_downward_rounded,
-            label: 'Withdraw',
-            onTap: onWithdraw),
+          icon: Icons.arrow_downward_rounded,
+          label: 'Withdraw',
+          onTap: onWithdraw,
+        ),
         _ActionChip(
-            icon: Icons.credit_card_rounded, label: 'Cards', onTap: onCards),
+          icon: Icons.account_balance_rounded,
+          label: 'Bank Accounts',
+          onTap: () {},
+        ),
       ],
     );
   }
@@ -818,8 +957,11 @@ class _ActionChip extends StatefulWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  const _ActionChip(
-      {required this.icon, required this.label, required this.onTap});
+  const _ActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   State<_ActionChip> createState() => _ActionChipState();
@@ -834,9 +976,13 @@ class _ActionChipState extends State<_ActionChip>
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 110));
-    _s = Tween<double>(begin: 1.0, end: 0.93)
-        .animate(CurvedAnimation(parent: _c, curve: Curves.easeOut));
+      vsync: this,
+      duration: const Duration(milliseconds: 110),
+    );
+    _s = Tween<double>(
+      begin: 1.0,
+      end: 0.93,
+    ).animate(CurvedAnimation(parent: _c, curve: Curves.easeOut));
   }
 
   @override
@@ -867,7 +1013,9 @@ class _ActionChipState extends State<_ActionChip>
                 color: Colors.white.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
                 border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.20), width: 0.7),
+                  color: Colors.white.withValues(alpha: 0.20),
+                  width: 0.7,
+                ),
               ),
               child: Icon(widget.icon, color: Colors.white, size: 21),
             ),
@@ -889,7 +1037,6 @@ class _ActionChipState extends State<_ActionChip>
   }
 }
 
-
 // ============================================================
 // SKELETON
 // ============================================================
@@ -908,10 +1055,7 @@ class _HomeSkeleton extends StatelessWidget {
           padding: EdgeInsets.fromLTRB(pad, 10, pad, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              _P(w: 40, h: 40, r: 20),
-              _P(w: 40, h: 40, r: 20),
-            ],
+            children: const [_P(w: 40, h: 40, r: 20), _P(w: 40, h: 40, r: 20)],
           ),
         ),
         const SizedBox(height: 48),
@@ -933,38 +1077,36 @@ class _HomeSkeleton extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(
               4,
-              (_) => Column(children: const [
-                _P(w: 50, h: 50, r: 25),
-                SizedBox(height: 7),
-                _P(w: 38, h: 10, r: 6),
-              ]),
+              (_) => Column(
+                children: const [
+                  _P(w: 50, h: 50, r: 25),
+                  SizedBox(height: 7),
+                  _P(w: 38, h: 10, r: 6),
+                ],
+              ),
             ),
           ),
         ),
         const SizedBox(height: 28),
         // expanding white panel
         Expanded(
-          child: ClipRRect(
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(28)),
-            child: Container(
-              width: double.infinity,
-              color: Colors.white,
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: const [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _PLight(w: 120, h: 14, r: 8),
-                      _PLight(w: 50, h: 12, r: 8),
-                    ],
-                  ),
-                  SizedBox(height: 14),
-                  TransactionsListSkeleton(itemCount: 4),
-                ],
-              ),
+          child: Container(
+            width: double.infinity,
+            color: Colors.white,
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: const [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _PLight(w: 120, h: 14, r: 8),
+                    _PLight(w: 50, h: 12, r: 8),
+                  ],
+                ),
+                SizedBox(height: 14),
+                TransactionsListSkeleton(itemCount: 4),
+              ],
             ),
           ),
         ),
@@ -1011,8 +1153,9 @@ class _PState extends State<_P> with SingleTickerProviderStateMixin {
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1500))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
     _a = CurvedAnimation(parent: _c, curve: Curves.easeInOut);
   }
 
@@ -1030,8 +1173,7 @@ class _PState extends State<_P> with SingleTickerProviderStateMixin {
         width: widget.w,
         height: widget.h,
         decoration: BoxDecoration(
-          color:
-              Colors.white.withValues(alpha: 0.10 + 0.12 * _a.value),
+          color: Colors.white.withValues(alpha: 0.10 + 0.12 * _a.value),
           borderRadius: BorderRadius.circular(widget.r),
         ),
       ),
@@ -1044,29 +1186,22 @@ class _PState extends State<_P> with SingleTickerProviderStateMixin {
 // ============================================================
 
 class _BottomNav extends StatelessWidget {
+  final List<_NavDef> items;
   final int selectedIndex;
   final void Function(int) onTap;
 
-  const _BottomNav({required this.selectedIndex, required this.onTap});
-
-  static const _items = [
-    _NavDef(Icons.home_outlined, Icons.home_rounded, 'Home'),
-    _NavDef(Icons.credit_card_outlined, Icons.credit_card_rounded, 'Cards'),
-    _NavDef(Icons.receipt_long_outlined, Icons.receipt_long_rounded, 'Activity'),
-    _NavDef(Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
-  ];
+  const _BottomNav({
+    required this.items,
+    required this.selectedIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border(
-          top: BorderSide(
-            color: OpeiBrand.hairline,
-            width: 0.8,
-          ),
-        ),
+        border: Border(top: BorderSide(color: OpeiBrand.hairline, width: 0.8)),
         boxShadow: [
           BoxShadow(
             color: OpeiBrand.ink.withValues(alpha: 0.04),
@@ -1080,8 +1215,8 @@ class _BottomNav extends StatelessWidget {
         child: SizedBox(
           height: 56,
           child: Row(
-            children: List.generate(_items.length, (i) {
-              final item = _items[i];
+            children: List.generate(items.length, (i) {
+              final item = items[i];
               final active = selectedIndex == i;
               return Expanded(
                 child: _NavTile(
@@ -1110,8 +1245,11 @@ class _NavTile extends StatefulWidget {
   final bool active;
   final VoidCallback onTap;
 
-  const _NavTile(
-      {required this.item, required this.active, required this.onTap});
+  const _NavTile({
+    required this.item,
+    required this.active,
+    required this.onTap,
+  });
 
   @override
   State<_NavTile> createState() => _NavTileState();
@@ -1126,9 +1264,13 @@ class _NavTileState extends State<_NavTile>
   void initState() {
     super.initState();
     _c = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 90));
-    _s = Tween<double>(begin: 1.0, end: 0.88)
-        .animate(CurvedAnimation(parent: _c, curve: Curves.easeOut));
+      vsync: this,
+      duration: const Duration(milliseconds: 90),
+    );
+    _s = Tween<double>(
+      begin: 1.0,
+      end: 0.88,
+    ).animate(CurvedAnimation(parent: _c, curve: Curves.easeOut));
   }
 
   @override
@@ -1185,8 +1327,7 @@ class _NavTileState extends State<_NavTile>
                 style: TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 9.5,
-                  fontWeight:
-                      widget.active ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: widget.active ? FontWeight.w700 : FontWeight.w500,
                   color: widget.active ? activeColor : inactiveColor,
                   letterSpacing: -0.1,
                 ),
@@ -1212,8 +1353,11 @@ class _NavTileState extends State<_NavTile>
 class WalletBottomNav extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
-  const WalletBottomNav(
-      {super.key, required this.selectedIndex, required this.onItemTapped});
+  const WalletBottomNav({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemTapped,
+  });
 
   @override
   Widget build(BuildContext context) => const SizedBox.shrink();

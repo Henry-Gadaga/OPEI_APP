@@ -271,10 +271,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                     padding: EdgeInsets.fromLTRB(24, 28, 24, 24 + bottomPad),
                     physics: const ClampingScrollPhysics(),
                     child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 320),
-                      reverseDuration: const Duration(milliseconds: 220),
-                      switchInCurve: Curves.easeOutQuart,
-                      switchOutCurve: Curves.easeInQuad,
+                      duration: kOpeiForwardTransitionDuration,
+                      reverseDuration: kOpeiReverseTransitionDuration,
+                      switchInCurve: kOpeiTransitionCurve,
+                      switchOutCurve: kOpeiTransitionCurve,
                       layoutBuilder: (current, previous) => Stack(
                         alignment: Alignment.topCenter,
                         children: [
@@ -282,22 +282,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                           if (current != null) current,
                         ],
                       ),
-                      transitionBuilder: (child, anim) {
-                        // Incoming: slide up gently from below + fade in.
-                        // Outgoing: fade out in place (no slide) so the
-                        // motion feels intentional, not chaotic.
-                        final slide = Tween<Offset>(
-                          begin: const Offset(0, 0.04),
-                          end: Offset.zero,
-                        ).animate(anim);
-                        return FadeTransition(
-                          opacity: anim,
-                          child: SlideTransition(
-                            position: slide,
-                            child: child,
-                          ),
-                        );
-                      },
+                      transitionBuilder: (child, anim) =>
+                          buildOpeiPageTransition(
+                        context,
+                        anim,
+                        const AlwaysStoppedAnimation(0),
+                        child,
+                      ),
                       child: KeyedSubtree(
                         key: ValueKey(_step),
                         child: _buildStepContent(isLoading, bottomPad),
@@ -355,18 +346,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                       ),
                       const SizedBox(height: 6),
                       AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 280),
-                        switchInCurve: Curves.easeOutQuart,
-                        switchOutCurve: Curves.easeInQuad,
-                        transitionBuilder: (child, anim) => FadeTransition(
-                          opacity: anim,
-                          child: SlideTransition(
-                            position: Tween<Offset>(
-                              begin: const Offset(0, 0.5),
-                              end: Offset.zero,
-                            ).animate(anim),
-                            child: child,
-                          ),
+                        duration: kOpeiForwardTransitionDuration,
+                        reverseDuration: kOpeiReverseTransitionDuration,
+                        switchInCurve: kOpeiTransitionCurve,
+                        switchOutCurve: kOpeiTransitionCurve,
+                        transitionBuilder: (child, anim) =>
+                            buildOpeiPageTransition(
+                          context,
+                          anim,
+                          const AlwaysStoppedAnimation(0),
+                          child,
                         ),
                         child: Text(
                           _subtitles[_step],
@@ -515,8 +504,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
         ),
 
         const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 4,
           children: [
             const Text(
               'Already have an account?',
@@ -528,7 +519,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
                 letterSpacing: -0.1,
               ),
             ),
-            const SizedBox(width: 4),
             GestureDetector(
               onTap: () => context.go('/login'),
               child: const Text(

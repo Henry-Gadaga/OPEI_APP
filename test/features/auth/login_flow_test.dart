@@ -32,8 +32,9 @@ void main() {
       expect(button.onPressed, isNull);
 
       // Tapping it (or its label) is a no-op while disabled, so the
-      // controller is never invoked.
-      await tester.tap(find.text('Sign in'));
+      // controller is never invoked. The redesigned screen also has a
+      // page-title "Sign in" header, so we scope the tap to the CTA.
+      await tester.tap(find.byType(OpeiPrimaryButton));
       await tester.pump();
       expect(loginCalled, isFalse);
     });

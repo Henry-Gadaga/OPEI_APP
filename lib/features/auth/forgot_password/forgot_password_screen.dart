@@ -256,8 +256,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                               trailingIcon: Icons.arrow_forward_rounded,
                             ),
                             const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                            Wrap(
+                              alignment: WrapAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 4,
                               children: [
                                 const Text(
                                   'Remembered it?',
@@ -269,7 +271,6 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                                     letterSpacing: -0.1,
                                   ),
                                 ),
-                                const SizedBox(width: 4),
                                 GestureDetector(
                                   onTap: _handleBack,
                                   child: const Text(

@@ -26,7 +26,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       parent: isCupertino
           ? const BouncingScrollPhysics()
           : const ClampingScrollPhysics(),
-      );
+    );
 
     final spacing = context.responsiveSpacingUnit;
 
@@ -40,7 +40,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           automaticallyImplyLeading: false,
         ),
         body: const Center(
-          child: CircularProgressIndicator(color: OpeiColors.pureBlack),
+          child: CircularProgressIndicator(color: OpeiBrand.primary),
         ),
       );
     }
@@ -54,21 +54,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async => await controller.refreshProfile(),
-        color: OpeiColors.pureBlack,
-        backgroundColor: OpeiColors.pureWhite,
+        color: OpeiBrand.primary,
+        backgroundColor: OpeiBrand.surface,
         displacement: 25,
         triggerMode: RefreshIndicatorTriggerMode.onEdge,
         child: ListView(
           physics: scrollPhysics,
-          padding: EdgeInsets.only(
-            top: spacing * 3,
-            bottom: spacing * 4,
-          ),
+          padding: EdgeInsets.only(top: spacing * 3, bottom: spacing * 4),
           children: [
-            ProfileHeader(
-              displayName: user.displayName,
-              email: user.email,
-            ),
+            ProfileHeader(displayName: user.displayName, email: user.email),
             SizedBox(height: spacing * 4),
 
             // Show KYC prompt if identity is missing
@@ -191,24 +185,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
 
             // Show verification badge if documents are verified
-                if (user.identity != null &&
-                    (user.identity!.selfieUrl != null ||
-                        user.identity!.frontImage != null)) ...[
+            if (user.identity != null &&
+                (user.identity!.selfieUrl != null ||
+                    user.identity!.frontImage != null)) ...[
               SizedBox(height: spacing * 3),
               ProfileSection(
                 title: 'Verification Status',
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
                     child: Row(
                       children: [
                         Container(
                           width: 56,
                           height: 56,
                           decoration: BoxDecoration(
-                            color:
-                                const Color(0xFF34C759).withValues(alpha: 0.15),
+                            color: const Color(
+                              0xFF34C759,
+                            ).withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -246,6 +243,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ],
 
+            SizedBox(height: spacing * 3),
+            ProfileSection(
+              title: 'Rewards',
+              children: [
+                ProfileActionItem(
+                  icon: Icons.card_giftcard_outlined,
+                  label: 'Referrals',
+                  subtitle: 'Share your link and track earnings',
+                  onTap: () => context.push('/referral/hub'),
+                ),
+              ],
+            ),
             SizedBox(height: spacing * 3),
             QuickAuthSettingsSection(userId: user.userId),
             SizedBox(height: spacing * 3),
@@ -376,8 +385,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               color: OpeiColors.pureBlack.withValues(alpha: 0.06),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.shield_outlined,
-                color: OpeiColors.pureBlack, size: 24),
+            child: const Icon(
+              Icons.shield_outlined,
+              color: OpeiColors.pureBlack,
+              size: 24,
+            ),
           ),
           SizedBox(width: spacing * 2),
           Expanded(
@@ -391,15 +403,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 SizedBox(height: spacing * 0.5),
                 Text(
                   'Verify your identity to unlock all features',
-                  style: context.textStyles.bodySmall
-                      ?.copyWith(color: OpeiColors.grey600),
+                  style: context.textStyles.bodySmall?.copyWith(
+                    color: OpeiColors.grey600,
+                  ),
                 ),
               ],
             ),
           ),
           SizedBox(width: spacing),
-          const Icon(Icons.arrow_forward_ios,
-              color: OpeiColors.grey400, size: 16),
+          const Icon(
+            Icons.arrow_forward_ios,
+            color: OpeiColors.grey400,
+            size: 16,
+          ),
         ],
       ),
     );
@@ -411,10 +427,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   String _formatUserStage(String stage) {
     if (stage.isEmpty) return 'N/A';
-    return stage.replaceAll('_', ' ').split(' ').map((word) {
-      if (word.isEmpty) return '';
-      return word[0] + word.substring(1).toLowerCase();
-    }).join(' ');
+    return stage
+        .replaceAll('_', ' ')
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return '';
+          return word[0] + word.substring(1).toLowerCase();
+        })
+        .join(' ');
   }
 
   Future<T?> _presentResponsiveSheet<T>({
@@ -523,11 +543,11 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                   elevation: 0,
                   backgroundColor: _logoutActionRed,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor:
-                      _logoutActionRed.withValues(alpha: 0.55),
+                  disabledBackgroundColor: _logoutActionRed.withValues(
+                    alpha: 0.55,
+                  ),
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(OpeiBrand.radiusCta),
+                    borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
                   ),
                   textStyle: const TextStyle(
                     fontSize: 15,
@@ -589,8 +609,11 @@ class ProfileHeader extends StatelessWidget {
   final String displayName;
   final String email;
 
-  const ProfileHeader(
-      {super.key, required this.displayName, required this.email});
+  const ProfileHeader({
+    super.key,
+    required this.displayName,
+    required this.email,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -616,8 +639,9 @@ class ProfileHeader extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           email,
-          style: context.textStyles.bodyMedium
-              ?.copyWith(color: OpeiColors.grey600),
+          style: context.textStyles.bodyMedium?.copyWith(
+            color: OpeiColors.grey600,
+          ),
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
@@ -631,8 +655,11 @@ class ProfileSection extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
-  const ProfileSection(
-      {super.key, required this.title, required this.children});
+  const ProfileSection({
+    super.key,
+    required this.title,
+    required this.children,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -641,13 +668,15 @@ class ProfileSection extends StatelessWidget {
     for (var i = 0; i < children.length; i++) {
       separatedChildren.add(children[i]);
       if (i != children.length - 1) {
-        separatedChildren.add(const Divider(
-          height: 1,
-          thickness: 1,
-          color: OpeiColors.iosSeparator,
-          indent: 32,
-          endIndent: 0,
-        ));
+        separatedChildren.add(
+          const Divider(
+            height: 1,
+            thickness: 1,
+            color: OpeiColors.iosSeparator,
+            indent: 32,
+            endIndent: 0,
+          ),
+        );
       }
     }
 
@@ -669,8 +698,9 @@ class ProfileSection extends StatelessWidget {
         ),
         SizedBox(height: spacing * 1.25),
         Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: separatedChildren),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: separatedChildren,
+        ),
       ],
     );
   }
@@ -700,14 +730,18 @@ class ProfileInfoItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: context.textStyles.bodySmall
-                        ?.copyWith(color: OpeiColors.grey600)),
+                Text(
+                  label,
+                  style: context.textStyles.bodySmall?.copyWith(
+                    color: OpeiColors.grey600,
+                  ),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: context.textStyles.bodyLarge
-                      ?.copyWith(fontWeight: FontWeight.w500),
+                  style: context.textStyles.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -751,9 +785,13 @@ class _ProfileActionItemState extends State<ProfileActionItem>
   void initState() {
     super.initState();
     _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.98,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -764,59 +802,65 @@ class _ProfileActionItemState extends State<ProfileActionItem>
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        widget.isDestructive ? OpeiColors.errorRed : OpeiColors.pureBlack;
-    final iconColor =
-        widget.isDestructive ? OpeiColors.errorRed : OpeiColors.grey600;
+    final color = widget.isDestructive
+        ? OpeiColors.errorRed
+        : OpeiColors.pureBlack;
+    final iconColor = widget.isDestructive
+        ? OpeiColors.errorRed
+        : OpeiColors.grey600;
     final isInteractive = widget.onTap != null && !widget.isLoading;
 
     Widget buildContent() => Container(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Row(
-            children: [
-              Icon(widget.icon, color: iconColor, size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.label,
-                      style: context.textStyles.bodyLarge?.copyWith(
-                        color: color,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    if (widget.subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        widget.subtitle!,
-                        style: context.textStyles.bodySmall
-                            ?.copyWith(color: OpeiColors.grey600),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (widget.isLoading)
-                const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    color: OpeiColors.pureBlack,
-                    strokeWidth: 2,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Icon(widget.icon, color: iconColor, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.label,
+                  style: context.textStyles.bodyLarge?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w500,
                   ),
-                )
-              else if (!widget.isDestructive && isInteractive)
-                const Icon(Icons.chevron_right,
-                    color: OpeiColors.grey400, size: 18),
-            ],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (widget.subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    widget.subtitle!,
+                    style: context.textStyles.bodySmall?.copyWith(
+                      color: OpeiColors.grey600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
           ),
-        );
+          if (widget.isLoading)
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                color: OpeiColors.pureBlack,
+                strokeWidth: 2,
+              ),
+            )
+          else if (!widget.isDestructive && isInteractive)
+            const Icon(
+              Icons.chevron_right,
+              color: OpeiColors.grey400,
+              size: 18,
+            ),
+        ],
+      ),
+    );
 
     final content = buildContent();
 
@@ -832,14 +876,10 @@ class _ProfileActionItemState extends State<ProfileActionItem>
         if (!widget.isLoading) widget.onTap?.call();
       },
       onTapCancel: () => _controller.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: content,
-      ),
+      child: ScaleTransition(scale: _scaleAnimation, child: content),
     );
   }
 }
-
 
 class QuickAuthSettingsSection extends ConsumerStatefulWidget {
   final String userId;
@@ -877,7 +917,9 @@ class _QuickAuthSettingsSectionState
     final biometricEnabled = canUseBio
         ? await quickAuthService.isBiometricEnabled(widget.userId)
         : false;
-    final isFace = canUseBio ? await quickAuthService.hasFaceBiometric() : false;
+    final isFace = canUseBio
+        ? await quickAuthService.hasFaceBiometric()
+        : false;
 
     if (!mounted) return;
     setState(() {
@@ -967,8 +1009,8 @@ class _QuickAuthSettingsSectionState
           subtitle: _isLoadingStatus
               ? 'Loading...'
               : _hasPinSetup
-                  ? 'Enabled'
-                  : 'Disabled',
+              ? 'Enabled'
+              : 'Disabled',
           onTap: null,
         ),
         if (_biometricAvailable && !_isLoadingStatus)
@@ -1002,8 +1044,8 @@ class _BiometricSettingsRow extends StatelessWidget {
     final subtitle = enabled
         ? 'Enabled — sign in with a glance'
         : isFace
-            ? 'Use Face ID instead of typing your PIN'
-            : 'Use your fingerprint instead of typing your PIN';
+        ? 'Use Face ID instead of typing your PIN'
+        : 'Use your fingerprint instead of typing your PIN';
     final iconData = isFace ? Icons.face_outlined : Icons.fingerprint;
 
     return Padding(
@@ -1028,8 +1070,9 @@ class _BiometricSettingsRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: context.textStyles.bodySmall
-                      ?.copyWith(color: OpeiColors.grey600),
+                  style: context.textStyles.bodySmall?.copyWith(
+                    color: OpeiColors.grey600,
+                  ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1093,16 +1136,13 @@ class _OpeiSwitchState extends State<_OpeiSwitch> {
         height: _trackHeight,
         padding: const EdgeInsets.all(_padding),
         decoration: BoxDecoration(
-          color: isOn
-              ? OpeiBrand.primary
-              : OpeiColors.grey300,
+          color: isOn ? OpeiBrand.primary : OpeiColors.grey300,
           borderRadius: BorderRadius.circular(_trackHeight / 2),
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOutCubic,
-          alignment:
-              isOn ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: isOn ? Alignment.centerRight : Alignment.centerLeft,
           child: AnimatedScale(
             duration: const Duration(milliseconds: 120),
             curve: Curves.easeOut,

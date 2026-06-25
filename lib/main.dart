@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +9,7 @@ import 'package:opei/core/config/environment.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/core/utils/asset_preloader.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/providers/express_agent_access_provider.dart';
 import 'package:opei/core/services/session_lock_service.dart';
 import 'package:opei/features/address/address_screen.dart';
 import 'package:opei/features/auth/forgot_password/forgot_password_screen.dart';
@@ -21,8 +23,15 @@ import 'package:opei/features/dashboard/dashboard_screen.dart';
 import 'package:opei/features/kyc/kyc_screen.dart';
 import 'package:opei/features/kyc/kyc_result_screen.dart';
 import 'package:opei/features/profile/profile_screen.dart';
+import 'package:opei/features/referral/apply_referral_screen.dart';
+import 'package:opei/features/referral/referral_hub_screen.dart';
 import 'package:opei/features/send_money/send_money_screen.dart';
 import 'package:opei/features/deposit/deposit_screen.dart';
+import 'package:opei/features/express_p2p/express_p2p_hub_screen.dart';
+import 'package:opei/features/express_p2p/express_p2p_setup_screen.dart';
+import 'package:opei/features/express_p2p/express_p2p_preview_screen.dart';
+import 'package:opei/features/express_p2p/express_order_detail_screen.dart';
+import 'package:opei/features/express_agent/express_agent_order_screen.dart';
 import 'package:opei/features/withdraw/withdraw_screen.dart';
 import 'package:opei/features/transactions/transactions_screen.dart';
 import 'package:opei/features/p2p/p2p_screen.dart';
@@ -48,16 +57,13 @@ Future<void> main() async {
   }
 
   if (_sentryDsn.isNotEmpty) {
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = _sentryDsn;
-        options.tracesSampleRate = 0.2;
-        options.enableAutoSessionTracking = true;
-        options.sendDefaultPii = false;
-        options.environment = Environment.name;
-      },
-      appRunner: bootstrapAndRun,
-    );
+    await SentryFlutter.init((options) {
+      options.dsn = _sentryDsn;
+      options.tracesSampleRate = 0.2;
+      options.enableAutoSessionTracking = true;
+      options.sendDefaultPii = false;
+      options.environment = Environment.name;
+    }, appRunner: bootstrapAndRun);
   } else {
     if (kDebugMode) {
       debugPrint(
@@ -71,9 +77,7 @@ Future<void> main() async {
 
 Future<void> _initializeFlutterUi() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -109,10 +113,7 @@ const Set<String> _publicPaths = {
   '/privacy',
 };
 
-const Set<String> _onboardingPaths = {
-  '/verify-email',
-  '/kyc',
-};
+const Set<String> _onboardingPaths = {'/verify-email', '/referral', '/kyc'};
 
 class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
   bool _wasBackgrounded = false;
@@ -125,12 +126,13 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _routerRefreshNotifier = ValueNotifier<int>(0);
-    _sessionSubscription = ref.listenManual<AuthSession>(
-      authSessionProvider,
-      (previous, next) {
-        _routerRefreshNotifier.value++;
-      },
-    );
+    _sessionSubscription = ref.listenManual<AuthSession>(authSessionProvider, (
+      previous,
+      next,
+    ) {
+      _routerRefreshNotifier.value++;
+      _syncExpressAgentAccess(previous, next);
+    });
     _router = _createRouter();
 
     // Warm up frequently used SVG icons to avoid first-use delay on web.
@@ -160,10 +162,38 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Keeps the cached Express agent access in sync with the auth session so the
+  /// Agent tab is known from the very first dashboard paint. Fetches once when a
+  /// verified session appears (login, splash restore, or stage reaching
+  /// VERIFIED) and clears on logout. Failures are swallowed by the notifier and
+  /// never affect the rest of the app.
+  void _syncExpressAgentAccess(AuthSession? previous, AuthSession next) {
+    final notifier = ref.read(expressAgentAccessProvider.notifier);
+
+    if (!next.isAuthenticated) {
+      notifier.clear();
+      return;
+    }
+
+    final isVerified = (next.userStage ?? '').toUpperCase() == 'VERIFIED';
+    if (!isVerified) return;
+
+    final wasVerified =
+        (previous?.userStage ?? '').toUpperCase() == 'VERIFIED' &&
+        previous?.isAuthenticated == true;
+    final sameUser = previous?.userId == next.userId;
+
+    // Only fetch when a verified session first appears or the user changed —
+    // not on every unrelated session nonce bump.
+    if (wasVerified && sameUser) return;
+
+    notifier.refresh();
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     final sessionLockService = ref.read(sessionLockServiceProvider);
 
     if (state == AppLifecycleState.paused ||
@@ -224,52 +254,44 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.light,
-      builder: (context, child) => KeyboardDismissOnTap(
-        child: child ?? const SizedBox.shrink(),
-      ),
+      scrollBehavior: const _OpeiScrollBehavior(),
+      builder: (context, child) =>
+          KeyboardDismissOnTap(child: child ?? const SizedBox.shrink()),
       routerConfig: _router,
     );
-}
+  }
 
   GoRouter _createRouter() => GoRouter(
-  initialLocation: '/splash',
-        refreshListenable: _routerRefreshNotifier,
-        routes: _buildRoutes(),
-        redirect: _guardRedirect,
-      );
+    initialLocation: '/splash',
+    refreshListenable: _routerRefreshNotifier,
+    routes: _buildRoutes(),
+    redirect: _guardRedirect,
+  );
 
   List<RouteBase> _buildRoutes() => [
     GoRoute(
       path: '/splash',
       name: 'splash',
-      pageBuilder: (context, state) => NoTransitionPage(
-        key: state.pageKey,
-        child: const _SplashScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          NoTransitionPage(key: state.pageKey, child: const _SplashScreen()),
     ),
     GoRoute(
       path: '/welcome',
       name: 'welcome',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const WelcomeScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          buildOpeiTransitionPage(state: state, child: const WelcomeScreen()),
     ),
     GoRoute(
       path: '/login',
       name: 'login',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-            child: LoginScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          buildOpeiTransitionPage(state: state, child: LoginScreen()),
     ),
     GoRoute(
       path: '/signup',
       name: 'signup',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const SignupScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          buildOpeiTransitionPage(state: state, child: const SignupScreen()),
     ),
     GoRoute(
       path: '/terms',
@@ -318,11 +340,26 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       },
     ),
     GoRoute(
+      path: '/referral',
+      name: 'referral',
+      pageBuilder: (context, state) => buildOpeiTransitionPage(
+        state: state,
+        child: const ApplyReferralScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/referral/hub',
+      name: 'referral-hub',
+      pageBuilder: (context, state) => buildOpeiTransitionPage(
+        state: state,
+        child: const ReferralHubScreen(),
+      ),
+    ),
+    GoRoute(
       path: '/address',
       name: 'address',
       pageBuilder: (context, state) {
-            final isFromProfile =
-                state.uri.queryParameters['source'] == 'profile';
+        final isFromProfile = state.uri.queryParameters['source'] == 'profile';
         return buildOpeiTransitionPage(
           state: state,
           child: AddressScreen(isFromProfile: isFromProfile),
@@ -332,34 +369,26 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     GoRoute(
       path: '/kyc',
       name: 'kyc',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const KycScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          buildOpeiTransitionPage(state: state, child: const KycScreen()),
     ),
-        GoRoute(
-          path: '/kyc/result',
-          name: 'kyc-result',
-          pageBuilder: (context, state) => buildOpeiTransitionPage(
-            state: state,
-            child: const KycResultScreen(),
-          ),
-        ),
+    GoRoute(
+      path: '/kyc/result',
+      name: 'kyc-result',
+      pageBuilder: (context, state) =>
+          buildOpeiTransitionPage(state: state, child: const KycResultScreen()),
+    ),
     GoRoute(
       path: '/quick-auth',
       name: 'quick-auth',
-      pageBuilder: (context, state) => NoTransitionPage(
-        key: state.pageKey,
-        child: const QuickAuthScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          NoTransitionPage(key: state.pageKey, child: const QuickAuthScreen()),
     ),
     GoRoute(
       path: '/dashboard',
       name: 'dashboard',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const DashboardScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          buildOpeiTransitionPage(state: state, child: const DashboardScreen()),
     ),
     GoRoute(
       path: '/transactions',
@@ -372,18 +401,14 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     GoRoute(
       path: '/profile',
       name: 'profile',
-      pageBuilder: (context, state) => buildOpeiTransitionPage(
-        state: state,
-        child: const ProfileScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          buildOpeiTransitionPage(state: state, child: const ProfileScreen()),
     ),
     GoRoute(
       path: '/send-money',
       name: 'send-money',
-      pageBuilder: (context, state) => NoTransitionPage(
-        key: state.pageKey,
-        child: const SendMoneyScreen(),
-      ),
+      pageBuilder: (context, state) =>
+          NoTransitionPage(key: state.pageKey, child: const SendMoneyScreen()),
     ),
     GoRoute(
       path: '/p2p',
@@ -417,23 +442,19 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
             initialTabIndex = null;
         }
 
-        final disableTransition = state.extra is Map && (state.extra as Map)['disableTransition'] == true;
+        final disableTransition =
+            state.extra is Map &&
+            (state.extra as Map)['disableTransition'] == true;
         final child = P2PExchangeScreen(
           initialType: initialType,
           initialTabIndex: initialTabIndex,
         );
 
         if (disableTransition) {
-          return NoTransitionPage(
-            key: state.pageKey,
-            child: child,
-          );
+          return NoTransitionPage(key: state.pageKey, child: child);
         }
 
-        return buildOpeiTransitionPage(
-          state: state,
-          child: child,
-        );
+        return buildOpeiTransitionPage(state: state, child: child);
       },
     ),
     GoRoute(
@@ -444,6 +465,66 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
         return buildOpeiTransitionPage(
           state: state,
           child: P2PRatingScreen(trade: trade),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/express-p2p',
+      name: 'express-p2p',
+      pageBuilder: (context, state) => buildOpeiTransitionPage(
+        state: state,
+        child: const ExpressP2PHubScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/express-p2p/setup',
+      name: 'express-p2p-setup',
+      pageBuilder: (context, state) => buildOpeiTransitionPage(
+        state: state,
+        child: const ExpressP2PSetupScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/express-p2p/preview',
+      name: 'express-p2p-preview',
+      pageBuilder: (context, state) {
+        final args = state.extra;
+        if (args is! ExpressPreviewArgs) {
+          // Missing args (e.g. deep link) — fall back to the hub.
+          return buildOpeiTransitionPage(
+            state: state,
+            child: const ExpressP2PHubScreen(),
+          );
+        }
+        return buildOpeiTransitionPage(
+          state: state,
+          child: ExpressP2PPreviewScreen(args: args),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/express-p2p/order/:id',
+      name: 'express-p2p-order',
+      pageBuilder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return buildOpeiTransitionPage(
+          state: state,
+          child: ExpressOrderDetailScreen(orderId: id),
+        );
+      },
+    ),
+    GoRoute(
+      path: '/express-agent/order/:id',
+      name: 'express-agent-order',
+      pageBuilder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        final initialBuyerContact = state.extra as String?;
+        return buildOpeiTransitionPage(
+          state: state,
+          child: ExpressAgentOrderScreen(
+            orderId: id,
+            initialBuyerContactNumber: initialBuyerContact,
+          ),
         );
       },
     ),
@@ -527,7 +608,7 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
         );
       },
     ),
-      ];
+  ];
 
   String? _guardRedirect(BuildContext context, GoRouterState state) {
     final location = state.uri.path;
@@ -572,7 +653,10 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     final stageRoute = _stageRouteFor(stage);
     if (stageRoute != null) {
       final requiredPath = _basePath(stageRoute);
-      if (location != requiredPath) {
+      final stageUpper = stage.toUpperCase();
+      final isOptionalReferralPath =
+          stageUpper == 'PENDING_ADDRESS' && location == '/referral';
+      if (location != requiredPath && !isOptionalReferralPath) {
         return stageRoute;
       }
       return null;
@@ -581,7 +665,7 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     final stageUpper = stage.toUpperCase();
     final requiresVerification =
         quickAuthStatus == QuickAuthStatus.requiresVerification &&
-            stageUpper == 'VERIFIED';
+        stageUpper == 'VERIFIED';
     if (requiresVerification && location != '/quick-auth') {
       return '/quick-auth';
     }
@@ -681,9 +765,7 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
         : false;
 
     if (quickAuthReady) {
-      quickAuthStatusNotifier.setStatus(
-        QuickAuthStatus.requiresVerification,
-      );
+      quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
       if (mounted) context.go('/quick-auth');
       return;
     }
@@ -693,20 +775,21 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
       String effectiveAccessToken,
     ) async {
       await storage.saveUser(user);
-      ref.read(authSessionProvider.notifier).setSession(
+      ref
+          .read(authSessionProvider.notifier)
+          .setSession(
             userId: user.id,
             accessToken: effectiveAccessToken,
             userStage: user.userStage,
           );
 
-      final hasCompletedSetup =
-          await quickAuthService.isSetupCompleted(user.id);
+      final hasCompletedSetup = await quickAuthService.isSetupCompleted(
+        user.id,
+      );
       final isVerified = user.userStage.toUpperCase() == 'VERIFIED';
 
       if (isVerified && hasCompletedSetup) {
-        quickAuthStatusNotifier.setStatus(
-          QuickAuthStatus.requiresVerification,
-        );
+        quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
         if (mounted) context.go('/quick-auth');
         return;
       }
@@ -754,8 +837,10 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
       if (registeredUserId != null) {
         await storage.clearSessionLockTimestamp(registeredUserId);
         await storage.clearCurrentQuickAuthUserId();
-        await quickAuthService.clearUserData(registeredUserId,
-            removeSetupFlag: true);
+        await quickAuthService.clearUserData(
+          registeredUserId,
+          removeSetupFlag: true,
+        );
       }
       quickAuthStatusNotifier.reset();
       if (mounted) context.go('/login');
@@ -792,8 +877,10 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
         child: Center(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final double logoSize =
-                  (constraints.maxWidth * 0.4).clamp(120.0, 220.0);
+              final double logoSize = (constraints.maxWidth * 0.4).clamp(
+                120.0,
+                220.0,
+              );
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -824,5 +911,35 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
         ),
       ),
     );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// App-wide scroll behaviour — iOS-style elastic bounce on every platform with
+// no Android stretch/glow indicator. Matches Revolut / Apple feel.
+
+class _OpeiScrollBehavior extends MaterialScrollBehavior {
+  const _OpeiScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => const {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.stylus,
+    PointerDeviceKind.trackpad,
+    PointerDeviceKind.invertedStylus,
+  };
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) =>
+      const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
   }
 }

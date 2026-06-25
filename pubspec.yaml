@@ -2,7 +2,7 @@ name: opei
 description: "Opei - Your gateway to seamless USD financial tools. A fintech platform for currency exchange, P2P trading, and virtual cards."
 publish_to: "none"
 
-version: 1.0.2+4
+version: 1.0.3+5
 
 environment:
   sdk: ^3.8.0
@@ -30,7 +30,7 @@ dependencies:
   flutter_svg: ^2.0.0
   permission_handler: ^12.0.1
   path_provider: ^2.1.4
-  sentry_flutter: ^9.9.1
+  sentry_flutter: ^9.20.0
 
 dev_dependencies:
   flutter_test:
@@ -69,4 +69,7 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: assets/icons/ic3.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/icons/ic3.png
+  adaptive_icon_foreground_inset: 0
   remove_alpha_ios: true

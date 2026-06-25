@@ -1,956 +1,825 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:opei/core/money/money.dart';
-import 'package:opei/features/cards/card_creation_controller.dart';
-import 'package:opei/features/cards/card_creation_state.dart';
-import 'package:opei/features/cards/cards_controller.dart';
+import 'package:opei/data/models/promo_card_create_result.dart';
+import 'package:opei/features/cards/promo_card_creation_controller.dart';
+import 'package:opei/features/cards/promo_card_creation_state.dart';
+import 'package:opei/features/deposit/deposit_screen.dart';
+import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
-import 'package:opei/widgets/success_hero.dart';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Entry point
+// ─────────────────────────────────────────────────────────────────────────────
 
 class CreateVirtualCardFlow extends ConsumerStatefulWidget {
   const CreateVirtualCardFlow({super.key});
 
   @override
-  ConsumerState<CreateVirtualCardFlow> createState() => _CreateVirtualCardFlowState();
+  ConsumerState<CreateVirtualCardFlow> createState() =>
+      _CreateVirtualCardFlowState();
 }
 
 class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
-  late final TextEditingController _amountController;
-  late final FocusNode _amountFocusNode;
-  final _amountFormKey = GlobalKey<FormState>();
-  late final ProviderSubscription<CardCreationState> _cardStateSubscription;
-  bool _hasCompleted = false;
-  bool _isFinishing = false;
-
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController();
-    _amountFocusNode = FocusNode();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = ref.read(cardCreationControllerProvider.notifier);
+      final controller =
+          ref.read(promoCardCreationControllerProvider.notifier);
       controller.reset();
-      controller.startRegistration();
+      controller.prepare();
     });
-
-    _cardStateSubscription = ref.listenManual<CardCreationState>(
-      cardCreationControllerProvider,
-      (previous, next) {
-        if (!mounted) return;
-
-        if (next.stage == CardCreationStage.success && previous?.stage != CardCreationStage.success) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              FocusScope.of(context).unfocus();
-            }
-          });
-        }
-
-        if (next.stage == CardCreationStage.amountEntry) {
-          final amount = next.amount;
-          if (amount != null && amount.cents > 0) {
-            final formatted = amount.inMajorUnits.toStringAsFixed(2);
-            _amountController.value = TextEditingValue(
-              text: formatted,
-              selection: TextSelection.collapsed(offset: formatted.length),
-            );
-          } else if (next.amount == null) {
-            _amountController.clear();
-          }
-        }
-      },
-      fireImmediately: true,
-    );
-  }
-
-  @override
-  void dispose() {
-    _cardStateSubscription.close();
-    _amountController.dispose();
-    _amountFocusNode.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(cardCreationControllerProvider);
-    final theme = Theme.of(context);
+    final state = ref.watch(promoCardCreationControllerProvider);
 
-    return PopScope(
-      canPop: !_isFinishing,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.surface,
-        appBar: AppBar(
-          backgroundColor: OpeiBrand.surface,
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          automaticallyImplyLeading: false,
-          title: Text(
-            _appBarTitle(state.stage),
-            style: const TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: OpeiBrand.ink,
-              letterSpacing: -0.2,
-            ),
-          ),
-          centerTitle: true,
-        ),
-        body: SafeArea(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            switchInCurve: Curves.easeOut,
-            switchOutCurve: Curves.easeIn,
-            child: Padding(
-              key: ValueKey(state.stage),
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-              child: _buildStage(state, theme),
-            ),
-          ),
+        backgroundColor: Colors.white,
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 280),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          child: _buildStage(state),
         ),
       ),
     );
   }
 
-  String _appBarTitle(CardCreationStage stage) {
-    switch (stage) {
-      case CardCreationStage.registering:
-        return 'Setting Up';
-      case CardCreationStage.amountEntry:
-        return 'Initial Load';
-      case CardCreationStage.preview:
-      case CardCreationStage.creating:
-        return 'Review Details';
-      case CardCreationStage.success:
-        return 'Card Created';
-    }
-  }
-
-  Widget _buildStage(CardCreationState state, ThemeData theme) {
+  Widget _buildStage(PromoCardCreationState state) {
     switch (state.stage) {
-      case CardCreationStage.registering:
-        return _buildRegistering(theme, state);
-      case CardCreationStage.amountEntry:
-        return _buildAmountEntry(theme, state);
-      case CardCreationStage.preview:
-        return _buildPreview(theme, state, isProcessing: false);
-      case CardCreationStage.creating:
-        return _buildPreview(theme, state, isProcessing: true);
-      case CardCreationStage.success:
-        return _buildSuccess(theme, state);
+      case PromoCardStage.preparing:
+        return _PreparingScreen(
+          key: const ValueKey('preparing'),
+          errorMessage: state.errorMessage,
+          onRetry: () =>
+              ref.read(promoCardCreationControllerProvider.notifier).prepare(),
+          onClose: () => Navigator.of(context).pop(),
+        );
+
+      case PromoCardStage.confirm:
+        return _ConfirmScreen(
+          key: const ValueKey('confirm'),
+          state: state,
+          onConfirm: () =>
+              ref.read(promoCardCreationControllerProvider.notifier).createCard(),
+          onClose: () => Navigator.of(context).pop(),
+        );
+
+      case PromoCardStage.creating:
+        return const _CreatingScreen(key: ValueKey('creating'));
+
+      case PromoCardStage.success:
+        return _SuccessScreen(
+          key: const ValueKey('success'),
+          result: state.result!,
+          onDone: () => Navigator.of(context).pop(state.result),
+        );
     }
   }
+}
 
-  Widget _buildRegistering(ThemeData theme, CardCreationState state) {
-    final controller = ref.read(cardCreationControllerProvider.notifier);
-    final hasError = state.errorMessage?.isNotEmpty == true;
-    final isLoading = state.isBusy && !hasError;
+// ─────────────────────────────────────────────────────────────────────────────
+// Stage 1 — Preparing
+// ─────────────────────────────────────────────────────────────────────────────
 
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 320),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ── Icon/Spinner ───────────────────────────────────────────
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                gradient: hasError
-                    ? null
-                    : const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          OpeiBrand.primaryGradientStart,
-                          OpeiBrand.primaryGradientEnd,
-                        ],
-                      ),
-                color: hasError
-                    ? OpeiBrand.danger.withValues(alpha: 0.12)
-                    : null,
-                shape: BoxShape.circle,
-                boxShadow: hasError
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: OpeiBrand.primary.withValues(alpha: 0.22),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-              ),
-              child: Center(
-                child: isLoading
-                    ? const CupertinoActivityIndicator(
-                        radius: 13,
-                        color: Colors.white,
-                      )
-                    : Icon(
-                        hasError
-                            ? Icons.error_outline_rounded
-                            : Icons.credit_card_rounded,
-                        color: hasError ? OpeiBrand.danger : Colors.white,
-                        size: 30,
-                      ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              hasError ? "Setup failed" : 'Creating your card',
-              style: const TextStyle(
-                fontFamily: kPrimaryFontFamily,
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: OpeiBrand.ink,
-                letterSpacing: -0.4,
-                height: 1.2,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              hasError
-                  ? 'Check the message below and try again.'
-                  : 'Preparing your card details.\nThis only takes a moment.',
-              style: const TextStyle(
-                fontFamily: kPrimaryFontFamily,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: OpeiBrand.inkSecondary,
-                letterSpacing: -0.1,
-                height: 1.45,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (hasError) ...[
-              const SizedBox(height: 20),
-              _MessageBanner(message: state.errorMessage!, isError: true),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => controller.startRegistration(),
-                style: FilledButton.styleFrom(
-                  backgroundColor: OpeiBrand.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(OpeiBrand.radiusCta),
-                  ),
-                ),
-                child: const Text(
-                  'Try again',
-                  style: TextStyle(
-                    fontFamily: kPrimaryFontFamily,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+class _PreparingScreen extends StatelessWidget {
+  final String? errorMessage;
+  final VoidCallback onRetry;
+  final VoidCallback onClose;
+
+  const _PreparingScreen({
+    super.key,
+    required this.errorMessage,
+    required this.onRetry,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final topPad = MediaQuery.of(context).viewPadding.top;
+    final hasError = errorMessage != null;
+
+    return _Shell(
+      topPad: topPad,
+      onClose: hasError ? onClose : null,
+      child: hasError
+          ? _ErrorBody(message: errorMessage!, onRetry: onRetry)
+          : const _LoadingBody(label: 'Setting up your card\u2026'),
     );
   }
+}
 
-  Widget _buildAmountEntry(ThemeData theme, CardCreationState state) {
-    final controller = ref.read(cardCreationControllerProvider.notifier);
-    final currency = (state.amount?.currency ?? 'USD').toUpperCase();
-    final amountText = _amountController.text.trim();
-    final parsedAmount =
-        double.tryParse(amountText.replaceAll(',', '')) ?? 0;
-    final hasAmount = parsedAmount > 0;
-    final canContinue = parsedAmount >= 2.00;
-    final fmtAmount = _displayAmount(amountText);
+// ─────────────────────────────────────────────────────────────────────────────
+// Stage 2 — Confirm
+// ─────────────────────────────────────────────────────────────────────────────
 
-    return Form(
-      key: _amountFormKey,
+class _ConfirmScreen extends ConsumerWidget {
+  final PromoCardCreationState state;
+  final VoidCallback onConfirm;
+  final VoidCallback onClose;
+
+  const _ConfirmScreen({
+    super.key,
+    required this.state,
+    required this.onConfirm,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final topPad = MediaQuery.of(context).viewPadding.top;
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+    final prepare = state.prepare!;
+    final canCreate = prepare.canCreate;
+
+    return _Shell(
+      topPad: topPad,
+      onClose: onClose,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ── Header label ────────────────────────────────────────────
-          const SizedBox(height: 8),
-          const Text(
-            'Initial load',
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: OpeiBrand.ink,
-              letterSpacing: -0.5,
-              height: 1.1,
-            ),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'How much would you like to add to your new card?',
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
-              height: 1.4,
-            ),
-          ),
-
-          const Spacer(flex: 3),
-
-          // ── Hero amount ─────────────────────────────────────────────
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => _amountFocusNode.requestFocus(),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Text(
-                        '\$',
-                        style: TextStyle(
-                          fontFamily: kPrimaryFontFamily,
-                          fontSize: 26,
-                          fontWeight: FontWeight.w700,
-                          color: hasAmount
-                              ? OpeiBrand.ink
-                              : OpeiBrand.inkPlaceholder,
-                          letterSpacing: -0.5,
-                          height: 1.0,
-                        ),
-                      ),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: OpeiBrand.primaryTint,
+                      borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                     ),
-                    const SizedBox(width: 2),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 240),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          hasAmount ? fmtAmount : '0',
-                          style: TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 56,
-                            fontWeight: FontWeight.w800,
-                            color: hasAmount
-                                ? OpeiBrand.ink
-                                : OpeiBrand.inkPlaceholder,
-                            letterSpacing: -2.0,
-                            height: 1.0,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: OpeiBrand.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.card_membership_rounded,
+                            size: 18,
+                            color: OpeiBrand.primary,
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 14),
-                      child: Text(
-                        currency,
-                        style: const TextStyle(
-                          fontFamily: kPrimaryFontFamily,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: OpeiBrand.inkTertiary,
-                          letterSpacing: 0.8,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            canCreate
+                                ? 'Your virtual card is ready to create.'
+                                : 'Top up your wallet to continue card creation.',
+                            style: const TextStyle(
+                              fontFamily: kPrimaryFontFamily,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: OpeiBrand.ink,
+                              height: 1.3,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
-                // Invisible input captures keyboard
-                Positioned.fill(
-                  child: Opacity(
-                    opacity: 0.0,
-                    child: TextFormField(
-                      controller: _amountController,
-                      focusNode: _amountFocusNode,
-                      enabled: !state.isBusy,
-                      autofocus: true,
-                      keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true),
-                      textAlign: TextAlign.center,
-                      showCursor: false,
-                      style: const TextStyle(fontSize: 56),
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.zero,
-                        isCollapsed: true,
-                      ),
-                      textInputAction: TextInputAction.done,
-                      validator: (value) {
-                        final sanitized = value?.trim() ?? '';
-                        if (sanitized.isEmpty) return 'Enter an amount';
-                        final parsed = double.tryParse(
-                            sanitized.replaceAll(',', ''));
-                        if (parsed == null || parsed <= 0) {
-                          return 'Enter a valid amount';
-                        }
-                        if (parsed < 2.00) {
-                          return 'Minimum deposit is \$2.00';
-                        }
-                        return null;
-                      },
-                      onChanged: (_) => setState(() {}),
-                      onFieldSubmitted: (_) => _handlePreview(controller),
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: AnimatedDefaultTextStyle(
-              duration: OpeiBrand.motionFast,
-              curve: OpeiBrand.motionCurve,
-              style: TextStyle(
-                fontFamily: kPrimaryFontFamily,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w500,
-                color: hasAmount && !canContinue
-                    ? OpeiBrand.danger
-                    : OpeiBrand.inkTertiary,
-                letterSpacing: -0.1,
-              ),
-              child: Text(
-                hasAmount && !canContinue
-                    ? 'Minimum deposit is \$2.00'
-                    : 'Funded from your wallet  •  Min \$2.00',
-              ),
-            ),
-          ),
-
-          const Spacer(flex: 2),
-
-          // ── Quick chips ─────────────────────────────────────────────
-          SizedBox(
-            height: 38,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.zero,
-              children: [
-                for (final v in const [10, 25, 50, 100, 250]) ...[
-                  _QuickAmountChip(
-                    value: v,
-                    isSelected: parsedAmount == v.toDouble(),
-                    onTap: state.isBusy
-                        ? null
-                        : () {
-                            final formatted = v.toString();
-                            _amountController.value = TextEditingValue(
-                              text: formatted,
-                              selection: TextSelection.collapsed(
-                                  offset: formatted.length),
-                            );
-                            setState(() {});
-                          },
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              ],
-            ),
-          ),
-
-          if (state.errorMessage?.isNotEmpty == true) ...[
-            const SizedBox(height: 12),
-            _MessageBanner(message: state.errorMessage!, isError: true),
-          ],
-
-          const SizedBox(height: 24),
-
-          FilledButton(
-            onPressed: state.isBusy || !canContinue
-                ? null
-                : () => _handlePreview(controller),
-            style: FilledButton.styleFrom(
-              backgroundColor: OpeiBrand.primary,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: OpeiBrand.primaryTintStrong,
-              disabledForegroundColor:
-                  OpeiBrand.primary.withValues(alpha: 0.6),
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
-              ),
-            ),
-            child: state.isBusy
-                ? const CupertinoActivityIndicator(
-                    radius: 11, color: Colors.white)
-                : const Text(
-                    'Continue',
-                    style: TextStyle(
-                      fontSize: 15,
+                  const SizedBox(height: 18),
+                  Text(
+                    canCreate ? 'PAYMENT SUMMARY' : 'TOP UP REQUIRED',
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 11,
                       fontWeight: FontWeight.w700,
-                      letterSpacing: -0.2,
+                      color: OpeiBrand.inkTertiary,
+                      letterSpacing: 0.9,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (canCreate)
+                    _CanCreateBody(prepare: prepare)
+                  else
+                    _InsufficientBody(prepare: prepare),
+                  if (state.errorMessage != null) ...[
+                    const SizedBox(height: 14),
+                    _InlineError(message: state.errorMessage!),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, 8, 20, 20 + bottomPad),
+            child: canCreate
+                ? SizedBox(
+                    width: double.infinity,
+                    child: _PrimaryButton(
+                      label: 'Create my card',
+                      loading: state.isBusy,
+                      onTap: onConfirm,
+                    ),
+                  )
+                : SizedBox(
+                    width: double.infinity,
+                    child: _PrimaryButton(
+                      label: 'Add funds',
+                      onTap: () => showResponsiveBottomSheet(
+                        context: context,
+                        dismissOnBarrierTap: true,
+                        builder: (_) => const DepositOptionsSheet(),
+                      ),
                     ),
                   ),
           ),
-          const SizedBox(height: 4),
         ],
       ),
     );
   }
+}
 
-  /// Format the amount string with thousands separators while preserving the
-  /// trailing decimal as the user types it (e.g. `1234.5` -> `1,234.5`,
-  /// `1234.` -> `1,234.`, `1234` -> `1,234`).
-  String _displayAmount(String raw) {
-    if (raw.isEmpty) return '';
-    final trimmed = raw.replaceAll(',', '');
-    final parts = trimmed.split('.');
-    final intPart = parts.first;
-    final decimalPart = parts.length > 1 ? parts.sublist(1).join('') : null;
-    final intNumber = int.tryParse(intPart) ?? 0;
-    final formattedInt = intNumber.toString().replaceAllMapped(
-        RegExp(r'(\d)(?=(\d{3})+(?!\d))'), (m) => '${m[1]},');
-    if (parts.length == 1) return formattedInt;
-    return '$formattedInt.${decimalPart ?? ''}';
-  }
+// ─────────────────────────────────────────────────────────────────────────────
+// Confirm — can create breakdown
+// ─────────────────────────────────────────────────────────────────────────────
 
-  void _handlePreview(CardCreationController controller) {
-    if (_amountFormKey.currentState?.validate() ?? false) {
-      FocusScope.of(context).unfocus();
-      final sanitized = _amountController.text.trim().replaceAll(',', '');
-      final amount = Money.parse(sanitized.isEmpty ? '0' : sanitized);
-      controller.loadPreview(amount);
-    }
-  }
+class _CanCreateBody extends StatelessWidget {
+  final dynamic prepare; // PromoCardPrepare
 
-  Future<void> _handleSuccessDone(CardCreationState state) async {
-    if (_hasCompleted || _isFinishing) {
-      return;
-    }
+  const _CanCreateBody({required this.prepare});
 
-    setState(() => _isFinishing = true);
-    FocusScope.of(context).unfocus();
-
-    await Future.delayed(const Duration(seconds: 15));
-
-    final cardsController = ref.read(cardsControllerProvider.notifier);
-    try {
-      await cardsController.refresh();
-    } catch (_) {
-      // Silent catch — navigating back still returns control to cards screen which will surface errors if needed.
-    }
-
-    final creation = state.creation;
-    final createdCardId = creation?.cardId.trim() ?? '';
-    if (createdCardId.isNotEmpty) {
-      await cardsController.preloadCardDetails(createdCardId, reveal: true);
-    }
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _hasCompleted = true;
-      _isFinishing = false;
-    });
-
-    if (creation != null) {
-      Navigator.of(context).pop(creation);
-    } else {
-      Navigator.of(context).maybePop();
-    }
-  }
-
-  Widget _buildPreview(ThemeData theme, CardCreationState state,
-      {required bool isProcessing}) {
-    final preview = state.preview;
-    final controller = ref.read(cardCreationControllerProvider.notifier);
-
-    if (preview == null) {
-      return Center(
-        child: Text(
-          'Preview details unavailable. Please go back and try again.',
-          style: theme.textTheme.bodyMedium,
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
-
-    final hasSufficientBalance =
-        preview.canCreate && !preview.walletBalanceAfter.isNegative;
+  @override
+  Widget build(BuildContext context) {
+    final balanceAfterPositive = prepare.walletBalanceAfterCents >= 0;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // ── Hero — what the card will receive ──────────────────────────
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                OpeiBrand.primaryGradientStart,
-                OpeiBrand.primaryGradientEnd,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [
-              BoxShadow(
-                color: OpeiBrand.primary.withValues(alpha: 0.18),
-                offset: const Offset(0, 8),
-                blurRadius: 22,
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "CARD WILL RECEIVE",
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white70,
-                        letterSpacing: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        preview.cardWillReceive
-                            .format(includeCurrencySymbol: true),
-                        style: const TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: -0.8,
-                          height: 1.05,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.credit_card_rounded,
-                  color: Colors.white,
-                  size: 22,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: 18),
-
-        // ── Section: Breakdown ──────────────────────────────────────────
-        const _SectionLabel('PAYMENT BREAKDOWN'),
-        const SizedBox(height: 8),
+        // ── Fee breakdown ───────────────────────────────────────
         Container(
           decoration: BoxDecoration(
-            color: OpeiBrand.surfaceMuted,
+            color: OpeiBrand.surface,
             borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
-            border: Border.all(color: OpeiBrand.hairline, width: 1),
+            border: Border.all(color: OpeiBrand.hairline),
           ),
           child: Column(
             children: [
-              _PreviewRow(
-                label: 'Initial load',
-                value: preview.cardWillReceive
-                    .format(includeCurrencySymbol: true),
-              ),
-              const _PreviewDivider(),
-              _PreviewRow(
+              _Row(
+                icon: Icons.payments_outlined,
                 label: 'Creation fee',
-                value:
-                    preview.creationFee.format(includeCurrencySymbol: true),
+                value: _usd(prepare.creationFeeCents),
               ),
-              const _PreviewDivider(),
-              _PreviewRow(
-                label: 'Total to charge',
-                value: preview.totalToCharge
-                    .format(includeCurrencySymbol: true),
-                emphasize: true,
+              const _Divider(),
+              _Row(
+                icon: Icons.bolt_outlined,
+                label: 'Activation fee',
+                value: _usd(prepare.sweepCents),
+              ),
+              const _Divider(),
+              _Row(
+                icon: Icons.credit_card_outlined,
+                label: 'On your card',
+                value: _usd(prepare.cardWillReceiveCents),
+                valueColor: OpeiBrand.success,
+                valueWeight: FontWeight.w700,
               ),
             ],
           ),
         ),
-
-        const SizedBox(height: 18),
-
-        // ── Section: Wallet impact ──────────────────────────────────────
-        const _SectionLabel('AFTER THIS PAYMENT'),
         const SizedBox(height: 8),
+
+        // ── Total highlight ─────────────────────────────────────
         Container(
-          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
           decoration: BoxDecoration(
-            color: OpeiBrand.surfaceMuted,
+            color: OpeiBrand.primaryTint,
             borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
-            border: Border.all(color: OpeiBrand.hairline, width: 1),
           ),
           child: Row(
             children: [
               Container(
-                width: 36,
-                height: 36,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
-                  color: OpeiBrand.primaryTint,
-                  borderRadius: BorderRadius.circular(10),
+                  color: OpeiBrand.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
-                  Icons.account_balance_wallet_outlined,
-                  size: 18,
+                  Icons.account_balance_wallet_rounded,
+                  size: 16,
                   color: OpeiBrand.primary,
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Wallet balance',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: OpeiBrand.inkSecondary,
-                    letterSpacing: -0.1,
-                  ),
+              const Text(
+                'Total charged',
+                style: TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.1,
                 ),
               ),
+              const Spacer(),
               Text(
-                preview.walletBalanceAfter
-                    .format(includeCurrencySymbol: true),
+                _usd(prepare.totalToChargeCents),
                 style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: OpeiBrand.ink,
-                  letterSpacing: -0.2,
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: OpeiBrand.primary,
+                  letterSpacing: -0.5,
                 ),
               ),
             ],
           ),
         ),
+        const SizedBox(height: 8),
 
-        if (!hasSufficientBalance) ...[
-          const SizedBox(height: 14),
-          const _MessageBanner(
-            message:
-                'Wallet balance is too low to cover this card creation. Top up to continue.',
-            isError: true,
+        // ── Wallet impact ───────────────────────────────────────
+        Container(
+          decoration: BoxDecoration(
+            color: OpeiBrand.surface,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline),
           ),
-        ],
-        if (state.errorMessage?.isNotEmpty == true) ...[
-          const SizedBox(height: 14),
-          _MessageBanner(message: state.errorMessage!, isError: true),
-        ],
-
-        const Spacer(),
-
-        FilledButton(
-          onPressed: isProcessing || !hasSufficientBalance
-              ? null
-              : controller.submitCreation,
-          style: FilledButton.styleFrom(
-            backgroundColor: OpeiBrand.primary,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: OpeiBrand.primaryTintStrong,
-            disabledForegroundColor:
-                OpeiBrand.primary.withValues(alpha: 0.6),
-            minimumSize: const Size.fromHeight(54),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
-            ),
-          ),
-          child: isProcessing
-              ? const CupertinoActivityIndicator(
-                  radius: 11, color: Colors.white)
-              : Text(
-                  hasSufficientBalance ? 'Create card' : 'Add funds to continue',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
+          child: Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Your balance',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: OpeiBrand.inkTertiary,
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        _usd(prepare.walletBalanceCents),
+                        style: const TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: OpeiBrand.ink,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-        ),
-        const SizedBox(height: 8),
-        TextButton(
-          onPressed: isProcessing ? null : controller.backToAmountEntry,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            foregroundColor: OpeiBrand.primary,
+              ),
+              Container(
+                width: 1,
+                height: 36,
+                color: OpeiBrand.hairline,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'After creation',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: OpeiBrand.inkTertiary,
+                          letterSpacing: -0.1,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        _usd(prepare.walletBalanceAfterCents),
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: balanceAfterPositive
+                              ? OpeiBrand.success
+                              : OpeiBrand.danger,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          child: const Text(
-            'Edit amount',
-            style: TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w600,
-              letterSpacing: -0.1,
-            ),
-          ),
         ),
-        const SizedBox(height: 4),
       ],
     );
   }
+}
 
-  Widget _buildSuccess(ThemeData theme, CardCreationState state) {
-    final isHydrating = state.isBusy;
-    final canFinish = !isHydrating && !_isFinishing;
 
-    return Stack(
+// ─────────────────────────────────────────────────────────────────────────────
+// Confirm — insufficient funds
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _InsufficientBody extends StatelessWidget {
+  final dynamic prepare;
+
+  const _InsufficientBody({required this.prepare});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
       children: [
-        Column(
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: BoxDecoration(
+            color: OpeiBrand.surface,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline),
+          ),
+          child: Column(
+            children: [
+              _Row(
+                label: 'Amount needed',
+                value: _usd(prepare.totalToChargeCents),
+              ),
+              _Divider(),
+              _Row(
+                label: 'Your balance',
+                value: _usd(prepare.walletBalanceCents),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // ── Shortfall highlight ─────────────────────────────────
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFF4E5),
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: const Color(0xFFFFD9A0)),
+          ),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.account_balance_wallet_outlined,
+                size: 17,
+                color: Color(0xFFB36B00),
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'Add to continue',
+                style: TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF8A5200),
+                  letterSpacing: -0.1,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                _usd(prepare.shortfallCents),
+                style: const TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFFB36B00),
+                  letterSpacing: -0.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Stage 3 — Creating
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _CreatingScreen extends StatelessWidget {
+  const _CreatingScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final topPad = MediaQuery.of(context).viewPadding.top;
+    return _Shell(
+      topPad: topPad,
+      onClose: null,
+      child: const _LoadingBody(label: 'Creating your card\u2026'),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Stage 4 — Success
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _SuccessScreen extends StatelessWidget {
+  final PromoCardCreateResult result;
+  final VoidCallback onDone;
+
+  const _SuccessScreen({
+    super.key,
+    required this.result,
+    required this.onDone,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final topPad = MediaQuery.of(context).viewPadding.top;
+    final bottomPad = MediaQuery.of(context).viewPadding.bottom;
+
+    return _Shell(
+      topPad: topPad,
+      onClose: null,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(20, 0, 20, 24 + bottomPad),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Spacer(),
-            const SuccessHero(iconHeight: 80, gap: 8),
-            const SizedBox(height: 32),
-            Text(
-              'Virtual card created',
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.4,
+            // ── Success icon ──────────────────────────────────────
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: OpeiBrand.success.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
               ),
+              child: const Icon(
+                Icons.check_rounded,
+                color: OpeiBrand.success,
+                size: 36,
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Card on its way!',
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 26,
+                fontWeight: FontWeight.w800,
+                color: OpeiBrand.ink,
+                letterSpacing: -0.6,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Your virtual card is being set up.\nIt will be active in a moment.',
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: Text(
-                'Your card is ready to use',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: OpeiColors.iosLabelSecondary,
-                  height: 1.4,
-                  fontSize: 17,
-                ),
-                textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: OpeiBrand.inkSecondary,
+                height: 1.5,
+                letterSpacing: -0.1,
               ),
             ),
-            const Spacer(flex: 2),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: FilledButton(
-                onPressed: canFinish
-                    ? () {
-                        unawaited(_handleSuccessDone(state));
-                      }
-                    : null,
-                style: FilledButton.styleFrom(
-                  backgroundColor: OpeiColors.pureBlack,
-                  foregroundColor: OpeiColors.pureWhite,
-                  minimumSize: const Size.fromHeight(54),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            const SizedBox(height: 28),
+            // ── Reference chip ────────────────────────────────────
+            if (result.reference.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: OpeiBrand.surfaceMuted,
+                  borderRadius: BorderRadius.circular(999),
                 ),
-                child: _isFinishing
-                    ? const CupertinoActivityIndicator(radius: 11, color: OpeiColors.pureWhite)
-                    : const Text(
-                        'Done',
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.2,
-                        ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.tag_rounded,
+                      size: 13,
+                      color: OpeiBrand.inkSecondary,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      result.reference,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: 0.2,
                       ),
+                    ),
+                  ],
+                ),
               ),
+            const Spacer(),
+            // ── Done button ───────────────────────────────────────
+            SizedBox(
+              width: double.infinity,
+              child: _PrimaryButton(label: 'Done', onTap: onDone),
             ),
-            const SizedBox(height: 16),
           ],
         ),
-        if (_isFinishing) ...[
-          const Positioned.fill(
-            child: ModalBarrier(
-              color: Colors.white,
-              dismissible: false,
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared widgets
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// Full-screen shell with gradient header strip + close button.
+class _Shell extends StatelessWidget {
+  final double topPad;
+  final VoidCallback? onClose;
+  final Widget child;
+
+  const _Shell({
+    required this.topPad,
+    required this.child,
+    this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Gradient header strip
+        Container(
+          height: topPad + 56,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF1E55D8), Color(0xFF3D7BFF), Color(0xFF6E9DFF)],
             ),
           ),
-          Positioned.fill(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
                 children: [
-                  const CupertinoActivityIndicator(
-                    radius: 16,
-                    color: OpeiColors.pureBlack,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Setting up your card. This will take less than 30 seconds.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: OpeiColors.pureBlack,
-                      fontWeight: FontWeight.w600,
+                  if (onClose != null)
+                    GestureDetector(
+                      onTap: onClose,
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.close_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    )
+                  else
+                    const SizedBox(width: 36),
+                  const Spacer(),
+                  const Text(
+                    'Create Card',
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -0.2,
                     ),
-                    textAlign: TextAlign.center,
                   ),
+                  const Spacer(),
+                  const SizedBox(width: 36),
                 ],
               ),
             ),
           ),
-        ],
+        ),
+        // Body
+        Expanded(child: child),
       ],
     );
   }
 }
 
-class _PreviewRow extends StatelessWidget {
+class _LoadingBody extends StatelessWidget {
   final String label;
-  final String value;
-  final bool emphasize;
+  const _LoadingBody({required this.label});
 
-  const _PreviewRow({
-    required this.label,
-    required this.value,
-    this.emphasize = false,
-  });
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const CircularProgressIndicator(
+            color: OpeiBrand.primary,
+            strokeWidth: 2.5,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorBody extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+
+  const _ErrorBody({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: emphasize ? FontWeight.w700 : FontWeight.w500,
-              color: emphasize ? OpeiBrand.ink : OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
+          Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: OpeiBrand.surfaceMuted,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.wifi_off_rounded,
+              size: 26,
+              color: OpeiBrand.inkSecondary,
             ),
           ),
-          const SizedBox(width: 10),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
-              child: Text(
-                value,
+          const SizedBox(height: 16),
+          const Text(
+            'Couldn\'t load card details',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.3,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              color: OpeiBrand.inkSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 24),
+          GestureDetector(
+            onTap: onRetry,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: OpeiBrand.primaryTint,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: const Text(
+                'Try again',
                 style: TextStyle(
-                  fontSize: emphasize ? 15 : 13.5,
-                  fontWeight: emphasize ? FontWeight.w800 : FontWeight.w700,
-                  color: OpeiBrand.ink,
-                  letterSpacing: -0.2,
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: OpeiBrand.primary,
                 ),
               ),
             ),
@@ -961,118 +830,32 @@ class _PreviewRow extends StatelessWidget {
   }
 }
 
-class _PreviewDivider extends StatelessWidget {
-  const _PreviewDivider();
-  @override
-  Widget build(BuildContext context) => const Divider(
-        height: 1,
-        thickness: 0.5,
-        color: OpeiBrand.hairline,
-        indent: 14,
-        endIndent: 14,
-      );
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String label;
-  const _SectionLabel(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontFamily: kPrimaryFontFamily,
-          fontSize: 10.5,
-          fontWeight: FontWeight.w800,
-          color: OpeiBrand.inkTertiary,
-          letterSpacing: 1.0,
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickAmountChip extends StatelessWidget {
-  final int value;
-  final bool isSelected;
-  final VoidCallback? onTap;
-
-  const _QuickAmountChip({
-    required this.value,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(99),
-        child: AnimatedContainer(
-          duration: OpeiBrand.motionFast,
-          curve: OpeiBrand.motionCurve,
-          alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: isSelected ? OpeiBrand.primary : OpeiBrand.surfaceMuted,
-            borderRadius: BorderRadius.circular(99),
-            border: Border.all(
-              color: isSelected
-                  ? OpeiBrand.primary
-                  : Colors.transparent,
-              width: 1,
-            ),
-          ),
-          child: Text(
-            '\$$value',
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: isSelected ? Colors.white : OpeiBrand.ink,
-              letterSpacing: -0.2,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MessageBanner extends StatelessWidget {
+class _InlineError extends StatelessWidget {
   final String message;
-  final bool isError;
-
-  const _MessageBanner({required this.message, this.isError = false});
+  const _InlineError({required this.message});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = isError ? OpeiColors.errorRed : OpeiColors.pureBlack;
-    final background = isError ? OpeiColors.errorRed.withValues(alpha: 0.08) : OpeiColors.grey100;
-
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFFFF0F0),
+        borderRadius: BorderRadius.circular(OpeiBrand.radiusField),
+        border: Border.all(color: OpeiBrand.danger.withValues(alpha: 0.25)),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(isError ? Icons.error_outline : Icons.info_outline, color: color, size: 20),
-          const SizedBox(width: 12),
+          const Icon(Icons.error_outline_rounded,
+              size: 15, color: OpeiBrand.danger),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: color,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: OpeiBrand.danger,
                 height: 1.4,
               ),
             ),
@@ -1082,3 +865,139 @@ class _MessageBanner extends StatelessWidget {
     );
   }
 }
+
+class _PrimaryButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onTap;
+  final bool loading;
+
+  const _PrimaryButton({
+    required this.label,
+    this.onTap,
+    this.loading = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final disabled = loading || onTap == null;
+    return GestureDetector(
+      onTap: disabled ? null : onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 160),
+        height: 54,
+        decoration: BoxDecoration(
+          gradient: disabled
+              ? null
+              : const LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xFF1A4BC4), Color(0xFF3D7BFF)],
+                ),
+          color: disabled ? const Color(0xFFB0C4F0) : null,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: disabled
+              ? null
+              : [
+                  BoxShadow(
+                    color: const Color(0xFF1A4BC4).withValues(alpha: 0.35),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+        ),
+        child: Center(
+          child: loading
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2.2,
+                  ),
+                )
+              : Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: -0.1,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Breakdown table helpers ───────────────────────────────────────────────────
+
+class _Row extends StatelessWidget {
+  final IconData? icon;
+  final String label;
+  final String value;
+  final Color? valueColor;
+  final FontWeight? valueWeight;
+
+  const _Row({
+    required this.label,
+    required this.value,
+    this.icon,
+    this.valueColor,
+    this.valueWeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+      child: Row(
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 15, color: OpeiBrand.inkTertiary),
+            const SizedBox(width: 10),
+          ],
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              fontWeight: valueWeight ?? FontWeight.w600,
+              color: valueColor ?? OpeiBrand.ink,
+              letterSpacing: -0.1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(
+      height: 1,
+      thickness: 0.8,
+      color: OpeiBrand.hairline,
+    );
+  }
+}
+
+// ── Formatting helper ─────────────────────────────────────────────────────────
+
+String _usd(int cents) => '\$${(cents / 100).toStringAsFixed(2)}';

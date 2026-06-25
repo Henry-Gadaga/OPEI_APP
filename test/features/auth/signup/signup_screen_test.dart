@@ -46,7 +46,7 @@ void main() {
     });
 
     testWidgets(
-        'submitting a valid form calls signup controller with PIN',
+        'walks through email → phone → PIN steps and submits with parsed values',
         (tester) async {
       String? capturedEmail;
       String? capturedPhone;
@@ -63,16 +63,27 @@ void main() {
 
       await _pumpSignupScreen(tester, controller: fakeController);
 
-      // Field order on screen: email -> phone (custom widget with one
-      // TextFormField inside) -> 6-digit PIN.
-      final fields = find.byType(TextFormField);
-      expect(fields, findsNWidgets(3));
-
-      await tester.enterText(fields.at(0), 'user@example.com');
-      await tester.enterText(fields.at(1), '8012345678');
-      await tester.enterText(fields.at(2), '123456');
+      // Step 1 — only the email field is visible.
+      final emailField = find.byType(TextFormField);
+      expect(emailField, findsOneWidget);
+      await tester.enterText(emailField, 'user@example.com');
       await tester.pump();
+      await tester.tap(find.byType(OpeiPrimaryButton));
+      await tester.pumpAndSettle();
 
+      // Step 2 — phone field is now visible.
+      final phoneField = find.byType(TextFormField);
+      expect(phoneField, findsOneWidget);
+      await tester.enterText(phoneField, '8012345678');
+      await tester.pump();
+      await tester.tap(find.byType(OpeiPrimaryButton));
+      await tester.pumpAndSettle();
+
+      // Step 3 — 6-digit PIN field is now visible.
+      final pinField = find.byType(TextFormField);
+      expect(pinField, findsOneWidget);
+      await tester.enterText(pinField, '123456');
+      await tester.pump();
       await tester.tap(find.byType(OpeiPrimaryButton));
       await tester.pump();
 

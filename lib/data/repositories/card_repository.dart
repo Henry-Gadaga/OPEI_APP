@@ -1,5 +1,6 @@
 import 'package:opei/core/network/api_client.dart';
 import 'package:opei/core/money/money.dart';
+import 'package:opei/core/network/api_error.dart';
 import 'package:opei/data/models/card_creation_preview.dart';
 import 'package:opei/data/models/card_creation_response.dart';
 import 'package:opei/data/models/card_details.dart';
@@ -9,6 +10,8 @@ import 'package:opei/data/models/card_withdraw_preview.dart';
 import 'package:opei/data/models/card_withdraw_response.dart';
 import 'package:opei/data/models/card_user_registration_response.dart';
 import 'package:opei/data/models/card_transactions_page.dart';
+import 'package:opei/data/models/promo_card_create_result.dart';
+import 'package:opei/data/models/promo_card_prepare.dart';
 import 'package:opei/data/models/virtual_card.dart';
 
 class CardRepository {
@@ -46,6 +49,60 @@ class CardRepository {
     );
 
     return CardCreationResponse.fromJson(response);
+  }
+
+  /// Stage 1 — preview pricing and register user (no charge, no card created).
+  /// Returns [PromoCardPrepare] for both success and insufficient-funds cases.
+  /// Throws [ApiError] only for hard failures (profile incomplete, config missing, etc.).
+  Future<PromoCardPrepare> preparePromoCard() async {
+    final payload = await _apiClient.post<Map<String, dynamic>>(
+      '/card/cards/promo/prepare',
+      data: <String, dynamic>{},
+    );
+
+    final prepare = PromoCardPrepare.fromJson(payload);
+
+    // Hard failure from prepare pipeline (register/config step failed)
+    if (!prepare.success && prepare.reason != null) {
+      final message = _mapPrepareErrorCode(prepare.reason!);
+      throw ApiError(message: message, statusCode: 400);
+    }
+
+    return prepare;
+  }
+
+  /// Stage 2 — actually create the promo card (charges wallet, calls Bitnob).
+  /// Only call this after [preparePromoCard] returns `canCreate: true`.
+  Future<PromoCardCreateResult> createPromoCard({String? idempotencyKey}) async {
+    final payload = await _apiClient.post<Map<String, dynamic>>(
+      '/card/cards/create-promo',
+      data: idempotencyKey != null
+          ? <String, dynamic>{'idempotencyKey': idempotencyKey}
+          : <String, dynamic>{},
+    );
+
+    return PromoCardCreateResult.fromJson(payload);
+  }
+
+  String _mapPrepareErrorCode(String code) {
+    switch (code) {
+      case 'INCOMPLETE_PROFILE':
+      case 'REGISTRATION_FAILED':
+        return 'Your profile is incomplete. Please finish KYC before creating a card.';
+      case 'REGISTRATION_UNAVAILABLE':
+        return 'Card registration is temporarily unavailable. Please try again shortly.';
+      case 'PROMO_CARD_CONFIG_NOT_FOUND':
+      case 'INVALID_PROMO_CONFIG':
+        return 'Virtual card is not available right now. Please try again later.';
+      case 'PROMO_CONFIG_UNAVAILABLE':
+        return 'Card service is temporarily unavailable. Please try again shortly.';
+      case 'WALLET_NOT_FOUND':
+        return 'Wallet not found. Please contact support.';
+      case 'WALLET_UNAVAILABLE':
+        return 'Wallet service is temporarily unavailable. Please try again shortly.';
+      default:
+        return 'Something went wrong. Please try again.';
+    }
   }
 
   Future<List<VirtualCard>> fetchCards() async {

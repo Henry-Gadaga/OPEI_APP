@@ -49,7 +49,7 @@ void main() {
       harness.dispose();
     });
 
-    testWidgets('successful verification navigates to address screen', (tester) async {
+    testWidgets('successful verification navigates to referral screen', (tester) async {
       final notifier = _TestVerifyEmailNotifier(
         VerifyEmailState.initial('user@example.com'),
       );
@@ -63,7 +63,7 @@ void main() {
       notifier.state = notifier.state.copyWith(isVerifying: false, clearError: true);
       await tester.pumpAndSettle();
 
-      expect(find.text('Address Screen'), findsOneWidget);
+      expect(find.text('Referral Screen'), findsOneWidget);
       harness.dispose();
     });
   });
@@ -98,6 +98,10 @@ Future<_VerifyEmailScreenHarness> _pumpVerifyEmailScreen(
       GoRoute(
         path: '/address',
         builder: (context, state) => const _StubScreen(label: 'Address Screen'),
+      ),
+      GoRoute(
+        path: '/referral',
+        builder: (context, state) => const _StubScreen(label: 'Referral Screen'),
       ),
       GoRoute(
         path: '/login',

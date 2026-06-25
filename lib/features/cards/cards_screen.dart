@@ -7,8 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/money/money.dart';
 import 'package:opei/core/utils/error_helper.dart';
-import 'package:opei/data/models/card_creation_response.dart';
 import 'package:opei/data/models/card_details.dart';
+import 'package:opei/data/models/promo_card_create_result.dart';
 import 'package:opei/data/models/virtual_card.dart';
 import 'package:opei/features/cards/card_colors.dart';
 import 'package:opei/features/cards/card_transactions_screen.dart';
@@ -21,8 +21,8 @@ import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 
-Route<CardCreationResponse?> _buildCreateCardFlowRoute() {
-  return PageRouteBuilder<CardCreationResponse?>(
+Route<PromoCardCreateResult?> _buildCreateCardFlowRoute() {
+  return PageRouteBuilder<PromoCardCreateResult?>(
     pageBuilder: (_, animation, secondaryAnimation) =>
         const CreateVirtualCardFlow(),
     transitionDuration: Duration.zero,
@@ -75,7 +75,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final showEmptyState = cardsState.hasLoaded && cardsState.cards.isEmpty && !hasError && !cardsState.isLoading;
     final showCardList = cardsState.cards.isNotEmpty;
     final showBlockingLoader = cardsState.isLoading && cardsState.cards.isEmpty && !showErrorState;
-    final showHeaderCreateButton = cardsState.hasLoaded && cardsState.cards.isEmpty;
+    final showHeaderCreateButton = cardsState.hasLoaded && !cardsState.isLoading;
 
     final platform = Theme.of(context).platform;
     final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
@@ -234,7 +234,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   }
 
   Future<void> _startCardCreationFlow() async {
-    final creation = await Navigator.of(context).push<CardCreationResponse?>(
+    final creation = await Navigator.of(context).push<PromoCardCreateResult?>(
       _buildCreateCardFlowRoute(),
     );
 
@@ -475,7 +475,15 @@ class _CardsMessageBanner extends StatelessWidget {
             TextButton(
               onPressed: onRetry,
               style: TextButton.styleFrom(
-                foregroundColor: OpeiColors.pureBlack,
+                foregroundColor: OpeiBrand.primary,
+                backgroundColor: OpeiBrand.primaryTint,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(999),
+                ),
                 textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
@@ -702,8 +710,8 @@ class _CardsErrorPlaceholder extends StatelessWidget {
                 onPressed: onRetry,
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                  backgroundColor: OpeiColors.pureBlack,
-                  foregroundColor: OpeiColors.pureWhite,
+                  backgroundColor: OpeiBrand.primary,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
