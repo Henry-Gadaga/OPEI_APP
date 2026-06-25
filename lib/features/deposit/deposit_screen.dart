@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:opei/core/config/feature_flags.dart';
 import 'package:opei/features/deposit/deposit_controller.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
@@ -70,18 +71,20 @@ class DepositOptionsSheet extends StatelessWidget {
             },
           ),
           const _DepositRowDivider(),
-          _DepositRow(
-            title: 'P2P Exchange',
-            subtitle: 'Bank transfer, Mobile Payments and more',
-            onTap: () {
-              context.pop();
-              context.push(
-                '/p2p?intent=buy',
-                extra: const {'disableTransition': true},
-              );
-            },
-          ),
-          const _DepositRowDivider(),
+          if (FeatureFlags.enableClassicP2P) ...[
+            _DepositRow(
+              title: 'P2P Exchange',
+              subtitle: 'Bank transfer, Mobile Payments and more',
+              onTap: () {
+                context.pop();
+                context.push(
+                  '/p2p?intent=buy',
+                  extra: const {'disableTransition': true},
+                );
+              },
+            ),
+            const _DepositRowDivider(),
+          ],
           _DepositRow(
             title: 'USD Stablecoin',
             subtitle: 'Receive USDT or USDC to your Opei wallet',

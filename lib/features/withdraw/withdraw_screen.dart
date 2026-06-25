@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opei/core/config/feature_flags.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/features/beneficiaries/bank_transfer_country_sheet.dart';
@@ -98,18 +99,20 @@ class WithdrawOptionsSheet extends StatelessWidget {
             },
           ),
           const _RowDivider(),
-          _WithdrawRow(
-            title: 'P2P Exchange',
-            subtitle: 'Sell to buyers and get paid directly',
-            onTap: () {
-              context.pop();
-              context.push(
-                '/p2p?intent=sell',
-                extra: const {'disableTransition': true},
-              );
-            },
-          ),
-          const _RowDivider(),
+          if (FeatureFlags.enableClassicP2P) ...[
+            _WithdrawRow(
+              title: 'P2P Exchange',
+              subtitle: 'Sell to buyers and get paid directly',
+              onTap: () {
+                context.pop();
+                context.push(
+                  '/p2p?intent=sell',
+                  extra: const {'disableTransition': true},
+                );
+              },
+            ),
+            const _RowDivider(),
+          ],
           _WithdrawRow(
             title: 'USD Stablecoin',
             subtitle: 'Send USDT or USDC to your crypto wallet',

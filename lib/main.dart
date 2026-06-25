@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:opei/core/config/environment.dart';
+import 'package:opei/core/config/feature_flags.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/core/utils/asset_preloader.dart';
 import 'package:opei/core/providers/providers.dart';
@@ -614,6 +615,13 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     final location = state.uri.path;
     final session = ref.read(authSessionProvider);
     final quickAuthStatus = ref.read(quickAuthStatusProvider);
+
+    final classicP2PDisabled = !FeatureFlags.enableClassicP2P;
+    final isClassicP2PPath =
+        location == '/p2p' || location.startsWith('/p2p/');
+    if (classicP2PDisabled && isClassicP2PPath) {
+      return '/express-p2p';
+    }
 
     if (location == '/splash') {
       if (!session.isAuthenticated) {
