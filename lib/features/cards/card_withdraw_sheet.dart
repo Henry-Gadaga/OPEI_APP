@@ -61,24 +61,32 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
     return FractionallySizedBox(
       heightFactor: _sheetHeightFactor(context),
       alignment: Alignment.bottomCenter,
-      child: SafeArea(
-        top: false,
-        child: AnimatedPadding(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 8),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: OpeiColors.grey300,
-                  borderRadius: BorderRadius.circular(2),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: OpeiBrand.surface,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(OpeiBrand.radiusSheet),
+          ),
+        ),
+        child: SafeArea(
+          top: false,
+          child: AnimatedPadding(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 10),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: OpeiBrand.hairlineStrong,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
                 ),
-              ),
               const SizedBox(height: 16),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -101,6 +109,7 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -122,7 +131,8 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
           width: 40,
           child: showBack
               ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                      size: 18, color: OpeiBrand.ink),
                   onPressed: state.isSubmitting
                       ? null
                       : () {
@@ -137,7 +147,9 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
             'Withdraw from card',
             style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
-                  fontSize: 18,
+                  fontSize: 17,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.3,
                 ),
             textAlign: TextAlign.center,
           ),
@@ -145,7 +157,8 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
         SizedBox(
           width: 40,
           child: IconButton(
-            icon: const Icon(CupertinoIcons.xmark, size: 18),
+            icon: const Icon(CupertinoIcons.xmark,
+                size: 18, color: OpeiBrand.inkSecondary),
             onPressed: () => context.pop(),
           ),
         ),
@@ -168,98 +181,200 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
   }
 }
 
-class _AmountStep extends ConsumerWidget {
+class _AmountStep extends ConsumerStatefulWidget {
   final TextEditingController controller;
   final CardWithdrawState state;
 
   const _AmountStep({required this.controller, required this.state});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+  ConsumerState<_AmountStep> createState() => _AmountStepState();
+}
+
+class _AmountStepState extends ConsumerState<_AmountStep> {
+  final FocusNode _focus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focus.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _addAmount(int dollars) {
+    final raw = widget.controller.text.trim().replaceAll(',', '');
+    final current = double.tryParse(raw) ?? 0.0;
+    final next = (current + dollars).toStringAsFixed(2);
+    widget.controller.text = next;
+    widget.controller.selection =
+        TextSelection.fromPosition(TextPosition(offset: next.length));
+    ref.read(cardWithdrawControllerProvider.notifier).clearErrorMessage();
+  }
+
+  void _submit() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    final raw = widget.controller.text.trim();
+    final money = Money.parse(
+        raw.isEmpty ? '0' : raw,
+        currency: widget.state.currency);
+    ref.read(cardWithdrawControllerProvider.notifier).previewWithdraw(money);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = widget.state;
+    final currency = state.currency.toUpperCase();
 
     return Column(
       key: const ValueKey('withdraw-amount-step'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 8),
-        Text(
-          'Enter the amount you want to move back to your wallet.',
-          style: theme.textTheme.bodyMedium?.copyWith(
-                color: OpeiColors.grey600,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                letterSpacing: -0.2,
-              ),
+        const SizedBox(height: 20),
+        // ── Label ─────────────────────────────────────────────────────────
+        const Text(
+          'WITHDRAWAL AMOUNT',
           textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: OpeiColors.grey100,
-            borderRadius: BorderRadius.circular(14),
+          style: TextStyle(
+            fontFamily: kPrimaryFontFamily,
+            fontSize: 10.5,
+            fontWeight: FontWeight.w700,
+            color: OpeiBrand.inkTertiary,
+            letterSpacing: 1.1,
           ),
+        ),
+        const SizedBox(height: 36),
+        // ── Giant borderless number input ─────────────────────────────────
+        Center(
           child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
               Text(
-                state.currency.toUpperCase(),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: OpeiColors.grey600,
-                    ),
+                currency,
+                style: const TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                  color: OpeiBrand.inkSecondary,
+                  height: 1,
+                ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
+              const SizedBox(width: 6),
+              IntrinsicWidth(
                 child: TextField(
-                  controller: controller,
+                  controller: widget.controller,
+                  focusNode: _focus,
                   enabled: !state.isPreviewLoading,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  textInputAction: TextInputAction.done,
+                  textAlign: TextAlign.center,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                  ],
+                  style: const TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 58,
+                    fontWeight: FontWeight.w800,
+                    color: OpeiBrand.ink,
+                    letterSpacing: -2,
+                    height: 1,
+                  ),
                   decoration: const InputDecoration(
-                    hintText: '0.00',
+                    hintText: '0',
                     border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
                     enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
                     disabledBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                    filled: false,
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
+                    hintStyle: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 58,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFFDDE8FF),
+                      letterSpacing: -2,
+                      height: 1,
+                    ),
                   ),
-                  style: theme.textTheme.displaySmall?.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: -0.4,
-                      ),
-                  cursorColor: OpeiColors.pureBlack,
-                  textAlignVertical: TextAlignVertical.center,
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-                  onChanged: (_) => ref.read(cardWithdrawControllerProvider.notifier).clearErrorMessage(),
-                  onSubmitted: (_) => _submit(ref, state.currency),
+                  cursorColor: OpeiBrand.primary,
+                  onChanged: (_) => ref
+                      .read(cardWithdrawControllerProvider.notifier)
+                      .clearErrorMessage(),
+                  onSubmitted: (_) => _submit(),
                 ),
               ),
             ],
           ),
         ),
+        const SizedBox(height: 32),
+        // ── Quick-add chips ────────────────────────────────────────────────
+        _QuickWithdrawChips(onAdd: _addAmount),
+        const SizedBox(height: 24),
+        // ── Error ─────────────────────────────────────────────────────────
         if (state.errorMessage?.isNotEmpty == true) ...[
-          const SizedBox(height: 12),
           _ErrorBanner(message: state.errorMessage!),
+          const SizedBox(height: 16),
         ],
-        const SizedBox(height: 20),
+        // ── CTA ───────────────────────────────────────────────────────────
         _PrimaryButton(
-          onPressed: state.isPreviewLoading ? null : () => _submit(ref, state.currency),
+          onPressed: state.isPreviewLoading ? null : _submit,
           label: 'Preview withdrawal',
           isLoading: state.isPreviewLoading,
         ),
       ],
     );
   }
+}
 
-  void _submit(WidgetRef ref, String currency) {
-    FocusManager.instance.primaryFocus?.unfocus();
-    final raw = controller.text.trim();
-    final money = Money.parse(raw.isEmpty ? '0' : raw, currency: currency);
-    ref.read(cardWithdrawControllerProvider.notifier).previewWithdraw(money);
+class _QuickWithdrawChips extends StatelessWidget {
+  final void Function(int) onAdd;
+  const _QuickWithdrawChips({required this.onAdd});
+
+  @override
+  Widget build(BuildContext context) {
+    const amounts = <int>[5, 10, 25, 50];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: amounts.asMap().entries.map((e) {
+        return Padding(
+          padding: EdgeInsets.only(left: e.key == 0 ? 0 : 8),
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onAdd(e.value);
+            },
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              decoration: BoxDecoration(
+                color: OpeiBrand.primaryTint,
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Text(
+                '+\$${e.value}',
+                style: const TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: OpeiBrand.primary,
+                ),
+              ),
+            ),
+          ),
+        );
+      }).toList(),
+    );
   }
 }
 
@@ -297,21 +412,20 @@ class _PreviewStep extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 8),
-        Text(
-          'Review funds movement',
-          style: theme.textTheme.bodyMedium?.copyWith(
-                color: OpeiColors.grey600,
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-          textAlign: TextAlign.center,
+        // ── Hero amount ────────────────────────────────────────────────
+        _HeroAmount(
+          amount: preview.withdrawAmountMoney.format(includeCurrencySymbol: true),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
+
+        // ── Breakdown ─────────────────────────────────────────────────
+        _SectionLabel('PAYMENT BREAKDOWN'),
+        const SizedBox(height: 8),
         Container(
-          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: OpeiColors.grey100,
-            borderRadius: BorderRadius.circular(12),
+            color: OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline, width: 1),
           ),
           child: Column(
             children: [
@@ -319,28 +433,42 @@ class _PreviewStep extends ConsumerWidget {
                 label: 'Withdraw amount',
                 value: preview.withdrawAmountMoney.format(includeCurrencySymbol: true),
               ),
-              const SizedBox(height: 10),
+              const _Divider(),
               _PreviewRow(
                 label: 'Fee',
                 value: preview.feeMoney.format(includeCurrencySymbol: true),
               ),
-              const SizedBox(height: 10),
+              const _Divider(),
               _PreviewRow(
                 label: "You'll receive",
                 value: preview.netMoney.format(includeCurrencySymbol: true),
                 isEmphasis: true,
               ),
-              const SizedBox(height: 10),
-              Divider(color: OpeiColors.grey300.withValues(alpha: 0.6)),
-              const SizedBox(height: 10),
+            ],
+          ),
+        ),
+        const SizedBox(height: 18),
+
+        // ── Card impact ────────────────────────────────────────────────
+        _SectionLabel('AFTER THIS WITHDRAWAL'),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: OpeiBrand.surfaceMuted,
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+            border: Border.all(color: OpeiBrand.hairline, width: 1),
+          ),
+          child: Column(
+            children: [
               _PreviewRow(
                 label: 'Card balance now',
                 value: preview.cardBalanceMoney.format(includeCurrencySymbol: true),
               ),
-              const SizedBox(height: 10),
+              const _Divider(),
               _PreviewRow(
-                label: 'After withdrawal',
+                label: 'Card balance after',
                 value: preview.cardBalanceAfterMoney.format(includeCurrencySymbol: true),
+                isEmphasis: true,
               ),
             ],
           ),
@@ -372,15 +500,17 @@ class _PreviewStep extends ConsumerWidget {
                   ref.read(cardWithdrawControllerProvider.notifier).goBack();
                 },
           style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 9),
-            foregroundColor: OpeiColors.pureBlack,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            foregroundColor: OpeiBrand.primary,
           ),
-          child: Text(
+          child: const Text(
             'Edit amount',
-            style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.1,
+            ),
           ),
         ),
       ],
@@ -390,148 +520,287 @@ class _PreviewStep extends ConsumerWidget {
 
 class _ResultStep extends ConsumerWidget {
   final CardWithdrawState state;
-
   const _ResultStep({required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final success = state.isSuccess && state.result != null;
     final result = state.result;
 
-    return Column(
-      key: const ValueKey('withdraw-result-step'),
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 20),
-        if (success) ...[
-          const SuccessHero(iconHeight: 56, gap: 2),
-          const SizedBox(height: 14),
-        ] else ...[
-          const Icon(
-            Icons.error_rounded,
-            size: 48,
-            color: OpeiColors.errorRed,
+    if (success && result != null) {
+      return Column(
+        key: const ValueKey('withdraw-result-step-success'),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 12),
+          // ── Success icon ────────────────────────────────────────────
+          const Center(child: SuccessHero(iconHeight: 64, gap: 2)),
+          const SizedBox(height: 20),
+          // ── Amount ──────────────────────────────────────────────────
+          Text(
+            result.amountMoney.format(includeCurrencySymbol: true),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 38,
+              fontWeight: FontWeight.w800,
+              color: OpeiBrand.ink,
+              letterSpacing: -1.5,
+              height: 1,
+            ),
           ),
-          const SizedBox(height: 14),
-        ],
-        Text(
-          success ? 'Withdrawal requested' : 'Withdrawal failed',
-          style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 20,
-              ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 6),
-        if (success && result != null)
-          Text(
-            "We'll notify you as soon as the funds land.",
-            style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
-                  fontSize: 13,
-                ),
+          const SizedBox(height: 6),
+          const Text(
+            'Withdrawal complete',
             textAlign: TextAlign.center,
-          )
-        else if (state.errorMessage?.isNotEmpty == true)
-          Text(
-            state.errorMessage!,
-            style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
-                  fontSize: 13,
-                ),
-            textAlign: TextAlign.center,
-          )
-        else
-          Text(
-            'Unable to complete the withdrawal. Try again in a moment.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-                  color: OpeiColors.grey600,
-                  fontSize: 13,
-                ),
-            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.3,
+            ),
           ),
-        const SizedBox(height: 20),
-        if (success && result != null)
+          const SizedBox(height: 4),
+          const Text(
+            "Funds will arrive in your wallet shortly.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              color: OpeiBrand.inkSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 24),
+          // ── Transaction details ──────────────────────────────────────
           Container(
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: OpeiColors.grey100,
-              borderRadius: BorderRadius.circular(12),
+              color: OpeiBrand.surfaceMuted,
+              borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
+              border: Border.all(color: OpeiBrand.hairline),
             ),
             child: Column(
               children: [
-                ReferenceCopyValue(
-                  label: 'Reference',
-                  reference: result.reference,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                  child: ReferenceCopyValue(
+                    label: 'Reference',
+                    reference: result.reference,
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Divider(color: OpeiColors.grey300.withValues(alpha: 0.6)),
-                const SizedBox(height: 8),
+                const _Divider(),
                 _PreviewRow(
                   label: 'Status',
                   value: _titleCase(result.status),
                 ),
-                const SizedBox(height: 6),
+                const _Divider(),
                 _PreviewRow(
                   label: 'Amount',
                   value: result.amountMoney.format(includeCurrencySymbol: true),
                 ),
-                const SizedBox(height: 6),
+                const _Divider(),
                 _PreviewRow(
                   label: 'Fee',
                   value: result.feeMoney.format(includeCurrencySymbol: true),
                 ),
-                const SizedBox(height: 6),
+                const _Divider(),
                 _PreviewRow(
                   label: "You'll receive",
                   value: result.netMoney.format(includeCurrencySymbol: true),
+                  isEmphasis: true,
                 ),
               ],
             ),
           ),
-        const SizedBox(height: 20),
-        SizedBox(
-          width: double.infinity,
-          child: _PrimaryButton(
-            onPressed: () {
-              context.pop();
-            },
-            label: success ? 'Done' : 'Close',
-          ),
-        ),
-        if (!success) ...[
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () {
-              ref.read(cardWithdrawControllerProvider.notifier).goBack();
-            },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-            ),
-            child: Text(
-              'Try again',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-            ),
+          const SizedBox(height: 24),
+          _PrimaryButton(
+            onPressed: () => context.pop(),
+            label: 'Done',
           ),
         ],
+      );
+    }
+
+    // ── Failure state ───────────────────────────────────────────────────
+    return Column(
+      key: const ValueKey('withdraw-result-step-failure'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 12),
+        Center(
+          child: Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: OpeiBrand.danger.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.close_rounded,
+              color: OpeiBrand.danger,
+              size: 38,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Withdrawal failed',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: kPrimaryFontFamily,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: OpeiBrand.ink,
+            letterSpacing: -0.4,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          state.errorMessage?.isNotEmpty == true
+              ? state.errorMessage!
+              : 'Unable to complete the withdrawal. Please try again.',
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontFamily: kPrimaryFontFamily,
+            fontSize: 13,
+            color: OpeiBrand.inkSecondary,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 28),
+        _PrimaryButton(
+          onPressed: () => ref
+              .read(cardWithdrawControllerProvider.notifier)
+              .goBack(),
+          label: 'Try again',
+        ),
+        const SizedBox(height: 10),
+        TextButton(
+          onPressed: () => context.pop(),
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            foregroundColor: OpeiBrand.inkSecondary,
+          ),
+          child: const Text(
+            'Close',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
       ],
     );
   }
 
   String _titleCase(String value) {
     final trimmed = value.trim();
-    if (trimmed.isEmpty) {
-      return 'Pending';
-    }
-    final lower = trimmed.toLowerCase();
-    return lower.split(RegExp(r'[_\s]+')).where((part) => part.isNotEmpty).map((part) {
-      return part[0].toUpperCase() + part.substring(1);
-    }).join(' ');
+    if (trimmed.isEmpty) return 'Pending';
+    return trimmed
+        .toLowerCase()
+        .split(RegExp(r'[_\s]+'))
+        .where((p) => p.isNotEmpty)
+        .map((p) => p[0].toUpperCase() + p.substring(1))
+        .join(' ');
   }
+}
+
+class _HeroAmount extends StatelessWidget {
+  final String amount;
+  const _HeroAmount({required this.amount});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            OpeiBrand.primaryGradientStart,
+            OpeiBrand.primaryGradientEnd,
+          ],
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: OpeiBrand.primary.withValues(alpha: 0.18),
+            offset: const Offset(0, 8),
+            blurRadius: 22,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'YOU\'RE WITHDRAWING',
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: Colors.white70,
+              letterSpacing: 1.4,
+            ),
+          ),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              amount,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 30,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: -0.8,
+                height: 1.05,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  final String label;
+  const _SectionLabel(this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontFamily: kPrimaryFontFamily,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w800,
+          color: OpeiBrand.inkTertiary,
+          letterSpacing: 1.0,
+        ),
+      ),
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+  @override
+  Widget build(BuildContext context) => const Divider(
+        height: 1,
+        thickness: 0.5,
+        color: OpeiBrand.hairline,
+        indent: 14,
+        endIndent: 14,
+      );
 }
 
 class _PreviewRow extends StatelessWidget {
@@ -547,34 +816,40 @@ class _PreviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: theme.textTheme.bodyMedium?.copyWith(
-                color: isEmphasis ? OpeiColors.pureBlack : OpeiColors.grey600,
-                fontWeight: isEmphasis ? FontWeight.w600 : FontWeight.w500,
-                fontSize: 13,
-              ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            softWrap: false,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: isEmphasis ? FontWeight.w600 : FontWeight.w600,
-                  fontSize: isEmphasis ? 15 : 13,
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13,
+              fontWeight: isEmphasis ? FontWeight.w700 : FontWeight.w500,
+              color: isEmphasis ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+              letterSpacing: -0.1,
+            ),
           ),
-        ),
-      ],
+          const SizedBox(width: 10),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                value,
+                style: TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: isEmphasis ? 15 : 13.5,
+                  fontWeight: isEmphasis ? FontWeight.w800 : FontWeight.w700,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -595,16 +870,19 @@ class _PrimaryButton extends StatelessWidget {
     final theme = Theme.of(context);
     final isBusy = isLoading;
 
-    return ElevatedButton(
+    return SizedBox(
+      height: 52,
+      child: ElevatedButton(
       onPressed: isBusy ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: OpeiColors.pureBlack,
+        backgroundColor: OpeiBrand.primary,
         foregroundColor: Colors.white,
-        disabledBackgroundColor: OpeiColors.grey300,
-        disabledForegroundColor: OpeiColors.grey600,
+        disabledBackgroundColor: OpeiBrand.primaryTintStrong,
+        disabledForegroundColor: OpeiBrand.primary.withValues(alpha: 0.6),
         elevation: 0,
-        padding: const EdgeInsets.symmetric(vertical: 11),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCta)),
       ),
       child: isBusy
           ? const SizedBox(
@@ -618,12 +896,13 @@ class _PrimaryButton extends StatelessWidget {
           : Text(
               label,
               style: theme.textTheme.labelLarge?.copyWith(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: -0.2,
+                    letterSpacing: -0.3,
                     color: Colors.white,
                   ),
             ),
+    ),
     );
   }
 }
@@ -640,18 +919,18 @@ class _ErrorBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: OpeiColors.errorRed.withValues(alpha: 0.08),
+        color: OpeiBrand.danger.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: OpeiColors.errorRed, size: 16),
+          const Icon(Icons.error_outline, color: OpeiBrand.danger, size: 16),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
               message,
               style: theme.textTheme.bodySmall?.copyWith(
-                    color: OpeiColors.errorRed,
+                    color: OpeiBrand.danger,
                     fontSize: 11,
                   ),
             ),
@@ -680,12 +959,12 @@ class _StatusBanner extends StatelessWidget {
     final IconData icon;
 
     if (isWarning) {
-      background = const Color(0xFFFFF8E6);
-      foreground = const Color(0xFFB25B00);
+      background = const Color(0xFFFFF6E0);
+      foreground = const Color(0xFF8A5A00);
       icon = Icons.info_outline_rounded;
     } else {
-      background = OpeiColors.pureBlack.withValues(alpha: 0.05);
-      foreground = OpeiColors.pureBlack;
+      background = OpeiBrand.primaryTint;
+      foreground = OpeiBrand.primary;
       icon = CupertinoIcons.lightbulb;
     }
 
