@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/features/auth/verify_email/verify_email_screen.dart';
 import 'package:opei/features/auth/verify_email/verify_email_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/core/storage/secure_storage_service.dart';
 
 void main() {
@@ -118,6 +119,9 @@ Future<_VerifyEmailScreenHarness> _pumpVerifyEmailScreen(
       ],
       child: MaterialApp.router(
         routerConfig: router,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         theme: ThemeData.from(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         ),

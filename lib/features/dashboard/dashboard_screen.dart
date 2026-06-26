@@ -15,6 +15,7 @@ import 'package:opei/features/profile/profile_screen.dart';
 import 'package:opei/features/transactions/transactions_screen.dart';
 import 'package:opei/features/transactions/widgets/transaction_detail_sheet.dart';
 import 'package:opei/features/withdraw/withdraw_screen.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
@@ -51,6 +52,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final authSession = ref.watch(authSessionProvider);
     final agentAccess = ref.watch(expressAgentAccessProvider);
     final isVerifiedSession =
@@ -108,23 +110,27 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     ];
 
     final navItems = <_NavDef>[
-      const _NavDef(Icons.home_outlined, Icons.home_rounded, 'Home'),
-      const _NavDef(
+      _NavDef(Icons.home_outlined, Icons.home_rounded, l10n.dashboardNavHome),
+      _NavDef(
         Icons.credit_card_outlined,
         Icons.credit_card_rounded,
-        'Cards',
+        l10n.dashboardNavCards,
       ),
-      const _NavDef(
+      _NavDef(
         Icons.receipt_long_outlined,
         Icons.receipt_long_rounded,
-        'Activity',
+        l10n.dashboardNavActivity,
       ),
       if (showAgentTab)
-        const _NavDef(Icons.bolt_outlined, Icons.bolt_rounded, 'Agent'),
-      const _NavDef(
+        _NavDef(
+          Icons.bolt_outlined,
+          Icons.bolt_rounded,
+          l10n.dashboardNavAgent,
+        ),
+      _NavDef(
         Icons.person_outline_rounded,
         Icons.person_rounded,
-        'Profile',
+        l10n.dashboardNavProfile,
       ),
     ];
 
@@ -177,6 +183,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dash = ref.watch(dashboardControllerProvider);
     final profile = ref.watch(profileControllerProvider);
     final controller = ref.read(dashboardControllerProvider.notifier);
@@ -197,7 +204,7 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
     final firstName = _firstName(profile.profile);
 
     final hasName = firstName.isNotEmpty;
-    final greeting = _greetingForHour();
+    final greeting = _greetingForHour(l10n);
 
     final topSection = _TopFixedSection(
       pad: pad,
@@ -281,11 +288,11 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
     );
   }
 
-  String _greetingForHour() {
+  String _greetingForHour(AppLocalizations l10n) {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Good morning';
-    if (h < 17) return 'Good afternoon';
-    return 'Good evening';
+    if (h < 12) return l10n.dashboardGreetingMorning;
+    if (h < 17) return l10n.dashboardGreetingAfternoon;
+    return l10n.dashboardGreetingEvening;
   }
 
   String _firstName(FullProfileResponse? p) {
@@ -386,6 +393,7 @@ class _ActivityPanelContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final transactions = dash.recentTransactions;
     final showSkeleton = dash.showTransactionsSkeleton;
     final mqBottom = MediaQuery.of(context).padding.bottom;
@@ -445,9 +453,9 @@ class _ActivityPanelContent extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
-                    'Recent activity',
+                    l10n.dashboardRecentActivity,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 15,
@@ -469,11 +477,11 @@ class _ActivityPanelContent extends StatelessWidget {
                       color: OpeiBrand.primaryTint,
                       borderRadius: BorderRadius.circular(999),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'See all',
+                          l10n.dashboardSeeAll,
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
                             fontSize: 12,
@@ -507,6 +515,7 @@ class _PanelEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
       child: Column(
@@ -525,8 +534,8 @@ class _PanelEmptyState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'No transactions yet',
+          Text(
+            l10n.dashboardNoTransactionsTitle,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 15,
@@ -536,8 +545,8 @@ class _PanelEmptyState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Your money moves will appear here.',
+          Text(
+            l10n.dashboardNoTransactionsSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
@@ -562,6 +571,7 @@ class _PanelErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
       child: Column(
@@ -580,8 +590,8 @@ class _PanelErrorState extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Couldn\'t load activity',
+          Text(
+            l10n.dashboardActivityLoadFailedTitle,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 15,
@@ -612,8 +622,8 @@ class _PanelErrorState extends StatelessWidget {
                 color: OpeiBrand.primaryTint,
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: const Text(
-                'Try again',
+              child: Text(
+                l10n.retryCta,
                 style: TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 13,
@@ -737,6 +747,7 @@ class _BalanceBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final wallet = dash.wallet;
     final amount = wallet?.formattedAvailableBalance ?? r'$0.00';
     final reserved = wallet?.reservedBalance.format(
@@ -840,7 +851,7 @@ class _BalanceBlock extends StatelessWidget {
                 ),
                 const SizedBox(width: 5),
                 Text(
-                  'USD Wallet',
+                  l10n.dashboardUsdWallet,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 12,
@@ -864,7 +875,7 @@ class _BalanceBlock extends StatelessWidget {
                   const SizedBox(width: 3),
                   Flexible(
                     child: Text(
-                      '$reserved held',
+                      l10n.dashboardReservedHeld(reserved ?? ''),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -904,8 +915,8 @@ class _BalanceBlock extends StatelessWidget {
                   width: 0.8,
                 ),
               ),
-              child: const Text(
-                'Retry',
+              child: Text(
+                l10n.retryCta,
                 style: TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 12,
@@ -938,23 +949,28 @@ class _ActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _ActionChip(icon: Icons.add_rounded, label: 'Add', onTap: onAdd),
+        _ActionChip(
+          icon: Icons.add_rounded,
+          label: l10n.dashboardActionAdd,
+          onTap: onAdd,
+        ),
         _ActionChip(
           icon: Icons.arrow_upward_rounded,
-          label: 'Send',
+          label: l10n.dashboardActionSend,
           onTap: onSend,
         ),
         _ActionChip(
           icon: Icons.arrow_downward_rounded,
-          label: 'Withdraw',
+          label: l10n.dashboardActionWithdraw,
           onTap: onWithdraw,
         ),
         _ActionChip(
           icon: Icons.credit_card_rounded,
-          label: 'Cards',
+          label: l10n.dashboardActionCards,
           onTap: onCards,
         ),
       ],

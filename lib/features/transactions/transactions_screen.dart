@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/data/models/transaction_summary.dart';
 import 'package:opei/features/dashboard/widgets/transaction_widgets.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/features/transactions/transactions_controller.dart';
 import 'package:opei/features/transactions/transactions_state.dart';
 import 'package:opei/features/transactions/widgets/transaction_detail_sheet.dart';
@@ -12,8 +13,7 @@ class TransactionsScreen extends ConsumerStatefulWidget {
   const TransactionsScreen({super.key});
 
   @override
-  ConsumerState<TransactionsScreen> createState() =>
-      _TransactionsScreenState();
+  ConsumerState<TransactionsScreen> createState() => _TransactionsScreenState();
 }
 
 class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
@@ -53,6 +53,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(transactionsControllerProvider);
     final controller = ref.read(transactionsControllerProvider.notifier);
 
@@ -86,11 +87,9 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                   ),
                 ),
                 if (summary != null && !summary.isEmpty)
-                  SliverToBoxAdapter(
-                    child: _SummaryCard(summary: summary),
-                  ),
+                  SliverToBoxAdapter(child: _SummaryCard(summary: summary)),
                 SliverToBoxAdapter(
-                  child: _buildBody(context, state, controller),
+                  child: _buildBody(context, state, controller, l10n),
                 ),
                 if (hasList)
                   SliverToBoxAdapter(
@@ -111,6 +110,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
     BuildContext context,
     TransactionsState state,
     TransactionsController controller,
+    AppLocalizations l10n,
   ) {
     if (state.showSkeleton) {
       return const Padding(
@@ -126,24 +126,23 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
           icon: Icons.wifi_off_rounded,
           iconColor: OpeiBrand.danger,
           iconBg: const Color(0xFFFDECEC),
-          title: 'Couldn\'t load activity',
+          title: l10n.dashboardActivityLoadFailedTitle,
           subtitle: state.error!,
-          actionLabel: 'Try again',
+          actionLabel: l10n.retryCta,
           onAction: () => controller.refresh(),
         ),
       );
     }
 
     if (state.transactions.isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.fromLTRB(20, 20, 20, 32),
         child: _StatusSlot(
           icon: Icons.receipt_long_rounded,
           iconColor: OpeiBrand.primary,
           iconBg: OpeiBrand.primaryTint,
-          title: 'No activity yet',
-          subtitle:
-              'You haven\'t made any moves yet.\nNew activity will appear here instantly.',
+          title: l10n.transactionsNoActivityTitle,
+          subtitle: l10n.transactionsNoActivitySubtitle,
         ),
       );
     }
@@ -161,8 +160,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
             padding: const EdgeInsets.only(top: 4),
             child: TransactionGroupsView(
               transactions: state.transactions,
-              onTransactionTap: (tx) =>
-                  showTransactionDetailSheet(context, tx),
+              onTransactionTap: (tx) => showTransactionDetailSheet(context, tx),
             ),
           ),
         ),
@@ -183,6 +181,7 @@ class _ListFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bottomPad = MediaQuery.of(context).padding.bottom + 24;
 
     if (state.isLoadingMore) {
@@ -225,13 +224,15 @@ class _ListFooter extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 18, vertical: 8),
+                    horizontal: 18,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: OpeiBrand.primaryTint,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: const Text(
-                    'Try again',
+                  child: Text(
+                    l10n.retryCta,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 12.5,
@@ -251,9 +252,9 @@ class _ListFooter extends StatelessWidget {
     if (!state.hasMore) {
       return Padding(
         padding: EdgeInsets.fromLTRB(20, 24, 20, bottomPad),
-        child: const Center(
+        child: Center(
           child: Text(
-            "You're all caught up",
+            l10n.transactionsAllCaughtUp,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 12,
@@ -283,8 +284,13 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final countLabel =
-        txCount == 0 ? '' : '$txCount ${txCount == 1 ? 'transaction' : 'transactions'}';
+    final l10n = AppLocalizations.of(context)!;
+    final countLabel = txCount == 0
+        ? ''
+        : l10n.transactionsCountLabel(
+            txCount,
+            txCount == 1 ? l10n.transactionsSingle : l10n.transactionsPlural,
+          );
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 4),
@@ -294,9 +300,9 @@ class _Header extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Activity',
+                  l10n.dashboardNavActivity,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 30,
@@ -312,8 +318,9 @@ class _Header extends StatelessWidget {
                   height: 18,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(OpeiBrand.primary),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      OpeiBrand.primary,
+                    ),
                   ),
                 ),
             ],
@@ -321,8 +328,8 @@ class _Header extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             countLabel.isEmpty
-                ? 'Every move on your account, in one place.'
-                : '$countLabel · all on one timeline',
+                ? l10n.transactionsHeaderSubtitle
+                : l10n.transactionsHeaderTimeline(countLabel),
             style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 13.5,
@@ -348,6 +355,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: OpeiBrand.surface,
@@ -392,7 +400,7 @@ class _SummaryCard extends StatelessWidget {
                     icon: Icons.south_rounded,
                     iconBg: const Color(0xFFE6F6EA),
                     iconFg: const Color(0xFF137A33),
-                    label: 'Money in',
+                    label: l10n.transactionsMoneyIn,
                     amount: summary.totalIn.format(includeCurrencySymbol: true),
                     amountColor: const Color(0xFF137A33),
                   ),
@@ -403,9 +411,10 @@ class _SummaryCard extends StatelessWidget {
                     icon: Icons.north_rounded,
                     iconBg: OpeiBrand.surfaceMuted,
                     iconFg: OpeiBrand.ink,
-                    label: 'Money out',
-                    amount:
-                        summary.totalOut.format(includeCurrencySymbol: true),
+                    label: l10n.transactionsMoneyOut,
+                    amount: summary.totalOut.format(
+                      includeCurrencySymbol: true,
+                    ),
                     amountColor: OpeiBrand.ink,
                   ),
                 ),
@@ -571,7 +580,9 @@ class _StatusSlot extends StatelessWidget {
                 borderRadius: BorderRadius.circular(999),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 22, vertical: 11),
+                    horizontal: 22,
+                    vertical: 11,
+                  ),
                   decoration: BoxDecoration(
                     color: OpeiBrand.primaryTint,
                     borderRadius: BorderRadius.circular(999),

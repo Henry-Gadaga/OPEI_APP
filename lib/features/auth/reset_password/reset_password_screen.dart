@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:opei/features/auth/reset_password/reset_password_controller.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
@@ -80,6 +81,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
   }
 
   void _showSuccessSheet() {
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       isDismissible: false,
@@ -116,8 +118,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'PIN updated',
+            Text(
+              l10n.resetPinUpdatedTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: kPrimaryFontFamily,
@@ -128,8 +130,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
-              'Your new 6-digit PIN is set. Sign in to continue.',
+            Text(
+              l10n.resetPinUpdatedSubtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: kPrimaryFontFamily,
@@ -142,7 +144,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
             ),
             const SizedBox(height: 22),
             OpeiPrimaryButton(
-              label: 'Go to sign in',
+              label: l10n.resetPinGoToSignInCta,
               onPressed: () {
                 Navigator.of(sheetContext).pop();
                 context.go('/login');
@@ -157,6 +159,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(resetPasswordControllerProvider(widget.email));
     final isLoading = state.isLoading;
 
@@ -244,7 +247,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                   decoration: BoxDecoration(
                     color: OpeiBrand.surface,
                     borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(28)),
+                      top: Radius.circular(28),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.06),
@@ -263,8 +267,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Code & new PIN',
+                              Text(
+                                l10n.resetPinCodeAndNewPinTitle,
                                 style: TextStyle(
                                   fontFamily: kPrimaryFontFamily,
                                   fontSize: 22,
@@ -277,7 +281,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               const SizedBox(height: 6),
                               Text.rich(
                                 TextSpan(
-                                  text: 'Enter the 6-digit code we sent to ',
+                                  text: l10n.resetPinCodePrefix,
                                   style: const TextStyle(
                                     fontFamily: kPrimaryFontFamily,
                                     fontSize: 14,
@@ -294,9 +298,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                         color: OpeiBrand.ink,
                                       ),
                                     ),
-                                    const TextSpan(
-                                      text: ' and choose your new PIN.',
-                                    ),
+                                    TextSpan(text: l10n.resetPinCodeSuffix),
                                   ],
                                 ),
                               ),
@@ -308,8 +310,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               OpeiTextField(
                                 controller: _codeController,
                                 focusNode: _codeFocusNode,
-                                label: 'Verification code',
-                                hint: '6-digit code',
+                                label: l10n.resetPinVerificationCodeLabel,
+                                hint: l10n.resetPinVerificationCodeHint,
                                 keyboardType: TextInputType.number,
                                 textInputAction: TextInputAction.next,
                                 enabled: !isLoading,
@@ -330,9 +332,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                 ),
                                 onChanged: (value) {
                                   ref
-                                      .read(resetPasswordControllerProvider(
-                                              widget.email)
-                                          .notifier)
+                                      .read(
+                                        resetPasswordControllerProvider(
+                                          widget.email,
+                                        ).notifier,
+                                      )
                                       .updateCode(value);
                                 },
                                 onSubmitted: (_) =>
@@ -342,8 +346,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               OpeiTextField(
                                 controller: _newPasswordController,
                                 focusNode: _newPasswordFocusNode,
-                                label: 'New 6-digit PIN',
-                                hint: '••••••',
+                                label: l10n.resetPinNewPinLabel,
+                                hint: l10n.pinHint,
                                 keyboardType: TextInputType.number,
                                 textInputAction: TextInputAction.next,
                                 enabled: !isLoading,
@@ -384,9 +388,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                 ),
                                 onChanged: (value) {
                                   ref
-                                      .read(resetPasswordControllerProvider(
-                                              widget.email)
-                                          .notifier)
+                                      .read(
+                                        resetPasswordControllerProvider(
+                                          widget.email,
+                                        ).notifier,
+                                      )
                                       .updateNewPassword(value);
                                 },
                                 onSubmitted: (_) =>
@@ -396,8 +402,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               OpeiTextField(
                                 controller: _confirmPasswordController,
                                 focusNode: _confirmPasswordFocusNode,
-                                label: 'Confirm new PIN',
-                                hint: '••••••',
+                                label: l10n.resetPinConfirmPinLabel,
+                                hint: l10n.pinHint,
                                 keyboardType: TextInputType.number,
                                 textInputAction: TextInputAction.done,
                                 enabled: !isLoading,
@@ -409,7 +415,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                 ],
                                 errorText: state.confirmPasswordError,
                                 helperText: state.confirmPasswordError == null
-                                    ? "You'll use this to sign in and authorise payments."
+                                    ? l10n.resetPinHelperText
                                     : null,
                                 prefix: const Padding(
                                   padding: EdgeInsets.only(right: 10),
@@ -441,9 +447,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                 ),
                                 onChanged: (value) {
                                   ref
-                                      .read(resetPasswordControllerProvider(
-                                              widget.email)
-                                          .notifier)
+                                      .read(
+                                        resetPasswordControllerProvider(
+                                          widget.email,
+                                        ).notifier,
+                                      )
                                       .updateConfirmPassword(value);
                                 },
                                 onSubmitted: (_) => _handleSubmit(),
@@ -453,13 +461,17 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                         ),
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.fromLTRB(24, 20, 24, 20 + bottomPad),
+                        padding: EdgeInsets.fromLTRB(
+                          24,
+                          20,
+                          24,
+                          20 + bottomPad,
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             OpeiPrimaryButton(
-                              label: 'Reset PIN',
+                              label: l10n.resetPinCta,
                               loading: isLoading,
                               onPressed: _isFormValid && !isLoading
                                   ? _handleSubmit
@@ -472,8 +484,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               crossAxisAlignment: WrapCrossAlignment.center,
                               spacing: 4,
                               children: [
-                                const Text(
-                                  "Didn't get a code?",
+                                Text(
+                                  l10n.resetPinDidntGetCode,
                                   style: TextStyle(
                                     fontFamily: kPrimaryFontFamily,
                                     fontSize: 14,
@@ -484,8 +496,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                 ),
                                 GestureDetector(
                                   onTap: isLoading ? null : _handleBack,
-                                  child: const Text(
-                                    'Request new',
+                                  child: Text(
+                                    l10n.resetPinRequestNewCta,
                                     style: TextStyle(
                                       fontFamily: kPrimaryFontFamily,
                                       fontSize: 14,
@@ -540,8 +552,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Reset PIN',
+                      Text(
+                        l10n.resetPinTitle,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 28,
@@ -553,7 +565,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Enter the code and choose a new PIN.',
+                        l10n.resetPinSubtitle,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 14,

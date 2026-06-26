@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/core/money/money.dart';
 import 'package:opei/data/models/virtual_card.dart';
 import 'package:opei/features/cards/card_topup_controller.dart';
@@ -31,10 +32,7 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
     _topUpController = ref.read(cardTopUpControllerProvider.notifier);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final currency = widget.card.balance?.currency ?? 'USD';
-      _topUpController.attachCard(
-        cardId: widget.card.id,
-        currency: currency,
-      );
+      _topUpController.attachCard(cardId: widget.card.id, currency: currency);
     });
   }
 
@@ -73,7 +71,8 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
             padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -121,6 +120,7 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
   }
 
   Widget _buildHeader(BuildContext context, CardTopUpState state) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final showBack = state.step != CardTopUpStep.amountEntry;
 
@@ -130,34 +130,42 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
           width: 40,
           child: showBack
               ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      size: 18, color: OpeiBrand.ink),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 18,
+                    color: OpeiBrand.ink,
+                  ),
                   onPressed: state.isSubmitting
                       ? null
                       : () {
                           HapticFeedback.selectionClick();
-                          ref.read(cardTopUpControllerProvider.notifier).goBack();
+                          ref
+                              .read(cardTopUpControllerProvider.notifier)
+                              .goBack();
                         },
                 )
               : const SizedBox.shrink(),
         ),
         Expanded(
           child: Text(
-            'Top up card',
+            l10n.topupSheetTitle,
             style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 17,
-                  color: OpeiBrand.ink,
-                  letterSpacing: -0.3,
-                ),
+              fontWeight: FontWeight.w700,
+              fontSize: 17,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.3,
+            ),
             textAlign: TextAlign.center,
           ),
         ),
         SizedBox(
           width: 40,
           child: IconButton(
-            icon: const Icon(CupertinoIcons.xmark,
-                size: 18, color: OpeiBrand.inkSecondary),
+            icon: const Icon(
+              CupertinoIcons.xmark,
+              size: 18,
+              color: OpeiBrand.inkSecondary,
+            ),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
@@ -168,10 +176,7 @@ class _CardTopUpSheetState extends ConsumerState<CardTopUpSheet> {
   Widget _buildStepContent(BuildContext context, CardTopUpState state) {
     switch (state.step) {
       case CardTopUpStep.amountEntry:
-        return _AmountStep(
-          controller: _amountController,
-          state: state,
-        );
+        return _AmountStep(controller: _amountController, state: state);
       case CardTopUpStep.preview:
         return _PreviewStep(state: state);
       case CardTopUpStep.result:
@@ -212,8 +217,9 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
     final current = double.tryParse(raw) ?? 0.0;
     final next = (current + dollars).toStringAsFixed(2);
     widget.controller.text = next;
-    widget.controller.selection =
-        TextSelection.fromPosition(TextPosition(offset: next.length));
+    widget.controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: next.length),
+    );
     ref.read(cardTopUpControllerProvider.notifier).clearErrorMessage();
   }
 
@@ -221,13 +227,15 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
     FocusManager.instance.primaryFocus?.unfocus();
     final raw = widget.controller.text.trim();
     final money = Money.parse(
-        raw.isEmpty ? '0' : raw,
-        currency: widget.state.currency);
+      raw.isEmpty ? '0' : raw,
+      currency: widget.state.currency,
+    );
     ref.read(cardTopUpControllerProvider.notifier).previewTopUp(money);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = widget.state;
     final currency = state.currency.toUpperCase();
 
@@ -237,8 +245,8 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
       children: [
         const SizedBox(height: 20),
         // ── Label ─────────────────────────────────────────────────────────
-        const Text(
-          'TOP UP AMOUNT',
+        Text(
+          l10n.topupAmountLabel,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: kPrimaryFontFamily,
@@ -273,8 +281,9 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
                   focusNode: _focus,
                   enabled: !state.isPreviewLoading,
                   textAlign: TextAlign.center,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                   ],
@@ -328,7 +337,7 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
         // ── CTA ───────────────────────────────────────────────────────────
         _PrimaryButton(
           onPressed: state.isPreviewLoading ? null : _submit,
-          label: 'Preview top-up',
+          label: l10n.topupPreviewCta,
           isLoading: state.isPreviewLoading,
         ),
       ],
@@ -354,8 +363,7 @@ class _QuickTopUpChips extends StatelessWidget {
               onAdd(e.value);
             },
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
               decoration: BoxDecoration(
                 color: OpeiBrand.primaryTint,
                 borderRadius: BorderRadius.circular(999),
@@ -384,17 +392,18 @@ class _PreviewStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final preview = state.preview;
 
     if (preview == null) {
-      return const Column(
+      return Column(
         key: ValueKey('preview-step-empty'),
         children: [
           SizedBox(height: 40),
           CupertinoActivityIndicator(radius: 14),
           SizedBox(height: 16),
           Text(
-            'Loading preview…',
+            l10n.loadingPreview,
             style: TextStyle(
               fontSize: 13,
               color: OpeiBrand.inkSecondary,
@@ -420,7 +429,7 @@ class _PreviewStep extends ConsumerWidget {
         const SizedBox(height: 18),
 
         // ── Breakdown ────────────────────────────────────────────────────
-        _SectionLabel('PAYMENT BREAKDOWN'),
+        _SectionLabel(l10n.paymentBreakdown),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
@@ -431,20 +440,22 @@ class _PreviewStep extends ConsumerWidget {
           child: Column(
             children: [
               _PreviewRow(
-                label: 'Top-up amount',
-                value: preview.topUpAmountMoney
-                    .format(includeCurrencySymbol: true),
+                label: l10n.topupAmountRow,
+                value: preview.topUpAmountMoney.format(
+                  includeCurrencySymbol: true,
+                ),
               ),
               const _Divider(),
               _PreviewRow(
-                label: 'Fee',
+                label: l10n.feeRow,
                 value: preview.feeMoney.format(includeCurrencySymbol: true),
               ),
               const _Divider(),
               _PreviewRow(
-                label: 'Total to pay',
-                value: preview.totalDebitMoney
-                    .format(includeCurrencySymbol: true),
+                label: l10n.totalToPayRow,
+                value: preview.totalDebitMoney.format(
+                  includeCurrencySymbol: true,
+                ),
                 isEmphasis: true,
               ),
             ],
@@ -454,7 +465,7 @@ class _PreviewStep extends ConsumerWidget {
         const SizedBox(height: 18),
 
         // ── Wallet impact ───────────────────────────────────────────────
-        _SectionLabel('AFTER THIS PAYMENT'),
+        _SectionLabel(l10n.afterThisPayment),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -479,9 +490,9 @@ class _PreviewStep extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Wallet balance',
+                  l10n.walletBalanceRow,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -491,8 +502,9 @@ class _PreviewStep extends ConsumerWidget {
                 ),
               ),
               Text(
-                preview.walletBalanceAfterMoney
-                    .format(includeCurrencySymbol: true),
+                preview.walletBalanceAfterMoney.format(
+                  includeCurrencySymbol: true,
+                ),
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -520,7 +532,7 @@ class _PreviewStep extends ConsumerWidget {
                   FocusManager.instance.primaryFocus?.unfocus();
                   await controller.confirmTopUp();
                 },
-          label: 'Confirm top-up',
+          label: l10n.confirmTopupCta,
           isLoading: state.isSubmitting,
         ),
         const SizedBox(height: 8),
@@ -535,8 +547,8 @@ class _PreviewStep extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 10),
             foregroundColor: OpeiBrand.primary,
           ),
-          child: const Text(
-            'Edit amount',
+          child: Text(
+            l10n.editAmountCta,
             style: TextStyle(
               fontSize: 13.5,
               fontWeight: FontWeight.w600,
@@ -555,6 +567,7 @@ class _HeroAmount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
@@ -579,8 +592,8 @@ class _HeroAmount extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'YOU\'RE TOPPING UP',
+          Text(
+            l10n.youAreToppingUpLabel,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w800,
@@ -634,12 +647,12 @@ class _Divider extends StatelessWidget {
   const _Divider();
   @override
   Widget build(BuildContext context) => const Divider(
-        height: 1,
-        thickness: 0.5,
-        color: OpeiBrand.hairline,
-        indent: 14,
-        endIndent: 14,
-      );
+    height: 1,
+    thickness: 0.5,
+    color: OpeiBrand.hairline,
+    indent: 14,
+    endIndent: 14,
+  );
 }
 
 class _ResultStep extends ConsumerWidget {
@@ -648,6 +661,7 @@ class _ResultStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final success = state.isSuccess && state.result != null;
     final result = state.result;
 
@@ -674,8 +688,8 @@ class _ResultStep extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Top-up complete',
+          Text(
+            l10n.topupCompleteTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
@@ -686,8 +700,8 @@ class _ResultStep extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Your card balance will update shortly.',
+          Text(
+            l10n.topupCompleteSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
@@ -709,24 +723,26 @@ class _ResultStep extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                   child: ReferenceCopyValue(
-                    label: 'Reference',
+                    label: l10n.referenceLabel,
                     reference: result.reference,
                   ),
                 ),
                 const _Divider(),
                 _PreviewRow(
-                  label: 'Amount',
+                  label: l10n.amountLabel,
                   value: result.amountMoney.format(includeCurrencySymbol: true),
                 ),
                 const _Divider(),
                 _PreviewRow(
-                  label: 'Fee',
+                  label: l10n.feeRow,
                   value: result.feeMoney.format(includeCurrencySymbol: true),
                 ),
                 const _Divider(),
                 _PreviewRow(
-                  label: 'Total paid',
-                  value: result.totalDebitMoney.format(includeCurrencySymbol: true),
+                  label: l10n.totalPaidLabel,
+                  value: result.totalDebitMoney.format(
+                    includeCurrencySymbol: true,
+                  ),
                   isEmphasis: true,
                 ),
               ],
@@ -735,7 +751,7 @@ class _ResultStep extends ConsumerWidget {
           const SizedBox(height: 24),
           _PrimaryButton(
             onPressed: () => Navigator.of(context).pop(),
-            label: 'Done',
+            label: l10n.doneCta,
           ),
         ],
       );
@@ -763,8 +779,8 @@ class _ResultStep extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
-          'Top-up failed',
+        Text(
+          l10n.topupFailedTitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: kPrimaryFontFamily,
@@ -778,7 +794,7 @@ class _ResultStep extends ConsumerWidget {
         Text(
           state.errorMessage?.isNotEmpty == true
               ? state.errorMessage!
-              : 'Unable to complete top-up. Please try again.',
+              : l10n.topupFailedSubtitle,
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
@@ -789,10 +805,9 @@ class _ResultStep extends ConsumerWidget {
         ),
         const SizedBox(height: 28),
         _PrimaryButton(
-          onPressed: () => ref
-              .read(cardTopUpControllerProvider.notifier)
-              .goBack(),
-          label: 'Try again',
+          onPressed: () =>
+              ref.read(cardTopUpControllerProvider.notifier).goBack(),
+          label: l10n.tryAgainCta,
         ),
         const SizedBox(height: 10),
         TextButton(
@@ -801,8 +816,8 @@ class _ResultStep extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 10),
             foregroundColor: OpeiBrand.inkSecondary,
           ),
-          child: const Text(
-            'Close',
+          child: Text(
+            l10n.closeCta,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 14,
@@ -892,7 +907,8 @@ class _PrimaryButton extends StatelessWidget {
           elevation: 0,
           padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(OpeiBrand.radiusCta)),
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
+          ),
         ),
         child: isBusy
             ? const SizedBox(
@@ -906,11 +922,11 @@ class _PrimaryButton extends StatelessWidget {
             : Text(
                 label,
                 style: theme.textTheme.labelLarge?.copyWith(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -0.3,
-                      color: Colors.white,
-                    ),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                  color: Colors.white,
+                ),
               ),
       ),
     );
@@ -940,9 +956,9 @@ class _ErrorBanner extends StatelessWidget {
             child: Text(
               message,
               style: theme.textTheme.bodySmall?.copyWith(
-                    color: OpeiBrand.danger,
-                    fontSize: 11,
-                  ),
+                color: OpeiBrand.danger,
+                fontSize: 11,
+              ),
             ),
           ),
         ],
@@ -957,7 +973,10 @@ class _StatusBanner extends StatelessWidget {
   final String message;
   final _BannerVariant variant;
 
-  const _StatusBanner({required this.message, this.variant = _BannerVariant.info});
+  const _StatusBanner({
+    required this.message,
+    this.variant = _BannerVariant.info,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -998,10 +1017,10 @@ class _StatusBanner extends StatelessWidget {
             child: Text(
               message,
               style: theme.textTheme.bodySmall?.copyWith(
-                    color: foreground,
-                    fontSize: 11,
-                    height: 1.4,
-                  ),
+                color: foreground,
+                fontSize: 11,
+                height: 1.4,
+              ),
             ),
           ),
         ],

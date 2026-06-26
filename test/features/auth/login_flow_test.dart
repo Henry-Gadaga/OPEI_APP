@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opei/features/auth/login/login_controller.dart';
 import 'package:opei/features/auth/login/login_screen.dart';
 import 'package:opei/features/auth/login/login_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
 void main() {
@@ -120,6 +121,9 @@ Future<void> _pumpLoginFlowApp(
       ],
       child: MaterialApp.router(
         routerConfig: router,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         theme: ThemeData.from(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         ),

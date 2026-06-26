@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/features/auth/login/login_controller.dart';
 import 'package:opei/theme.dart';
@@ -165,6 +166,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(loginControllerProvider);
     final isLoading = state.isLoading;
     final media = MediaQuery.of(context);
@@ -270,8 +272,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Welcome line inside card
-                        const Text(
-                          'Welcome back',
+                        Text(
+                          l10n.loginWelcomeBack,
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
                             fontSize: 22,
@@ -282,8 +284,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Sign in to continue to your account',
+                        Text(
+                          l10n.loginWelcomeSubtitle,
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
                             fontSize: 14,
@@ -301,13 +303,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ],
 
                         // Email field
-                        const _FieldLabel(text: 'Email address'),
+                        _FieldLabel(text: l10n.emailAddressLabel),
                         const SizedBox(height: 8),
                         OpeiTextField(
                           controller: _emailController,
                           focusNode: _emailFocusNode,
                           label: '',
-                          hint: 'name@example.com',
+                          hint: l10n.emailAddressHint,
                           keyboardType: TextInputType.emailAddress,
                           textInputAction: TextInputAction.next,
                           enabled: !isLoading,
@@ -333,15 +335,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         // PIN field
                         Row(
                           children: [
-                            const Expanded(
-                              child: _FieldLabel(text: '6-digit PIN'),
-                            ),
+                            Expanded(child: _FieldLabel(text: l10n.pinLabel)),
                             GestureDetector(
                               onTap: isLoading
                                   ? null
                                   : () => context.push('/forgot-password'),
-                              child: const Text(
-                                'Forgot PIN?',
+                              child: Text(
+                                l10n.forgotPinCta,
                                 style: TextStyle(
                                   fontFamily: kPrimaryFontFamily,
                                   fontSize: 12.5,
@@ -358,7 +358,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           controller: _pinController,
                           focusNode: _pinFocusNode,
                           label: '',
-                          hint: '••••••',
+                          hint: l10n.pinHint,
                           keyboardType: TextInputType.number,
                           textInputAction: TextInputAction.done,
                           enabled: !isLoading,
@@ -405,7 +405,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                         const SizedBox(height: 28),
                         OpeiPrimaryButton(
-                          label: 'Sign in',
+                          label: l10n.loginSignInCta,
                           loading: isLoading,
                           onPressed: _isFormValid && !isLoading
                               ? _handleLogin
@@ -441,8 +441,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                               label: Text(
                                 _isFaceBiometric
-                                    ? 'Use Face ID'
-                                    : 'Use fingerprint',
+                                    ? l10n.loginUseFaceId
+                                    : l10n.loginUseFingerprint,
                                 style: const TextStyle(
                                   fontFamily: kPrimaryFontFamily,
                                   fontSize: 14,
@@ -469,7 +469,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 horizontal: 12,
                               ),
                               child: Text(
-                                'or',
+                                l10n.orSeparator,
                                 style: TextStyle(
                                   fontFamily: kPrimaryFontFamily,
                                   fontSize: 12,
@@ -509,8 +509,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 ),
                               ),
                             ),
-                            child: const Text(
-                              'Create new account',
+                            child: Text(
+                              l10n.createNewAccountCta,
                               style: TextStyle(
                                 fontFamily: kPrimaryFontFamily,
                                 fontSize: 15,
@@ -538,8 +538,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 32),
-                      const Text(
-                        'Sign in',
+                      Text(
+                        l10n.loginHeaderTitle,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 32,
@@ -551,7 +551,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Access your Opei account securely.',
+                        l10n.loginHeaderSubtitle,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 14.5,

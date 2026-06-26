@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/auth/verify_email/verify_email_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/onboarding/onboarding_progress.dart';
 
@@ -188,6 +189,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
   }
 
   Future<void> _handleResend() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_isInitialized || _email == null) return;
 
     final controller = ref.read(verifyEmailControllerProvider.notifier);
@@ -196,7 +198,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Verification code sent'),
+          content: Text(l10n.verifyEmailCodeSent),
           backgroundColor: OpeiBrand.success,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
@@ -211,6 +213,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (!_isInitialized || _email == null) {
       return const Scaffold(
         backgroundColor: OpeiBrand.surface,
@@ -245,7 +248,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
             context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Verification code sent'),
+              content: Text(l10n.verifyEmailCodeSent),
               backgroundColor: OpeiBrand.success,
               behavior: SnackBarBehavior.floating,
               margin: const EdgeInsets.all(16),
@@ -374,8 +377,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Check your inbox',
+                                Text(
+                                  l10n.verifyEmailInboxTitle,
                                   style: TextStyle(
                                     fontFamily: kPrimaryFontFamily,
                                     fontSize: 22,
@@ -397,8 +400,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                                       height: 1.45,
                                     ),
                                     children: [
-                                      const TextSpan(
-                                        text: "We sent a 6-digit code to ",
+                                      TextSpan(
+                                        text: l10n.verifyEmailSentToPrefix,
                                       ),
                                       TextSpan(
                                         text: _email!,
@@ -407,7 +410,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                                           color: OpeiBrand.ink,
                                         ),
                                       ),
-                                      const TextSpan(text: '.'),
+                                      TextSpan(text: '.'),
                                     ],
                                   ),
                                 ),
@@ -450,12 +453,12 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                                     onTap: state.isLoading || _isLoggingOut
                                         ? null
                                         : _handleBackNavigation,
-                                    child: const Padding(
+                                    child: Padding(
                                       padding: EdgeInsets.symmetric(
                                         vertical: 8,
                                       ),
                                       child: Text(
-                                        'Wrong email? Start over',
+                                        l10n.verifyEmailWrongEmailCta,
                                         style: TextStyle(
                                           fontFamily: kPrimaryFontFamily,
                                           fontSize: 13.5,
@@ -475,8 +478,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                         _BottomTrust(
                           isLoading: state.isVerifying || _isLoggingOut,
                           busyLabel: _isLoggingOut
-                              ? 'Signing out…'
-                              : 'Verifying…',
+                              ? l10n.verifyEmailSigningOut
+                              : l10n.verifyEmailVerifying,
                           bottomPad: bottomPad,
                         ),
                       ],
@@ -523,8 +526,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                           ],
                         ),
                         const SizedBox(height: 24),
-                        const Text(
-                          'Verify email',
+                        Text(
+                          l10n.verifyEmailTitle,
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
                             fontSize: 28,
@@ -536,7 +539,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Step 2 of 4  •  Enter the 6-digit code we sent.',
+                          l10n.verifyEmailSubtitle,
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
                             fontSize: 14,
@@ -724,6 +727,7 @@ class _ResendRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     const baseStyle = TextStyle(
       fontFamily: kPrimaryFontFamily,
       fontSize: 13.5,
@@ -737,14 +741,14 @@ class _ResendRow extends StatelessWidget {
         text: TextSpan(
           style: baseStyle,
           children: [
-            const TextSpan(text: "Didn't get the code? "),
+            TextSpan(text: l10n.verifyEmailDidntGetCode),
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
               child: GestureDetector(
                 onTap: onResend,
-                child: const Text(
-                  'Resend',
+                child: Text(
+                  l10n.verifyEmailResendCta,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 13.5,
@@ -761,7 +765,7 @@ class _ResendRow extends StatelessWidget {
     }
 
     return Text(
-      'Resend code in $timerText',
+      l10n.verifyEmailResendIn(timerText),
       style: baseStyle.copyWith(color: OpeiBrand.inkTertiary),
     );
   }

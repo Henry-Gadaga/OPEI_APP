@@ -23,6 +23,7 @@ import 'package:opei/features/auth/signup/signup_controller.dart';
 import 'package:opei/features/auth/signup/signup_screen.dart';
 import 'package:opei/features/auth/signup/signup_state.dart';
 import 'package:opei/features/auth/welcome/welcome_screen.dart';
+import 'package:opei/l10n/app_localizations.dart';
 
 const _viewports = <({String label, Size size})>[
   (label: 'iPhone SE 320x568', size: Size(320, 568)),
@@ -65,6 +66,9 @@ void main() {
           await tester.pumpWidget(
             MaterialApp.router(
               routerConfig: router,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              locale: const Locale('en'),
               theme: ThemeData.from(
                 colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
               ),
@@ -112,6 +116,9 @@ void main() {
               ],
               child: MaterialApp.router(
                 routerConfig: router,
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                locale: const Locale('en'),
                 theme: ThemeData.from(
                   colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
                 ),
@@ -149,6 +156,9 @@ void main() {
         await tester.pumpWidget(
           MaterialApp.router(
             routerConfig: router,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: const Locale('en'),
             theme: ThemeData.from(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
             ),

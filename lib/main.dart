@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:opei/core/config/environment.dart';
 import 'package:opei/core/config/feature_flags.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/core/utils/asset_preloader.dart';
@@ -256,17 +257,15 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final localeState = ref.watch(appLocaleControllerProvider);
     return MaterialApp.router(
-      title: 'Opei - USD Financial Tools',
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.light,
       locale: localeState.locale,
-      supportedLocales: const <Locale>[
-        Locale(kLanguageEnglish),
-        Locale(kLanguagePortuguese),
-      ],
-      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: <LocalizationsDelegate<dynamic>>[
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

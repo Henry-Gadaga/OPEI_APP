@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opei/features/auth/signup/signup_controller.dart';
 import 'package:opei/features/auth/signup/signup_screen.dart';
 import 'package:opei/features/auth/signup/signup_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
@@ -168,6 +169,9 @@ Future<GoRouter> _pumpSignupScreen(
       ],
       child: MaterialApp.router(
         routerConfig: router,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         theme: ThemeData.from(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         ).copyWith(

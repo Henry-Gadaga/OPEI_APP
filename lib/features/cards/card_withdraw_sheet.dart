@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/money/money.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/data/models/virtual_card.dart';
 import 'package:opei/features/cards/card_withdraw_controller.dart';
 import 'package:opei/features/cards/card_withdraw_state.dart';
@@ -74,7 +75,8 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOut,
             padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -87,29 +89,29 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
                     borderRadius: BorderRadius.circular(99),
                   ),
                 ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: _buildHeader(context, state),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    child: _buildStepContent(context, state),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildHeader(context, state),
+                ),
+                const SizedBox(height: 8),
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: _buildStepContent(context, state),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -122,6 +124,7 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
   }
 
   Widget _buildHeader(BuildContext context, CardWithdrawState state) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final showBack = state.step != CardWithdrawStep.amountEntry;
 
@@ -131,34 +134,42 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
           width: 40,
           child: showBack
               ? IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      size: 18, color: OpeiBrand.ink),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 18,
+                    color: OpeiBrand.ink,
+                  ),
                   onPressed: state.isSubmitting
                       ? null
                       : () {
                           HapticFeedback.selectionClick();
-                          ref.read(cardWithdrawControllerProvider.notifier).goBack();
+                          ref
+                              .read(cardWithdrawControllerProvider.notifier)
+                              .goBack();
                         },
                 )
               : const SizedBox.shrink(),
         ),
         Expanded(
           child: Text(
-            'Withdraw from card',
+            l10n.withdrawSheetTitle,
             style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 17,
-                  color: OpeiBrand.ink,
-                  letterSpacing: -0.3,
-                ),
+              fontWeight: FontWeight.w700,
+              fontSize: 17,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.3,
+            ),
             textAlign: TextAlign.center,
           ),
         ),
         SizedBox(
           width: 40,
           child: IconButton(
-            icon: const Icon(CupertinoIcons.xmark,
-                size: 18, color: OpeiBrand.inkSecondary),
+            icon: const Icon(
+              CupertinoIcons.xmark,
+              size: 18,
+              color: OpeiBrand.inkSecondary,
+            ),
             onPressed: () => context.pop(),
           ),
         ),
@@ -169,10 +180,7 @@ class _CardWithdrawSheetState extends ConsumerState<CardWithdrawSheet> {
   Widget _buildStepContent(BuildContext context, CardWithdrawState state) {
     switch (state.step) {
       case CardWithdrawStep.amountEntry:
-        return _AmountStep(
-          controller: _amountController,
-          state: state,
-        );
+        return _AmountStep(controller: _amountController, state: state);
       case CardWithdrawStep.preview:
         return _PreviewStep(state: state);
       case CardWithdrawStep.result:
@@ -213,8 +221,9 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
     final current = double.tryParse(raw) ?? 0.0;
     final next = (current + dollars).toStringAsFixed(2);
     widget.controller.text = next;
-    widget.controller.selection =
-        TextSelection.fromPosition(TextPosition(offset: next.length));
+    widget.controller.selection = TextSelection.fromPosition(
+      TextPosition(offset: next.length),
+    );
     ref.read(cardWithdrawControllerProvider.notifier).clearErrorMessage();
   }
 
@@ -222,13 +231,15 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
     FocusManager.instance.primaryFocus?.unfocus();
     final raw = widget.controller.text.trim();
     final money = Money.parse(
-        raw.isEmpty ? '0' : raw,
-        currency: widget.state.currency);
+      raw.isEmpty ? '0' : raw,
+      currency: widget.state.currency,
+    );
     ref.read(cardWithdrawControllerProvider.notifier).previewWithdraw(money);
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = widget.state;
     final currency = state.currency.toUpperCase();
 
@@ -238,8 +249,8 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
       children: [
         const SizedBox(height: 20),
         // ── Label ─────────────────────────────────────────────────────────
-        const Text(
-          'WITHDRAWAL AMOUNT',
+        Text(
+          l10n.withdrawAmountLabel,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: kPrimaryFontFamily,
@@ -274,8 +285,9 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
                   focusNode: _focus,
                   enabled: !state.isPreviewLoading,
                   textAlign: TextAlign.center,
-                  keyboardType:
-                      const TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
                   ],
@@ -329,7 +341,7 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
         // ── CTA ───────────────────────────────────────────────────────────
         _PrimaryButton(
           onPressed: state.isPreviewLoading ? null : _submit,
-          label: 'Preview withdrawal',
+          label: l10n.withdrawPreviewCta,
           isLoading: state.isPreviewLoading,
         ),
       ],
@@ -355,8 +367,7 @@ class _QuickWithdrawChips extends StatelessWidget {
               onAdd(e.value);
             },
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
               decoration: BoxDecoration(
                 color: OpeiBrand.primaryTint,
                 borderRadius: BorderRadius.circular(999),
@@ -385,6 +396,7 @@ class _PreviewStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final preview = state.preview;
 
@@ -395,10 +407,7 @@ class _PreviewStep extends ConsumerWidget {
           const SizedBox(height: 40),
           const CupertinoActivityIndicator(radius: 14),
           const SizedBox(height: 16),
-          Text(
-            'Loading preview...',
-            style: theme.textTheme.bodyMedium,
-          ),
+          Text(l10n.loadingPreview, style: theme.textTheme.bodyMedium),
         ],
       );
     }
@@ -414,12 +423,14 @@ class _PreviewStep extends ConsumerWidget {
         const SizedBox(height: 8),
         // ── Hero amount ────────────────────────────────────────────────
         _HeroAmount(
-          amount: preview.withdrawAmountMoney.format(includeCurrencySymbol: true),
+          amount: preview.withdrawAmountMoney.format(
+            includeCurrencySymbol: true,
+          ),
         ),
         const SizedBox(height: 18),
 
         // ── Breakdown ─────────────────────────────────────────────────
-        _SectionLabel('PAYMENT BREAKDOWN'),
+        _SectionLabel(l10n.paymentBreakdown),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
@@ -430,17 +441,19 @@ class _PreviewStep extends ConsumerWidget {
           child: Column(
             children: [
               _PreviewRow(
-                label: 'Withdraw amount',
-                value: preview.withdrawAmountMoney.format(includeCurrencySymbol: true),
+                label: l10n.withdrawAmountRow,
+                value: preview.withdrawAmountMoney.format(
+                  includeCurrencySymbol: true,
+                ),
               ),
               const _Divider(),
               _PreviewRow(
-                label: 'Fee',
+                label: l10n.feeRow,
                 value: preview.feeMoney.format(includeCurrencySymbol: true),
               ),
               const _Divider(),
               _PreviewRow(
-                label: "You'll receive",
+                label: l10n.youWillReceiveRow,
                 value: preview.netMoney.format(includeCurrencySymbol: true),
                 isEmphasis: true,
               ),
@@ -450,7 +463,7 @@ class _PreviewStep extends ConsumerWidget {
         const SizedBox(height: 18),
 
         // ── Card impact ────────────────────────────────────────────────
-        _SectionLabel('AFTER THIS WITHDRAWAL'),
+        _SectionLabel(l10n.afterThisWithdrawal),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
@@ -461,13 +474,17 @@ class _PreviewStep extends ConsumerWidget {
           child: Column(
             children: [
               _PreviewRow(
-                label: 'Card balance now',
-                value: preview.cardBalanceMoney.format(includeCurrencySymbol: true),
+                label: l10n.cardBalanceNowRow,
+                value: preview.cardBalanceMoney.format(
+                  includeCurrencySymbol: true,
+                ),
               ),
               const _Divider(),
               _PreviewRow(
-                label: 'Card balance after',
-                value: preview.cardBalanceAfterMoney.format(includeCurrencySymbol: true),
+                label: l10n.cardBalanceAfterRow,
+                value: preview.cardBalanceAfterMoney.format(
+                  includeCurrencySymbol: true,
+                ),
                 isEmphasis: true,
               ),
             ],
@@ -488,7 +505,7 @@ class _PreviewStep extends ConsumerWidget {
                   FocusManager.instance.primaryFocus?.unfocus();
                   await controller.confirmWithdraw();
                 },
-          label: 'Confirm withdrawal',
+          label: l10n.confirmWithdrawalCta,
           isLoading: state.isSubmitting,
         ),
         const SizedBox(height: 8),
@@ -503,8 +520,8 @@ class _PreviewStep extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 10),
             foregroundColor: OpeiBrand.primary,
           ),
-          child: const Text(
-            'Edit amount',
+          child: Text(
+            l10n.editAmountCta,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 13.5,
@@ -524,6 +541,7 @@ class _ResultStep extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final success = state.isSuccess && state.result != null;
     final result = state.result;
 
@@ -550,8 +568,8 @@ class _ResultStep extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Withdrawal complete',
+          Text(
+            l10n.withdrawalCompleteTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
@@ -562,8 +580,8 @@ class _ResultStep extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            "Funds will arrive in your wallet shortly.",
+          Text(
+            l10n.withdrawalCompleteSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
@@ -585,28 +603,28 @@ class _ResultStep extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
                   child: ReferenceCopyValue(
-                    label: 'Reference',
+                    label: l10n.referenceLabel,
                     reference: result.reference,
                   ),
                 ),
                 const _Divider(),
                 _PreviewRow(
-                  label: 'Status',
-                  value: _titleCase(result.status),
+                  label: l10n.statusLabel,
+                  value: _titleCase(result.status, l10n),
                 ),
                 const _Divider(),
                 _PreviewRow(
-                  label: 'Amount',
+                  label: l10n.amountLabel,
                   value: result.amountMoney.format(includeCurrencySymbol: true),
                 ),
                 const _Divider(),
                 _PreviewRow(
-                  label: 'Fee',
+                  label: l10n.feeRow,
                   value: result.feeMoney.format(includeCurrencySymbol: true),
                 ),
                 const _Divider(),
                 _PreviewRow(
-                  label: "You'll receive",
+                  label: l10n.youWillReceiveRow,
                   value: result.netMoney.format(includeCurrencySymbol: true),
                   isEmphasis: true,
                 ),
@@ -614,10 +632,7 @@ class _ResultStep extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 24),
-          _PrimaryButton(
-            onPressed: () => context.pop(),
-            label: 'Done',
-          ),
+          _PrimaryButton(onPressed: () => context.pop(), label: l10n.doneCta),
         ],
       );
     }
@@ -644,8 +659,8 @@ class _ResultStep extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
-          'Withdrawal failed',
+        Text(
+          l10n.withdrawalFailedTitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: kPrimaryFontFamily,
@@ -659,7 +674,7 @@ class _ResultStep extends ConsumerWidget {
         Text(
           state.errorMessage?.isNotEmpty == true
               ? state.errorMessage!
-              : 'Unable to complete the withdrawal. Please try again.',
+              : l10n.withdrawalFailedSubtitle,
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
@@ -670,10 +685,9 @@ class _ResultStep extends ConsumerWidget {
         ),
         const SizedBox(height: 28),
         _PrimaryButton(
-          onPressed: () => ref
-              .read(cardWithdrawControllerProvider.notifier)
-              .goBack(),
-          label: 'Try again',
+          onPressed: () =>
+              ref.read(cardWithdrawControllerProvider.notifier).goBack(),
+          label: l10n.tryAgainCta,
         ),
         const SizedBox(height: 10),
         TextButton(
@@ -682,8 +696,8 @@ class _ResultStep extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 10),
             foregroundColor: OpeiBrand.inkSecondary,
           ),
-          child: const Text(
-            'Close',
+          child: Text(
+            l10n.closeCta,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 14,
@@ -695,9 +709,9 @@ class _ResultStep extends ConsumerWidget {
     );
   }
 
-  String _titleCase(String value) {
+  String _titleCase(String value, AppLocalizations l10n) {
     final trimmed = value.trim();
-    if (trimmed.isEmpty) return 'Pending';
+    if (trimmed.isEmpty) return l10n.pendingStatus;
     return trimmed
         .toLowerCase()
         .split(RegExp(r'[_\s]+'))
@@ -713,6 +727,7 @@ class _HeroAmount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
@@ -737,8 +752,8 @@ class _HeroAmount extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'YOU\'RE WITHDRAWING',
+          Text(
+            l10n.youAreWithdrawingLabel,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 10,
@@ -795,12 +810,12 @@ class _Divider extends StatelessWidget {
   const _Divider();
   @override
   Widget build(BuildContext context) => const Divider(
-        height: 1,
-        thickness: 0.5,
-        color: OpeiBrand.hairline,
-        indent: 14,
-        endIndent: 14,
-      );
+    height: 1,
+    thickness: 0.5,
+    color: OpeiBrand.hairline,
+    indent: 14,
+    endIndent: 14,
+  );
 }
 
 class _PreviewRow extends StatelessWidget {
@@ -873,36 +888,37 @@ class _PrimaryButton extends StatelessWidget {
     return SizedBox(
       height: 52,
       child: ElevatedButton(
-      onPressed: isBusy ? null : onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: OpeiBrand.primary,
-        foregroundColor: Colors.white,
-        disabledBackgroundColor: OpeiBrand.primaryTintStrong,
-        disabledForegroundColor: OpeiBrand.primary.withValues(alpha: 0.6),
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(OpeiBrand.radiusCta)),
-      ),
-      child: isBusy
-          ? const SizedBox(
-              height: 16,
-              width: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        onPressed: isBusy ? null : onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: OpeiBrand.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: OpeiBrand.primaryTintStrong,
+          disabledForegroundColor: OpeiBrand.primary.withValues(alpha: 0.6),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
+          ),
+        ),
+        child: isBusy
+            ? const SizedBox(
+                height: 16,
+                width: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              )
+            : Text(
+                label,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.3,
+                  color: Colors.white,
+                ),
               ),
-            )
-          : Text(
-              label,
-              style: theme.textTheme.labelLarge?.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.3,
-                    color: Colors.white,
-                  ),
-            ),
-    ),
+      ),
     );
   }
 }
@@ -930,9 +946,9 @@ class _ErrorBanner extends StatelessWidget {
             child: Text(
               message,
               style: theme.textTheme.bodySmall?.copyWith(
-                    color: OpeiBrand.danger,
-                    fontSize: 11,
-                  ),
+                color: OpeiBrand.danger,
+                fontSize: 11,
+              ),
             ),
           ),
         ],
@@ -947,7 +963,10 @@ class _StatusBanner extends StatelessWidget {
   final String message;
   final _BannerVariant variant;
 
-  const _StatusBanner({required this.message, this.variant = _BannerVariant.info});
+  const _StatusBanner({
+    required this.message,
+    this.variant = _BannerVariant.info,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -983,10 +1002,10 @@ class _StatusBanner extends StatelessWidget {
             child: Text(
               message,
               style: theme.textTheme.bodySmall?.copyWith(
-                    color: foreground,
-                    fontSize: 11,
-                    height: 1.4,
-                  ),
+                color: foreground,
+                fontSize: 11,
+                height: 1.4,
+              ),
             ),
           ),
         ],

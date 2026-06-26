@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
@@ -17,6 +18,7 @@ class ProfileScreen extends ConsumerStatefulWidget {
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(profileControllerProvider);
     final localeState = ref.watch(appLocaleControllerProvider);
     final controller = ref.read(profileControllerProvider.notifier);
@@ -38,7 +40,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       }
       return ResponsiveScaffold(
         appBar: AppBar(
-          title: const Text('Profile'),
+          title: Text(l10n.profileTitle),
           automaticallyImplyLeading: false,
         ),
         body: const Center(
@@ -51,7 +53,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     return ResponsiveScaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(l10n.profileTitle),
         automaticallyImplyLeading: false,
       ),
       body: RefreshIndicator(
@@ -74,21 +76,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ],
 
             ProfileSection(
-              title: 'Account Information',
+              title: l10n.profileSectionAccountInfo,
               children: [
                 ProfileInfoItem(
                   icon: Icons.email_outlined,
-                  label: 'Email',
+                  label: l10n.profileEmailLabel,
                   value: user.email,
                 ),
                 ProfileInfoItem(
                   icon: Icons.phone_outlined,
-                  label: 'Phone',
+                  label: l10n.profilePhoneLabel,
                   value: user.phone,
                 ),
                 ProfileInfoItem(
                   icon: Icons.check_circle_outline,
-                  label: 'Verification Stage',
+                  label: l10n.profileVerificationStageLabel,
                   value: _formatUserStage(user.userStage),
                 ),
               ],
@@ -98,36 +100,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             if (user.identity != null) ...[
               SizedBox(height: spacing * 3),
               ProfileSection(
-                title: 'Personal Information',
+                title: l10n.profileSectionPersonalInfo,
                 children: [
                   ProfileInfoItem(
                     icon: Icons.person_outline,
-                    label: 'Full Name',
+                    label: l10n.profileFullNameLabel,
                     value: user.displayName,
                   ),
                   ProfileInfoItem(
                     icon: Icons.cake_outlined,
-                    label: 'Date of Birth',
+                    label: l10n.profileDobLabel,
                     value: _formatDate(user.identity!.dateOfBirth),
                   ),
                   ProfileInfoItem(
                     icon: Icons.wc_outlined,
-                    label: 'Gender',
+                    label: l10n.profileGenderLabel,
                     value: user.identity!.gender,
                   ),
                   ProfileInfoItem(
                     icon: Icons.flag_outlined,
-                    label: 'Nationality',
+                    label: l10n.profileNationalityLabel,
                     value: user.identity!.nationality,
                   ),
                   ProfileInfoItem(
                     icon: Icons.badge_outlined,
-                    label: 'ID Type',
+                    label: l10n.profileIdTypeLabel,
                     value: user.identity!.idType,
                   ),
                   ProfileInfoItem(
                     icon: Icons.numbers_outlined,
-                    label: 'ID Number',
+                    label: l10n.profileIdNumberLabel,
                     value: user.identity!.idNumber,
                   ),
                 ],
@@ -136,51 +138,51 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             SizedBox(height: spacing * 3),
             ProfileSection(
-              title: 'Address',
+              title: l10n.profileSectionAddress,
               children: [
                 if (user.address != null) ...[
                   if (user.address!.country != null)
                     ProfileInfoItem(
                       icon: Icons.public_outlined,
-                      label: 'Country',
+                      label: l10n.profileCountryLabel,
                       value: user.address!.country!,
                     ),
                   if (user.address!.state != null)
                     ProfileInfoItem(
                       icon: Icons.location_city_outlined,
-                      label: 'State',
+                      label: l10n.profileStateLabel,
                       value: user.address!.state!,
                     ),
                   if (user.address!.city != null)
                     ProfileInfoItem(
                       icon: Icons.apartment_outlined,
-                      label: 'City',
+                      label: l10n.profileCityLabel,
                       value: user.address!.city!,
                     ),
                   if (user.address!.houseNumber != null &&
                       user.address!.addressLine != null)
                     ProfileInfoItem(
                       icon: Icons.home_outlined,
-                      label: 'Address',
+                      label: l10n.profileAddressLabel,
                       value:
                           '${user.address!.houseNumber} ${user.address!.addressLine}',
                     ),
                   if (user.address!.zipCode != null)
                     ProfileInfoItem(
                       icon: Icons.markunread_mailbox_outlined,
-                      label: 'Zip Code',
+                      label: l10n.profileZipCodeLabel,
                       value: user.address!.zipCode!,
                     ),
                   ProfileActionItem(
                     icon: Icons.edit_outlined,
-                    label: 'Update Address',
+                    label: l10n.profileUpdateAddressCta,
                     onTap: () => context.push('/address?source=profile'),
                   ),
                 ] else
                   ProfileActionItem(
                     icon: Icons.add_location_outlined,
-                    label: 'Add Address',
-                    subtitle: 'No address added yet',
+                    label: l10n.profileAddAddressCta,
+                    subtitle: l10n.profileNoAddressSubtitle,
                     onTap: () => context.push('/address?source=profile'),
                   ),
               ],
@@ -192,7 +194,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     user.identity!.frontImage != null)) ...[
               SizedBox(height: spacing * 3),
               ProfileSection(
-                title: 'Verification Status',
+                title: l10n.profileSectionVerification,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -222,7 +224,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Identity Verified',
+                                l10n.profileIdentityVerifiedTitle,
                                 style: context.textStyles.titleMedium?.copyWith(
                                   color: OpeiColors.pureBlack,
                                   fontWeight: FontWeight.w600,
@@ -230,7 +232,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Your identity has been successfully verified',
+                                l10n.profileIdentityVerifiedSubtitle,
                                 style: context.textStyles.bodySmall?.copyWith(
                                   color: OpeiColors.grey600,
                                 ),
@@ -247,23 +249,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
             SizedBox(height: spacing * 3),
             ProfileSection(
-              title: 'Rewards',
+              title: l10n.profileSectionRewards,
               children: [
                 ProfileActionItem(
                   icon: Icons.card_giftcard_outlined,
-                  label: 'Referrals',
-                  subtitle: 'Share your link and track earnings',
+                  label: l10n.profileReferralsLabel,
+                  subtitle: l10n.profileReferralsSubtitle,
                   onTap: () => context.push('/referral/hub'),
                 ),
               ],
             ),
             SizedBox(height: spacing * 3),
             ProfileSection(
-              title: 'Preferences',
+              title: l10n.profileSectionPreferences,
               children: [
                 ProfileActionItem(
                   icon: Icons.language_outlined,
-                  label: 'Language',
+                  label: l10n.profileLanguageLabel,
                   subtitle: _languageLabel(localeState.languageCode),
                   onTap: () => _showLanguageSelectorSheet(
                     context: context,
@@ -276,27 +278,27 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             QuickAuthSettingsSection(userId: user.userId),
             SizedBox(height: spacing * 3),
             ProfileSection(
-              title: 'Legal',
+              title: l10n.profileSectionLegal,
               children: [
                 ProfileActionItem(
                   icon: Icons.description_outlined,
-                  label: 'Terms & Conditions',
+                  label: l10n.profileTermsLabel,
                   onTap: () => context.push('/terms'),
                 ),
                 ProfileActionItem(
                   icon: Icons.privacy_tip_outlined,
-                  label: 'Privacy Policy',
+                  label: l10n.profilePrivacyLabel,
                   onTap: () => context.push('/privacy'),
                 ),
               ],
             ),
             SizedBox(height: spacing * 3),
             ProfileSection(
-              title: 'Account Actions',
+              title: l10n.profileSectionActions,
               children: [
                 ProfileActionItem(
                   icon: Icons.logout,
-                  label: 'Log Out',
+                  label: l10n.profileLogoutLabel,
                   isDestructive: true,
                   isLoading: state.isLoggingOut,
                   onTap: () => _handleLogout(context, controller),
@@ -314,12 +316,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     ProfileController controller,
     String errorMessage,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
 
     return ResponsiveScaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(l10n.profileTitle),
         automaticallyImplyLeading: false,
       ),
       body: Center(
@@ -331,7 +334,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               Icon(Icons.error_outline, size: 64, color: OpeiColors.grey400),
               SizedBox(height: spacing * 2),
               Text(
-                'Unable to load profile',
+                l10n.profileUnableLoadTitle,
                 style: context.textStyles.titleLarge?.copyWith(
                   color: OpeiColors.pureBlack,
                   fontWeight: FontWeight.w600,
@@ -359,14 +362,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       borderRadius: BorderRadius.circular(tokens.buttonRadius),
                     ),
                   ),
-                  child: const Text('Retry'),
+                  child: Text(l10n.retryCta),
                 ),
               ),
               SizedBox(height: spacing * 1.5),
               TextButton(
                 onPressed: () => _handleLogout(context, controller),
-                child: const Text(
-                  'Log Out',
+                child: Text(
+                  l10n.profileLogoutLabel,
                   style: TextStyle(color: OpeiColors.errorRed),
                 ),
               ),
@@ -378,6 +381,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Widget _buildKycPromptCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final spacing = context.responsiveSpacingUnit;
 
     return Container(
@@ -414,12 +418,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Complete Your Profile',
+                  l10n.profileKycPromptTitle,
                   style: context.textStyles.titleMedium,
                 ),
                 SizedBox(height: spacing * 0.5),
                 Text(
-                  'Verify your identity to unlock all features',
+                  l10n.profileKycPromptSubtitle,
                   style: context.textStyles.bodySmall?.copyWith(
                     color: OpeiColors.grey600,
                   ),
@@ -443,7 +447,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   String _formatUserStage(String stage) {
-    if (stage.isEmpty) return 'N/A';
+    if (stage.isEmpty) return AppLocalizations.of(context)!.naValue;
     return stage
         .replaceAll('_', ' ')
         .split(' ')
@@ -505,8 +509,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         SnackBar(
           content: Text(
             selected == kLanguagePortuguese
-                ? 'Idioma atualizado para Português.'
-                : 'Language updated to English.',
+                ? AppLocalizations.of(context)!.languageUpdatedPortuguese
+                : AppLocalizations.of(context)!.languageUpdatedEnglish,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -517,9 +521,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Could not update language. Please try again.',
+            AppLocalizations.of(context)!.languageUpdateFailed,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -548,6 +552,7 @@ class _LanguageSelectorSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
 
     Widget option({
@@ -638,8 +643,8 @@ class _LanguageSelectorSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Select language',
+            Text(
+              l10n.selectLanguageTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -648,10 +653,10 @@ class _LanguageSelectorSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                'Choose your app language preference.',
+                l10n.selectLanguageSubtitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13.5,
@@ -667,14 +672,14 @@ class _LanguageSelectorSheet extends StatelessWidget {
                 children: [
                   option(
                     code: kLanguageEnglish,
-                    title: 'English',
-                    subtitle: 'Use English throughout the app',
+                    title: l10n.languageEnglishTitle,
+                    subtitle: l10n.languageUseEnglishSubtitle,
                   ),
                   const Divider(height: 1, color: OpeiBrand.hairline),
                   option(
                     code: kLanguagePortuguese,
-                    title: 'Português',
-                    subtitle: 'Usar Português em todo o aplicativo',
+                    title: l10n.languagePortugueseTitle,
+                    subtitle: l10n.languageUsePortugueseSubtitle,
                   ),
                 ],
               ),
@@ -726,8 +731,8 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
           const SizedBox(height: 22),
 
           // ── Centered title ─────────────────────────────────
-          const Text(
-            'Log out',
+          Text(
+            AppLocalizations.of(context)!.logoutTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18,
@@ -738,10 +743,10 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
             ),
           ),
           const SizedBox(height: 6),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 32),
             child: Text(
-              'You’ll need to sign in again next time',
+              AppLocalizations.of(context)!.logoutSubtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13.5,
@@ -787,7 +792,7 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                           valueColor: AlwaysStoppedAnimation(Colors.white),
                         ),
                       )
-                    : const Text('Log out'),
+                    : Text(AppLocalizations.of(context)!.logoutTitle),
               ),
             ),
           ),
@@ -804,8 +809,8 @@ class _LogoutConfirmationSheetState extends State<_LogoutConfirmationSheet> {
                   borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
                 ),
               ),
-              child: const Text(
-                'Cancel',
+              child: Text(
+                AppLocalizations.of(context)!.cancelCta,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -1165,8 +1170,8 @@ class _QuickAuthSettingsSectionState
       if (turnOn) {
         final ok = await quickAuthService.authenticateWithBiometric(
           _isFaceBiometric
-              ? 'Set up Face ID for quick sign-in'
-              : 'Set up fingerprint for quick sign-in',
+              ? AppLocalizations.of(context)!.faceIdPrompt
+              : AppLocalizations.of(context)!.fingerprintPrompt,
         );
         if (!mounted) return;
         if (ok) {
@@ -1193,8 +1198,8 @@ class _QuickAuthSettingsSectionState
           SnackBar(
             content: Text(
               _isFaceBiometric
-                  ? 'Face ID sign-in disabled.'
-                  : 'Fingerprint sign-in disabled.',
+                  ? AppLocalizations.of(context)!.faceIdDisabled
+                  : AppLocalizations.of(context)!.fingerprintDisabled,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -1208,9 +1213,9 @@ class _QuickAuthSettingsSectionState
       if (!mounted) return;
       setState(() => _togglingBiometric = false);
       messenger.showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Could not update biometric settings. Please try again.',
+            AppLocalizations.of(context)!.biometricUpdateFailed,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -1223,17 +1228,18 @@ class _QuickAuthSettingsSectionState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ProfileSection(
-      title: 'Security Settings',
+      title: l10n.profileSectionSecurity,
       children: [
         ProfileActionItem(
           icon: Icons.pin_outlined,
-          label: 'PIN Authentication',
+          label: l10n.quickAuthPinLabel,
           subtitle: _isLoadingStatus
-              ? 'Loading...'
+              ? l10n.loadingText
               : _hasPinSetup
-              ? 'Enabled'
-              : 'Disabled',
+              ? l10n.enabledText
+              : l10n.disabledText,
           onTap: null,
         ),
         if (_biometricAvailable && !_isLoadingStatus)
@@ -1263,12 +1269,13 @@ class _BiometricSettingsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = isFace ? 'Face ID Sign-in' : 'Fingerprint Sign-in';
+    final l10n = AppLocalizations.of(context)!;
+    final label = isFace ? l10n.faceIdSignInLabel : l10n.fingerprintSignInLabel;
     final subtitle = enabled
-        ? 'Enabled — sign in with a glance'
+        ? l10n.biometricEnabledSubtitle
         : isFace
-        ? 'Use Face ID instead of typing your PIN'
-        : 'Use your fingerprint instead of typing your PIN';
+        ? l10n.faceIdDisabledSubtitle
+        : l10n.fingerprintDisabledSubtitle;
     final iconData = isFace ? Icons.face_outlined : Icons.fingerprint;
 
     return Padding(

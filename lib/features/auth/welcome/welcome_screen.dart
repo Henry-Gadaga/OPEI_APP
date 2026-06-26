@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:opei/core/locale/app_locale_controller.dart';
 
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
@@ -63,8 +63,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final localeState = ref.watch(appLocaleControllerProvider);
-    final isPortuguese = localeState.languageCode == kLanguagePortuguese;
+    final l10n = AppLocalizations.of(context)!;
     final media = MediaQuery.of(context);
     final bottomPad = media.viewPadding.bottom;
     // Wide lockup (mark + "Opei" wordmark, ~3.1:1). Sized by height; capped
@@ -132,9 +131,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 OpeiPrimaryButton(
-                                  label: isPortuguese
-                                      ? 'Criar conta'
-                                      : 'Create account',
+                                  label: l10n.welcomeCreateAccount,
                                   trailingIcon: Icons.arrow_forward_rounded,
                                   onPressed: () => context.go('/signup'),
                                 ),
@@ -145,9 +142,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                   spacing: 4,
                                   children: [
                                     Text(
-                                      isPortuguese
-                                          ? 'Já tem uma conta?'
-                                          : 'Already have an account?',
+                                      l10n.welcomeAlreadyHaveAccount,
                                       style: TextStyle(
                                         fontFamily: kPrimaryFontFamily,
                                         fontSize: 14,
@@ -164,7 +159,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                           vertical: 4,
                                         ),
                                         child: Text(
-                                          isPortuguese ? 'Entrar' : 'Sign in',
+                                          l10n.welcomeSignIn,
                                           style: TextStyle(
                                             fontFamily: kPrimaryFontFamily,
                                             fontSize: 14,
@@ -181,7 +176,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
                                 _LegalText(
                                   onTerms: () => context.push('/terms'),
                                   onPrivacy: () => context.push('/privacy'),
-                                  isPortuguese: isPortuguese,
+                                  l10n: l10n,
                                 ),
                               ],
                             ),
@@ -203,12 +198,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen>
 class _LegalText extends StatelessWidget {
   final VoidCallback onTerms;
   final VoidCallback onPrivacy;
-  final bool isPortuguese;
+  final AppLocalizations l10n;
 
   const _LegalText({
     required this.onTerms,
     required this.onPrivacy,
-    required this.isPortuguese,
+    required this.l10n,
   });
 
   @override
@@ -232,32 +227,22 @@ class _LegalText extends StatelessWidget {
         text: TextSpan(
           style: baseStyle,
           children: [
-            TextSpan(
-              text: isPortuguese
-                  ? 'Ao continuar, você concorda com nossos '
-                  : 'By continuing you agree to our ',
-            ),
+            TextSpan(text: l10n.welcomeLegalPrefix),
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
               child: GestureDetector(
                 onTap: onTerms,
-                child: Text(
-                  isPortuguese ? 'Termos' : 'Terms',
-                  style: linkStyle,
-                ),
+                child: Text(l10n.welcomeLegalTerms, style: linkStyle),
               ),
             ),
-            TextSpan(text: isPortuguese ? ' e ' : ' and '),
+            TextSpan(text: l10n.welcomeLegalAnd),
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
               child: GestureDetector(
                 onTap: onPrivacy,
-                child: Text(
-                  isPortuguese ? 'Política de Privacidade' : 'Privacy Policy',
-                  style: linkStyle,
-                ),
+                child: Text(l10n.welcomeLegalPrivacy, style: linkStyle),
               ),
             ),
             const TextSpan(text: '.'),

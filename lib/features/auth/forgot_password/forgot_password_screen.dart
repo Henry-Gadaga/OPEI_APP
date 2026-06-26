@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:opei/features/auth/forgot_password/forgot_password_controller.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
@@ -65,6 +66,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(forgotPasswordControllerProvider);
     final isLoading = state.isLoading;
 
@@ -152,7 +154,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                   decoration: BoxDecoration(
                     color: OpeiBrand.surface,
                     borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(28)),
+                      top: Radius.circular(28),
+                    ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.06),
@@ -171,8 +174,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                "We'll email a code",
+                              Text(
+                                l10n.forgotPinEmailCodeTitle,
                                 style: TextStyle(
                                   fontFamily: kPrimaryFontFamily,
                                   fontSize: 22,
@@ -183,8 +186,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              const Text(
-                                "Enter the email associated with your account and we'll send a 6-digit code.",
+                              Text(
+                                l10n.forgotPinEmailCodeSubtitle,
                                 style: TextStyle(
                                   fontFamily: kPrimaryFontFamily,
                                   fontSize: 14,
@@ -212,8 +215,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                               OpeiTextField(
                                 controller: _emailController,
                                 focusNode: _emailFocusNode,
-                                label: 'Email address',
-                                hint: 'name@example.com',
+                                label: l10n.emailAddressLabel,
+                                hint: l10n.emailAddressHint,
                                 keyboardType: TextInputType.emailAddress,
                                 textInputAction: TextInputAction.done,
                                 enabled: !isLoading,
@@ -242,13 +245,17 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         ),
                       ),
                       Padding(
-                        padding:
-                            EdgeInsets.fromLTRB(24, 20, 24, 20 + bottomPad),
+                        padding: EdgeInsets.fromLTRB(
+                          24,
+                          20,
+                          24,
+                          20 + bottomPad,
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             OpeiPrimaryButton(
-                              label: 'Send code',
+                              label: l10n.forgotPinSendCodeCta,
                               loading: isLoading,
                               onPressed: _isFormValid && !isLoading
                                   ? _handleSubmit
@@ -261,8 +268,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                               crossAxisAlignment: WrapCrossAlignment.center,
                               spacing: 4,
                               children: [
-                                const Text(
-                                  'Remembered it?',
+                                Text(
+                                  l10n.forgotPinRememberedCta,
                                   style: TextStyle(
                                     fontFamily: kPrimaryFontFamily,
                                     fontSize: 14,
@@ -273,8 +280,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                                 ),
                                 GestureDetector(
                                   onTap: _handleBack,
-                                  child: const Text(
-                                    'Sign in',
+                                  child: Text(
+                                    l10n.welcomeSignIn,
                                     style: TextStyle(
                                       fontFamily: kPrimaryFontFamily,
                                       fontSize: 14,
@@ -329,8 +336,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Forgot PIN?',
+                      Text(
+                        l10n.forgotPinTitle,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 28,
@@ -342,7 +349,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Reset it in two quick steps.',
+                        l10n.forgotPinSubtitle,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 14,

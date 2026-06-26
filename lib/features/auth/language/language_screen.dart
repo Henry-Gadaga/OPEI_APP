@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/locale/app_locale_controller.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
@@ -42,6 +43,7 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -58,71 +60,69 @@ class _LanguageScreenState extends ConsumerState<LanguageScreen>
           child: FadeTransition(
             opacity: _fade,
             child: Padding(
-                padding: EdgeInsets.fromLTRB(24, 12, 24, 18 + bottomInset),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+              padding: EdgeInsets.fromLTRB(24, 12, 24, 18 + bottomInset),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ── Headline ───────────────────────────────────
+                  Text(
+                    l10n.languageChooseTitle,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: OpeiBrand.ink,
+                      letterSpacing: -0.7,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    l10n.languageChooseSubtitle,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: OpeiBrand.inkSecondary,
+                      letterSpacing: -0.1,
+                      height: 1.45,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
 
-                    // ── Headline ───────────────────────────────────
-                    const Text(
-                      'Choose your language',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: kPrimaryFontFamily,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: OpeiBrand.ink,
-                        letterSpacing: -0.7,
-                        height: 1.1,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Pick your preferred language.\nYou can change it anytime in Profile.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: kPrimaryFontFamily,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: OpeiBrand.inkSecondary,
-                        letterSpacing: -0.1,
-                        height: 1.45,
-                      ),
-                    ),
-                    const SizedBox(height: 24),
+                  // ── Language tiles ─────────────────────────────
+                  _LanguageOptionTile(
+                    title: l10n.languageEnglishTitle,
+                    subtitle: l10n.languageEnglishSubtitle,
+                    selected: _selectedLanguage == kLanguageEnglish,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedLanguage = kLanguageEnglish);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _LanguageOptionTile(
+                    title: l10n.languagePortugueseTitle,
+                    subtitle: l10n.languagePortugueseSubtitle,
+                    selected: _selectedLanguage == kLanguagePortuguese,
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedLanguage = kLanguagePortuguese);
+                    },
+                  ),
 
-                    // ── Language tiles ─────────────────────────────
-                    _LanguageOptionTile(
-                      title: 'English',
-                      subtitle: 'English',
-                      selected: _selectedLanguage == kLanguageEnglish,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        setState(() => _selectedLanguage = kLanguageEnglish);
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    _LanguageOptionTile(
-                      title: 'Português',
-                      subtitle: 'Portuguese',
-                      selected: _selectedLanguage == kLanguagePortuguese,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        setState(
-                            () => _selectedLanguage = kLanguagePortuguese);
-                      },
-                    ),
+                  const Spacer(flex: 3),
 
-                    const Spacer(flex: 3),
-
-                    // ── CTA ────────────────────────────────────────
-                    OpeiPrimaryButton(
-                      label: 'Continue',
-                      loading: _submitting,
-                      onPressed: _submitting ? null : _continue,
-                    ),
-                  ],
-                ),
+                  // ── CTA ────────────────────────────────────────
+                  OpeiPrimaryButton(
+                    label: l10n.continueCta,
+                    loading: _submitting,
+                    onPressed: _submitting ? null : _continue,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -221,12 +221,18 @@ class _LanguageOptionTile extends StatelessWidget {
                 color: selected ? OpeiBrand.primary : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: selected ? OpeiBrand.primary : OpeiBrand.hairlineStrong,
+                  color: selected
+                      ? OpeiBrand.primary
+                      : OpeiBrand.hairlineStrong,
                   width: 1.5,
                 ),
               ),
               child: selected
-                  ? const Icon(Icons.check_rounded, size: 13, color: Colors.white)
+                  ? const Icon(
+                      Icons.check_rounded,
+                      size: 13,
+                      color: Colors.white,
+                    )
                   : null,
             ),
           ],

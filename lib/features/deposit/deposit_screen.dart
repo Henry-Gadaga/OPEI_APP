@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:opei/core/config/feature_flags.dart';
 import 'package:opei/features/deposit/deposit_controller.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
@@ -16,6 +17,7 @@ class DepositOptionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
 
     return Container(
@@ -37,8 +39,8 @@ class DepositOptionsSheet extends StatelessWidget {
           ),
           const SizedBox(height: 22),
 
-          const Text(
-            'Add Money',
+          Text(
+            l10n.depositAddMoneyTitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18,
@@ -49,8 +51,8 @@ class DepositOptionsSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
-            'Choose how you want to add funds',
+          Text(
+            l10n.depositAddMoneySubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -63,8 +65,8 @@ class DepositOptionsSheet extends StatelessWidget {
 
           const _DepositRowDivider(),
           _DepositRow(
-            title: 'Express P2P',
-            subtitle: 'Pay local currency, get USD fast',
+            title: l10n.depositExpressP2PTitle,
+            subtitle: l10n.depositExpressP2PSubtitle,
             onTap: () {
               context.pop();
               context.push('/express-p2p');
@@ -73,8 +75,8 @@ class DepositOptionsSheet extends StatelessWidget {
           const _DepositRowDivider(),
           if (FeatureFlags.enableClassicP2P) ...[
             _DepositRow(
-              title: 'P2P Exchange',
-              subtitle: 'Bank transfer, Mobile Payments and more',
+              title: l10n.depositP2PExchangeTitle,
+              subtitle: l10n.depositP2PExchangeSubtitle,
               onTap: () {
                 context.pop();
                 context.push(
@@ -86,8 +88,8 @@ class DepositOptionsSheet extends StatelessWidget {
             const _DepositRowDivider(),
           ],
           _DepositRow(
-            title: 'USD Stablecoin',
-            subtitle: 'Receive USDT or USDC to your Opei wallet',
+            title: l10n.depositStablecoinTitle,
+            subtitle: l10n.depositStablecoinSubtitle,
             onTap: () {
               context.pop();
               context.push('/deposit/crypto-currency');
@@ -196,15 +198,22 @@ class DepositOptionCard extends StatefulWidget {
   State<DepositOptionCard> createState() => _DepositOptionCardState();
 }
 
-class _DepositOptionCardState extends State<DepositOptionCard> with SingleTickerProviderStateMixin {
+class _DepositOptionCardState extends State<DepositOptionCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -238,13 +247,14 @@ class _DepositOptionCardState extends State<DepositOptionCard> with SingleTicker
                 width: 28,
                 height: 28,
                 child: widget.iconAsset != null
-                    ? SvgPicture.asset(
-                        widget.iconAsset!,
-                        fit: BoxFit.contain,
-                      )
+                    ? SvgPicture.asset(widget.iconAsset!, fit: BoxFit.contain)
                     : (widget.icon != null
-                        ? Icon(widget.icon, color: OpeiColors.pureBlack, size: 26)
-                        : const SizedBox()),
+                          ? Icon(
+                              widget.icon,
+                              color: OpeiColors.pureBlack,
+                              size: 26,
+                            )
+                          : const SizedBox()),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -254,22 +264,26 @@ class _DepositOptionCardState extends State<DepositOptionCard> with SingleTicker
                     Text(
                       widget.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       widget.description,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 13,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 13,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: OpeiColors.iosLabelTertiary, size: 16),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: OpeiColors.iosLabelTertiary,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -283,6 +297,7 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
 
@@ -293,15 +308,19 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: OpeiColors.pureBlack,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Select Method',
+          l10n.depositSelectMethodTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -311,25 +330,27 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Choose the method you want to deposit with',
+              l10n.depositChooseMethodSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 15,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 15,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
             SizedBox(height: spacing * 2.5),
             CurrencyOption(
               currency: 'USDT',
               name: 'Tether',
               networks: const ['Polygon', 'Ethereum', 'BSC', 'Tron'],
-              onTap: () => context.push('/deposit/crypto-network', extra: 'USDT'),
+              onTap: () =>
+                  context.push('/deposit/crypto-network', extra: 'USDT'),
             ),
             SizedBox(height: spacing * 0.5),
             CurrencyOption(
               currency: 'USDC',
               name: 'USD Coin',
               networks: const ['Polygon', 'Ethereum', 'BSC'],
-              onTap: () => context.push('/deposit/crypto-network', extra: 'USDC'),
+              onTap: () =>
+                  context.push('/deposit/crypto-network', extra: 'USDC'),
             ),
           ],
         ),
@@ -356,7 +377,8 @@ class CurrencyOption extends StatefulWidget {
   State<CurrencyOption> createState() => _CurrencyOptionState();
 }
 
-class _CurrencyOptionState extends State<CurrencyOption> with SingleTickerProviderStateMixin {
+class _CurrencyOptionState extends State<CurrencyOption>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -374,8 +396,14 @@ class _CurrencyOptionState extends State<CurrencyOption> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -412,7 +440,8 @@ class _CurrencyOptionState extends State<CurrencyOption> with SingleTickerProvid
                     : Center(
                         child: Text(
                           widget.currency,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -427,22 +456,26 @@ class _CurrencyOptionState extends State<CurrencyOption> with SingleTickerProvid
                     Text(
                       widget.currency,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${widget.name} • ${widget.networks.length} networks',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 12.5,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 12.5,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: OpeiColors.iosLabelTertiary, size: 16),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: OpeiColors.iosLabelTertiary,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -465,6 +498,7 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
 
@@ -475,15 +509,19 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: OpeiColors.pureBlack,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Select Network',
+          l10n.depositSelectNetworkTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -493,11 +531,11 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Choose the network for your $currency deposit',
+              l10n.depositChooseNetworkSubtitle(currency),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 15,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 15,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
             SizedBox(height: spacing * 2.5),
             ..._availableNetworks.map(
@@ -506,20 +544,25 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
                 child: NetworkOption(
                   network: network,
                   onTap: () async {
-                    final notifier = ref.read(depositControllerProvider.notifier);
+                    final notifier = ref.read(
+                      depositControllerProvider.notifier,
+                    );
                     final success = await notifier.fetchDepositAddress(
                       currency: currency,
                       network: network,
                     );
 
                     if (success && context.mounted) {
-                      context.push('/deposit/crypto-address', extra: {'currency': currency, 'network': network});
+                      context.push(
+                        '/deposit/crypto-address',
+                        extra: {'currency': currency, 'network': network},
+                      );
                     } else if (context.mounted) {
                       final error = ref.read(depositControllerProvider).error;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            error ?? 'Failed to fetch deposit address',
+                            error ?? l10n.depositFetchAddressFailed,
                             maxLines: 4,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -547,17 +590,14 @@ class NetworkOption extends ConsumerStatefulWidget {
   final String network;
   final Future<void> Function()? onTap;
 
-  const NetworkOption({
-    super.key,
-    required this.network,
-    this.onTap,
-  });
+  const NetworkOption({super.key, required this.network, this.onTap});
 
   @override
   ConsumerState<NetworkOption> createState() => _NetworkOptionState();
 }
 
-class _NetworkOptionState extends ConsumerState<NetworkOption> with SingleTickerProviderStateMixin {
+class _NetworkOptionState extends ConsumerState<NetworkOption>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -579,8 +619,14 @@ class _NetworkOptionState extends ConsumerState<NetworkOption> with SingleTicker
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -622,7 +668,8 @@ class _NetworkOptionState extends ConsumerState<NetworkOption> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(depositControllerProvider);
-    final isLoading = state.isLoading && state.loadingNetwork == widget.network.toLowerCase();
+    final isLoading =
+        state.isLoading && state.loadingNetwork == widget.network.toLowerCase();
 
     return GestureDetector(
       onTapDown: (_) => !isLoading ? _controller.forward() : null,
@@ -649,7 +696,11 @@ class _NetworkOptionState extends ConsumerState<NetworkOption> with SingleTicker
                 height: 32,
                 child: _iconAsset != null
                     ? SvgPicture.asset(_iconAsset!, fit: BoxFit.contain)
-                    : const Icon(Icons.hub, color: OpeiColors.pureBlack, size: 20),
+                    : const Icon(
+                        Icons.hub,
+                        color: OpeiColors.pureBlack,
+                        size: 20,
+                      ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -659,17 +710,17 @@ class _NetworkOptionState extends ConsumerState<NetworkOption> with SingleTicker
                     Text(
                       _networkDisplayName,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _networkFee,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 12,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 12,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -677,7 +728,11 @@ class _NetworkOptionState extends ConsumerState<NetworkOption> with SingleTicker
               if (isLoading)
                 const CupertinoActivityIndicator(radius: 10)
               else
-                const Icon(Icons.arrow_forward_ios, color: OpeiColors.iosLabelTertiary, size: 16),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: OpeiColors.iosLabelTertiary,
+                  size: 16,
+                ),
             ],
           ),
         ),
@@ -728,6 +783,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(depositControllerProvider);
     final displayCurrency = state.selectedCurrency ?? currency;
     final displayNetwork = state.selectedNetwork ?? network;
@@ -749,16 +805,20 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 18),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: OpeiColors.pureBlack,
+            size: 18,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Deposit Address',
+          l10n.depositAddressTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.3,
-              ),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.3,
+          ),
         ),
         centerTitle: true,
       ),
@@ -772,20 +832,23 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
           physics: const ClampingScrollPhysics(),
           children: [
             Text(
-              'Scan to deposit',
+              l10n.depositScanTitle,
               style: textTheme.titleLarge?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: -0.4,
-                  ),
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.4,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Send ${displayCurrency.toUpperCase()} on $networkLabel',
+              l10n.depositSendOnNetwork(
+                displayCurrency.toUpperCase(),
+                networkLabel,
+              ),
               style: textTheme.bodyMedium?.copyWith(
-                    fontSize: 13,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 13,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
             const SizedBox(height: 16),
             Container(
@@ -820,14 +883,16 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                                     color: OpeiColors.pureBlack,
                                     drawText: false,
                                     errorBuilder: (context, error) => Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 24),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 24,
+                                      ),
                                       child: Text(
-                                        'QR unavailable',
+                                        l10n.depositQrUnavailable,
                                         textAlign: TextAlign.center,
                                         style: textTheme.bodyMedium?.copyWith(
-                                              fontSize: 13,
-                                              color: OpeiColors.iosLabelSecondary,
-                                            ),
+                                          fontSize: 13,
+                                          color: OpeiColors.iosLabelSecondary,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -842,11 +907,18 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                                   child: Padding(
                                     padding: const EdgeInsets.all(5),
                                     child: networkIcon != null
-                                        ? SvgPicture.asset(networkIcon, fit: BoxFit.contain)
+                                        ? SvgPicture.asset(
+                                            networkIcon,
+                                            fit: BoxFit.contain,
+                                          )
                                         : Center(
                                             child: Text(
-                                              networkLabel.isNotEmpty ? networkLabel[0].toUpperCase() : '',
-                                              style: textTheme.titleMedium?.copyWith(
+                                              networkLabel.isNotEmpty
+                                                  ? networkLabel[0]
+                                                        .toUpperCase()
+                                                  : '',
+                                              style: textTheme.titleMedium
+                                                  ?.copyWith(
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -860,17 +932,19 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                         : const SizedBox(
                             key: ValueKey('qr_loading'),
                             height: 160,
-                            child: Center(child: CupertinoActivityIndicator(radius: 12)),
+                            child: Center(
+                              child: CupertinoActivityIndicator(radius: 12),
+                            ),
                           ),
                   ),
                   const SizedBox(height: 14),
                   Text(
                     '${displayCurrency.toUpperCase()} • $networkLabel',
                     style: textTheme.titleMedium?.copyWith(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: -0.2,
-                        ),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Container(
@@ -886,27 +960,32 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                           child: SelectableText(
                             hasAddress ? addressValue : '— — —',
                             style: textTheme.bodyMedium?.copyWith(
-                                  fontSize: 12,
-                                  height: 1.3,
-                                  fontFamily: 'monospace',
-                                  color: OpeiColors.pureBlack,
-                                ),
+                              fontSize: 12,
+                              height: 1.3,
+                              fontFamily: 'monospace',
+                              color: OpeiColors.pureBlack,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
                         CupertinoButton(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
                           minimumSize: Size.zero,
                           borderRadius: BorderRadius.circular(8),
                           color: OpeiColors.pureBlack.withValues(alpha: 0.04),
                           onPressed: hasAddress
                               ? () {
-                                  Clipboard.setData(ClipboardData(text: addressValue));
+                                  Clipboard.setData(
+                                    ClipboardData(text: addressValue),
+                                  );
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Address copied'),
+                                    SnackBar(
+                                      content: Text(l10n.depositAddressCopied),
                                       behavior: SnackBarBehavior.floating,
-                                      duration: Duration(seconds: 1),
+                                      duration: const Duration(seconds: 1),
                                     ),
                                   );
                                 }
@@ -917,16 +996,20 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                               Icon(
                                 CupertinoIcons.doc_on_doc,
                                 size: 14,
-                                color: hasAddress ? OpeiColors.pureBlack : OpeiColors.iosLabelSecondary,
+                                color: hasAddress
+                                    ? OpeiColors.pureBlack
+                                    : OpeiColors.iosLabelSecondary,
                               ),
                               const SizedBox(width: 3),
                               Text(
-                                'Copy',
+                                l10n.depositCopyCta,
                                 style: textTheme.bodyMedium?.copyWith(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: hasAddress ? OpeiColors.pureBlack : OpeiColors.iosLabelSecondary,
-                                    ),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: hasAddress
+                                      ? OpeiColors.pureBlack
+                                      : OpeiColors.iosLabelSecondary,
+                                ),
                               ),
                             ],
                           ),
@@ -949,23 +1032,32 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(CupertinoIcons.info_circle, color: OpeiColors.iosLabelSecondary, size: 16),
+                      const Icon(
+                        CupertinoIcons.info_circle,
+                        color: OpeiColors.iosLabelSecondary,
+                        size: 16,
+                      ),
                       const SizedBox(width: 6),
                       Text(
-                        'Important',
+                        l10n.depositImportantTitle,
                         style: textTheme.titleMedium?.copyWith(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
-                  InfoItem(text: 'Only send ${displayCurrency.toUpperCase()} on $networkLabel network'),
+                  InfoItem(
+                    text: l10n.depositInfoOnlySend(
+                      displayCurrency.toUpperCase(),
+                      networkLabel,
+                    ),
+                  ),
                   const SizedBox(height: 7),
-                  InfoItem(text: 'Other assets or networks will cause permanent loss'),
+                  InfoItem(text: l10n.depositInfoWrongAssetWarning),
                   const SizedBox(height: 7),
-                  InfoItem(text: 'Balance updates after network confirmations'),
+                  InfoItem(text: l10n.depositInfoBalanceUpdates),
                 ],
               ),
             ),
@@ -979,21 +1071,21 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 340),
                   child: SizedBox(
-              width: double.infinity,
-              child: CupertinoButton.filled(
+                    width: double.infinity,
+                    child: CupertinoButton.filled(
                       borderRadius: BorderRadius.circular(12),
                       padding: const EdgeInsets.symmetric(vertical: 13),
-                onPressed: () => context.go('/dashboard'),
-                child: Text(
-                  'Done',
+                      onPressed: () => context.go('/dashboard'),
+                      child: Text(
+                        l10n.doneCta,
                         style: textTheme.bodyMedium?.copyWith(
                           fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.pureWhite,
+                          fontWeight: FontWeight.w600,
+                          color: OpeiColors.pureWhite,
                         ),
                       ),
                     ),
-                      ),
+                  ),
                 ),
               ),
             ),
@@ -1028,10 +1120,10 @@ class InfoItem extends StatelessWidget {
           child: Text(
             text,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 12,
-                  height: 1.35,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 12,
+              height: 1.35,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
         ),
       ],
