@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
@@ -17,6 +18,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(profileControllerProvider);
+    final localeState = ref.watch(appLocaleControllerProvider);
     final controller = ref.read(profileControllerProvider.notifier);
     final profile = state.profile;
     final platform = Theme.of(context).platform;
@@ -256,6 +258,21 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ],
             ),
             SizedBox(height: spacing * 3),
+            ProfileSection(
+              title: 'Preferences',
+              children: [
+                ProfileActionItem(
+                  icon: Icons.language_outlined,
+                  label: 'Language',
+                  subtitle: _languageLabel(localeState.languageCode),
+                  onTap: () => _showLanguageSelectorSheet(
+                    context: context,
+                    selectedLanguageCode: localeState.languageCode,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: spacing * 3),
             QuickAuthSettingsSection(userId: user.userId),
             SizedBox(height: spacing * 3),
             ProfileSection(
@@ -461,6 +478,212 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (success == true && context.mounted) {
       context.go('/login');
     }
+  }
+
+  Future<void> _showLanguageSelectorSheet({
+    required BuildContext context,
+    required String selectedLanguageCode,
+  }) async {
+    final selected = await _presentResponsiveSheet<String>(
+      builder: (_) => _LanguageSelectorSheet(selected: selectedLanguageCode),
+      enableDrag: true,
+      dismissOnBarrierTap: true,
+    );
+
+    if (!context.mounted ||
+        selected == null ||
+        selected == selectedLanguageCode) {
+      return;
+    }
+
+    try {
+      await ref
+          .read(appLocaleControllerProvider.notifier)
+          .updateLanguageFromProfile(selected);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            selected == kLanguagePortuguese
+                ? 'Idioma atualizado para Português.'
+                : 'Language updated to English.',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          backgroundColor: OpeiBrand.ink,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Could not update language. Please try again.',
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          backgroundColor: OpeiBrand.danger,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  String _languageLabel(String languageCode) {
+    switch (languageCode) {
+      case kLanguagePortuguese:
+        return 'Português';
+      case kLanguageEnglish:
+      default:
+        return 'English';
+    }
+  }
+}
+
+class _LanguageSelectorSheet extends StatelessWidget {
+  final String selected;
+
+  const _LanguageSelectorSheet({required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewPadding.bottom;
+
+    Widget option({
+      required String code,
+      required String title,
+      required String subtitle,
+    }) {
+      final isSelected = selected == code;
+      return InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => Navigator.of(context).pop(code),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: OpeiBrand.ink,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: OpeiBrand.inkSecondary,
+                        height: 1.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                curve: Curves.easeOutCubic,
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  color: isSelected ? OpeiBrand.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: isSelected
+                        ? OpeiBrand.primary
+                        : OpeiBrand.hairlineStrong,
+                    width: 1.4,
+                  ),
+                ),
+                child: isSelected
+                    ? const Icon(
+                        Icons.check_rounded,
+                        size: 14,
+                        color: Colors.white,
+                      )
+                    : null,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: OpeiBrand.surface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 14),
+            Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: OpeiBrand.hairlineStrong,
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'Select language',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: OpeiBrand.ink,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                'Choose your app language preference.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13.5,
+                  color: OpeiBrand.inkSecondary,
+                  letterSpacing: -0.1,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18),
+              child: Column(
+                children: [
+                  option(
+                    code: kLanguageEnglish,
+                    title: 'English',
+                    subtitle: 'Use English throughout the app',
+                  ),
+                  const Divider(height: 1, color: OpeiBrand.hairline),
+                  option(
+                    code: kLanguagePortuguese,
+                    title: 'Português',
+                    subtitle: 'Usar Português em todo o aplicativo',
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: bottomInset + 14),
+          ],
+        ),
+      ),
+    );
   }
 }
 

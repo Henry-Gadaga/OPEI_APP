@@ -24,7 +24,9 @@ class UserRepository {
   }
 
   Future<FullProfileResponse> getFullProfile(String userId) async {
-    final response = await _apiClient.get<Map<String, dynamic>>('/users/$userId/profile');
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/users/$userId/profile',
+    );
 
     final apiResponse = ApiResponse<FullProfileResponse>.fromJson(
       response,
@@ -36,5 +38,42 @@ class UserRepository {
     }
 
     return apiResponse.data!;
+  }
+
+  Future<String> getLanguage() async {
+    final response = await _apiClient.get<Map<String, dynamic>>(
+      '/user/me/language',
+    );
+
+    final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
+      response,
+      (json) => Map<String, dynamic>.from(json as Map),
+    );
+
+    if (!apiResponse.success || apiResponse.data == null) {
+      throw Exception(apiResponse.message);
+    }
+
+    final language = apiResponse.data!['language'];
+    return (language ?? 'en').toString();
+  }
+
+  Future<String> setLanguage(String languageCode) async {
+    final response = await _apiClient.patch<Map<String, dynamic>>(
+      '/user/me/language',
+      data: {'language': languageCode},
+    );
+
+    final apiResponse = ApiResponse<Map<String, dynamic>>.fromJson(
+      response,
+      (json) => Map<String, dynamic>.from(json as Map),
+    );
+
+    if (!apiResponse.success || apiResponse.data == null) {
+      throw Exception(apiResponse.message);
+    }
+
+    final language = apiResponse.data!['language'];
+    return (language ?? languageCode).toString();
   }
 }

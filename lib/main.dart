@@ -3,10 +3,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:opei/core/config/environment.dart';
 import 'package:opei/core/config/feature_flags.dart';
+import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/core/utils/asset_preloader.dart';
 import 'package:opei/core/providers/providers.dart';
@@ -14,6 +16,7 @@ import 'package:opei/core/providers/express_agent_access_provider.dart';
 import 'package:opei/core/services/session_lock_service.dart';
 import 'package:opei/features/address/address_screen.dart';
 import 'package:opei/features/auth/forgot_password/forgot_password_screen.dart';
+import 'package:opei/features/auth/language/language_screen.dart';
 import 'package:opei/features/auth/login/login_screen.dart';
 import 'package:opei/features/auth/reset_password/reset_password_screen.dart';
 import 'package:opei/features/auth/signup/signup_screen.dart';
@@ -104,6 +107,7 @@ class OpeiApp extends ConsumerStatefulWidget {
 
 const Set<String> _publicPaths = {
   '/splash',
+  '/language',
   '/welcome',
   '/login',
   '/signup',
@@ -250,12 +254,23 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final localeState = ref.watch(appLocaleControllerProvider);
     return MaterialApp.router(
       title: 'Opei - USD Financial Tools',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.light,
+      locale: localeState.locale,
+      supportedLocales: const <Locale>[
+        Locale(kLanguageEnglish),
+        Locale(kLanguagePortuguese),
+      ],
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       scrollBehavior: const _OpeiScrollBehavior(),
       builder: (context, child) =>
           KeyboardDismissOnTap(child: child ?? const SizedBox.shrink()),
@@ -276,6 +291,12 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
       name: 'splash',
       pageBuilder: (context, state) =>
           NoTransitionPage(key: state.pageKey, child: const _SplashScreen()),
+    ),
+    GoRoute(
+      path: '/language',
+      name: 'language',
+      pageBuilder: (context, state) =>
+          buildOpeiTransitionPage(state: state, child: const LanguageScreen()),
     ),
     GoRoute(
       path: '/welcome',
@@ -618,8 +639,7 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     final quickAuthStatus = ref.read(quickAuthStatusProvider);
 
     final classicP2PDisabled = !FeatureFlags.enableClassicP2P;
-    final isClassicP2PPath =
-        location == '/p2p' || location.startsWith('/p2p/');
+    final isClassicP2PPath = location == '/p2p' || location.startsWith('/p2p/');
     if (classicP2PDisabled && isClassicP2PPath) {
       return '/express-p2p';
     }
@@ -680,6 +700,7 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
     }
 
     if (_isOnboardingPath(location) ||
+        location == '/language' ||
         location == '/welcome' ||
         location == '/login' ||
         location == '/signup') {
@@ -760,7 +781,7 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
 
     if (refreshToken == null) {
       quickAuthStatusNotifier.reset();
-      if (mounted) context.go('/welcome');
+      if (mounted) context.go('/language');
       return;
     }
 
@@ -791,6 +812,9 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
             accessToken: effectiveAccessToken,
             userStage: user.userStage,
           );
+      await ref
+          .read(appLocaleControllerProvider.notifier)
+          .syncFromBackend(userId: user.id);
 
       final hasCompletedSetup = await quickAuthService.isSetupCompleted(
         user.id,
@@ -852,7 +876,7 @@ class _SplashScreenState extends ConsumerState<_SplashScreen>
         );
       }
       quickAuthStatusNotifier.reset();
-      if (mounted) context.go('/login');
+      if (mounted) context.go('/language');
     }
   }
 

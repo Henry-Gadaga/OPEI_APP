@@ -12,7 +12,7 @@ class ProfileState {
     this.isLoggingOut = false,
     this.profile,
     this.error,
-    this.selectedLanguage = 'English',
+    this.selectedLanguage = 'en',
   });
 
   ProfileState copyWith({
@@ -22,10 +22,10 @@ class ProfileState {
     String? error,
     String? selectedLanguage,
   }) => ProfileState(
-        isLoading: isLoading ?? this.isLoading,
-        isLoggingOut: isLoggingOut ?? this.isLoggingOut,
-        profile: profile ?? this.profile,
-        error: error,
-        selectedLanguage: selectedLanguage ?? this.selectedLanguage,
-      );
+    isLoading: isLoading ?? this.isLoading,
+    isLoggingOut: isLoggingOut ?? this.isLoggingOut,
+    profile: profile ?? this.profile,
+    error: error,
+    selectedLanguage: selectedLanguage ?? this.selectedLanguage,
+  );
 }

@@ -29,7 +29,6 @@ class ApiClient {
         onResponse: _onResponse,
       ),
     );
-    
   }
 
   Future<void> _onRequest(
@@ -41,25 +40,28 @@ class ApiClient {
       options.headers[AppConstants.authHeaderKey] =
           '${AppConstants.bearerPrefix} $token';
     }
-    
+
+    final storedLanguage = await _storage.getLanguage();
+    final languageCode = _normalizeLanguageCode(storedLanguage);
+    options.headers['Accept-Language'] = languageCode;
+
     // Bypass ngrok browser warning for free tunnels
     options.headers['ngrok-skip-browser-warning'] = 'true';
-    
+
     if (!kReleaseMode) {
       debugPrint('🌐 ${options.method} ${options.path}');
-      debugPrint('🔐 Auth header attached: ${options.headers.containsKey(AppConstants.authHeaderKey)}');
+      debugPrint(
+        '🔐 Auth header attached: ${options.headers.containsKey(AppConstants.authHeaderKey)}',
+      );
       if (options.data != null) {
         debugPrint('📤 Request: ${options.data}');
       }
     }
-    
+
     handler.next(options);
   }
 
-  void _onResponse(
-    Response response,
-    ResponseInterceptorHandler handler,
-  ) {
+  void _onResponse(Response response, ResponseInterceptorHandler handler) {
     if (!kReleaseMode) {
       debugPrint('✅ ${response.statusCode} ${response.requestOptions.uri}');
       debugPrint('📥 Response: ${response.data}');
@@ -77,46 +79,53 @@ class ApiClient {
     if (error.response?.statusCode == 401) {
       final path = error.requestOptions.path;
       final isRefreshEndpoint = path.contains('/auth/refresh');
-      final isPublicEndpoint = path.contains('/auth/login') || 
-                                path.contains('/auth/signup') ||
-                                path.contains('/auth/forgot-password') ||
-                                path.contains('/auth/verify-email');
-      
+      final isPublicEndpoint =
+          path.contains('/auth/login') ||
+          path.contains('/auth/signup') ||
+          path.contains('/auth/forgot-password') ||
+          path.contains('/auth/verify-email');
+
       if (!isRefreshEndpoint && !isPublicEndpoint && !_isRefreshing) {
         if (_refreshAttempts >= _maxRefreshAttempts) {
-          debugPrint('❌ Max refresh attempts reached. Skipping further refresh attempts.');
+          debugPrint(
+            '❌ Max refresh attempts reached. Skipping further refresh attempts.',
+          );
           return handler.next(error);
         }
-        
+
         _isRefreshing = true;
         _refreshAttempts++;
-        
+
         try {
           final refreshToken = await _storage.getRefreshToken();
-          
+
           if (refreshToken != null) {
-            debugPrint('🔄 Attempting token refresh (attempt $_refreshAttempts/$_maxRefreshAttempts)...');
-            
+            debugPrint(
+              '🔄 Attempting token refresh (attempt $_refreshAttempts/$_maxRefreshAttempts)...',
+            );
+
             final refreshResponse = await _dio.post<Map<String, dynamic>>(
               '/auth/refresh',
               data: {'refreshToken': refreshToken},
             );
-            
-            if (refreshResponse.statusCode == 200 || refreshResponse.statusCode == 201) {
-              final data = refreshResponse.data!['data'] as Map<String, dynamic>;
+
+            if (refreshResponse.statusCode == 200 ||
+                refreshResponse.statusCode == 201) {
+              final data =
+                  refreshResponse.data!['data'] as Map<String, dynamic>;
               final newAccessToken = data['accessToken'] as String;
               final newRefreshToken = data['refreshToken'] as String;
-              
+
               await _storage.saveToken(newAccessToken);
               await _storage.saveRefreshToken(newRefreshToken);
-              
+
               debugPrint('✅ Token refreshed successfully');
-              
+
               error.requestOptions.headers[AppConstants.authHeaderKey] =
                   '${AppConstants.bearerPrefix} $newAccessToken';
-              
+
               _isRefreshing = false;
-              
+
               try {
                 final retryResponse = await _dio.fetch(error.requestOptions);
                 _refreshAttempts = 0; // Reset counter on success
@@ -133,12 +142,14 @@ class ApiClient {
         } catch (e) {
           debugPrint('❌ Token refresh failed: $e');
         }
-        
+
         _isRefreshing = false;
       }
-      
+
       if (!isPublicEndpoint && _refreshAttempts >= _maxRefreshAttempts) {
-        debugPrint('⚠️ Session refresh limit reached. Leaving existing credentials untouched.');
+        debugPrint(
+          '⚠️ Session refresh limit reached. Leaving existing credentials untouched.',
+        );
       }
     } else if (error.response?.statusCode == 403) {
       await _storage.clearToken();
@@ -152,7 +163,7 @@ class ApiClient {
     if (error.response != null) {
       final data = error.response!.data;
       final statusCode = error.response!.statusCode;
-      
+
       if (data is Map<String, dynamic>) {
         final rawMessage = data['message'];
         String? message = _sanitizeServerMessage(rawMessage);
@@ -170,7 +181,7 @@ class ApiClient {
           errors: fieldErrors,
         );
       }
-      
+
       // Handle non-JSON responses (HTML error pages, etc.)
       return ApiError(
         message: _getStatusCodeMessage(statusCode),
@@ -184,9 +195,13 @@ class ApiClient {
       case DioExceptionType.receiveTimeout:
         return ApiError(message: 'Connection timeout. Please try again.');
       case DioExceptionType.connectionError:
-        return ApiError(message: 'No internet connection. Please check your network.');
+        return ApiError(
+          message: 'No internet connection. Please check your network.',
+        );
       default:
-        return ApiError(message: 'An unexpected error occurred. Please try again.');
+        return ApiError(
+          message: 'An unexpected error occurred. Please try again.',
+        );
     }
   }
 
@@ -197,14 +212,18 @@ class ApiClient {
         return null;
       }
 
-      final normalized = _looksLikeHtml(trimmed) ? _stripHtmlTags(trimmed) : trimmed;
+      final normalized = _looksLikeHtml(trimmed)
+          ? _stripHtmlTags(trimmed)
+          : trimmed;
       final collapsed = normalized.replaceAll(RegExp(r'\s+'), ' ').trim();
       if (collapsed.isEmpty) {
         return null;
       }
 
       final lower = collapsed.toLowerCase();
-      if (lower == 'bad request' || lower == 'forbidden' || lower == 'not found') {
+      if (lower == 'bad request' ||
+          lower == 'forbidden' ||
+          lower == 'not found') {
         return null;
       }
 
@@ -221,7 +240,14 @@ class ApiClient {
     }
 
     if (raw is Map<String, dynamic>) {
-      for (final key in ['message', 'error', 'errorMessage', 'detail', 'title', 'description']) {
+      for (final key in [
+        'message',
+        'error',
+        'errorMessage',
+        'detail',
+        'title',
+        'description',
+      ]) {
         if (raw.containsKey(key)) {
           final candidate = _sanitizeServerMessage(raw[key]);
           if (candidate != null) {
@@ -240,6 +266,13 @@ class ApiClient {
 
   String _stripHtmlTags(String value) {
     return value.replaceAll(RegExp(r'<[^>]*>'), ' ');
+  }
+
+  String _normalizeLanguageCode(String? value) {
+    final raw = (value ?? '').trim().toLowerCase();
+    if (raw.startsWith('pt')) return 'pt';
+    if (raw.startsWith('en')) return 'en';
+    return 'en';
   }
 
   String _getStatusCodeMessage(int? statusCode) {
@@ -261,15 +294,9 @@ class ApiClient {
     }
   }
 
-  Future<T> get<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-  }) async {
+  Future<T> get<T>(String path, {Map<String, dynamic>? queryParameters}) async {
     try {
-      final response = await _dio.get(
-        path,
-        queryParameters: queryParameters,
-      );
+      final response = await _dio.get(path, queryParameters: queryParameters);
       return response.data as T;
     } on DioException catch (e) {
       throw _handleError(e);

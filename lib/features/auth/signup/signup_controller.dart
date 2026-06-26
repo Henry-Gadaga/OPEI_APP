@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/retry_helper.dart';
@@ -18,10 +19,14 @@ class SignupController extends Notifier<SignupState> {
     state = SignupLoading();
 
     try {
+      final selectedLanguageCode = ref
+          .read(appLocaleControllerProvider)
+          .languageCode;
       final request = SignupRequest(
         email: email.trim(),
         phone: phone.trim(),
         password: pin,
+        language: selectedLanguageCode,
       );
 
       final repository = ref.read(authRepositoryProvider);
@@ -39,6 +44,9 @@ class SignupController extends Notifier<SignupState> {
             accessToken: response.accessToken,
             userStage: response.user.userStage,
           );
+      await ref
+          .read(appLocaleControllerProvider.notifier)
+          .syncFromBackend(userId: response.user.id);
 
       await _silentlyEnrollQuickAuthPin(
         userId: response.user.id,
@@ -93,9 +101,9 @@ class SignupController extends Notifier<SignupState> {
       if (userStage.toUpperCase() == 'VERIFIED') {
         await quickAuthService.markSetupCompleted(userId);
         if (!ref.mounted) return;
-        ref.read(quickAuthStatusProvider.notifier).setStatus(
-              QuickAuthStatus.satisfied,
-            );
+        ref
+            .read(quickAuthStatusProvider.notifier)
+            .setStatus(QuickAuthStatus.satisfied);
       }
     } catch (e) {
       // Local quick-auth enrollment should never block a successful signup.

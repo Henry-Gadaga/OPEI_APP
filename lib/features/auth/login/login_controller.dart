@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/data/models/login_request.dart';
@@ -99,6 +100,9 @@ class LoginController extends Notifier<LoginState> {
             accessToken: response.accessToken,
             userStage: response.user.userStage,
           );
+      await ref
+          .read(appLocaleControllerProvider.notifier)
+          .syncFromBackend(userId: response.user.id);
       debugPrint(
         '✅ Auth session set - providers will refresh with new user data',
       );

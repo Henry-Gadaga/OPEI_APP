@@ -7,11 +7,13 @@ class SignupRequest {
   final String email;
   final String phone;
   final String password;
+  final String? language;
 
   SignupRequest({
     required this.email,
     required this.phone,
     required this.password,
+    this.language,
   });
 
   factory SignupRequest.fromJson(Map<String, dynamic> json) =>
