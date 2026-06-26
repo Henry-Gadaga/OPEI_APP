@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/data/models/p2p_trade.dart';
 import 'package:opei/data/models/p2p_ad.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// A clean, Apple-style rating screen that appears after releasing the funds.
@@ -41,17 +42,19 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
   }
 
   String get _counterpartLabel {
+    final l10n = AppLocalizations.of(context)!;
     switch (widget.trade.ad.type) {
       case P2PAdType.buy:
-        return 'Buyer';
+        return l10n.p2pBuyerLabel;
       case P2PAdType.sell:
-        return 'Seller';
+        return l10n.p2pSellerLabel;
     }
   }
 
   Future<void> _submitRating() async {
+    final l10n = AppLocalizations.of(context)!;
     if (_selectedScore == 0) {
-      setState(() => _errorMessage = 'Please select a star rating.');
+      setState(() => _errorMessage = l10n.p2pSelectStarRatingError);
       return;
     }
 
@@ -65,8 +68,12 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
       await repository.rateTrade(
         tradeId: widget.trade.id,
         score: _selectedScore,
-        comment: _commentController.text.trim().isNotEmpty ? _commentController.text.trim() : null,
-        tags: _selectedTags.isNotEmpty ? _selectedTags.toList(growable: false) : null,
+        comment: _commentController.text.trim().isNotEmpty
+            ? _commentController.text.trim()
+            : null,
+        tags: _selectedTags.isNotEmpty
+            ? _selectedTags.toList(growable: false)
+            : null,
       );
 
       if (!mounted) return;
@@ -77,7 +84,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Failed to submit rating. Please try again.';
+        _errorMessage = l10n.p2pFailedSubmitRatingError;
       });
     }
   }
@@ -88,6 +95,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
 
@@ -104,7 +112,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                   const SizedBox(height: 40),
                   // Title
                   Text(
-                    'Rate $_counterpartLabel',
+                    l10n.p2pRateCounterpartyTitle(_counterpartLabel),
                     style: textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                       fontSize: 20,
@@ -114,7 +122,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'How was your experience?',
+                    l10n.p2pHowWasExperienceSubtitle,
                     style: textTheme.bodyMedium?.copyWith(
                       fontSize: 13,
                       color: OpeiColors.iosLabelSecondary,
@@ -140,9 +148,13 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 6),
                           child: Icon(
-                            isSelected ? Icons.star_rounded : Icons.star_outline_rounded,
+                            isSelected
+                                ? Icons.star_rounded
+                                : Icons.star_outline_rounded,
                             size: 36,
-                            color: isSelected ? Colors.amber : OpeiColors.grey300,
+                            color: isSelected
+                                ? Colors.amber
+                                : OpeiColors.grey300,
                           ),
                         ),
                       );
@@ -168,7 +180,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'What went well?',
+                      l10n.p2pWhatWentWellLabel,
                       style: textTheme.bodyMedium?.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -181,21 +193,23 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: _ratingTags.map((tag) {
-                      final isActive = _selectedTags.contains(tag);
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            if (isActive) {
-                              _selectedTags.remove(tag);
-                            } else {
-                              _selectedTags.add(tag);
-                            }
-                          });
-                        },
-                        child: _buildTagPill(tag, isActive: isActive),
-                      );
-                    }).toList(growable: false),
+                    children: _ratingTags
+                        .map((tag) {
+                          final isActive = _selectedTags.contains(tag);
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                if (isActive) {
+                                  _selectedTags.remove(tag);
+                                } else {
+                                  _selectedTags.add(tag);
+                                }
+                              });
+                            },
+                            child: _buildTagPill(tag, isActive: isActive),
+                          );
+                        })
+                        .toList(growable: false),
                   ),
 
                   const SizedBox(height: 24),
@@ -204,7 +218,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Comments',
+                      l10n.p2pCommentsLabel,
                       style: textTheme.bodyMedium?.copyWith(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -222,7 +236,7 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                     textCapitalization: TextCapitalization.sentences,
                     inputFormatters: [LengthLimitingTextInputFormatter(300)],
                     decoration: InputDecoration(
-                      hintText: 'Share your experience...',
+                      hintText: l10n.p2pShareExperienceHint,
                       hintStyle: textTheme.bodyMedium?.copyWith(
                         fontSize: 13,
                         color: OpeiColors.iosLabelTertiary,
@@ -234,7 +248,10 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
                       counterStyle: textTheme.bodySmall?.copyWith(
                         fontSize: 10,
                         color: OpeiColors.iosLabelSecondary,
@@ -269,11 +286,13 @@ class _P2PRatingScreenState extends ConsumerState<P2PRatingScreen> {
                               width: 18,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  OpeiColors.pureWhite,
+                                ),
                               ),
                             )
                           : Text(
-                              'Submit Rating',
+                              l10n.p2pSubmitRatingCta,
                               style: textTheme.bodyLarge?.copyWith(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,

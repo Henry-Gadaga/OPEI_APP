@@ -17,6 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:opei/core/config/api_config.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/features/kyc/kyc_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 
@@ -81,7 +82,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   }
 
   Future<List<String>> _handleAndroidFileSelection(
-      FileSelectorParams params) async {
+    FileSelectorParams params,
+  ) async {
     try {
       final config = _resolveFilePickerConfig(params.acceptTypes);
       final allowMultiple = params.mode == FileSelectorMode.openMultiple;
@@ -99,10 +101,12 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         String? path = file.path;
         if (path == null && file.bytes != null) {
           final tempDir = await getTemporaryDirectory();
-          final extension =
-              file.extension?.isNotEmpty == true ? '.${file.extension}' : '';
+          final extension = file.extension?.isNotEmpty == true
+              ? '.${file.extension}'
+              : '';
           final tempFile = File(
-              '${tempDir.path}/didit_upload_${DateTime.now().millisecondsSinceEpoch}$extension');
+            '${tempDir.path}/didit_upload_${DateTime.now().millisecondsSinceEpoch}$extension',
+          );
           await tempFile.writeAsBytes(file.bytes!);
           path = tempFile.path;
         }
@@ -173,13 +177,16 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       KycInitial() => _buildInitialView(),
       KycLoading() => _buildLoadingView(),
       KycWebViewReady(:final sessionUrl) => _buildWebView(sessionUrl),
-      KycError(:final message, :final errorType) =>
-        _buildErrorView(message, errorType),
+      KycError(:final message, :final errorType) => _buildErrorView(
+        message,
+        errorType,
+      ),
       KycCompleted() => _buildCompletedView(),
     };
   }
 
   Widget _buildInitialView() {
+    final l10n = AppLocalizations.of(context)!;
     final bottomPad = MediaQuery.of(context).viewPadding.bottom;
     return SafeArea(
       top: false,
@@ -213,8 +220,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Verify your\nidentity',
+                  Text(
+                    l10n.kycVerifyIdentityTitle,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 32,
@@ -225,8 +232,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    "One last step — a quick ID check and selfie. Takes about 2 minutes.",
+                  Text(
+                    l10n.kycVerifyIdentitySubtitle,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 14.5,
@@ -240,28 +247,26 @@ class _KycScreenState extends ConsumerState<KycScreen> {
                   Container(
                     decoration: BoxDecoration(
                       color: OpeiBrand.surfaceMuted,
-                      borderRadius:
-                          BorderRadius.circular(OpeiBrand.radiusCard),
+                      borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                     ),
                     child: Column(
                       children: [
                         _ChecklistRow(
                           icon: Icons.badge_rounded,
-                          label: 'Government-issued ID',
-                          subLabel:
-                              "Passport, driver's licence or national ID",
+                          label: l10n.kycChecklistGovernmentIdTitle,
+                          subLabel: l10n.kycChecklistGovernmentIdSubtitle,
                         ),
                         _Divider(),
                         _ChecklistRow(
                           icon: Icons.face_rounded,
-                          label: 'A quick selfie',
-                          subLabel: 'Matched against your ID photo',
+                          label: l10n.kycChecklistSelfieTitle,
+                          subLabel: l10n.kycChecklistSelfieSubtitle,
                         ),
                         _Divider(),
                         _ChecklistRow(
                           icon: Icons.timer_outlined,
-                          label: 'About 2 minutes',
-                          subLabel: 'Most checks complete instantly',
+                          label: l10n.kycChecklistTwoMinutesTitle,
+                          subLabel: l10n.kycChecklistTwoMinutesSubtitle,
                         ),
                       ],
                     ),
@@ -275,9 +280,9 @@ class _KycScreenState extends ConsumerState<KycScreen> {
                         color: OpeiBrand.inkTertiary,
                       ),
                       const SizedBox(width: 6),
-                      const Expanded(
+                      Expanded(
                         child: Text(
-                          'Your data is encrypted and never shared. We verify with a trusted partner.',
+                          l10n.kycDataPrivacyNote,
                           style: TextStyle(
                             fontFamily: kPrimaryFontFamily,
                             fontSize: 12.5,
@@ -297,7 +302,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
           Padding(
             padding: EdgeInsets.fromLTRB(24, 16, 24, 20 + bottomPad),
             child: OpeiPrimaryButton(
-              label: 'Start verification',
+              label: l10n.kycStartVerificationCta,
               onPressed: _isStartingVerification
                   ? null
                   : _handleStartVerification,
@@ -328,16 +333,13 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   }
 
   Future<bool> _ensureKycPermissions() async {
+    final l10n = AppLocalizations.of(context)!;
     final platform = defaultTargetPlatform;
-    if (platform != TargetPlatform.android &&
-        platform != TargetPlatform.iOS) {
+    if (platform != TargetPlatform.android && platform != TargetPlatform.iOS) {
       return true;
     }
 
-    final permissions = <Permission>{
-      Permission.camera,
-      Permission.microphone,
-    };
+    final permissions = <Permission>{Permission.camera, Permission.microphone};
     if (platform == TargetPlatform.iOS) {
       permissions.add(Permission.photos);
     }
@@ -349,9 +351,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       if (e.code == 'PermissionHandler.PermissionManager' && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'A permission request is already in progress. Please wait a moment and try again.',
-            ),
+            content: Text(l10n.kycPermissionInProgressError),
             backgroundColor: OpeiBrand.warning,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(16),
@@ -363,20 +363,20 @@ class _KycScreenState extends ConsumerState<KycScreen> {
       }
       return false;
     }
-    final allGranted = results.values
-        .every((status) => status.isGranted || status.isLimited);
+    final allGranted = results.values.every(
+      (status) => status.isGranted || status.isLimited,
+    );
     if (allGranted) return true;
 
-    final permanentlyDenied =
-        results.entries.any((entry) => entry.value.isPermanentlyDenied);
+    final permanentlyDenied = results.entries.any(
+      (entry) => entry.value.isPermanentlyDenied,
+    );
     if (permanentlyDenied && mounted) {
       await _showPermissionDialog();
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
-            'Camera and microphone access are required to continue.',
-          ),
+          content: Text(l10n.kycPermissionRequiredError),
           backgroundColor: OpeiBrand.danger,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
@@ -394,38 +394,47 @@ class _KycScreenState extends ConsumerState<KycScreen> {
     await showDialog<void>(
       context: context,
       builder: (dialogContext) {
+        final l10n = AppLocalizations.of(dialogContext)!;
         return AlertDialog(
           backgroundColor: OpeiBrand.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
           ),
-          title: const Text('Allow access',
-              style: TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontWeight: FontWeight.w700)),
-          content: const Text(
-            'Camera, microphone and media permissions are needed to capture your verification selfie. '
-            'Please enable them in Settings to continue.',
+          title: Text(
+            l10n.kycAllowAccessTitle,
             style: TextStyle(
-                fontFamily: kPrimaryFontFamily,
-                color: OpeiBrand.inkSecondary,
-                height: 1.4),
+              fontFamily: kPrimaryFontFamily,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          content: Text(
+            l10n.kycAllowAccessMessage,
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              color: OpeiBrand.inkSecondary,
+              height: 1.4,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Not now',
-                  style: TextStyle(color: OpeiBrand.inkSecondary)),
+              child: Text(
+                l10n.kycNotNowCta,
+                style: TextStyle(color: OpeiBrand.inkSecondary),
+              ),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 await openAppSettings();
               },
-              child: const Text('Open Settings',
-                  style: TextStyle(
-                      color: OpeiBrand.primary,
-                      fontWeight: FontWeight.w600)),
+              child: Text(
+                l10n.kycOpenSettingsCta,
+                style: TextStyle(
+                  color: OpeiBrand.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
         );
@@ -434,11 +443,12 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 28,
             height: 28,
             child: CircularProgressIndicator(
@@ -446,10 +456,10 @@ class _KycScreenState extends ConsumerState<KycScreen> {
               color: OpeiBrand.primary,
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            'Preparing verification…',
-            style: TextStyle(
+            l10n.kycPreparingVerification,
+            style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -489,18 +499,16 @@ class _KycScreenState extends ConsumerState<KycScreen> {
 
   void _setupWebView(String sessionUrl) {
     debugPrint('🌐 Setting up WebView for: $sessionUrl');
+    final l10n = AppLocalizations.of(context)!;
 
     if (kIsWeb) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final uri = Uri.parse(sessionUrl);
-        final launched =
-            await launchUrl(uri, mode: LaunchMode.platformDefault);
+        final launched = await launchUrl(uri, mode: LaunchMode.platformDefault);
         if (!launched && mounted) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                  content:
-                      Text('Could not open verification tab. Copying link…')),
+              SnackBar(content: Text(l10n.kycCouldNotOpenVerificationTab)),
             );
           }
         }
@@ -562,6 +570,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   }
 
   Widget _buildErrorView(String message, KycErrorType errorType) {
+    final l10n = AppLocalizations.of(context)!;
     IconData icon;
     Color iconColor;
     Color tintColor;
@@ -574,32 +583,32 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         icon = Icons.check_circle_rounded;
         iconColor = OpeiBrand.success;
         tintColor = const Color(0xFFE7F8EE);
-        title = 'Already verified';
-        actionText = 'Go to dashboard';
+        title = l10n.kycAlreadyVerifiedTitle;
+        actionText = l10n.kycGoToDashboardCta;
         onAction = () => context.go('/dashboard');
         break;
       case KycErrorType.underReview:
         icon = Icons.hourglass_top_rounded;
         iconColor = OpeiBrand.warning;
         tintColor = const Color(0xFFFFF7E6);
-        title = 'Under review';
-        actionText = 'Back';
+        title = l10n.kycUnderReviewTitle;
+        actionText = l10n.cancelCta;
         onAction = _navigateBackOrDashboard;
         break;
       case KycErrorType.wrongStage:
         icon = Icons.info_rounded;
         iconColor = OpeiBrand.primary;
         tintColor = OpeiBrand.primaryTint;
-        title = 'Address required';
-        actionText = 'Complete address';
+        title = l10n.kycAddressRequiredTitle;
+        actionText = l10n.kycCompleteAddressCta;
         onAction = () => context.go('/address');
         break;
       case KycErrorType.inactiveUser:
         icon = Icons.block_rounded;
         iconColor = OpeiBrand.danger;
         tintColor = const Color(0xFFFDEBEE);
-        title = 'Account inactive';
-        actionText = 'Back';
+        title = l10n.kycAccountInactiveTitle;
+        actionText = l10n.cancelCta;
         onAction = _navigateBackOrDashboard;
         break;
       case KycErrorType.unauthorized:
@@ -607,8 +616,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         icon = Icons.lock_rounded;
         iconColor = OpeiBrand.danger;
         tintColor = const Color(0xFFFDEBEE);
-        title = 'Sign in again';
-        actionText = 'Go to sign in';
+        title = l10n.kycSignInAgainTitle;
+        actionText = l10n.kycGoToSignInCta;
         onAction = () => unawaited(_handleSignInAgainAction());
         break;
       case KycErrorType.serviceUnavailable:
@@ -616,8 +625,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
         icon = Icons.error_rounded;
         iconColor = OpeiBrand.danger;
         tintColor = const Color(0xFFFDEBEE);
-        title = 'Something went wrong';
-        actionText = 'Try again';
+        title = l10n.kycSomethingWentWrongTitle;
+        actionText = l10n.tryAgainCta;
         onAction = () =>
             ref.read(kycControllerProvider.notifier).initializeKycSession();
         break;
@@ -701,6 +710,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
   }
 
   Widget _buildCompletedView() {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       top: false,
       child: Column(
@@ -726,8 +736,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
                       ),
                     ),
                     const SizedBox(height: 22),
-                    const Text(
-                      'You\'re all set!',
+                    Text(
+                      l10n.kycAllSetTitle,
                       style: TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 24,
@@ -738,8 +748,8 @@ class _KycScreenState extends ConsumerState<KycScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Your identity has been verified. Welcome to Opei.',
+                    Text(
+                      l10n.kycAllSetSubtitle,
                       style: TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 14,
@@ -756,7 +766,7 @@ class _KycScreenState extends ConsumerState<KycScreen> {
             ),
           ),
           _BottomBar(
-            primaryLabel: 'Continue to dashboard',
+            primaryLabel: l10n.kycContinueToDashboardCta,
             onPrimary: () => context.go('/dashboard'),
           ),
         ],
@@ -834,11 +844,7 @@ class _Divider extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Divider(
-        height: 1,
-        thickness: 1,
-        color: OpeiBrand.hairline,
-      ),
+      child: Divider(height: 1, thickness: 1, color: OpeiBrand.hairline),
     );
   }
 }
@@ -874,8 +880,5 @@ class _BottomBar extends StatelessWidget {
 class _FilePickerConfig {
   final FileType fileType;
   final List<String>? allowedExtensions;
-  const _FilePickerConfig({
-    required this.fileType,
-    this.allowedExtensions,
-  });
+  const _FilePickerConfig({required this.fileType, this.allowedExtensions});
 }

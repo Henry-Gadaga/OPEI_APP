@@ -7,6 +7,7 @@ import 'package:opei/data/models/beneficiary.dart';
 import 'package:opei/data/models/payout_review.dart';
 import 'package:opei/features/beneficiaries/send/send_mobile_money_controller.dart';
 import 'package:opei/features/beneficiaries/send/send_result_screen.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_app_bar.dart';
 import 'package:opei/widgets/opei_premium/opei_primary_button.dart';
@@ -29,13 +30,15 @@ class SendPreviewScreen extends ConsumerWidget {
         .confirmAndSend();
     if (!context.mounted) return;
     if (ok) {
-      Navigator.of(context).pushReplacement(OpeiPageRoute(
-        builder: (_) => SendResultScreen(
-          beneficiary: beneficiary,
-          countryName: countryName,
-          flag: flag,
+      Navigator.of(context).pushReplacement(
+        OpeiPageRoute(
+          builder: (_) => SendResultScreen(
+            beneficiary: beneficiary,
+            countryName: countryName,
+            flag: flag,
+          ),
         ),
-      ));
+      );
     } else {
       final s = ref.read(sendMobileMoneyControllerProvider(beneficiary));
       final err = s.initiateError ?? s.finalizeError;
@@ -45,19 +48,23 @@ class SendPreviewScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(sendMobileMoneyControllerProvider(beneficiary));
     final review = state.review;
-    final name = beneficiary.accountName ?? 'Receiver';
+    final name = beneficiary.accountName ?? l10n.sendReceiverFallback;
     final masked = beneficiary.accountNumberMasked ?? '';
 
     if (review == null) {
       return Scaffold(
         backgroundColor: OpeiBrand.surface,
         appBar: const OpeiAppBar(),
-        body: const Center(
+        body: Center(
           child: Text(
-            'Quote unavailable. Please go back and try again.',
-            style: TextStyle(fontSize: 13.5, color: OpeiBrand.inkSecondary),
+            l10n.sendPreviewQuoteUnavailable,
+            style: const TextStyle(
+              fontSize: 13.5,
+              color: OpeiBrand.inkSecondary,
+            ),
           ),
         ),
       );
@@ -84,8 +91,8 @@ class SendPreviewScreen extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // ── Page title ─────────────────────────────────────
-                    const Text(
-                      'Review transfer',
+                    Text(
+                      l10n.sendPreviewTitle,
                       style: TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 22,
@@ -96,8 +103,8 @@ class SendPreviewScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 2),
-                    const Text(
-                      'Check the details before confirming.',
+                    Text(
+                      l10n.sendPreviewSubtitle,
                       style: TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 13.5,
@@ -137,8 +144,9 @@ class SendPreviewScreen extends ConsumerWidget {
                         iconColor: OpeiBrand.warning,
                         bgColor: OpeiBrand.warning.withValues(alpha: 0.08),
                         borderColor: OpeiBrand.warning.withValues(alpha: 0.22),
-                        message:
-                            'Your balance is \$${(shortfall / 100).toStringAsFixed(2)} short. Top up to continue.',
+                        message: l10n.sendPreviewBalanceShortfall(
+                          (shortfall / 100).toStringAsFixed(2),
+                        ),
                       ),
                     ],
                     if (state.initiateError != null ||
@@ -149,8 +157,7 @@ class SendPreviewScreen extends ConsumerWidget {
                         iconColor: OpeiBrand.danger,
                         bgColor: OpeiBrand.danger.withValues(alpha: 0.07),
                         borderColor: OpeiBrand.danger.withValues(alpha: 0.18),
-                        message:
-                            (state.initiateError ?? state.finalizeError)!,
+                        message: (state.initiateError ?? state.finalizeError)!,
                         messageColor: OpeiBrand.danger,
                       ),
                     ],
@@ -179,8 +186,8 @@ class SendPreviewScreen extends ConsumerWidget {
                   if (isBusy) ...[
                     Text(
                       state.isInitiating
-                          ? 'Reserving funds…'
-                          : 'Sending payment…',
+                          ? l10n.sendPreviewReservingFunds
+                          : l10n.sendPreviewSendingPayment,
                       style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 12,
@@ -192,7 +199,7 @@ class SendPreviewScreen extends ConsumerWidget {
                     const SizedBox(height: 8),
                   ],
                   OpeiPrimaryButton(
-                    label: 'Confirm & send',
+                    label: l10n.sendPreviewConfirmCta,
                     onPressed: (state.isBusy || !canProceed)
                         ? null
                         : () => _confirm(context, ref),
@@ -219,6 +226,7 @@ class _AmountHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
@@ -249,8 +257,8 @@ class _AmountHero extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'YOU PAY',
+                Text(
+                  l10n.sendPreviewYouPayLabel,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 9.5,
@@ -281,8 +289,8 @@ class _AmountHero extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.18),
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'THEY RECEIVE',
+                Text(
+                  l10n.sendPreviewTheyReceiveLabel,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 9.5,
@@ -361,6 +369,7 @@ class _DetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final showWalletAfter = walletAfterCents != null;
     final walletUsd = showWalletAfter
         ? '\$${(walletAfterCents! / 100).toStringAsFixed(2)}'
@@ -412,10 +421,11 @@ class _DetailsCard extends StatelessWidget {
                           color: OpeiBrand.surface,
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: OpeiBrand.surfaceMuted, width: 1.5),
+                            color: OpeiBrand.surfaceMuted,
+                            width: 1.5,
+                          ),
                         ),
-                        child: Text(flag,
-                            style: const TextStyle(fontSize: 10)),
+                        child: Text(flag, style: const TextStyle(fontSize: 10)),
                       ),
                     ),
                   ],
@@ -460,13 +470,15 @@ class _DetailsCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 4),
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: OpeiBrand.success.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(99),
                   ),
-                  child: const Text(
-                    'Recipient',
+                  child: Text(
+                    l10n.sendPreviewRecipientBadge,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 10.5,
@@ -483,17 +495,17 @@ class _DetailsCard extends StatelessWidget {
 
           // ── Breakdown rows ────────────────────────────────────────
           _DetailRow(
-            label: 'Send amount',
+            label: l10n.sendPreviewSendAmountRow,
             value: '\$${review.requiredAmountUsd}',
           ),
           _Divider(),
           _DetailRow(
-            label: 'Transfer fee',
+            label: l10n.sendPreviewTransferFeeRow,
             value: '\$${review.feeAmountUsd}',
           ),
           _Divider(),
           _DetailRow(
-            label: 'Total charged',
+            label: l10n.sendPreviewTotalChargedRow,
             value: '\$${review.totalDebitAmountUsd}',
             valueWeight: FontWeight.w800,
             valueSize: 15,
@@ -502,7 +514,7 @@ class _DetailsCard extends StatelessWidget {
           if (showWalletAfter) ...[
             _Divider(),
             _DetailRow(
-              label: 'Wallet after',
+              label: l10n.sendPreviewWalletAfterRow,
               value: walletUsd!,
               icon: Icons.account_balance_wallet_outlined,
             ),
@@ -515,8 +527,8 @@ class _DetailsCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Note',
+                  Text(
+                    l10n.sendPreviewNoteRow,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 13,
@@ -606,12 +618,12 @@ class _DetailRow extends StatelessWidget {
 class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const Divider(
-        height: 1,
-        thickness: 0.5,
-        color: OpeiBrand.hairline,
-        indent: 14,
-        endIndent: 14,
-      );
+    height: 1,
+    thickness: 0.5,
+    color: OpeiBrand.hairline,
+    indent: 14,
+    endIndent: 14,
+  );
 }
 
 class _ExpiryHint extends StatelessWidget {
@@ -620,13 +632,19 @@ class _ExpiryHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
-        const Icon(Icons.schedule_outlined,
-            size: 12, color: OpeiBrand.inkTertiary),
+        const Icon(
+          Icons.schedule_outlined,
+          size: 12,
+          color: OpeiBrand.inkTertiary,
+        ),
         const SizedBox(width: 6),
         Text(
-          'Quote expires at ${DateFormat.Hm().format(expiresAt.toLocal())}',
+          l10n.sendPreviewQuoteExpiresAt(
+            DateFormat.Hm().format(expiresAt.toLocal()),
+          ),
           style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 11.5,

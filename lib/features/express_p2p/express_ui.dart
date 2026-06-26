@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opei/core/money/money.dart';
 import 'package:opei/data/models/express_order.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// Shared formatting + presentation helpers for the Express P2P modules
@@ -64,60 +65,63 @@ class ExpressStatusView {
   });
 }
 
-ExpressStatusView expressCustomerStatusView(ExpressOrderStatus status) {
+ExpressStatusView expressCustomerStatusView(
+  ExpressOrderStatus status,
+  AppLocalizations l10n,
+) {
   switch (status) {
     case ExpressOrderStatus.pendingAgent:
-      return const ExpressStatusView(
-        label: 'Finding agent',
+      return ExpressStatusView(
+        label: l10n.expressStatusFindingAgent,
         color: OpeiBrand.warning,
         background: Color(0xFFFFF4E0),
         icon: Icons.search_rounded,
       );
     case ExpressOrderStatus.awaitingPayment:
-      return const ExpressStatusView(
-        label: 'Pay now',
+      return ExpressStatusView(
+        label: l10n.expressStatusPayNow,
         color: OpeiBrand.primary,
         background: OpeiBrand.primaryTint,
         icon: Icons.account_balance_wallet_outlined,
       );
     case ExpressOrderStatus.paidByUser:
-      return const ExpressStatusView(
-        label: 'Verifying',
+      return ExpressStatusView(
+        label: l10n.expressStatusVerifying,
         color: OpeiBrand.warning,
         background: Color(0xFFFFF4E0),
         icon: Icons.hourglass_bottom_rounded,
       );
     case ExpressOrderStatus.disputed:
-      return const ExpressStatusView(
-        label: 'Under review',
+      return ExpressStatusView(
+        label: l10n.expressStatusUnderReview,
         color: OpeiBrand.danger,
         background: Color(0xFFFCE8EA),
         icon: Icons.report_problem_outlined,
       );
     case ExpressOrderStatus.completed:
-      return const ExpressStatusView(
-        label: 'Completed',
+      return ExpressStatusView(
+        label: l10n.expressStatusCompleted,
         color: OpeiBrand.success,
         background: Color(0xFFE7F6EC),
         icon: Icons.check_circle_outline_rounded,
       );
     case ExpressOrderStatus.expired:
-      return const ExpressStatusView(
-        label: 'Expired',
+      return ExpressStatusView(
+        label: l10n.expressStatusExpired,
         color: OpeiBrand.inkTertiary,
         background: OpeiBrand.surfaceMuted,
         icon: Icons.timer_off_outlined,
       );
     case ExpressOrderStatus.cancelled:
-      return const ExpressStatusView(
-        label: 'Cancelled',
+      return ExpressStatusView(
+        label: l10n.expressStatusCancelled,
         color: OpeiBrand.danger,
         background: Color(0xFFFCE8EA),
         icon: Icons.cancel_outlined,
       );
     case ExpressOrderStatus.unknown:
-      return const ExpressStatusView(
-        label: 'Processing',
+      return ExpressStatusView(
+        label: l10n.expressStatusProcessing,
         color: OpeiBrand.inkTertiary,
         background: OpeiBrand.surfaceMuted,
         icon: Icons.sync_rounded,
@@ -126,60 +130,63 @@ ExpressStatusView expressCustomerStatusView(ExpressOrderStatus status) {
 }
 
 /// Agent-facing presentation for an order status.
-ExpressStatusView expressAgentStatusView(ExpressOrderStatus status) {
+ExpressStatusView expressAgentStatusView(
+  ExpressOrderStatus status,
+  AppLocalizations l10n,
+) {
   switch (status) {
     case ExpressOrderStatus.pendingAgent:
-      return const ExpressStatusView(
-        label: 'Available',
+      return ExpressStatusView(
+        label: l10n.expressStatusAvailable,
         color: OpeiBrand.warning,
         background: Color(0xFFFFF4E0),
         icon: Icons.new_releases_outlined,
       );
     case ExpressOrderStatus.awaitingPayment:
-      return const ExpressStatusView(
-        label: 'Waiting payment',
+      return ExpressStatusView(
+        label: l10n.expressStatusWaitingPayment,
         color: OpeiBrand.primary,
         background: OpeiBrand.primaryTint,
         icon: Icons.schedule_rounded,
       );
     case ExpressOrderStatus.paidByUser:
-      return const ExpressStatusView(
-        label: 'Confirm payment',
+      return ExpressStatusView(
+        label: l10n.expressStatusConfirmPayment,
         color: OpeiBrand.warning,
         background: Color(0xFFFFF4E0),
         icon: Icons.verified_user_outlined,
       );
     case ExpressOrderStatus.disputed:
-      return const ExpressStatusView(
-        label: 'Under review',
+      return ExpressStatusView(
+        label: l10n.expressStatusUnderReview,
         color: OpeiBrand.danger,
         background: Color(0xFFFCE8EA),
         icon: Icons.report_problem_outlined,
       );
     case ExpressOrderStatus.completed:
-      return const ExpressStatusView(
-        label: 'Completed',
+      return ExpressStatusView(
+        label: l10n.expressStatusCompleted,
         color: OpeiBrand.success,
         background: Color(0xFFE7F6EC),
         icon: Icons.check_circle_outline_rounded,
       );
     case ExpressOrderStatus.expired:
-      return const ExpressStatusView(
-        label: 'Expired',
+      return ExpressStatusView(
+        label: l10n.expressStatusExpired,
         color: OpeiBrand.inkTertiary,
         background: OpeiBrand.surfaceMuted,
         icon: Icons.timer_off_outlined,
       );
     case ExpressOrderStatus.cancelled:
-      return const ExpressStatusView(
-        label: 'Cancelled',
+      return ExpressStatusView(
+        label: l10n.expressStatusCancelled,
         color: OpeiBrand.danger,
         background: Color(0xFFFCE8EA),
         icon: Icons.cancel_outlined,
       );
     case ExpressOrderStatus.unknown:
-      return const ExpressStatusView(
-        label: 'Processing',
+      return ExpressStatusView(
+        label: l10n.expressStatusProcessing,
         color: OpeiBrand.inkTertiary,
         background: OpeiBrand.surfaceMuted,
         icon: Icons.sync_rounded,

@@ -8,6 +8,7 @@ import 'package:opei/data/models/beneficiary.dart';
 import 'package:opei/data/repositories/beneficiary_repository.dart';
 import 'package:opei/features/beneficiaries/send/send_mobile_money_controller.dart';
 import 'package:opei/features/beneficiaries/send/send_preview_screen.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_app_bar.dart';
 import 'package:opei/widgets/opei_premium/opei_primary_button.dart';
@@ -41,20 +42,23 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
     String symbol,
     int decimals,
     List<int> quickAmounts,
-  }) _meta;
+  })
+  _meta;
 
   @override
   void initState() {
     super.initState();
     // Resolve currency once at mount time. Beneficiary has a country code
     // (e.g. "UG"), but we also accept the screen-level country prop.
-    final country = (widget.beneficiary.country.isNotEmpty
-            ? widget.beneficiary.country
-            : '')
-        .toUpperCase();
+    final country =
+        (widget.beneficiary.country.isNotEmpty
+                ? widget.beneficiary.country
+                : '')
+            .toUpperCase();
     _meta = BeneficiaryRepository.currencyMetaFor(country);
-    final currentState =
-        ref.read(sendMobileMoneyControllerProvider(widget.beneficiary));
+    final currentState = ref.read(
+      sendMobileMoneyControllerProvider(widget.beneficiary),
+    );
     if (currentState.paymentDescription.isNotEmpty) {
       _descriptionCtrl.text = currentState.paymentDescription;
     }
@@ -110,6 +114,7 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
   }
 
   Future<void> _onContinue() async {
+    final l10n = AppLocalizations.of(context)!;
     FocusScope.of(context).unfocus();
     final amountMinor = _parseToMinor(_amountCtrl.text);
     final description = _descriptionCtrl.text.trim();
@@ -117,12 +122,12 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
     String? descriptionError;
 
     if (amountMinor <= 0) {
-      amountError = 'Enter an amount in ${_meta.code} above 0 to continue.';
+      amountError = l10n.sendAmountAmountError(_meta.code);
     }
     if (description.length < 3) {
-      descriptionError = 'Enter a clear description (at least 3 characters).';
+      descriptionError = l10n.sendAmountDescriptionMinError;
     } else if (description.length > 120) {
-      descriptionError = 'Description is too long (max 120 characters).';
+      descriptionError = l10n.sendAmountDescriptionMaxError;
     }
 
     if (amountError != null || descriptionError != null) {
@@ -142,13 +147,15 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
         .createReview();
     if (!mounted) return;
     if (ok) {
-      Navigator.of(context).push(OpeiPageRoute(
-        builder: (_) => SendPreviewScreen(
-          beneficiary: widget.beneficiary,
-          countryName: widget.countryName,
-          flag: widget.flag,
+      Navigator.of(context).push(
+        OpeiPageRoute(
+          builder: (_) => SendPreviewScreen(
+            beneficiary: widget.beneficiary,
+            countryName: widget.countryName,
+            flag: widget.flag,
+          ),
         ),
-      ));
+      );
     } else {
       final err = ref
           .read(sendMobileMoneyControllerProvider(widget.beneficiary))
@@ -159,9 +166,11 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state =
-        ref.watch(sendMobileMoneyControllerProvider(widget.beneficiary));
-    final name = widget.beneficiary.accountName ?? 'Receiver';
+    final l10n = AppLocalizations.of(context)!;
+    final state = ref.watch(
+      sendMobileMoneyControllerProvider(widget.beneficiary),
+    );
+    final name = widget.beneficiary.accountName ?? l10n.sendReceiverFallback;
     final masked = widget.beneficiary.accountNumberMasked ?? '';
     final currentMinor = state.targetAmountMinor;
 
@@ -183,8 +192,8 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Enter amount',
+                      Text(
+                        l10n.sendAmountTitle,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -195,7 +204,7 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'How much will they receive in ${_meta.code}?',
+                        l10n.sendAmountSubtitle(_meta.code),
                         style: const TextStyle(
                           fontSize: 12.5,
                           fontWeight: FontWeight.w500,
@@ -265,7 +274,8 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
                             Expanded(
                               child: _QuickAmount(
                                 label: '${_meta.symbol} ${_formatMajor(amt)}',
-                                isActive: currentMinor ==
+                                isActive:
+                                    currentMinor ==
                                     (_meta.decimals == 0 ? amt : amt * 100),
                                 onTap: () => _setQuick(amt),
                               ),
@@ -279,14 +289,17 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
                       const SizedBox(height: 16),
 
                       Row(
-                        children: const [
-                          Icon(Icons.lock_outline_rounded,
-                              size: 12, color: OpeiBrand.inkTertiary),
-                          SizedBox(width: 6),
+                        children: [
+                          const Icon(
+                            Icons.lock_outline_rounded,
+                            size: 12,
+                            color: OpeiBrand.inkTertiary,
+                          ),
+                          const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              'You\'ll see the USD cost and exchange rate before confirming.',
-                              style: TextStyle(
+                              l10n.sendAmountCostHint,
+                              style: const TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w500,
                                 color: OpeiBrand.inkTertiary,
@@ -325,7 +338,7 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
                   MediaQuery.of(context).viewPadding.bottom + 14,
                 ),
                 child: OpeiPrimaryButton(
-                  label: 'Continue',
+                  label: l10n.continueCta,
                   onPressed: state.isReviewing ? null : _onContinue,
                   loading: state.isReviewing,
                 ),
@@ -363,6 +376,7 @@ class _ReceiverPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
       decoration: BoxDecoration(
@@ -409,8 +423,7 @@ class _ReceiverPill extends StatelessWidget {
                       width: 1.5,
                     ),
                   ),
-                  child: Text(flag,
-                      style: const TextStyle(fontSize: 10)),
+                  child: Text(flag, style: const TextStyle(fontSize: 10)),
                 ),
               ),
             ],
@@ -435,9 +448,7 @@ class _ReceiverPill extends StatelessWidget {
                 ),
                 const SizedBox(height: 1),
                 Text(
-                  masked.isNotEmpty
-                      ? '$masked · $countryName'
-                      : countryName,
+                  masked.isNotEmpty ? '$masked · $countryName' : countryName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -457,8 +468,8 @@ class _ReceiverPill extends StatelessWidget {
               color: OpeiBrand.primary.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(99),
             ),
-            child: const Text(
-              'Receiver',
+            child: Text(
+              l10n.sendReceiverBadge,
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
@@ -477,12 +488,8 @@ class _AmountInput extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final bool hasError;
-  final ({
-    String code,
-    String symbol,
-    int decimals,
-    List<int> quickAmounts,
-  }) meta;
+  final ({String code, String symbol, int decimals, List<int> quickAmounts})
+  meta;
 
   const _AmountInput({
     required this.controller,
@@ -525,9 +532,7 @@ class _AmountInput extends StatelessWidget {
                   : const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(
-                  meta.decimals == 0
-                      ? RegExp(r'[0-9]')
-                      : RegExp(r'[0-9.]'),
+                  meta.decimals == 0 ? RegExp(r'[0-9]') : RegExp(r'[0-9.]'),
                 ),
               ],
               onChanged: onChanged,
@@ -554,8 +559,7 @@ class _AmountInput extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 10),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: OpeiBrand.surface,
               borderRadius: BorderRadius.circular(8),
@@ -590,6 +594,7 @@ class _DescriptionInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: OpeiBrand.surfaceMuted,
@@ -604,12 +609,15 @@ class _DescriptionInput extends StatelessWidget {
         onChanged: onChanged,
         maxLength: 120,
         textInputAction: TextInputAction.done,
-        decoration: const InputDecoration(
-          labelText: 'Description *',
-          hintText: 'What is this payment for?',
+        decoration: InputDecoration(
+          labelText: l10n.sendDescriptionLabel,
+          hintText: l10n.sendDescriptionHint,
           counterText: '',
           border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 14,
+          ),
         ),
       ),
     );

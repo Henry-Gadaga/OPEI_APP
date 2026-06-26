@@ -29,7 +29,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(spacing * 2, spacing * 2, spacing * 2, spacing * 4),
+        padding: EdgeInsets.fromLTRB(
+          spacing * 2,
+          spacing * 2,
+          spacing * 2,
+          spacing * 4,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -50,9 +55,15 @@ class PrivacyPolicyScreen extends StatelessWidget {
               context,
               'Opei is a financial technology platform operated by Opei Technologies LLC, a company registered in the State of Delaware, United States.',
             ),
-            _section(context, 'This Privacy Policy applies to all users of the Opei Platform.'),
+            _section(
+              context,
+              'This Privacy Policy applies to all users of the Opei Platform.',
+            ),
             _title(context, '2. Information We Collect'),
-            _section(context, 'We collect information necessary to provide, secure, and improve the Services.'),
+            _section(
+              context,
+              'We collect information necessary to provide, secure, and improve the Services.',
+            ),
             _subtitle(context, '2.1 Information You Provide'),
             _section(context, 'This may include:'),
             _bullets(context, const [
@@ -68,7 +79,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'Communications with support',
             ]),
             _subtitle(context, '2.2 Information Collected Automatically'),
-            _section(context, 'When you use Opei, we may automatically collect:'),
+            _section(
+              context,
+              'When you use Opei, we may automatically collect:',
+            ),
             _bullets(context, const [
               'Device information (model, OS, identifiers)',
               'IP address',
@@ -120,7 +134,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'Blockchain infrastructure providers',
               'Cloud hosting and analytics providers',
             ]),
-            _section(context, 'These parties process data only as necessary to provide their services.'),
+            _section(
+              context,
+              'These parties process data only as necessary to provide their services.',
+            ),
             _subtitle(context, '5.2 Legal & Regulatory Authorities'),
             _section(context, 'We may disclose information where required to:'),
             _bullets(context, const [
@@ -139,7 +156,10 @@ class PrivacyPolicyScreen extends StatelessWidget {
               context,
               'Your information may be transferred to and processed in countries outside your country of residence, including the United States.',
             ),
-            _section(context, 'We take reasonable measures to ensure adequate data protection safeguards are in place.'),
+            _section(
+              context,
+              'We take reasonable measures to ensure adequate data protection safeguards are in place.',
+            ),
             _title(context, '7. Data Retention'),
             _section(context, 'We retain personal information:'),
             _bullets(context, const [
@@ -147,15 +167,24 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'To comply with legal and regulatory obligations',
               'For fraud prevention and dispute resolution',
             ]),
-            _section(context, 'Retention periods may vary depending on the type of data and applicable laws.'),
+            _section(
+              context,
+              'Retention periods may vary depending on the type of data and applicable laws.',
+            ),
             _title(context, '8. Data Security'),
             _section(
               context,
               'We implement reasonable administrative, technical, and organizational measures to protect personal data against unauthorized access, loss, misuse, or alteration.',
             ),
-            _section(context, 'However, no system is completely secure, and we cannot guarantee absolute security.'),
+            _section(
+              context,
+              'However, no system is completely secure, and we cannot guarantee absolute security.',
+            ),
             _title(context, '9. Your Rights'),
-            _section(context, 'Depending on your jurisdiction, you may have the right to:'),
+            _section(
+              context,
+              'Depending on your jurisdiction, you may have the right to:',
+            ),
             _bullets(context, const [
               'Access your personal data',
               'Correct inaccurate data',
@@ -163,24 +192,48 @@ class PrivacyPolicyScreen extends StatelessWidget {
               'Restrict or object to processing',
               'Withdraw consent where applicable',
             ]),
-            _section(context, 'Requests may be subject to identity verification and legal limitations.'),
+            _section(
+              context,
+              'Requests may be subject to identity verification and legal limitations.',
+            ),
             _title(context, '10. Cookies & Tracking Technologies'),
-            _section(context, 'Opei may use cookies or similar technologies on its website to:'),
+            _section(
+              context,
+              'Opei may use cookies or similar technologies on its website to:',
+            ),
             _bullets(context, const [
               'Improve functionality',
               'Analyze usage',
               'Enhance user experience',
             ]),
-            _section(context, 'Mobile applications may use equivalent technologies.'),
+            _section(
+              context,
+              'Mobile applications may use equivalent technologies.',
+            ),
             _title(context, '11. Children\'s Privacy'),
-            _section(context, 'Opei is not intended for individuals under the age of 18. We do not knowingly collect personal data from minors.'),
+            _section(
+              context,
+              'Opei is not intended for individuals under the age of 18. We do not knowingly collect personal data from minors.',
+            ),
             _title(context, '12. Third-Party Links'),
-            _section(context, 'The Platform may contain links to third-party websites or services. We are not responsible for their privacy practices.'),
+            _section(
+              context,
+              'The Platform may contain links to third-party websites or services. We are not responsible for their privacy practices.',
+            ),
             _title(context, '13. Changes to This Policy'),
-            _section(context, 'We may update this Privacy Policy from time to time.'),
-            _section(context, 'Changes take effect when posted. Continued use of the Services constitutes acceptance of the updated Policy.'),
+            _section(
+              context,
+              'We may update this Privacy Policy from time to time.',
+            ),
+            _section(
+              context,
+              'Changes take effect when posted. Continued use of the Services constitutes acceptance of the updated Policy.',
+            ),
             _title(context, '14. Contact Us'),
-            _section(context, 'If you have questions or concerns about this Privacy Policy, contact us at:'),
+            _section(
+              context,
+              'If you have questions or concerns about this Privacy Policy, contact us at:',
+            ),
             _contactCard(context),
             SizedBox(height: spacing * 2),
             _section(context, '© 2026 Opei Technologies LLC.'),
@@ -266,12 +319,20 @@ class PrivacyPolicyScreen extends StatelessWidget {
           SizedBox(height: 8),
           Text(
             'Privacy Policy',
-            style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           SizedBox(height: 4),
           Text(
             'Terms & Conditions',
-            style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: 4),
         ],
@@ -280,76 +341,82 @@ class PrivacyPolicyScreen extends StatelessWidget {
   }
 
   Widget _title(BuildContext context, String text) => Padding(
-        padding: const EdgeInsets.only(top: 20, bottom: 8),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: OpeiBrand.ink,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(top: 20, bottom: 8),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontFamily: kPrimaryFontFamily,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: OpeiBrand.ink,
+      ),
+    ),
+  );
 
   Widget _subtitle(BuildContext context, String text) => Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 8),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 15.5,
-            fontWeight: FontWeight.w700,
-            color: OpeiBrand.ink,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(top: 12, bottom: 8),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontFamily: kPrimaryFontFamily,
+        fontSize: 15.5,
+        fontWeight: FontWeight.w700,
+        color: OpeiBrand.ink,
+      ),
+    ),
+  );
 
   Widget _section(BuildContext context, String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 14.5,
-            fontWeight: FontWeight.w400,
-            color: OpeiBrand.inkSecondary,
-            height: 1.55,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontFamily: kPrimaryFontFamily,
+        fontSize: 14.5,
+        fontWeight: FontWeight.w400,
+        color: OpeiBrand.inkSecondary,
+        height: 1.55,
+      ),
+    ),
+  );
 
   Widget _bullets(BuildContext context, List<String> items) => Padding(
-        padding: const EdgeInsets.only(left: 8, bottom: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: items
-              .map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('• ', style: TextStyle(fontFamily: kPrimaryFontFamily, color: OpeiBrand.inkSecondary)),
-                      Expanded(
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w400,
-                            color: OpeiBrand.inkSecondary,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                    ],
+    padding: const EdgeInsets.only(left: 8, bottom: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: items
+          .map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "• ",
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      color: OpeiBrand.inkSecondary,
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-        ),
-      );
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w400,
+                        color: OpeiBrand.inkSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    ),
+  );
 
   Widget _contactCard(BuildContext context) {
     return Container(
@@ -363,13 +430,43 @@ class PrivacyPolicyScreen extends StatelessWidget {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Opei Technologies LLC', style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 14.5, fontWeight: FontWeight.w700, color: OpeiBrand.ink)),
+          Text(
+            "Opei Technologies LLC",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 14.5,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+            ),
+          ),
           SizedBox(height: 8),
-          Text('Email: info@opeillc.com', style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, color: OpeiBrand.inkSecondary)),
+          Text(
+            "Email: info@opeillc.com",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              color: OpeiBrand.inkSecondary,
+            ),
+          ),
           SizedBox(height: 4),
-          Text('500 Westover Dr, 31775\nSanford, NC 27330\nUnited States', style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, color: OpeiBrand.inkSecondary, height: 1.4)),
+          Text(
+            "500 Westover Dr, 31775\nSanford, NC 27330\nUnited States",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              color: OpeiBrand.inkSecondary,
+              height: 1.4,
+            ),
+          ),
           SizedBox(height: 4),
-          Text('Phone: +1 (681) 547-8620', style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, color: OpeiBrand.inkSecondary)),
+          Text(
+            "Phone: +1 (681) 547-8620",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              color: OpeiBrand.inkSecondary,
+            ),
+          ),
         ],
       ),
     );

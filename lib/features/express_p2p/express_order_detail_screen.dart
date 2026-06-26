@@ -12,6 +12,7 @@ import 'package:opei/data/models/express_order.dart';
 import 'package:opei/data/repositories/express_order_repository.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
 import 'package:opei/features/express_p2p/express_ui.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -681,25 +682,34 @@ class _PayAgentView extends StatelessWidget {
                   child: Column(
                     children: [
                       _CopyRow(
-                        label: 'Amount',
+                        label: AppLocalizations.of(context)!.amountLabel,
                         value: expressFiat(
                           order.fiatAmountCents,
                           order.quoteCurrency,
                         ),
                       ),
                       const _RowDivider(),
-                      _CopyRow(label: 'Provider', value: agent.providerName),
-                      const _RowDivider(),
-                      _CopyRow(label: 'Account name', value: agent.accountName),
+                      _CopyRow(
+                        label: AppLocalizations.of(context)!.providerLabel,
+                        value: agent.providerName,
+                      ),
                       const _RowDivider(),
                       _CopyRow(
-                        label: 'Account number',
+                        label: AppLocalizations.of(context)!.accountNameLabel,
+                        value: agent.accountName,
+                      ),
+                      const _RowDivider(),
+                      _CopyRow(
+                        label: AppLocalizations.of(context)!.accountNumberLabel,
                         value: agent.accountNumber,
                         copyable: true,
                       ),
                       if (agent.extraDetails != null) ...[
                         const _RowDivider(),
-                        _CopyRow(label: 'Details', value: agent.extraDetails!),
+                        _CopyRow(
+                          label: AppLocalizations.of(context)!.detailsLabel,
+                          value: agent.extraDetails!,
+                        ),
                       ],
                     ],
                   ),
@@ -729,7 +739,10 @@ class _PayAgentView extends StatelessWidget {
               ),
               if (showAgentNumber) ...[
                 const SizedBox(height: 12),
-                _ContactCard(title: 'Agent contact', number: detailAgentPhone),
+                _ContactCard(
+                  title: AppLocalizations.of(context)!.agentContactTitle,
+                  number: detailAgentPhone,
+                ),
               ],
             ],
           ),
@@ -879,7 +892,7 @@ class _VerifyingView extends StatelessWidget {
               if (showAgentNumber) ...[
                 const SizedBox(height: 20),
                 _ContactCard(
-                  title: 'Need to follow up?',
+                  title: AppLocalizations.of(context)!.needToFollowUpTitle,
                   number: detailAgentPhone,
                 ),
               ],
@@ -1124,7 +1137,10 @@ class _SuccessView extends StatelessWidget {
               ),
               if (showAgentNumber) ...[
                 const SizedBox(height: 20),
-                _ContactCard(title: 'Agent contact', number: detailAgentPhone),
+                _ContactCard(
+                  title: AppLocalizations.of(context)!.agentContactTitle,
+                  number: detailAgentPhone,
+                ),
               ],
             ],
           ),
@@ -1168,7 +1184,10 @@ class _TerminalView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final view = expressCustomerStatusView(order.status);
+    final view = expressCustomerStatusView(
+      order.status,
+      AppLocalizations.of(context)!,
+    );
     final detailAgentPhone = _detailAgentPhone(order);
     final showAgentNumber = _shouldShowAgentContact(order, detailAgentPhone);
     return ListView(
@@ -1217,7 +1236,10 @@ class _TerminalView extends StatelessWidget {
         ),
         const SizedBox(height: 28),
         if (showAgentNumber) ...[
-          _ContactCard(title: 'Agent contact', number: detailAgentPhone),
+          _ContactCard(
+            title: AppLocalizations.of(context)!.agentContactTitle,
+            number: detailAgentPhone,
+          ),
           const SizedBox(height: 16),
         ],
         _OrderSummaryCard(order: order),
@@ -1245,17 +1267,20 @@ class _OrderSummaryCard extends StatelessWidget {
       child: Column(
         children: [
           _CopyRow(
-            label: 'You receive',
+            label: AppLocalizations.of(context)!.expressYouReceiveRow,
             value: expressUsd(order.amountUsdCents),
           ),
           const _RowDivider(),
           _CopyRow(
-            label: 'You pay',
+            label: AppLocalizations.of(context)!.expressYouPayRow,
             value: expressFiat(order.fiatAmountCents, order.quoteCurrency),
           ),
           if (provider.isNotEmpty) ...[
             const _RowDivider(),
-            _CopyRow(label: 'Method', value: provider),
+            _CopyRow(
+              label: AppLocalizations.of(context)!.providerLabel,
+              value: provider,
+            ),
           ],
         ],
       ),
@@ -1312,7 +1337,7 @@ class _CopyRow extends StatelessWidget {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Copied'),
+                      content: Text(AppLocalizations.of(context)!.copiedLabel),
                       backgroundColor: OpeiBrand.ink,
                       behavior: SnackBarBehavior.floating,
                       duration: const Duration(seconds: 1),
@@ -1424,7 +1449,7 @@ Future<void> _openDialer(BuildContext context, String phoneNumber) async {
   if (!launched && context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Could not open dialer.'),
+        content: Text(AppLocalizations.of(context)!.couldNotOpenDialer),
         backgroundColor: OpeiBrand.ink,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
@@ -1562,7 +1587,7 @@ class _DisputeSheetState extends State<_DisputeSheet> {
                 color: OpeiBrand.ink,
               ),
               decoration: InputDecoration(
-                hintText: 'Explain the issue...',
+                hintText: AppLocalizations.of(context)!.disputeExplainIssueHint,
                 filled: true,
                 fillColor: OpeiBrand.surfaceMuted,
                 border: OutlineInputBorder(
@@ -1855,7 +1880,7 @@ class _MarkPaidSheetState extends State<_MarkPaidSheet> {
                 color: OpeiBrand.ink,
               ),
               decoration: InputDecoration(
-                hintText: 'Add a note (optional)',
+                hintText: AppLocalizations.of(context)!.addNoteOptionalHint,
                 counterText: '',
                 filled: true,
                 fillColor: OpeiBrand.surfaceMuted,

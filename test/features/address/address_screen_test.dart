@@ -6,6 +6,7 @@ import 'package:opei/core/constants/countries.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/features/address/address_screen.dart';
 import 'package:opei/features/address/address_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -129,6 +130,9 @@ Future<_AddressScreenHarness> _pumpAddressScreen(
       ],
       child: MaterialApp.router(
         routerConfig: router,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('en'),
         theme: ThemeData.from(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         ),

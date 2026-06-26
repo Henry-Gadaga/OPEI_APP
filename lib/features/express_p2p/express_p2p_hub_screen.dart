@@ -7,6 +7,7 @@ import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/express_order.dart';
 import 'package:opei/features/express_p2p/express_ui.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -342,7 +343,10 @@ class _OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final view = expressCustomerStatusView(order.status);
+    final view = expressCustomerStatusView(
+      order.status,
+      AppLocalizations.of(context)!,
+    );
     final provider = order.paymentMethodType?.providerName ?? '';
     final finalPhone =
         (order.agentContactNumber ?? order.agent?.phoneNumber ?? '').trim();
@@ -433,7 +437,7 @@ class _OrderCard extends StatelessWidget {
     if (!launched && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Could not open dialer.'),
+          content: Text(AppLocalizations.of(context)!.couldNotOpenDialer),
           backgroundColor: OpeiBrand.ink,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(

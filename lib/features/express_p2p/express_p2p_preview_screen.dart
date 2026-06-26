@@ -7,6 +7,7 @@ import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/express_order_preview.dart';
 import 'package:opei/features/express_p2p/express_ui.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// Arguments carried from the setup screen into the preview screen.
@@ -55,7 +56,9 @@ class _ExpressP2PPreviewScreenState
       _error = null;
     });
     try {
-      final preview = await ref.read(expressOrderRepositoryProvider).previewOrder(
+      final preview = await ref
+          .read(expressOrderRepositoryProvider)
+          .previewOrder(
             paymentMethodTypeId: widget.args.paymentMethodTypeId,
             quoteCurrency: widget.args.quoteCurrency,
             amountUsdCents: widget.args.amountUsdCents,
@@ -84,7 +87,9 @@ class _ExpressP2PPreviewScreenState
     if (_creating) return;
     setState(() => _creating = true);
     try {
-      final order = await ref.read(expressOrderRepositoryProvider).createOrder(
+      final order = await ref
+          .read(expressOrderRepositoryProvider)
+          .createOrder(
             paymentMethodTypeId: widget.args.paymentMethodTypeId,
             quoteCurrency: widget.args.quoteCurrency,
             amountUsdCents: widget.args.amountUsdCents,
@@ -167,8 +172,11 @@ class _ExpressP2PPreviewScreenState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline_rounded,
-                  size: 40, color: OpeiBrand.inkSecondary),
+              const Icon(
+                Icons.error_outline_rounded,
+                size: 40,
+                color: OpeiBrand.inkSecondary,
+              ),
               const SizedBox(height: 14),
               const Text(
                 "Couldn't get a quote",
@@ -194,8 +202,10 @@ class _ExpressP2PPreviewScreenState
               GestureDetector(
                 onTap: _loadPreview,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
                     color: OpeiBrand.primaryTint,
                     borderRadius: BorderRadius.circular(999),
@@ -238,13 +248,33 @@ class _ExpressP2PPreviewScreenState
                 quoteCurrency: preview.quoteCurrency,
               ),
               const SizedBox(height: 24),
-              _DetailRow(label: 'You receive', value: expressUsd(preview.amountUsdCents), highlight: true),
-              _DetailRow(label: 'You pay', value: expressFiat(preview.fiatAmountCents, preview.quoteCurrency)),
-              _DetailRow(label: 'Payment method', value: methodLabel),
-              _DetailRow(label: 'Exchange rate', value: '1 USD = ${expressFiat(preview.lockedRateCents, preview.quoteCurrency)}'),
+              _DetailRow(
+                label: AppLocalizations.of(context)!.expressYouReceiveRow,
+                value: expressUsd(preview.amountUsdCents),
+                highlight: true,
+              ),
+              _DetailRow(
+                label: AppLocalizations.of(context)!.expressYouPayRow,
+                value: expressFiat(
+                  preview.fiatAmountCents,
+                  preview.quoteCurrency,
+                ),
+              ),
+              _DetailRow(
+                label: AppLocalizations.of(context)!.paymentMethodLabel,
+                value: methodLabel,
+              ),
+              _DetailRow(
+                label: AppLocalizations.of(context)!.exchangeRateLabel,
+                value:
+                    '1 USD = ${expressFiat(preview.lockedRateCents, preview.quoteCurrency)}',
+              ),
               const SizedBox(height: 20),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: OpeiBrand.primaryTint,
                   borderRadius: BorderRadius.circular(12),
@@ -252,7 +282,11 @@ class _ExpressP2PPreviewScreenState
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.lock_rounded, size: 14, color: OpeiBrand.primary),
+                    const Icon(
+                      Icons.lock_rounded,
+                      size: 14,
+                      color: OpeiBrand.primary,
+                    ),
                     const SizedBox(width: 8),
                     const Expanded(
                       child: Text(

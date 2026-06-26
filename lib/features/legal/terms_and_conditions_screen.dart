@@ -29,7 +29,12 @@ class TermsAndConditionsScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(spacing * 2, spacing * 2, spacing * 2, spacing * 4),
+        padding: EdgeInsets.fromLTRB(
+          spacing * 2,
+          spacing * 2,
+          spacing * 2,
+          spacing * 4,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -66,7 +71,10 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Provide accurate, current, and complete information',
               'Not be prohibited from using financial services under applicable laws',
             ]),
-            _section(context, 'We reserve the right to refuse service to any person at any time.'),
+            _section(
+              context,
+              'We reserve the right to refuse service to any person at any time.',
+            ),
             _title(context, '3. Account Registration'),
             _section(context, 'You agree that:'),
             _bullets(context, const [
@@ -75,9 +83,15 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'You will keep your login credentials secure',
               'You are responsible for all activity conducted through your account',
             ]),
-            _section(context, 'You are solely responsible for maintaining the confidentiality of your account credentials.'),
+            _section(
+              context,
+              'You are solely responsible for maintaining the confidentiality of your account credentials.',
+            ),
             _title(context, '4. KYC, Verification & Compliance'),
-            _section(context, 'Opei may require identity verification ("KYC") at any time.'),
+            _section(
+              context,
+              'Opei may require identity verification ("KYC") at any time.',
+            ),
             _section(context, 'You acknowledge that:'),
             _bullets(context, const [
               'Verification is conducted by third-party providers',
@@ -85,7 +99,10 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Access to Services may be restricted during review',
               'Verification decisions are final',
             ]),
-            _section(context, 'Opei may suspend or terminate accounts to comply with:'),
+            _section(
+              context,
+              'Opei may suspend or terminate accounts to comply with:',
+            ),
             _bullets(context, const [
               'Anti-money laundering laws',
               'Counter-terrorism financing laws',
@@ -93,7 +110,10 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Legal or regulatory obligations',
             ]),
             _title(context, '5. Wallet Services & Funds'),
-            _section(context, 'Balances displayed on Opei are informational only and reflect data received from third-party providers.'),
+            _section(
+              context,
+              'Balances displayed on Opei are informational only and reflect data received from third-party providers.',
+            ),
             _section(context, 'You acknowledge that:'),
             _bullets(context, const [
               'Funds are processed and held by third-party partners',
@@ -102,7 +122,10 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Opei is not responsible for failures or actions of third-party providers',
             ]),
             _title(context, '6. Transactions & Irreversibility'),
-            _section(context, 'All transactions initiated through Opei are final and irreversible.'),
+            _section(
+              context,
+              'All transactions initiated through Opei are final and irreversible.',
+            ),
             _section(context, 'You are solely responsible for:'),
             _bullets(context, const [
               'Providing correct recipient details',
@@ -110,9 +133,15 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Providing correct wallet or payment addresses (including crypto addresses)',
               'Confirming payment receipt before releasing funds',
             ]),
-            _section(context, 'Opei is not responsible for losses resulting from user error.'),
+            _section(
+              context,
+              'Opei is not responsible for losses resulting from user error.',
+            ),
             _title(context, '7. Peer-to-Peer (P2P) Transactions'),
-            _section(context, 'Peer-to-peer ("P2P") transactions facilitated through Opei are conducted directly between users. Opei is not a party to any P2P transaction and does not act as a buyer, seller, agent, broker, or escrow provider.'),
+            _section(
+              context,
+              'Peer-to-peer ("P2P") transactions facilitated through Opei are conducted directly between users. Opei is not a party to any P2P transaction and does not act as a buyer, seller, agent, broker, or escrow provider.',
+            ),
             _subtitle(context, '7.1 User Responsibility'),
             _section(context, 'You are solely responsible for:'),
             _bullets(context, const [
@@ -121,12 +150,24 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Completing all required actions within the specified timeframes',
             ]),
             _subtitle(context, '7.2 Payment Confirmation Deadline'),
-            _section(context, 'If a user fails to confirm receipt of payment within thirty (30) minutes (or such other timeframe displayed in the application), the transaction may be automatically processed, cancelled, or released in accordance with platform rules.'),
-            _section(context, 'Failure to confirm payment within the required timeframe may result in irreversible loss of funds.'),
+            _section(
+              context,
+              'If a user fails to confirm receipt of payment within thirty (30) minutes (or such other timeframe displayed in the application), the transaction may be automatically processed, cancelled, or released in accordance with platform rules.',
+            ),
+            _section(
+              context,
+              'Failure to confirm payment within the required timeframe may result in irreversible loss of funds.',
+            ),
             _subtitle(context, '7.3 Irreversibility'),
-            _section(context, 'Once funds are released or a transaction is completed, the action is final and cannot be reversed, regardless of dispute, mistake, or misunderstanding.'),
+            _section(
+              context,
+              'Once funds are released or a transaction is completed, the action is final and cannot be reversed, regardless of dispute, mistake, or misunderstanding.',
+            ),
             _subtitle(context, '7.4 No Liability for User Error'),
-            _section(context, 'Opei is not responsible or liable for losses arising from:'),
+            _section(
+              context,
+              'Opei is not responsible or liable for losses arising from:',
+            ),
             _bullets(context, const [
               'Failure to confirm payment on time',
               'Cancelling a trade after payment has been sent',
@@ -135,9 +176,15 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Incorrect or incomplete information provided by either party',
             ]),
             _subtitle(context, '7.5 User Disputes'),
-            _section(context, 'Any dispute arising from a P2P transaction is strictly between the participating users. Opei may, at its discretion, review disputes but has no obligation to intervene or resolve them.'),
+            _section(
+              context,
+              'Any dispute arising from a P2P transaction is strictly between the participating users. Opei may, at its discretion, review disputes but has no obligation to intervene or resolve them.',
+            ),
             _title(context, '8. Virtual Cards'),
-            _section(context, 'Virtual cards are issued and managed by third-party providers.'),
+            _section(
+              context,
+              'Virtual cards are issued and managed by third-party providers.',
+            ),
             _section(context, 'You acknowledge that:'),
             _bullets(context, const [
               'Card availability may change',
@@ -155,16 +202,28 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Third-party fees may apply',
             ]),
             _title(context, '10. Suspension, Freeze & Termination'),
-            _section(context, 'Opei may suspend, restrict, or terminate accounts at any time for:'),
+            _section(
+              context,
+              'Opei may suspend, restrict, or terminate accounts at any time for:',
+            ),
             _bullets(context, const [
               'Fraud or suspected fraud',
               'Compliance requirements',
               'Legal obligations',
               'Risk management purposes',
             ]),
-            _section(context, 'Temporary freezes may occur without prior notice.'),
-            _title(context, '11. User Information, Accuracy & Account Restrictions'),
-            _section(context, 'You agree to provide accurate, complete, and truthful information at all times, including:'),
+            _section(
+              context,
+              'Temporary freezes may occur without prior notice.',
+            ),
+            _title(
+              context,
+              '11. User Information, Accuracy & Account Restrictions',
+            ),
+            _section(
+              context,
+              'You agree to provide accurate, complete, and truthful information at all times, including:',
+            ),
             _bullets(context, const [
               'Personal identification details',
               'Payment details',
@@ -185,7 +244,10 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Misrepresent information',
               'Exploit system vulnerabilities',
             ]),
-            _section(context, 'You are responsible for all actions taken using your account.'),
+            _section(
+              context,
+              'You are responsible for all actions taken using your account.',
+            ),
             _title(context, '13. Third-Party Services'),
             _section(context, 'Opei relies on third-party providers.'),
             _section(context, 'We do not control and are not responsible for:'),
@@ -195,18 +257,33 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'Security incidents',
               'Service interruptions',
             ]),
-            _section(context, 'Use of third-party services is at your own risk.'),
+            _section(
+              context,
+              'Use of third-party services is at your own risk.',
+            ),
             _title(context, '14. Disclaimers'),
-            _section(context, 'THE SERVICES ARE PROVIDED "AS IS" AND "AS AVAILABLE."'),
-            _section(context, 'WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF:'),
+            _section(
+              context,
+              'THE SERVICES ARE PROVIDED "AS IS" AND "AS AVAILABLE."',
+            ),
+            _section(
+              context,
+              'WE DISCLAIM ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF:',
+            ),
             _bullets(context, const [
               'MERCHANTABILITY',
               'FITNESS FOR A PARTICULAR PURPOSE',
               'NON-INFRINGEMENT',
             ]),
-            _section(context, 'WE DO NOT GUARANTEE AVAILABILITY, PERFORMANCE, OR RESULTS.'),
+            _section(
+              context,
+              'WE DO NOT GUARANTEE AVAILABILITY, PERFORMANCE, OR RESULTS.',
+            ),
             _title(context, '15. Limitation of Liability'),
-            _section(context, 'TO THE MAXIMUM EXTENT PERMITTED BY LAW, OPEI AND OPEI TECHNOLOGIES SHALL NOT BE LIABLE FOR:'),
+            _section(
+              context,
+              'TO THE MAXIMUM EXTENT PERMITTED BY LAW, OPEI AND OPEI TECHNOLOGIES SHALL NOT BE LIABLE FOR:',
+            ),
             _bullets(context, const [
               'INDIRECT OR CONSEQUENTIAL DAMAGES',
               'LOSS OF PROFITS',
@@ -214,32 +291,65 @@ class TermsAndConditionsScreen extends StatelessWidget {
               'USER ERRORS',
               'THIRD-PARTY FAILURES',
             ]),
-            _section(context, 'TOTAL LIABILITY SHALL NOT EXCEED THE FEES PAID BY YOU IN THE PRECEDING TWELVE (12) MONTHS.'),
+            _section(
+              context,
+              'TOTAL LIABILITY SHALL NOT EXCEED THE FEES PAID BY YOU IN THE PRECEDING TWELVE (12) MONTHS.',
+            ),
             _title(context, '16. Indemnification'),
-            _section(context, 'You agree to indemnify and hold harmless Opei and Opei Technologies from claims arising from:'),
+            _section(
+              context,
+              'You agree to indemnify and hold harmless Opei and Opei Technologies from claims arising from:',
+            ),
             _bullets(context, const [
               'Your use of the Services',
               'Your violation of these Terms',
               'Your violation of applicable law',
             ]),
             _title(context, '17. Service Availability'),
-            _section(context, 'Opei does not guarantee uninterrupted access to the Services and may suspend, modify, or discontinue any part of the Platform at any time without liability.'),
+            _section(
+              context,
+              'Opei does not guarantee uninterrupted access to the Services and may suspend, modify, or discontinue any part of the Platform at any time without liability.',
+            ),
             _title(context, '18. Inactive Accounts'),
-            _section(context, 'Accounts with prolonged inactivity may be restricted, suspended, or closed in accordance with applicable laws and partner requirements.'),
+            _section(
+              context,
+              'Accounts with prolonged inactivity may be restricted, suspended, or closed in accordance with applicable laws and partner requirements.',
+            ),
             _title(context, '19. Assignment'),
-            _section(context, 'Opei may assign or transfer these Terms, in whole or in part, without restriction. Users may not assign their rights without prior written consent.'),
+            _section(
+              context,
+              'Opei may assign or transfer these Terms, in whole or in part, without restriction. Users may not assign their rights without prior written consent.',
+            ),
             _title(context, '20. Entire Agreement'),
-            _section(context, 'These Terms constitute the entire agreement between you and Opei and supersede all prior agreements or communications.'),
+            _section(
+              context,
+              'These Terms constitute the entire agreement between you and Opei and supersede all prior agreements or communications.',
+            ),
             _title(context, '21. Force Majeure'),
-            _section(context, 'Opei shall not be liable for any failure or delay in performance resulting from events beyond its reasonable control, including but not limited to acts of God, power outages, internet or system failures, labor disputes, governmental actions, war, terrorism, natural disasters, or failures of third-party service providers.'),
+            _section(
+              context,
+              'Opei shall not be liable for any failure or delay in performance resulting from events beyond its reasonable control, including but not limited to acts of God, power outages, internet or system failures, labor disputes, governmental actions, war, terrorism, natural disasters, or failures of third-party service providers.',
+            ),
             _title(context, '22. Privacy'),
-            _section(context, 'Your use of Opei is governed by our Privacy Policy, which explains how personal data is collected and processed.'),
+            _section(
+              context,
+              'Your use of Opei is governed by our Privacy Policy, which explains how personal data is collected and processed.',
+            ),
             _title(context, '23. Changes to Terms'),
-            _section(context, 'We may update these Terms at any time. Continued use of the Services constitutes acceptance of updated Terms.'),
+            _section(
+              context,
+              'We may update these Terms at any time. Continued use of the Services constitutes acceptance of updated Terms.',
+            ),
             _title(context, '24. Governing Law & Jurisdiction'),
-            _section(context, 'These Terms are governed by the laws of the State of Delaware, United States, without regard to conflict-of-law principles.'),
+            _section(
+              context,
+              'These Terms are governed by the laws of the State of Delaware, United States, without regard to conflict-of-law principles.',
+            ),
             _title(context, '25. Severability'),
-            _section(context, 'If any provision of these Terms is found invalid or unenforceable, the remaining provisions shall remain in full force and effect.'),
+            _section(
+              context,
+              'If any provision of these Terms is found invalid or unenforceable, the remaining provisions shall remain in full force and effect.',
+            ),
             _title(context, '26. Contact Information'),
             _contactCard(context),
             SizedBox(height: spacing * 2),
@@ -326,12 +436,20 @@ class TermsAndConditionsScreen extends StatelessWidget {
           SizedBox(height: 8),
           Text(
             'Privacy Policy',
-            style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           SizedBox(height: 4),
           Text(
             'Terms & Conditions',
-            style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+            ),
           ),
           SizedBox(height: 4),
         ],
@@ -340,76 +458,82 @@ class TermsAndConditionsScreen extends StatelessWidget {
   }
 
   Widget _title(BuildContext context, String text) => Padding(
-        padding: const EdgeInsets.only(top: 20, bottom: 8),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: OpeiBrand.ink,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(top: 20, bottom: 8),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontFamily: kPrimaryFontFamily,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: OpeiBrand.ink,
+      ),
+    ),
+  );
 
   Widget _subtitle(BuildContext context, String text) => Padding(
-        padding: const EdgeInsets.only(top: 12, bottom: 8),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 15.5,
-            fontWeight: FontWeight.w700,
-            color: OpeiBrand.ink,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(top: 12, bottom: 8),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontFamily: kPrimaryFontFamily,
+        fontSize: 15.5,
+        fontWeight: FontWeight.w700,
+        color: OpeiBrand.ink,
+      ),
+    ),
+  );
 
   Widget _section(BuildContext context, String text) => Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: Text(
-          text,
-          style: const TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 14.5,
-            fontWeight: FontWeight.w400,
-            color: OpeiBrand.inkSecondary,
-            height: 1.55,
-          ),
-        ),
-      );
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontFamily: kPrimaryFontFamily,
+        fontSize: 14.5,
+        fontWeight: FontWeight.w400,
+        color: OpeiBrand.inkSecondary,
+        height: 1.55,
+      ),
+    ),
+  );
 
   Widget _bullets(BuildContext context, List<String> items) => Padding(
-        padding: const EdgeInsets.only(left: 8, bottom: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: items
-              .map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('• ', style: TextStyle(fontFamily: kPrimaryFontFamily, color: OpeiBrand.inkSecondary)),
-                      Expanded(
-                        child: Text(
-                          item,
-                          style: const TextStyle(
-                            fontFamily: kPrimaryFontFamily,
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w400,
-                            color: OpeiBrand.inkSecondary,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                    ],
+    padding: const EdgeInsets.only(left: 8, bottom: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: items
+          .map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "• ",
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      color: OpeiBrand.inkSecondary,
+                    ),
                   ),
-                ),
-              )
-              .toList(),
-        ),
-      );
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w400,
+                        color: OpeiBrand.inkSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+          .toList(),
+    ),
+  );
 
   Widget _contactCard(BuildContext context) {
     return Container(
@@ -423,13 +547,43 @@ class TermsAndConditionsScreen extends StatelessWidget {
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Opei Technologies LLC', style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 14.5, fontWeight: FontWeight.w700, color: OpeiBrand.ink)),
+          Text(
+            "Opei Technologies LLC",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 14.5,
+              fontWeight: FontWeight.w700,
+              color: OpeiBrand.ink,
+            ),
+          ),
           SizedBox(height: 8),
-          Text('Support Email: info@opeillc.com', style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, color: OpeiBrand.inkSecondary)),
+          Text(
+            "Support Email: info@opeillc.com",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              color: OpeiBrand.inkSecondary,
+            ),
+          ),
           SizedBox(height: 4),
-          Text('500 Westover Dr, 31775\nSanford, NC 27330\nUnited States', style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, color: OpeiBrand.inkSecondary, height: 1.4)),
+          Text(
+            "500 Westover Dr, 31775\nSanford, NC 27330\nUnited States",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              color: OpeiBrand.inkSecondary,
+              height: 1.4,
+            ),
+          ),
           SizedBox(height: 4),
-          Text('Phone: +1 (681) 547-8620', style: TextStyle(fontFamily: kPrimaryFontFamily, fontSize: 13.5, color: OpeiBrand.inkSecondary)),
+          Text(
+            "Phone: +1 (681) 547-8620",
+            style: TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 13.5,
+              color: OpeiBrand.inkSecondary,
+            ),
+          ),
         ],
       ),
     );

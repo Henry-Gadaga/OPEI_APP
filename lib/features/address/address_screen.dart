@@ -9,6 +9,7 @@ import 'package:opei/core/constants/countries.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/address/address_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/onboarding/onboarding_progress.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
@@ -103,20 +104,18 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
     final shouldCancel = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
+        final l10n = AppLocalizations.of(dialogContext)!;
         return AlertDialog(
-          title: const Text('Cancel setup?'),
-          content: const Text(
-            'You will be signed out and returned to home. '
-            'You can continue onboarding after logging in again.',
-          ),
+          title: Text(l10n.onboardingCancelTitle),
+          content: Text(l10n.onboardingCancelMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Keep going'),
+              child: Text(l10n.onboardingKeepGoingCta),
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Cancel setup'),
+              child: Text(l10n.onboardingCancelSetupCta),
             ),
           ],
         );
@@ -142,6 +141,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(addressControllerProvider);
     final controller = ref.read(addressControllerProvider.notifier);
     final isBusy = state.isLoading || _isCancelling;
@@ -272,8 +272,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
-                                'Where do you live?',
+                              Text(
+                                l10n.addressWhereDoYouLiveTitle,
                                 style: TextStyle(
                                   fontFamily: kPrimaryFontFamily,
                                   fontSize: 22,
@@ -284,8 +284,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                 ),
                               ),
                               const SizedBox(height: 6),
-                              const Text(
-                                'Required to verify your account. Stays completely private.',
+                              Text(
+                                l10n.addressWhereDoYouLiveSubtitle,
                                 style: TextStyle(
                                   fontFamily: kPrimaryFontFamily,
                                   fontSize: 14,
@@ -314,7 +314,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                     const SizedBox(height: 14),
                                     OpeiTextField(
                                       controller: _addressCtrl,
-                                      label: 'Address line',
+                                      label: l10n.addressLineLabel,
                                       hint: '123 Main Street',
                                       textInputAction: TextInputAction.next,
                                       errorText:
@@ -328,7 +328,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                           flex: 2,
                                           child: OpeiTextField(
                                             controller: _houseCtrl,
-                                            label: 'Apt / Suite',
+                                            label: l10n.addressAptSuiteLabel,
                                             hint: 'Apt 4B',
                                             textInputAction:
                                                 TextInputAction.next,
@@ -343,7 +343,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                           flex: 3,
                                           child: OpeiTextField(
                                             controller: _zipCtrl,
-                                            label: 'ZIP code',
+                                            label: l10n.addressZipCodeLabel,
                                             hint: '10001',
                                             keyboardType: TextInputType.number,
                                             textInputAction:
@@ -369,7 +369,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                         Expanded(
                                           child: OpeiTextField(
                                             controller: _cityCtrl,
-                                            label: 'City',
+                                            label: l10n.addressCityLabel,
                                             hint: 'New York',
                                             textInputAction:
                                                 TextInputAction.next,
@@ -382,7 +382,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                         Expanded(
                                           child: OpeiTextField(
                                             controller: _stateCtrl,
-                                            label: 'State',
+                                            label: l10n.addressStateLabel,
                                             hint: 'NY',
                                             textInputAction:
                                                 TextInputAction.done,
@@ -397,7 +397,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                       const SizedBox(height: 14),
                                       OpeiTextField(
                                         controller: _bvnCtrl,
-                                        label: 'BVN',
+                                        label: l10n.addressBvnLabel,
                                         hint:
                                             '11-digit Bank Verification Number',
                                         keyboardType: TextInputType.number,
@@ -410,7 +410,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                         ],
                                         helperText:
                                             state.fieldErrors['bvn'] == null
-                                            ? 'Required for Nigerian residents.'
+                                            ? l10n.addressBvnHelper
                                             : null,
                                         onChanged: controller.updateBvn,
                                       ),
@@ -420,7 +420,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                               ),
                               const SizedBox(height: 32),
                               OpeiPrimaryButton(
-                                label: 'Continue',
+                                label: l10n.continueCta,
                                 loading: state.isLoading,
                                 onPressed: state.isValid && !isBusy
                                     ? () => controller.submitAddress(
@@ -436,7 +436,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                     onPressed: isBusy
                                         ? null
                                         : _cancelOnboarding,
-                                    child: const Text('Cancel setup'),
+                                    child: Text(l10n.onboardingCancelSetupCta),
                                   ),
                                 ),
                               ],
@@ -488,8 +488,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Home address',
+                      Text(
+                        l10n.addressHomeAddressTitle,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 28,
@@ -502,8 +502,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                       const SizedBox(height: 6),
                       Text(
                         isOnboarding
-                            ? 'Step 3 of 4  •  Your residential details.'
-                            : 'Update your residential details.',
+                            ? l10n.addressOnboardingStepSubtitle
+                            : l10n.addressUpdateSubtitle,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 14,
@@ -545,10 +545,10 @@ class _CountryPickerField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+        Padding(
           padding: EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            'Country',
+            AppLocalizations.of(context)!.profileCountryLabel,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 12.5,
@@ -600,7 +600,11 @@ class _CountryPickerField extends StatelessWidget {
                 ],
                 Expanded(
                   child: Text(
-                    hasValue ? selectedCountry!.name : 'Select country',
+                    hasValue
+                        ? selectedCountry!.name
+                        : AppLocalizations.of(
+                            context,
+                          )!.addressSelectCountryHint,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 15,
@@ -721,8 +725,8 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
               ),
             ),
             const SizedBox(height: 14),
-            const Text(
-              'Select country',
+            Text(
+              AppLocalizations.of(context)!.addressSelectCountryTitle,
               style: TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 18,
@@ -736,7 +740,7 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: OpeiTextField(
                 controller: _searchCtrl,
-                hint: 'Search country',
+                hint: AppLocalizations.of(context)!.addressSearchCountryHint,
                 onChanged: _filter,
                 prefix: const Icon(
                   Icons.search_rounded,
@@ -855,8 +859,8 @@ class _AddressSuccessSheet extends StatelessWidget {
                 children: [
                   const SuccessHero(iconHeight: 72, gap: 8),
                   const SizedBox(height: 14),
-                  const Text(
-                    'Address updated',
+                  Text(
+                    AppLocalizations.of(context)!.addressUpdatedTitle,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 20,
@@ -867,8 +871,8 @@ class _AddressSuccessSheet extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Your residential details have been saved.',
+                  Text(
+                    AppLocalizations.of(context)!.addressUpdatedSubtitle,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 14,
@@ -880,7 +884,10 @@ class _AddressSuccessSheet extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
-                  OpeiPrimaryButton(label: 'Done', onPressed: onDone),
+                  OpeiPrimaryButton(
+                    label: AppLocalizations.of(context)!.doneCta,
+                    onPressed: onDone,
+                  ),
                 ],
               ),
             ),

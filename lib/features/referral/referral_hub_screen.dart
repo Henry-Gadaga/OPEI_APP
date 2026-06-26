@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/data/repositories/referral_repository.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 class ReferralHubScreen extends ConsumerStatefulWidget {
@@ -45,20 +46,22 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
       });
     } catch (_) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
-        _error = 'Could not load referral details. Try again.';
+        _error = l10n.referralLoadFailedMessage;
         _isLoading = false;
       });
     }
   }
 
   Future<void> _copyCode(String code) async {
+    final l10n = AppLocalizations.of(context)!;
     await Clipboard.setData(ClipboardData(text: code));
     if (!mounted) return;
     setState(() => _copied = true);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Code copied to clipboard'),
+        content: Text(l10n.referralCodeCopied),
         backgroundColor: OpeiBrand.ink,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
@@ -76,6 +79,7 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final topPad = MediaQuery.of(context).viewPadding.top;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -97,16 +101,12 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
             ),
             slivers: [
               // ── Gradient header ──────────────────────────────────
-              SliverToBoxAdapter(
-                child: _Header(topPad: topPad),
-              ),
+              SliverToBoxAdapter(child: _Header(topPad: topPad)),
               // ── Body ─────────────────────────────────────────────
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
                 sliver: SliverList(
-                  delegate: SliverChildListDelegate(
-                    _buildBody(),
-                  ),
+                  delegate: SliverChildListDelegate(_buildBody(l10n)),
                 ),
               ),
             ],
@@ -116,7 +116,7 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
     );
   }
 
-  List<Widget> _buildBody() {
+  List<Widget> _buildBody(AppLocalizations l10n) {
     if (_isLoading) {
       return [
         const SizedBox(height: 80),
@@ -141,13 +141,14 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
         code: s.referralCode,
         copied: _copied,
         onCopy: () => _copyCode(s.referralCode),
+        l10n: l10n,
       ),
       const SizedBox(height: 12),
       // ── Helper text ───────────────────────────────────────────
-      const Padding(
+      Padding(
         padding: EdgeInsets.symmetric(horizontal: 4),
         child: Text(
-          'Share your code with friends. They enter it during signup.',
+          l10n.referralShareCodeSubtitle,
           style: TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 13,
@@ -159,8 +160,8 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
       ),
       const SizedBox(height: 28),
       // ── Stats ─────────────────────────────────────────────────
-      const Text(
-        'YOUR STATS',
+      Text(
+        l10n.referralStatsLabel,
         style: TextStyle(
           fontFamily: kPrimaryFontFamily,
           fontSize: 11,
@@ -175,7 +176,7 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
           Expanded(
             child: _StatTile(
               icon: Icons.group_outlined,
-              label: 'Invited',
+              label: l10n.referralInvitedLabel,
               value: '${s.totalReferrals}',
             ),
           ),
@@ -183,7 +184,7 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
           Expanded(
             child: _StatTile(
               icon: Icons.check_circle_outline_rounded,
-              label: 'Successful',
+              label: l10n.referralSuccessfulLabel,
               value: '${s.successfulReferrals}',
             ),
           ),
@@ -192,7 +193,7 @@ class _ReferralHubScreenState extends ConsumerState<ReferralHubScreen> {
       const SizedBox(height: 10),
       _StatTile(
         icon: Icons.attach_money_rounded,
-        label: 'Total earned',
+        label: l10n.referralTotalEarnedLabel,
         value: _usd(s.totalEarnedCents),
         fullWidth: true,
       ),
@@ -208,6 +209,7 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       height: 180 + topPad,
       decoration: const BoxDecoration(
@@ -269,8 +271,8 @@ class _Header extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Refer & Earn',
+                  Text(
+                    l10n.referralHeaderTitle,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 28,
@@ -282,7 +284,7 @@ class _Header extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Invite friends and earn rewards.',
+                    l10n.referralHeaderSubtitle,
                     style: TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 14,
@@ -307,11 +309,13 @@ class _CodeCard extends StatelessWidget {
   final String code;
   final bool copied;
   final VoidCallback onCopy;
+  final AppLocalizations l10n;
 
   const _CodeCard({
     required this.code,
     required this.copied,
     required this.onCopy,
+    required this.l10n,
   });
 
   @override
@@ -336,8 +340,8 @@ class _CodeCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
-                  'YOUR CODE',
+                Text(
+                  l10n.referralYourCodeLabel,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 10,
@@ -382,7 +386,7 @@ class _CodeCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    copied ? 'Copied' : 'Copy',
+                    copied ? l10n.referralCopiedCta : l10n.depositCopyCta,
                     style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 12,
@@ -480,6 +484,7 @@ class _ErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       children: [
         Container(
@@ -496,8 +501,8 @@ class _ErrorState extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
-        const Text(
-          'Couldn\'t load referral details',
+        Text(
+          l10n.referralCouldNotLoadTitle,
           style: TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 16,
@@ -526,8 +531,8 @@ class _ErrorState extends StatelessWidget {
               color: OpeiBrand.primaryTint,
               borderRadius: BorderRadius.circular(999),
             ),
-            child: const Text(
-              'Try again',
+            child: Text(
+              l10n.tryAgainCta,
               style: TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 13,

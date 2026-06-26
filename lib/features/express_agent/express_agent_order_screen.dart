@@ -9,6 +9,7 @@ import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/express_order.dart';
 import 'package:opei/data/repositories/express_order_repository.dart';
 import 'package:opei/features/express_p2p/express_ui.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -352,7 +353,12 @@ class _ExpressAgentOrderScreenState
                       letterSpacing: -0.5,
                     ),
                   ),
-                  ExpressStatusPill(view: expressAgentStatusView(order.status)),
+                  ExpressStatusPill(
+                    view: expressAgentStatusView(
+                      order.status,
+                      AppLocalizations.of(context)!,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -366,7 +372,9 @@ class _ExpressAgentOrderScreenState
                 child: Column(
                   children: [
                     _Row(
-                      label: 'Customer pays',
+                      label: AppLocalizations.of(
+                        context,
+                      )!.expressCustomerPaysRow,
                       value: expressFiat(
                         order.fiatAmountCents,
                         order.quoteCurrency,
@@ -374,14 +382,14 @@ class _ExpressAgentOrderScreenState
                     ),
                     const _RowDivider(),
                     _Row(
-                      label: 'You release',
+                      label: AppLocalizations.of(context)!.expressYouReleaseRow,
                       value: expressUsd(order.amountUsdCents),
                     ),
                     if ((order.paymentMethodType?.providerName ?? '')
                         .isNotEmpty) ...[
                       const _RowDivider(),
                       _Row(
-                        label: 'Method',
+                        label: AppLocalizations.of(context)!.providerLabel,
                         value: order.paymentMethodType!.providerName,
                       ),
                     ],
@@ -627,7 +635,7 @@ class _AgentDisputeSheetState extends State<_AgentDisputeSheet> {
               maxLines: 5,
               maxLength: 500,
               decoration: InputDecoration(
-                hintText: 'Explain the issue...',
+                hintText: AppLocalizations.of(context)!.disputeExplainIssueHint,
                 filled: true,
                 fillColor: OpeiBrand.surfaceMuted,
                 border: OutlineInputBorder(
@@ -653,7 +661,10 @@ class _AgentDisputeSheetState extends State<_AgentDisputeSheet> {
                   ),
                 ),
                 if (_images.length < _maxImages)
-                  ActionChip(label: const Text('Add image'), onPressed: _pick),
+                  ActionChip(
+                    label: Text(AppLocalizations.of(context)!.addImageCta),
+                    onPressed: _pick,
+                  ),
               ],
             ),
             if (_error != null) ...[
@@ -995,7 +1006,7 @@ class _ContactActions extends StatelessWidget {
             if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Buyer number copied'),
+                content: Text(AppLocalizations.of(context)!.buyerNumberCopied),
                 backgroundColor: OpeiBrand.ink,
                 behavior: SnackBarBehavior.floating,
                 duration: const Duration(seconds: 1),
@@ -1049,7 +1060,7 @@ Future<void> _openDialer(BuildContext context, String phoneNumber) async {
   if (!launched && context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Could not open dialer.'),
+        content: Text(AppLocalizations.of(context)!.couldNotOpenDialer),
         backgroundColor: OpeiBrand.ink,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(

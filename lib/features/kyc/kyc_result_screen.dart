@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 class KycResultScreen extends ConsumerStatefulWidget {
@@ -12,13 +13,7 @@ class KycResultScreen extends ConsumerStatefulWidget {
   ConsumerState<KycResultScreen> createState() => _KycResultScreenState();
 }
 
-enum _KycOutcome {
-  loading,
-  approved,
-  review,
-  declined,
-  error,
-}
+enum _KycOutcome { loading, approved, review, declined, error }
 
 class _KycResultScreenState extends ConsumerState<KycResultScreen> {
   _KycOutcome _outcome = _KycOutcome.loading;
@@ -33,9 +28,10 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Identity Verification'),
+        title: Text(l10n.kycIdentityVerificationTitle),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -46,12 +42,15 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
               padding: const EdgeInsets.all(24),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  minHeight: (constraints.maxHeight - 48).clamp(0.0, double.infinity),
+                  minHeight: (constraints.maxHeight - 48).clamp(
+                    0.0,
+                    double.infinity,
+                  ),
                 ),
                 child: Center(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
-                    child: _buildContent(),
+                    child: _buildContent(l10n),
                   ),
                 ),
               ),
@@ -62,60 +61,59 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(AppLocalizations l10n) {
     switch (_outcome) {
       case _KycOutcome.loading:
-        return const Center(
+        return Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Checking your verification status...'),
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(l10n.kycCheckingStatus),
             ],
           ),
         );
       case _KycOutcome.error:
-        return _buildErrorView();
+        return _buildErrorView(l10n);
       case _KycOutcome.approved:
         return _buildResultCard(
           icon: Icons.verified,
           iconColor: OpeiColors.successGreen,
-          title: 'KYC approved',
-          message: 'You’re fully verified. Continue to your dashboard.',
-          buttonLabel: 'Continue',
+          title: l10n.kycApprovedTitle,
+          message: l10n.kycApprovedSubtitle,
+          buttonLabel: l10n.continueCta,
           onPressed: _handleContinueToDashboard,
         );
       case _KycOutcome.review:
         return _buildResultCard(
           icon: Icons.watch_later_outlined,
           iconColor: OpeiColors.warningYellow,
-          title: 'Under review',
-          message: 'We’ll email you within 24 hours once the review finishes.',
-          buttonLabel: 'Done',
+          title: l10n.kycUnderReviewTitle,
+          message: l10n.kycUnderReviewSubtitle,
+          buttonLabel: l10n.doneCta,
           onPressed: _handleReturnToLogin,
         );
       case _KycOutcome.declined:
         return _buildResultCard(
           icon: Icons.error_outline,
           iconColor: OpeiColors.errorRed,
-          title: 'KYC declined',
-          message:
-              'Check your email for the reason and next steps, or contact support if you need help.',
-          buttonLabel: 'Retry verification',
+          title: l10n.kycDeclinedTitle,
+          message: l10n.kycDeclinedSubtitle,
+          buttonLabel: l10n.kycRetryVerificationCta,
           onPressed: _handleRetryVerification,
         );
     }
   }
 
-  Widget _buildErrorView() {
+  Widget _buildErrorView(AppLocalizations l10n) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Icon(Icons.wifi_off, size: 64, color: OpeiColors.errorRed),
         const SizedBox(height: 24),
         Text(
-          _errorMessage ?? 'Unable to fetch your status. Please try again.',
+          _errorMessage ?? l10n.kycUnableFetchStatus,
           style: Theme.of(context).textTheme.bodyLarge,
           textAlign: TextAlign.center,
         ),
@@ -124,7 +122,7 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
           width: double.infinity,
           child: ElevatedButton(
             onPressed: _refreshStatus,
-            child: const Text('Try again'),
+            child: Text(l10n.tryAgainCta),
           ),
         ),
       ],
@@ -158,19 +156,19 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
             Text(
               title,
               style: theme.textTheme.headlineSmall?.copyWith(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
             Text(
               message,
               style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 13,
-                    height: 1.4,
-                    color: OpeiColors.grey700,
-                  ),
+                fontSize: 13,
+                height: 1.4,
+                color: OpeiColors.grey700,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -192,7 +190,10 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
                       )
                     : Text(
                         buttonLabel,
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
               ),
             ),
@@ -334,4 +335,3 @@ class _KycResultScreenState extends ConsumerState<KycResultScreen> {
     context.go('/kyc');
   }
 }
-

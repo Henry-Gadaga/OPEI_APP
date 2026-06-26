@@ -17,6 +17,7 @@ import 'package:opei/features/cards/create_virtual_card_flow.dart';
 import 'package:opei/features/cards/card_topup_sheet.dart';
 import 'package:opei/features/cards/card_withdraw_sheet.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
@@ -60,6 +61,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cardsState = ref.watch(cardsControllerProvider);
     final isInitialLoading = cardsState.isLoading && !cardsState.hasLoaded;
     final rawError = cardsState.error;
@@ -67,20 +69,33 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final hasError = rawError != null;
     final resolvedErrorMessage = hasError
         ? (normalizedError.isNotEmpty
-            ? normalizedError
-            : "We couldn't load your cards. Please try again.")
+              ? normalizedError
+              : "We couldn't load your cards. Please try again.")
         : null;
     final showErrorBanner = hasError && cardsState.cards.isNotEmpty;
-    final showErrorState = hasError && cardsState.cards.isEmpty && cardsState.hasLoaded && !cardsState.isLoading;
-    final showEmptyState = cardsState.hasLoaded && cardsState.cards.isEmpty && !hasError && !cardsState.isLoading;
+    final showErrorState =
+        hasError &&
+        cardsState.cards.isEmpty &&
+        cardsState.hasLoaded &&
+        !cardsState.isLoading;
+    final showEmptyState =
+        cardsState.hasLoaded &&
+        cardsState.cards.isEmpty &&
+        !hasError &&
+        !cardsState.isLoading;
     final showCardList = cardsState.cards.isNotEmpty;
-    final showBlockingLoader = cardsState.isLoading && cardsState.cards.isEmpty && !showErrorState;
-    final showHeaderCreateButton = cardsState.hasLoaded && !cardsState.isLoading;
+    final showBlockingLoader =
+        cardsState.isLoading && cardsState.cards.isEmpty && !showErrorState;
+    final showHeaderCreateButton =
+        cardsState.hasLoaded && !cardsState.isLoading;
 
     final platform = Theme.of(context).platform;
-    final isCupertino = platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
+    final isCupertino =
+        platform == TargetPlatform.iOS || platform == TargetPlatform.macOS;
     final scrollPhysics = AlwaysScrollableScrollPhysics(
-      parent: isCupertino ? const BouncingScrollPhysics() : const ClampingScrollPhysics(),
+      parent: isCupertino
+          ? const BouncingScrollPhysics()
+          : const ClampingScrollPhysics(),
     );
 
     final spacing = context.responsiveSpacingUnit;
@@ -99,7 +114,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
           child: SingleChildScrollView(
             physics: scrollPhysics,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: tokens.horizontalPadding),
+              padding: EdgeInsets.symmetric(
+                horizontal: tokens.horizontalPadding,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -111,8 +128,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                       children: [
                         Center(
                           child: Text(
-                            'Cards',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            l10n.dashboardNavCards,
+                            style: Theme.of(context).textTheme.titleLarge
+                                ?.copyWith(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -122,30 +140,31 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                           alignment: Alignment.centerRight,
                           child: showHeaderCreateButton
                               ? GestureDetector(
-                            onTap: () async {
-                              await _startCardCreationFlow();
-                            },
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: OpeiBrand.primary,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: OpeiBrand.primary
-                                        .withValues(alpha: 0.25),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
+                                  onTap: () async {
+                                    await _startCardCreationFlow();
+                                  },
+                                  child: Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: OpeiBrand.primary,
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: OpeiBrand.primary.withValues(
+                                            alpha: 0.25,
+                                          ),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(
+                                      Icons.add_rounded,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
                                   ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.add_rounded,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
                                 )
                               : const SizedBox(width: 32, height: 32),
                         ),
@@ -156,7 +175,8 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                   if (showErrorBanner && resolvedErrorMessage != null) ...[
                     _CardsMessageBanner(
                       message: resolvedErrorMessage,
-                      onRetry: () => ref.read(cardsControllerProvider.notifier).refresh(),
+                      onRetry: () =>
+                          ref.read(cardsControllerProvider.notifier).refresh(),
                     ),
                     SizedBox(height: spacing * 2.5),
                   ],
@@ -167,7 +187,8 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                     _UserCardsCarousel(
                       cards: cardsState.cards,
                       pageController: _pageController,
-                      onPageChanged: (index) => setState(() => _currentPage = index),
+                      onPageChanged: (index) =>
+                          setState(() => _currentPage = index),
                       detailsById: cardsState.detailsById,
                       revealedCardIds: cardsState.revealedCardIds,
                       loadingCardIds: cardsState.detailLoadingIds,
@@ -180,37 +201,50 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                         itemCount: cardsState.cards.length,
                         currentIndex: _currentPage,
                       ),
-                    if (cardsState.cards.length > 1) SizedBox(height: spacing * 2),
+                    if (cardsState.cards.length > 1)
+                      SizedBox(height: spacing * 2),
                     if (cardsState.cards.isNotEmpty) ...[
                       Builder(
                         builder: (context) {
-                          final cappedIndex = math.min(_currentPage, cardsState.cards.length - 1);
+                          final cappedIndex = math.min(
+                            _currentPage,
+                            cardsState.cards.length - 1,
+                          );
                           final selectedCard = cardsState.cards[cappedIndex];
-                          final isBusy = cardsState.actionInFlightIds.contains(selectedCard.id.trim());
+                          final isBusy = cardsState.actionInFlightIds.contains(
+                            selectedCard.id.trim(),
+                          );
 
                           return _CardActionsRow(
                             card: selectedCard,
-                            onTransactionsTap: () => _openTransactions(cardsState.cards, cappedIndex),
+                            onTransactionsTap: () => _openTransactions(
+                              cardsState.cards,
+                              cappedIndex,
+                            ),
                             onFreezeTap: () => _handleFreezeCard(selectedCard),
-                            onUnfreezeTap: () => _handleUnfreezeCard(selectedCard),
+                            onUnfreezeTap: () =>
+                                _handleUnfreezeCard(selectedCard),
                             onTopUpTap: () => _handleTopUp(selectedCard),
-                             onWithdrawTap: () => _handleWithdraw(selectedCard),
-                            onTerminateTap: () => _handleTerminateCard(selectedCard),
+                            onWithdrawTap: () => _handleWithdraw(selectedCard),
+                            onTerminateTap: () =>
+                                _handleTerminateCard(selectedCard),
                             isBusy: isBusy,
                           );
                         },
                       ),
                     ],
                     SizedBox(height: spacing * 2.25),
-                   ] else if (showErrorState && resolvedErrorMessage != null) ...[
+                  ] else if (showErrorState &&
+                      resolvedErrorMessage != null) ...[
                     _CardsErrorPlaceholder(
                       message: resolvedErrorMessage,
-                      onRetry: () => ref.read(cardsControllerProvider.notifier).refresh(),
+                      onRetry: () =>
+                          ref.read(cardsControllerProvider.notifier).refresh(),
                     ),
                     SizedBox(height: spacing * 3),
-                   ] else if (showBlockingLoader) ...[
-                     const _CardsLoadingPlaceholder(),
-                     SizedBox(height: spacing * 3),
+                  ] else if (showBlockingLoader) ...[
+                    const _CardsLoadingPlaceholder(),
+                    SizedBox(height: spacing * 3),
                   ] else if (showEmptyState) ...[
                     _CardsEmptyState(onCreateCard: _startCardCreationFlow),
                     SizedBox(height: spacing * 2),
@@ -229,14 +263,17 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   Future<void> _handleRefresh() async {
     await Future.wait([
       ref.read(cardsControllerProvider.notifier).refresh(),
-      ref.read(dashboardControllerProvider.notifier).refreshBalance(showSpinner: false),
+      ref
+          .read(dashboardControllerProvider.notifier)
+          .refreshBalance(showSpinner: false),
     ]);
   }
 
   Future<void> _startCardCreationFlow() async {
-    final creation = await Navigator.of(context).push<PromoCardCreateResult?>(
-      _buildCreateCardFlowRoute(),
-    );
+    final l10n = AppLocalizations.of(context)!;
+    final creation = await Navigator.of(
+      context,
+    ).push<PromoCardCreateResult?>(_buildCreateCardFlowRoute());
 
     if (!mounted || creation == null) {
       return;
@@ -252,12 +289,14 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final cards = updatedState.cards;
 
     if (cards.isEmpty) {
-      showSuccess(context, 'Your virtual card is ready!');
+      showSuccess(context, l10n.cardsVirtualReadyMessage);
       return;
     }
 
     final createdCardId = creation.cardId.trim();
-    var targetIndex = createdCardId.isEmpty ? cards.length - 1 : cards.indexWhere((card) => card.id.trim() == createdCardId);
+    var targetIndex = createdCardId.isEmpty
+        ? cards.length - 1
+        : cards.indexWhere((card) => card.id.trim() == createdCardId);
 
     if (targetIndex < 0) {
       targetIndex = cards.length - 1;
@@ -288,7 +327,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
       );
     });
 
-    showSuccess(context, 'Your virtual card is ready!');
+    showSuccess(context, l10n.cardsVirtualReadyMessage);
   }
 
   void _openTransactions(List<VirtualCard> cards, int initialIndex) {
@@ -296,18 +335,21 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
       PageRouteBuilder(
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
-        pageBuilder: (context, animation, secondaryAnimation) => CardTransactionsScreen(
-          cards: cards,
-          initialIndex: initialIndex,
-        ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            CardTransactionsScreen(cards: cards, initialIndex: initialIndex),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            child,
       ),
     );
   }
 
   Future<void> _copyToClipboard(String label, String value) async {
+    final l10n = AppLocalizations.of(context)!;
     final sanitized = value.replaceAll(' ', '').trim();
-    if (sanitized.isEmpty || sanitized.contains('•') || sanitized == '—' || sanitized == '***') {
+    if (sanitized.isEmpty ||
+        sanitized.contains('•') ||
+        sanitized == '—' ||
+        sanitized == '***') {
       return;
     }
 
@@ -326,7 +368,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     messenger.hideCurrentSnackBar();
     messenger.showSnackBar(
       SnackBar(
-        content: Text('$label copied'),
+        content: Text(l10n.cardsValueCopied(label)),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       ),
@@ -334,7 +376,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   }
 
   Future<void> _handleFreezeCard(VirtualCard card) async {
-    final result = await ref.read(cardsControllerProvider.notifier).freezeCard(card);
+    final result = await ref
+        .read(cardsControllerProvider.notifier)
+        .freezeCard(card);
 
     if (!mounted) {
       return;
@@ -351,7 +395,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   }
 
   Future<void> _handleUnfreezeCard(VirtualCard card) async {
-    final result = await ref.read(cardsControllerProvider.notifier).unfreezeCard(card);
+    final result = await ref
+        .read(cardsControllerProvider.notifier)
+        .unfreezeCard(card);
 
     if (!mounted) {
       return;
@@ -401,7 +447,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
       return;
     }
 
-    final result = await ref.read(cardsControllerProvider.notifier).terminateCard(card);
+    final result = await ref
+        .read(cardsControllerProvider.notifier)
+        .terminateCard(card);
 
     if (!mounted) {
       return;
@@ -421,7 +469,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final result = await showResponsiveBottomSheet<bool>(
       context: context,
       builder: (sheetContext) => _TerminateConfirmationSheet(
-        cardName: card.cardName.isNotEmpty ? card.cardName : 'Virtual Card',
+        cardName: card.cardName.isNotEmpty
+            ? card.cardName
+            : AppLocalizations.of(context)!.cardsVirtualCardLabel,
         lastFour: card.last4,
       ),
     );
@@ -430,7 +480,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   }
 
   Future<void> _handleToggleCardDetails(VirtualCard card) async {
-    final message = await ref.read(cardsControllerProvider.notifier).toggleCardDetails(card);
+    final message = await ref
+        .read(cardsControllerProvider.notifier)
+        .toggleCardDetails(card);
     if (!mounted || message == null || message.trim().isEmpty) {
       return;
     }
@@ -442,13 +494,11 @@ class _CardsMessageBanner extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _CardsMessageBanner({
-    required this.message,
-    required this.onRetry,
-  });
+  const _CardsMessageBanner({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Container(
         width: double.infinity,
@@ -465,10 +515,10 @@ class _CardsMessageBanner extends StatelessWidget {
               child: Text(
                 message,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: OpeiColors.errorRed,
-                      fontSize: 13,
-                      height: 1.35,
-                    ),
+                  color: OpeiColors.errorRed,
+                  fontSize: 13,
+                  height: 1.35,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -485,11 +535,11 @@ class _CardsMessageBanner extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
               ),
-              child: const Text('Retry'),
+              child: Text(l10n.retryCta),
             ),
           ],
         ),
@@ -502,17 +552,16 @@ class _TerminateConfirmationSheet extends StatelessWidget {
   final String cardName;
   final String? lastFour;
 
-  const _TerminateConfirmationSheet({
-    required this.cardName,
-    this.lastFour,
-  });
+  const _TerminateConfirmationSheet({required this.cardName, this.lastFour});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final textTheme = theme.textTheme;
-    final cardLabel =
-        (lastFour == null || lastFour!.isEmpty) ? cardName : '$cardName ·•••• ${lastFour!}';
+    final cardLabel = (lastFour == null || lastFour!.isEmpty)
+        ? cardName
+        : '$cardName ·•••• ${lastFour!}';
 
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 24),
@@ -605,7 +654,7 @@ class _TerminateConfirmationSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text('Keep card'),
+                  child: Text(l10n.cardsKeepCardCta),
                 ),
               ),
               const SizedBox(width: 12),
@@ -620,7 +669,7 @@ class _TerminateConfirmationSheet extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text('Terminate'),
+                  child: Text(l10n.cardsTerminateCta),
                 ),
               ),
             ],
@@ -655,13 +704,11 @@ class _CardsErrorPlaceholder extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _CardsErrorPlaceholder({
-    required this.message,
-    required this.onRetry,
-  });
+  const _CardsErrorPlaceholder({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     return Center(
       child: Container(
@@ -709,7 +756,10 @@ class _CardsErrorPlaceholder extends StatelessWidget {
               child: TextButton(
                 onPressed: onRetry,
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 12,
+                  ),
                   backgroundColor: OpeiBrand.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
@@ -720,7 +770,7 @@ class _CardsErrorPlaceholder extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
-                child: const Text('Retry'),
+                child: Text(l10n.retryCta),
               ),
             ),
           ],
@@ -756,8 +806,14 @@ class _UserCardsCarousel extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     final textScale = mediaQuery.textScaler.scale(1.0).clamp(1.0, 1.35);
     const baseHeight = 228.0;
-    final maxResponsiveHeight = math.max(baseHeight, mediaQuery.size.height * 0.45);
-    final cardHeight = (baseHeight * textScale).clamp(baseHeight, maxResponsiveHeight);
+    final maxResponsiveHeight = math.max(
+      baseHeight,
+      mediaQuery.size.height * 0.45,
+    );
+    final cardHeight = (baseHeight * textScale).clamp(
+      baseHeight,
+      maxResponsiveHeight,
+    );
 
     return SizedBox(
       height: cardHeight,
@@ -770,8 +826,10 @@ class _UserCardsCarousel extends StatelessWidget {
           final card = cards[index];
           final cardId = card.id.trim();
           final details = cardId.isEmpty ? null : detailsById[cardId];
-          final isRevealed = cardId.isNotEmpty && revealedCardIds.contains(cardId);
-          final isLoading = cardId.isNotEmpty && loadingCardIds.contains(cardId);
+          final isRevealed =
+              cardId.isNotEmpty && revealedCardIds.contains(cardId);
+          final isLoading =
+              cardId.isNotEmpty && loadingCardIds.contains(cardId);
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -813,6 +871,7 @@ class _UserCardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final statusLabel = _formatStatus(card.status);
     final statusColor = _statusColor(statusLabel);
     final showDetails = isRevealed && details != null;
@@ -822,9 +881,14 @@ class _UserCardView extends StatelessWidget {
       fallback: card.last4,
     );
     final panGroups = _splitIntoGroups(normalizedPan);
-    final cvvRevealed = _formatRevealedCvv(details?.cvv ?? '', fallback: card.cvv);
+    final cvvRevealed = _formatRevealedCvv(
+      details?.cvv ?? '',
+      fallback: card.cvv,
+    );
     final cvvMasked = _maskCvv(card.cvv);
-    final balanceRevealed = _formatRevealedBalance(details?.balance ?? card.balance);
+    final balanceRevealed = _formatRevealedBalance(
+      details?.balance ?? card.balance,
+    );
     final balanceMasked = _maskBalance(card.balance);
 
     final copyableCardNumber = showDetails
@@ -860,21 +924,24 @@ class _UserCardView extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          card.cardName.isNotEmpty ? card.cardName : 'Virtual Card',
+                          card.cardName.isNotEmpty
+                              ? card.cardName
+                              : l10n.cardsVirtualCardLabel,
                           style: theme.textTheme.titleMedium?.copyWith(
-                                color: OpeiColors.pureWhite,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: -0.3,
-                              ),
+                            color: OpeiColors.pureWhite,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: -0.3,
+                          ),
                         ),
                         if (addressData != null) ...[
                           const SizedBox(height: 10),
                           _CardAddressPreview(
-                            label: 'Address',
+                            label: l10n.addressLabel,
                             preview: addressData.preview,
                             isPlaceholder: addressData.isPlaceholder,
-                            onTap: () => _showAddressSheet(context, addressData),
+                            onTap: () =>
+                                _showAddressSheet(context, addressData),
                           ),
                         ],
                       ],
@@ -890,7 +957,9 @@ class _UserCardView extends StatelessWidget {
                       _CardRevealButton(
                         isLoading: isLoading,
                         isRevealed: isRevealed,
-                        onPressed: onToggleDetails == null ? null : () => onToggleDetails!(card),
+                        onPressed: onToggleDetails == null
+                            ? null
+                            : () => onToggleDetails!(card),
                       ),
                     ],
                   ),
@@ -904,7 +973,8 @@ class _UserCardView extends StatelessWidget {
                     child: _CardPanDisplay(
                       groups: panGroups,
                       isRevealed: showDetails,
-                      textStyle: theme.textTheme.titleLarge?.copyWith(
+                      textStyle:
+                          theme.textTheme.titleLarge?.copyWith(
                             color: OpeiColors.pureWhite,
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
@@ -924,8 +994,11 @@ class _UserCardView extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 12),
                     child: copyableCardNumber.isNotEmpty
                         ? _CopyIconButton(
-                            label: 'Card number',
-                            onPressed: () => onCopyValue('Card number', copyableCardNumber),
+                            label: l10n.cardsCardNumberLabel,
+                            onPressed: () => onCopyValue(
+                              l10n.cardsCardNumberLabel,
+                              copyableCardNumber,
+                            ),
                           )
                         : const _CopyIconPlaceholder(),
                   ),
@@ -940,35 +1013,41 @@ class _UserCardView extends StatelessWidget {
                       children: [
                         Flexible(
                           child: _CardInfoColumn(
-                            label: 'Expires',
+                            label: l10n.cardsExpiresLabel,
                             value: expiryLabel,
                             animateValue: true,
                             onCopy: copyableExpiry.isNotEmpty
-                                ? () => onCopyValue('Expiry date', copyableExpiry)
+                                ? () => onCopyValue(
+                                    l10n.cardsExpiryDateLabel,
+                                    copyableExpiry,
+                                  )
                                 : null,
-                            copyLabel: 'Expiry date',
+                            copyLabel: l10n.cardsExpiryDateLabel,
                             reserveCopySlot: true,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Flexible(
                           child: _CardInfoColumn(
-                            label: 'CVV',
+                            label: l10n.cardsCvvLabel,
                             value: cvvRevealed,
                             maskedValue: cvvMasked,
                             isMasked: !showDetails,
                             animateValue: true,
                             onCopy: copyableCvv.isNotEmpty
-                                ? () => onCopyValue('CVV', copyableCvv)
+                                ? () => onCopyValue(
+                                    l10n.cardsCvvLabel,
+                                    copyableCvv,
+                                  )
                                 : null,
-                            copyLabel: 'CVV',
+                            copyLabel: l10n.cardsCvvLabel,
                             reserveCopySlot: true,
                           ),
                         ),
                         const SizedBox(width: 12),
                         Flexible(
                           child: _CardInfoColumn(
-                            label: 'Balance',
+                            label: l10n.walletBalanceRow,
                             value: balanceRevealed,
                             maskedValue: balanceMasked,
                             isMasked: !showDetails,
@@ -989,7 +1068,9 @@ class _UserCardView extends StatelessWidget {
                           child: Text(
                             'VISA',
                             style: TextStyle(
-                              color: OpeiColors.pureWhite.withValues(alpha: 0.92),
+                              color: OpeiColors.pureWhite.withValues(
+                                alpha: 0.92,
+                              ),
                               fontSize: 26,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 2.4,
@@ -1034,10 +1115,10 @@ class _UserCardView extends StatelessWidget {
                         Text(
                           'Loading securely...',
                           style: theme.textTheme.bodySmall?.copyWith(
-                                color: OpeiColors.pureWhite.withValues(alpha: 0.85),
-                                fontSize: 12,
-                                letterSpacing: -0.1,
-                              ),
+                            color: OpeiColors.pureWhite.withValues(alpha: 0.85),
+                            fontSize: 12,
+                            letterSpacing: -0.1,
+                          ),
                         ),
                       ],
                     ),
@@ -1089,7 +1170,10 @@ class _UserCardView extends StatelessWidget {
     return sanitized
         .split(' ')
         .where((part) => part.isNotEmpty)
-        .map((part) => '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}')
+        .map(
+          (part) =>
+              '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}',
+        )
         .join(' ');
   }
 
@@ -1217,14 +1301,17 @@ class _UserCardView extends StatelessWidget {
     }
 
     if (country != null) {
-      if (countryCode != null && !country.toUpperCase().contains(countryCode.toUpperCase())) {
+      if (countryCode != null &&
+          !country.toUpperCase().contains(countryCode.toUpperCase())) {
         fullLines.add('$country (${countryCode.toUpperCase()})');
       } else {
         fullLines.add(country);
       }
     }
 
-    final effectivePreview = preview.trim().isNotEmpty ? preview.trim() : fullLines.join(', ').trim();
+    final effectivePreview = preview.trim().isNotEmpty
+        ? preview.trim()
+        : fullLines.join(', ').trim();
     final joinedFull = fullLines.join('\n').trim();
     final effectiveFull = joinedFull.isNotEmpty ? joinedFull : effectivePreview;
 
@@ -1257,7 +1344,9 @@ class _UserCardView extends StatelessWidget {
       context: context,
       builder: (sheetContext) {
         final theme = Theme.of(sheetContext);
-        final copyLabel = data.isPlaceholder ? 'Copy sample address' : 'Copy address';
+        final copyLabel = data.isPlaceholder
+            ? 'Copy sample address'
+            : 'Copy address';
 
         return SafeArea(
           top: false,
@@ -1281,37 +1370,39 @@ class _UserCardView extends StatelessWidget {
                 Text(
                   'Card Address',
                   style: theme.textTheme.titleMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiColors.pureBlack,
-                      ),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiColors.pureBlack,
+                  ),
                 ),
                 if (data.isPlaceholder) ...[
                   const SizedBox(height: 6),
                   Text(
                     'Sample data shown for layout. Real card addresses will appear here once provided by the gateway.',
                     style: theme.textTheme.bodySmall?.copyWith(
-                          color: OpeiColors.grey600,
-                          fontSize: 12,
-                        ),
+                      color: OpeiColors.grey600,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 16),
                 Text(
                   data.full,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: OpeiColors.pureBlack,
-                        height: 1.45,
-                      ),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: OpeiColors.pureBlack,
+                    height: 1.45,
+                  ),
                 ),
                 const SizedBox(height: 22),
                 Row(
                   children: [
                     TextButton.icon(
                       onPressed: () async {
-                        final normalizedCopy = data.full.replaceAll(RegExp(r'\s+'), ' ').trim();
+                        final normalizedCopy = data.full
+                            .replaceAll(RegExp(r'\s+'), ' ')
+                            .trim();
                         if (normalizedCopy.isEmpty) {
                           return;
                         }
@@ -1321,13 +1412,16 @@ class _UserCardView extends StatelessWidget {
                       icon: const Icon(CupertinoIcons.doc_on_doc),
                       label: Text(copyLabel),
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                     ),
                     const Spacer(),
                     TextButton(
                       onPressed: () => Navigator.of(sheetContext).pop(),
-                      child: const Text('Close'),
+                      child: Text(AppLocalizations.of(context)!.closeCta),
                     ),
                   ],
                 ),
@@ -1420,16 +1514,13 @@ class _CardAddressPreview extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            Icons.location_on_outlined,
-            size: 16,
-            color: baseColor,
-          ),
+          Icon(Icons.location_on_outlined, size: 16, color: baseColor),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               '$label • $preview',
-              style: theme.textTheme.bodySmall?.copyWith(
+              style:
+                  theme.textTheme.bodySmall?.copyWith(
                     color: baseColor,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -1445,11 +1536,7 @@ class _CardAddressPreview extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          Icon(
-            Icons.chevron_right,
-            size: 16,
-            color: baseColor,
-          ),
+          Icon(Icons.chevron_right, size: 16, color: baseColor),
         ],
       ),
     );
@@ -1487,20 +1574,14 @@ class _CardPanGroup extends StatelessWidget {
               duration: const Duration(milliseconds: 260),
               curve: Curves.easeOutCubic,
               opacity: (isRevealed || isLast) ? 1 : 0,
-              child: Text(
-                effectiveDigits,
-                style: textStyle,
-              ),
+              child: Text(effectiveDigits, style: textStyle),
             ),
             if (!isLast)
               AnimatedOpacity(
                 duration: const Duration(milliseconds: 260),
                 curve: Curves.easeOutCubic,
                 opacity: isRevealed ? 0 : 1,
-                child: Text(
-                  maskText,
-                  style: textStyle,
-                ),
+                child: Text(maskText, style: textStyle),
               ),
           ],
         ),
@@ -1543,11 +1624,11 @@ class _CardInfoColumn extends StatelessWidget {
           child: Text(
             label.toUpperCase(),
             style: theme.textTheme.bodySmall?.copyWith(
-                  color: OpeiColors.pureWhite.withValues(alpha: 0.55),
-                  letterSpacing: 0.8,
-                  fontSize: 9,
-                  fontWeight: FontWeight.w500,
-                ),
+              color: OpeiColors.pureWhite.withValues(alpha: 0.55),
+              letterSpacing: 0.8,
+              fontSize: 9,
+              fontWeight: FontWeight.w500,
+            ),
             maxLines: 1,
             softWrap: false,
             overflow: TextOverflow.clip,
@@ -1559,12 +1640,12 @@ class _CardInfoColumn extends StatelessWidget {
                 duration: const Duration(milliseconds: 260),
                 switchInCurve: Curves.easeOutCubic,
                 switchOutCurve: Curves.easeInCubic,
-                transitionBuilder: (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: child,
-                ),
+                transitionBuilder: (child, animation) =>
+                    FadeTransition(opacity: animation, child: child),
                 child: _CardInfoValue(
-                  key: ValueKey('$label-$value-${maskedValue ?? ''}-${isMasked ? 'masked' : 'revealed'}'),
+                  key: ValueKey(
+                    '$label-$value-${maskedValue ?? ''}-${isMasked ? 'masked' : 'revealed'}',
+                  ),
                   value: value,
                   maskedValue: maskedValue,
                   isMasked: isMasked,
@@ -1612,7 +1693,8 @@ class _CardInfoValue extends StatelessWidget {
     final canCopy = onCopy != null && !isMasked && value.trim().isNotEmpty;
     final needsTrailingSpace = canCopy || reserveCopySlot;
 
-    final baseStyle = theme.textTheme.titleSmall?.copyWith(
+    final baseStyle =
+        theme.textTheme.titleSmall?.copyWith(
           color: OpeiColors.pureWhite,
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -1654,11 +1736,11 @@ class _CardInfoValue extends StatelessWidget {
             height: valueHeight,
             child: Align(
               alignment: Alignment.centerLeft,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: buildValueContent(),
-          ),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: buildValueContent(),
+              ),
             ),
           );
         }
@@ -1669,20 +1751,22 @@ class _CardInfoValue extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-            Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
+              Expanded(
+                child: Align(
                   alignment: Alignment.centerLeft,
-                  child: buildValueContent(),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: buildValueContent(),
+                  ),
                 ),
               ),
-            ),
               const SizedBox(width: 6),
               canCopy
                   ? _CopyIconButton(
-                      label: 'Copy $copyLabel',
+                      label: AppLocalizations.of(
+                        context,
+                      )!.copyLabelWithValue(copyLabel),
                       onPressed: onCopy!,
                       size: 24,
                     )
@@ -1747,7 +1831,11 @@ class _CopyIconButton extends StatelessWidget {
   final String label;
   final double size;
 
-  const _CopyIconButton({required this.onPressed, required this.label, this.size = 26});
+  const _CopyIconButton({
+    required this.onPressed,
+    required this.label,
+    this.size = 26,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1784,10 +1872,7 @@ class _CopyIconPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-    );
+    return SizedBox(width: size, height: size);
   }
 }
 
@@ -1805,7 +1890,9 @@ class _CardRevealButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDisabled = onPressed == null || isLoading;
-    final baseColor = OpeiColors.pureWhite.withValues(alpha: isRevealed ? 0.24 : 0.16);
+    final baseColor = OpeiColors.pureWhite.withValues(
+      alpha: isRevealed ? 0.24 : 0.16,
+    );
     final borderColor = OpeiColors.pureWhite.withValues(alpha: 0.25);
 
     return GestureDetector(
@@ -1822,10 +1909,7 @@ class _CardRevealButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: baseColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: borderColor,
-            width: isRevealed ? 1.1 : 0.8,
-          ),
+          border: Border.all(color: borderColor, width: isRevealed ? 1.1 : 0.8),
         ),
         child: Center(
           child: AnimatedSwitcher(
@@ -1840,7 +1924,9 @@ class _CardRevealButton extends StatelessWidget {
                     child: CupertinoActivityIndicator(radius: 7),
                   )
                 : Icon(
-                    isRevealed ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    isRevealed
+                        ? Icons.visibility_off_outlined
+                        : Icons.visibility_outlined,
                     key: ValueKey(isRevealed ? 'hide' : 'show'),
                     color: OpeiColors.pureWhite.withValues(alpha: 0.92),
                     size: 18,
@@ -1856,10 +1942,7 @@ class _CardStatusPill extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _CardStatusPill({
-    required this.label,
-    required this.color,
-  });
+  const _CardStatusPill({required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -1880,11 +1963,11 @@ class _CardStatusPill extends StatelessWidget {
       child: Text(
         normalized,
         style: theme.textTheme.labelSmall?.copyWith(
-              color: foregroundColor,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
-              fontSize: 11,
-            ),
+          color: foregroundColor,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
+          fontSize: 11,
+        ),
       ),
     );
   }
@@ -2185,10 +2268,7 @@ class VirtualCardHero extends StatelessWidget {
                               gradient: const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  Color(0xFFEED88A),
-                                  Color(0xFFB6892E),
-                                ],
+                                colors: [Color(0xFFEED88A), Color(0xFFB6892E)],
                               ),
                               borderRadius: BorderRadius.circular(4),
                             ),
@@ -2299,12 +2379,42 @@ class CardUseCasesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final useCases = [
-      CardUseCase(icon: Icons.subscriptions_outlined, title: 'Subscriptions', subtitle: 'Netflix, Spotify, and more'),
-      CardUseCase(icon: Icons.shopping_bag_outlined, title: 'Online Shopping', subtitle: 'Purchase from any store'),
-      CardUseCase(icon: Icons.flight_outlined, title: 'Travel & Tickets', subtitle: 'Book flights and hotels'),
-      CardUseCase(icon: Icons.games_outlined, title: 'Gaming', subtitle: 'In-app purchases and games'),
-      CardUseCase(icon: Icons.public, title: 'International Store Payments', subtitle: 'Shop from anywhere'),
-      CardUseCase(icon: Icons.shield_outlined, title: 'Secure Online Purchases', subtitle: 'Protected transactions'),
+      CardUseCase(
+        icon: Icons.subscriptions_outlined,
+        title: AppLocalizations.of(context)!.cardsUseCaseSubscriptionsTitle,
+        subtitle: AppLocalizations.of(
+          context,
+        )!.cardsUseCaseSubscriptionsSubtitle,
+      ),
+      CardUseCase(
+        icon: Icons.shopping_bag_outlined,
+        title: AppLocalizations.of(context)!.cardsUseCaseOnlineShoppingTitle,
+        subtitle: AppLocalizations.of(
+          context,
+        )!.cardsUseCaseOnlineShoppingSubtitle,
+      ),
+      CardUseCase(
+        icon: Icons.flight_outlined,
+        title: AppLocalizations.of(context)!.cardsUseCaseTravelTitle,
+        subtitle: AppLocalizations.of(context)!.cardsUseCaseTravelSubtitle,
+      ),
+      CardUseCase(
+        icon: Icons.games_outlined,
+        title: AppLocalizations.of(context)!.cardsUseCaseGamingTitle,
+        subtitle: AppLocalizations.of(context)!.cardsUseCaseGamingSubtitle,
+      ),
+      CardUseCase(
+        icon: Icons.public,
+        title: AppLocalizations.of(context)!.cardsUseCaseInternationalTitle,
+        subtitle: AppLocalizations.of(
+          context,
+        )!.cardsUseCaseInternationalSubtitle,
+      ),
+      CardUseCase(
+        icon: Icons.shield_outlined,
+        title: AppLocalizations.of(context)!.cardsUseCaseSecureTitle,
+        subtitle: AppLocalizations.of(context)!.cardsUseCaseSecureSubtitle,
+      ),
     ];
 
     return Column(
@@ -2326,7 +2436,11 @@ class CardUseCase {
   final String title;
   final String subtitle;
 
-  CardUseCase({required this.icon, required this.title, required this.subtitle});
+  CardUseCase({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
 }
 
 class UseCaseTile extends StatelessWidget {
@@ -2353,11 +2467,7 @@ class UseCaseTile extends StatelessWidget {
                 color: OpeiBrand.primaryTint,
                 borderRadius: BorderRadius.circular(11),
               ),
-              child: Icon(
-                useCase.icon,
-                size: 19,
-                color: OpeiBrand.primary,
-              ),
+              child: Icon(useCase.icon, size: 19, color: OpeiBrand.primary),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -2407,23 +2517,20 @@ class _CarouselPageIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        itemCount,
-        (index) {
-          final isActive = index == currentIndex;
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-            width: isActive ? 20 : 8,
-            height: 6,
-            margin: const EdgeInsets.symmetric(horizontal: 3),
-            decoration: BoxDecoration(
-              color: isActive ? OpeiColors.pureBlack : OpeiColors.grey300,
-              borderRadius: BorderRadius.circular(4),
-            ),
-          );
-        },
-      ),
+      children: List.generate(itemCount, (index) {
+        final isActive = index == currentIndex;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          width: isActive ? 20 : 8,
+          height: 6,
+          margin: const EdgeInsets.symmetric(horizontal: 3),
+          decoration: BoxDecoration(
+            color: isActive ? OpeiColors.pureBlack : OpeiColors.grey300,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
     );
   }
 }
@@ -2451,6 +2558,7 @@ class _CardActionsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final status = card.status.trim();
     final normalizedStatus = status.toLowerCase();
     final isLocked = _statusIndicatesLocked(normalizedStatus);
@@ -2461,20 +2569,22 @@ class _CardActionsRow extends StatelessWidget {
     final actions = <_CardActionConfig>[
       _CardActionConfig(
         icon: Icons.add_circle_outline,
-        label: 'Top Up',
+        label: l10n.cardsTopUpAction,
         onTap: (isTerminated || isBusy) ? null : onTopUpTap,
       ),
       _CardActionConfig(
         icon: Icons.arrow_circle_up_outlined,
-        label: 'Withdraw',
+        label: l10n.cardsWithdrawAction,
         onTap: isTerminated ? null : onWithdrawTap,
       ),
       _CardActionConfig(
         icon: Icons.receipt_long_outlined,
-        label: 'Transactions',
-        onTap: onTransactionsTap ?? () {
-          debugPrint('View transactions for card: ${card.id}');
-        },
+        label: l10n.cardsTransactionsAction,
+        onTap:
+            onTransactionsTap ??
+            () {
+              debugPrint('View transactions for card: ${card.id}');
+            },
       ),
     ];
 
@@ -2482,7 +2592,7 @@ class _CardActionsRow extends StatelessWidget {
       actions.add(
         _CardActionConfig(
           icon: Icons.lock_outline,
-          label: 'Freeze Card',
+          label: l10n.cardsFreezeAction,
           onTap: isBusy ? null : onFreezeTap,
           isLoading: isBusy,
         ),
@@ -2493,7 +2603,7 @@ class _CardActionsRow extends StatelessWidget {
       actions.add(
         _CardActionConfig(
           icon: Icons.lock_open_outlined,
-          label: 'Unfreeze Card',
+          label: l10n.cardsUnfreezeAction,
           onTap: isBusy ? null : onUnfreezeTap,
           isLoading: isBusy,
         ),
@@ -2503,7 +2613,7 @@ class _CardActionsRow extends StatelessWidget {
     actions.add(
       _CardActionConfig(
         icon: Icons.cancel_outlined,
-        label: 'Terminate',
+        label: l10n.cardsTerminateCta,
         onTap: (isBusy || isTerminated) ? null : onTerminateTap,
         isLoading: isBusy,
       ),
@@ -2627,11 +2737,11 @@ class _CardActionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDisabled = onTap == null || isLoading;
     final labelStyle = Theme.of(context).textTheme.bodyMedium?.copyWith(
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
-          color: OpeiColors.pureBlack,
-          letterSpacing: -0.2,
-        );
+      fontSize: 15,
+      fontWeight: FontWeight.w500,
+      color: OpeiColors.pureBlack,
+      letterSpacing: -0.2,
+    );
 
     return GestureDetector(
       onTap: isDisabled ? null : onTap,
@@ -2641,10 +2751,7 @@ class _CardActionTile extends StatelessWidget {
         decoration: BoxDecoration(
           border: showDivider
               ? Border(
-                  bottom: BorderSide(
-                    color: OpeiColors.grey200,
-                    width: 0.5,
-                  ),
+                  bottom: BorderSide(color: OpeiColors.grey200, width: 0.5),
                 )
               : null,
         ),
@@ -2653,18 +2760,9 @@ class _CardActionTile extends StatelessWidget {
           opacity: isDisabled ? 0.6 : 1,
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: OpeiColors.pureBlack,
-                size: 22,
-              ),
+              Icon(icon, color: OpeiColors.pureBlack, size: 22),
               const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  label,
-                  style: labelStyle,
-                ),
-              ),
+              Expanded(child: Text(label, style: labelStyle)),
               if (isLoading)
                 const SizedBox(
                   width: 20,
@@ -2672,11 +2770,7 @@ class _CardActionTile extends StatelessWidget {
                   child: CupertinoActivityIndicator(radius: 8),
                 )
               else
-                Icon(
-                  Icons.chevron_right,
-                  color: OpeiColors.grey400,
-                  size: 20,
-                ),
+                Icon(Icons.chevron_right, color: OpeiColors.grey400, size: 20),
             ],
           ),
         ),
@@ -2692,17 +2786,22 @@ class CreateCardButton extends ConsumerStatefulWidget {
   ConsumerState<CreateCardButton> createState() => _CreateCardButtonState();
 }
 
-class _CreateCardButtonState extends ConsumerState<CreateCardButton> with SingleTickerProviderStateMixin {
+class _CreateCardButtonState extends ConsumerState<CreateCardButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
     );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.96,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -2714,8 +2813,7 @@ class _CreateCardButtonState extends ConsumerState<CreateCardButton> with Single
   @override
   Widget build(BuildContext context) {
     final navigator = Navigator.of(context);
-    final parentState =
-        context.findAncestorStateOfType<_CardsScreenState>();
+    final parentState = context.findAncestorStateOfType<_CardsScreenState>();
 
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
@@ -2728,9 +2826,7 @@ class _CreateCardButtonState extends ConsumerState<CreateCardButton> with Single
           return;
         }
 
-        await navigator.push(
-          _buildCreateCardFlowRoute(),
-        );
+        await navigator.push(_buildCreateCardFlowRoute());
       },
       onTapCancel: () => _controller.reverse(),
       child: ScaleTransition(
@@ -2751,13 +2847,13 @@ class _CreateCardButtonState extends ConsumerState<CreateCardButton> with Single
           ),
           child: Center(
             child: Text(
-              'Create Virtual Card',
+              AppLocalizations.of(context)!.cardsCreateVirtualCardCta,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: OpeiColors.pureWhite,
-                    letterSpacing: -0.2,
-                  ),
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: OpeiColors.pureWhite,
+                letterSpacing: -0.2,
+              ),
             ),
           ),
         ),

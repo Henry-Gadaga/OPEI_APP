@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/money/money.dart';
 import 'package:opei/features/send_money/send_money_controller.dart';
 import 'package:opei/features/send_money/send_money_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/success_hero.dart';
 
@@ -40,14 +41,15 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(sendMoneyControllerProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: OpeiColors.pureWhite,
       appBar: AppBar(
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
-        leading: state.currentStep == SendMoneyStep.result 
-            ? null 
+        leading: state.currentStep == SendMoneyStep.result
+            ? null
             : IconButton(
                 icon: const Icon(Icons.arrow_back, color: OpeiColors.pureBlack),
                 onPressed: () {
@@ -59,10 +61,10 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                 },
               ),
         title: Text(
-          'Send Money',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          l10n.sendMoneyTitle,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
       ),
@@ -75,26 +77,34 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
             20,
             20 + MediaQuery.of(context).viewInsets.bottom,
           ),
-          child: _buildStepContent(context, state),
+          child: _buildStepContent(context, state, l10n),
         ),
       ),
     );
   }
 
-  Widget _buildStepContent(BuildContext context, SendMoneyState state) {
+  Widget _buildStepContent(
+    BuildContext context,
+    SendMoneyState state,
+    AppLocalizations l10n,
+  ) {
     switch (state.currentStep) {
       case SendMoneyStep.emailLookup:
-        return _buildEmailLookupStep(context, state);
+        return _buildEmailLookupStep(context, state, l10n);
       case SendMoneyStep.amountEntry:
-        return _buildAmountEntryStep(context, state);
+        return _buildAmountEntryStep(context, state, l10n);
       case SendMoneyStep.preview:
-        return _buildPreviewStep(context, state);
+        return _buildPreviewStep(context, state, l10n);
       case SendMoneyStep.result:
         return _ResultStep(state: state);
     }
   }
 
-  Widget _buildEmailLookupStep(BuildContext context, SendMoneyState state) {
+  Widget _buildEmailLookupStep(
+    BuildContext context,
+    SendMoneyState state,
+    AppLocalizations l10n,
+  ) {
     return Form(
       key: _emailFormKey,
       child: Column(
@@ -102,10 +112,10 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
         children: [
           const SizedBox(height: 4),
           Text(
-            'Recipient email',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            l10n.sendMoneyRecipientEmailLabel,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           TextFormField(
@@ -114,18 +124,25 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
             textInputAction: TextInputAction.done,
             enabled: !state.isLoading,
             decoration: InputDecoration(
-              hintText: 'email@example.com',
+              hintText: l10n.emailAddressHint,
               prefixIcon: const Icon(Icons.email_outlined, size: 18),
               prefixIconConstraints: const BoxConstraints(minWidth: 36),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              errorText: state.errorMessage?.isNotEmpty == true ? state.errorMessage : null,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              errorText: state.errorMessage?.isNotEmpty == true
+                  ? state.errorMessage
+                  : null,
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter an email';
+                return l10n.sendMoneyEnterEmailError;
               }
-              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                return 'Please enter a valid email';
+              if (!RegExp(
+                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+              ).hasMatch(value)) {
+                return l10n.sendMoneyValidEmailError;
               }
               return null;
             },
@@ -134,24 +151,32 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
           const SizedBox(height: 18),
           ElevatedButton(
             onPressed: state.isLoading ? null : _handleLookup,
-            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
             child: state.isLoading
                 ? const SizedBox(
                     height: 18,
                     width: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        OpeiColors.pureWhite,
+                      ),
                     ),
                   )
-                : const Text('Continue'),
+                : Text(l10n.continueCta),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAmountEntryStep(BuildContext context, SendMoneyState state) {
+  Widget _buildAmountEntryStep(
+    BuildContext context,
+    SendMoneyState state,
+    AppLocalizations l10n,
+  ) {
     return Form(
       key: _amountFormKey,
       child: Column(
@@ -176,10 +201,10 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                     child: Text(
                       state.lookupResult!.bestDisplayName[0].toUpperCase(),
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: OpeiColors.pureWhite,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
+                        color: OpeiColors.pureWhite,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                      ),
                     ),
                   ),
                 ),
@@ -189,15 +214,16 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sending to',
+                        l10n.sendMoneySendingToLabel,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: OpeiColors.grey600,
-                            ),
+                          color: OpeiColors.grey600,
+                        ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         state.lookupResult!.bestDisplayName,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
                             ),
@@ -211,10 +237,10 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Amount',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            l10n.amountLabel,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           TextFormField(
@@ -223,23 +249,28 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
             textInputAction: TextInputAction.done,
             enabled: !state.isLoading,
             decoration: InputDecoration(
-              hintText: '0.00',
+              hintText: l10n.sendMoneyAmountHint,
               prefixIcon: const Icon(Icons.attach_money, size: 18),
               prefixIconConstraints: const BoxConstraints(minWidth: 36),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              errorText: state.errorMessage?.isNotEmpty == true ? state.errorMessage : null,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              errorText: state.errorMessage?.isNotEmpty == true
+                  ? state.errorMessage
+                  : null,
             ),
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter an amount';
+                return l10n.sendMoneyEnterAmountError;
               }
               final amount = double.tryParse(value);
               if (amount == null || amount <= 0) {
-                return 'Please enter a valid amount';
+                return l10n.sendMoneyValidAmountError;
               }
               return null;
             },
@@ -248,27 +279,35 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: state.isLoading ? null : _handleAmountContinue,
-            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
             child: state.isLoading
                 ? const SizedBox(
                     height: 18,
                     width: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(OpeiColors.pureWhite),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        OpeiColors.pureWhite,
+                      ),
                     ),
                   )
-                : const Text('Continue'),
+                : Text(l10n.continueCta),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildPreviewStep(BuildContext context, SendMoneyState state) {
+  Widget _buildPreviewStep(
+    BuildContext context,
+    SendMoneyState state,
+    AppLocalizations l10n,
+  ) {
     final preview = state.previewResult;
     if (preview == null) {
-      return const Center(child: Text('No preview available'));
+      return Center(child: Text(l10n.sendMoneyNoPreview));
     }
 
     final receiver = state.lookupResult!;
@@ -322,8 +361,9 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        preview.receiverCreditAmountMoney
-                            .format(includeCurrencySymbol: true),
+                        preview.receiverCreditAmountMoney.format(
+                          includeCurrencySymbol: true,
+                        ),
                         style: const TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 30,
@@ -358,7 +398,7 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
         const SizedBox(height: 18),
 
         // ── Section: Recipient ──────────────────────────────────────────
-        const _SendSectionLabel('RECIPIENT'),
+        _SendSectionLabel(l10n.sendMoneyRecipientSection),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -430,7 +470,7 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
         const SizedBox(height: 18),
 
         // ── Section: Breakdown ──────────────────────────────────────────
-        const _SendSectionLabel('PAYMENT BREAKDOWN'),
+        _SendSectionLabel(l10n.paymentBreakdown),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
@@ -441,21 +481,24 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
           child: Column(
             children: [
               _SendPreviewRow(
-                label: 'Transfer amount',
-                value: preview.transferAmountMoney
-                    .format(includeCurrencySymbol: true),
+                label: l10n.sendMoneyTransferAmountRow,
+                value: preview.transferAmountMoney.format(
+                  includeCurrencySymbol: true,
+                ),
               ),
               const _SendPreviewDivider(),
               _SendPreviewRow(
-                label: 'Fee',
-                value: preview.estimatedFeeMoney
-                    .format(includeCurrencySymbol: true),
+                label: l10n.feeRow,
+                value: preview.estimatedFeeMoney.format(
+                  includeCurrencySymbol: true,
+                ),
               ),
               const _SendPreviewDivider(),
               _SendPreviewRow(
-                label: 'Total to charge',
-                value: preview.totalDebitMoney
-                    .format(includeCurrencySymbol: true),
+                label: l10n.sendMoneyTotalToChargeRow,
+                value: preview.totalDebitMoney.format(
+                  includeCurrencySymbol: true,
+                ),
                 emphasize: true,
               ),
             ],
@@ -465,7 +508,7 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
         const SizedBox(height: 18),
 
         // ── Section: Wallet impact ──────────────────────────────────────
-        const _SendSectionLabel('AFTER THIS PAYMENT'),
+        _SendSectionLabel(l10n.afterThisPayment),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -490,9 +533,9 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Wallet balance',
+                  l10n.walletBalanceRow,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 13,
@@ -503,8 +546,9 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                 ),
               ),
               Text(
-                preview.senderBalanceAfterMoney
-                    .format(includeCurrencySymbol: true),
+                preview.senderBalanceAfterMoney.format(
+                  includeCurrencySymbol: true,
+                ),
                 style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 14,
@@ -532,8 +576,11 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.error_outline_rounded,
-                    size: 14, color: OpeiBrand.danger),
+                const Icon(
+                  Icons.error_outline_rounded,
+                  size: 14,
+                  color: OpeiBrand.danger,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -561,8 +608,7 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
             backgroundColor: OpeiBrand.primary,
             foregroundColor: Colors.white,
             disabledBackgroundColor: OpeiBrand.primaryTintStrong,
-            disabledForegroundColor:
-                OpeiBrand.primary.withValues(alpha: 0.6),
+            disabledForegroundColor: OpeiBrand.primary.withValues(alpha: 0.6),
             minimumSize: const Size.fromHeight(54),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(OpeiBrand.radiusCta),
@@ -570,9 +616,11 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
           ),
           child: state.isLoading
               ? const CupertinoActivityIndicator(
-                  radius: 11, color: Colors.white)
-              : const Text(
-                  'Send now',
+                  radius: 11,
+                  color: Colors.white,
+                )
+              : Text(
+                  l10n.sendMoneySendNowCta,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -584,15 +632,13 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
         TextButton(
           onPressed: state.isLoading
               ? null
-              : () => ref
-                  .read(sendMoneyControllerProvider.notifier)
-                  .goBack(),
+              : () => ref.read(sendMoneyControllerProvider.notifier).goBack(),
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 10),
             foregroundColor: OpeiBrand.primary,
           ),
-          child: const Text(
-            'Edit amount',
+          child: Text(
+            l10n.editAmountCta,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 13.5,
@@ -608,14 +654,18 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
 
   Future<void> _handleLookup() async {
     if (_emailFormKey.currentState?.validate() ?? false) {
-      await ref.read(sendMoneyControllerProvider.notifier).lookupWallet(_emailController.text.trim().toLowerCase());
+      await ref
+          .read(sendMoneyControllerProvider.notifier)
+          .lookupWallet(_emailController.text.trim().toLowerCase());
     }
   }
 
   Future<void> _handleAmountContinue() async {
     if (_amountFormKey.currentState?.validate() ?? false) {
       final money = Money.parse(_amountController.text.trim());
-      await ref.read(sendMoneyControllerProvider.notifier).previewTransfer(money);
+      await ref
+          .read(sendMoneyControllerProvider.notifier)
+          .previewTransfer(money);
     }
   }
 
@@ -626,12 +676,13 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
 
 class _ResultStep extends ConsumerWidget {
   final SendMoneyState state;
-  
+
   const _ResultStep({required this.state});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isSuccess = state.transferSuccess;
+    final l10n = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
       child: Column(
@@ -642,19 +693,24 @@ class _ResultStep extends ConsumerWidget {
             const SuccessHero(iconHeight: 64, gap: 2),
             const SizedBox(height: 16),
             Text(
-              'Transfer complete',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              l10n.sendMoneyTransferCompleteTitle,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 14),
             if (state.transferResult != null) ...[
               Text(
-                'You sent ${state.transferResult!.amountMoney.format(includeCurrencySymbol: true)} to ${state.lookupResult!.bestDisplayName}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: OpeiColors.grey600,
-                    ),
+                l10n.sendMoneyTransferCompleteSubtitle(
+                  state.transferResult!.amountMoney.format(
+                    includeCurrencySymbol: true,
+                  ),
+                  state.lookupResult!.bestDisplayName,
+                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: OpeiColors.grey600),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -668,15 +724,19 @@ class _ResultStep extends ConsumerWidget {
                   children: [
                     _buildDetailRow(
                       context,
-                      'Amount sent',
-                      state.transferResult!.amountMoney.format(includeCurrencySymbol: true),
+                      l10n.sendMoneyAmountSentRow,
+                      state.transferResult!.amountMoney.format(
+                        includeCurrencySymbol: true,
+                      ),
                       isHighlight: true,
                     ),
                     const SizedBox(height: 12),
                     _buildDetailRow(
                       context,
-                      'Your new balance',
-                      state.transferResult!.fromBalanceMoney.format(includeCurrencySymbol: true),
+                      l10n.sendMoneyNewBalanceRow,
+                      state.transferResult!.fromBalanceMoney.format(
+                        includeCurrencySymbol: true,
+                      ),
                     ),
                   ],
                 ),
@@ -698,18 +758,18 @@ class _ResultStep extends ConsumerWidget {
             ),
             const SizedBox(height: 22),
             Text(
-              'Transfer failed',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              l10n.sendMoneyTransferFailedTitle,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
             Text(
-              state.errorMessage ?? 'The transfer could not be completed. Please try again.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: OpeiColors.grey600,
-                  ),
+              state.errorMessage ?? l10n.sendMoneyTransferFailedSubtitle,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: OpeiColors.grey600),
               textAlign: TextAlign.center,
             ),
           ],
@@ -724,7 +784,7 @@ class _ResultStep extends ConsumerWidget {
                   ref.read(sendMoneyControllerProvider.notifier).reset();
                 }
               },
-              child: Text(isSuccess ? 'Done' : 'Try Again'),
+              child: Text(isSuccess ? l10n.doneCta : l10n.tryAgainCta),
             ),
           ),
           const SizedBox(height: 14),
@@ -733,7 +793,13 @@ class _ResultStep extends ConsumerWidget {
     );
   }
 
-  Widget _buildDetailRow(BuildContext context, String label, String value, {bool isHighlight = false, bool isSmall = false}) {
+  Widget _buildDetailRow(
+    BuildContext context,
+    String label,
+    String value, {
+    bool isHighlight = false,
+    bool isSmall = false,
+  }) {
     if (isSmall) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -741,42 +807,42 @@ class _ResultStep extends ConsumerWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: OpeiColors.grey600,
-                  fontSize: 11,
-                ),
+              color: OpeiColors.grey600,
+              fontSize: 11,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             value,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                  fontSize: 11,
-                  fontFamily: 'monospace',
-                ),
+              fontWeight: FontWeight.w500,
+              fontSize: 11,
+              fontFamily: 'monospace',
+            ),
             overflow: TextOverflow.ellipsis,
           ),
         ],
       );
     }
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: isHighlight ? OpeiColors.pureBlack : OpeiColors.grey600,
-                fontWeight: isHighlight ? FontWeight.w600 : FontWeight.w400,
-              ),
+            color: isHighlight ? OpeiColors.pureBlack : OpeiColors.grey600,
+            fontWeight: isHighlight ? FontWeight.w600 : FontWeight.w400,
+          ),
         ),
         Flexible(
           child: Text(
             value,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w600,
-                  fontSize: isHighlight ? 18 : null,
-                  color: isHighlight ? OpeiColors.pureBlack : null,
-                ),
+              fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w600,
+              fontSize: isHighlight ? 18 : null,
+              color: isHighlight ? OpeiColors.pureBlack : null,
+            ),
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.right,
           ),
@@ -860,11 +926,10 @@ class _SendPreviewDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Divider(
-        height: 1,
-        thickness: 0.5,
-        color: OpeiBrand.hairline,
-        indent: 14,
-        endIndent: 14,
-      );
+    height: 1,
+    thickness: 0.5,
+    color: OpeiBrand.hairline,
+    indent: 14,
+    endIndent: 14,
+  );
 }
-

@@ -8,6 +8,7 @@ import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/express_order.dart';
 import 'package:opei/features/express_p2p/express_ui.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -337,7 +338,7 @@ class _Header extends StatelessWidget {
           IconButton(
             onPressed: onRefresh,
             icon: const Icon(Icons.refresh_rounded, color: Colors.white),
-            tooltip: 'Refresh',
+            tooltip: AppLocalizations.of(context)!.refreshCta,
           ),
         ],
       ),
@@ -552,7 +553,10 @@ class _QueueCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final view = expressAgentStatusView(order.status);
+    final view = expressAgentStatusView(
+      order.status,
+      AppLocalizations.of(context)!,
+    );
     final provider = order.paymentMethodType?.providerName ?? '';
     final showBuyerNumber = order.status.shouldShowContact;
     final buyerNumber = order.buyerContactNumber;
@@ -637,9 +641,10 @@ class _QueueCard extends StatelessWidget {
     final uri = Uri(scheme: 'tel', path: phoneNumber);
     final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!launched && context.mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Could not open dialer.'),
+          content: Text(l10n.couldNotOpenDialer),
           backgroundColor: OpeiBrand.ink,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -654,9 +659,10 @@ class _QueueCard extends StatelessWidget {
   Future<void> _copyBuyer(BuildContext context, String phoneNumber) async {
     await Clipboard.setData(ClipboardData(text: phoneNumber));
     if (!context.mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Buyer number copied'),
+        content: Text(l10n.buyerNumberCopied),
         backgroundColor: OpeiBrand.ink,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 1),
@@ -678,6 +684,7 @@ class _AgentContactRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final contact = number?.trim();
     final hasNumber = contact != null && contact.isNotEmpty;
     return Container(
@@ -709,7 +716,7 @@ class _AgentContactRow extends StatelessWidget {
           ),
           if (hasNumber) ...[
             _CompactActionButton(
-              label: 'Copy',
+              label: l10n.depositCopyCta,
               icon: Icons.content_copy_rounded,
               onTap: onCopy,
               background: Colors.white,
@@ -717,7 +724,7 @@ class _AgentContactRow extends StatelessWidget {
             ),
             const SizedBox(width: 6),
             _CompactActionButton(
-              label: 'Call',
+              label: l10n.callCta,
               icon: Icons.call_rounded,
               onTap: onCall,
               background: OpeiBrand.primary,

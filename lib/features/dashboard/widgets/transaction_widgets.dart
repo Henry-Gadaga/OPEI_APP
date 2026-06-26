@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:opei/core/money/money.dart';
 import 'package:opei/data/models/wallet_transaction.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 // =====================================================================
@@ -20,7 +21,8 @@ class TransactionGroupsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final groups = _groupTransactions(transactions);
+    final l10n = AppLocalizations.of(context)!;
+    final groups = _groupTransactions(transactions, l10n);
     if (groups.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -62,7 +64,9 @@ class _TransactionGroup {
 }
 
 List<_TransactionGroup> _groupTransactions(
-    List<WalletTransaction> transactions) {
+  List<WalletTransaction> transactions,
+  AppLocalizations l10n,
+) {
   if (transactions.isEmpty) return const [];
 
   final sorted = List<WalletTransaction>.from(transactions)
@@ -77,7 +81,7 @@ List<_TransactionGroup> _groupTransactions(
   List<WalletTransaction>? currentItems;
 
   for (final tx in sorted) {
-    final label = _buildGroupLabel(tx.createdAt);
+    final label = _buildGroupLabel(tx.createdAt, l10n);
     if (label != currentLabel) {
       currentItems = <WalletTransaction>[];
       groups.add(_TransactionGroup(label, currentItems));
@@ -88,16 +92,16 @@ List<_TransactionGroup> _groupTransactions(
   return groups;
 }
 
-String _buildGroupLabel(DateTime? date) {
-  if (date == null) return 'Earlier';
+String _buildGroupLabel(DateTime? date, AppLocalizations l10n) {
+  if (date == null) return l10n.transactionsEarlierGroup;
 
   final now = DateTime.now();
   final today = DateTime(now.year, now.month, now.day);
   final target = DateTime(date.year, date.month, date.day);
   final diff = today.difference(target).inDays;
 
-  if (diff == 0) return 'Today';
-  if (diff == 1) return 'Yesterday';
+  if (diff == 0) return l10n.transactionsTodayGroup;
+  if (diff == 1) return l10n.transactionsYesterdayGroup;
   if (diff < 7) return DateFormat('EEEE').format(date); // "Wednesday"
   if (date.year == now.year) return DateFormat('EEE, d MMM').format(date);
   return DateFormat('d MMM yyyy').format(date);
@@ -108,27 +112,20 @@ String _buildGroupLabel(DateTime? date) {
 // =====================================================================
 
 class _TypeVisual {
-  final String label;
   final IconData icon;
-  const _TypeVisual({required this.label, required this.icon});
+  const _TypeVisual({required this.icon});
 }
 
 const _typeVisuals = <String, _TypeVisual>{
-  'CARD_TOPUP':
-      _TypeVisual(label: 'Card top-up', icon: Icons.credit_card_rounded),
-  'CARD_WITHDRAWAL':
-      _TypeVisual(label: 'Card withdrawal', icon: Icons.credit_card_rounded),
-  'CRYPTO_DEPOSIT':
-      _TypeVisual(label: 'Crypto deposit', icon: Icons.currency_bitcoin),
-  'CRYPTO_SEND':
-      _TypeVisual(label: 'Crypto sent', icon: Icons.currency_bitcoin),
-  'P2P_RECEIVE':
-      _TypeVisual(label: 'Received from', icon: Icons.south_rounded),
-  'P2P_SEND': _TypeVisual(label: 'Sent to', icon: Icons.north_rounded),
-  'ADMIN_ADJUSTMENT':
-      _TypeVisual(label: 'Adjustment', icon: Icons.tune_rounded),
-  'FEE': _TypeVisual(label: 'Fee', icon: Icons.receipt_long_rounded),
-  'REVERSAL': _TypeVisual(label: 'Reversal', icon: Icons.undo_rounded),
+  'CARD_TOPUP': _TypeVisual(icon: Icons.credit_card_rounded),
+  'CARD_WITHDRAWAL': _TypeVisual(icon: Icons.credit_card_rounded),
+  'CRYPTO_DEPOSIT': _TypeVisual(icon: Icons.currency_bitcoin),
+  'CRYPTO_SEND': _TypeVisual(icon: Icons.currency_bitcoin),
+  'P2P_RECEIVE': _TypeVisual(icon: Icons.south_rounded),
+  'P2P_SEND': _TypeVisual(icon: Icons.north_rounded),
+  'ADMIN_ADJUSTMENT': _TypeVisual(icon: Icons.tune_rounded),
+  'FEE': _TypeVisual(icon: Icons.receipt_long_rounded),
+  'REVERSAL': _TypeVisual(icon: Icons.undo_rounded),
 };
 
 // =====================================================================
@@ -149,7 +146,10 @@ class WalletTransactionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vm = _TileViewModel.fromTransaction(transaction);
+    final vm = _TileViewModel.fromTransaction(
+      transaction,
+      AppLocalizations.of(context)!,
+    );
 
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
@@ -161,25 +161,18 @@ class WalletTransactionTile extends StatelessWidget {
           splashColor: OpeiBrand.primary.withValues(alpha: 0.04),
           highlightColor: OpeiBrand.primary.withValues(alpha: 0.02),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               border: showDivider
                   ? const Border(
-                      bottom: BorderSide(
-                        color: OpeiBrand.hairline,
-                        width: 0.6,
-                      ),
+                      bottom: BorderSide(color: OpeiBrand.hairline, width: 0.6),
                     )
                   : null,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _TransactionIconBadge(
-                  icon: vm.icon,
-                  isIncoming: vm.isIncoming,
-                ),
+                _TransactionIconBadge(icon: vm.icon, isIncoming: vm.isIncoming),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -360,7 +353,10 @@ class _TileViewModel {
     required this.isPending,
   });
 
-  factory _TileViewModel.fromTransaction(WalletTransaction tx) {
+  factory _TileViewModel.fromTransaction(
+    WalletTransaction tx,
+    AppLocalizations l10n,
+  ) {
     final rawType = tx.rawType?.toUpperCase() ?? '';
     final visual = _typeVisuals[rawType];
     final isIncoming = tx.isIncoming;
@@ -368,7 +364,7 @@ class _TileViewModel {
     final icon = isCrypto
         ? Icons.currency_bitcoin_rounded
         : (visual?.icon ??
-            (isIncoming ? Icons.south_rounded : Icons.north_rounded));
+              (isIncoming ? Icons.south_rounded : Icons.north_rounded));
 
     final amount = Money.fromCents(tx.amountCents.abs(), currency: tx.currency);
     final amountLabel =
@@ -380,7 +376,7 @@ class _TileViewModel {
     // Subtitle shows time only ("12:45 PM") — group header already shows the day.
     final subtitle = _formatTimeOnly(tx.createdAt);
 
-    final pill = _buildStatusPill(tx);
+    final pill = _buildStatusPill(tx, l10n);
     final isPending = tx.isPending;
 
     return _TileViewModel(
@@ -397,26 +393,30 @@ class _TileViewModel {
   }
 }
 
-Widget? _buildStatusPill(WalletTransaction tx) {
+Widget? _buildStatusPill(WalletTransaction tx, AppLocalizations l10n) {
   final s = tx.status?.trim().toUpperCase() ?? '';
 
   if (s == 'PENDING' || s == 'PROCESSING') {
-    return const _StatusPill(
-      label: 'Pending',
+    return _StatusPill(
+      label: l10n.pendingStatus,
       background: Color(0xFFFFF6E0),
       textColor: Color(0xFF8A5A00),
     );
   }
   if (s == 'FAILED' || s == 'DECLINED' || s == 'CANCELLED' || s == 'CANCELED') {
     return _StatusPill(
-      label: s == 'FAILED' ? 'Failed' : 'Cancelled',
+      label: s == 'FAILED'
+          ? l10n.transactionsFailedStatus
+          : l10n.transactionsCancelledStatus,
       background: const Color(0xFFFDECEC),
       textColor: OpeiBrand.danger,
     );
   }
   if (s == 'REVERSED' || s == 'REFUNDED') {
     return _StatusPill(
-      label: s == 'REVERSED' ? 'Reversed' : 'Refunded',
+      label: s == 'REVERSED'
+          ? l10n.transactionsReversedStatus
+          : l10n.transactionsRefundedStatus,
       background: OpeiBrand.surfaceMuted,
       textColor: OpeiBrand.inkSecondary,
     );
@@ -448,10 +448,7 @@ class TransactionsListSkeleton extends StatelessWidget {
           decoration: BoxDecoration(
             border: showDivider
                 ? const Border(
-                    bottom: BorderSide(
-                      color: OpeiBrand.hairline,
-                      width: 0.6,
-                    ),
+                    bottom: BorderSide(color: OpeiBrand.hairline, width: 0.6),
                   )
                 : null,
           ),
@@ -489,8 +486,7 @@ class _SkRect extends StatefulWidget {
   State<_SkRect> createState() => _SkRectState();
 }
 
-class _SkRectState extends State<_SkRect>
-    with SingleTickerProviderStateMixin {
+class _SkRectState extends State<_SkRect> with SingleTickerProviderStateMixin {
   late final AnimationController _c;
   late final Animation<double> _a;
 

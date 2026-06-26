@@ -5,6 +5,7 @@ import 'package:opei/data/models/promo_card_create_result.dart';
 import 'package:opei/features/cards/promo_card_creation_controller.dart';
 import 'package:opei/features/cards/promo_card_creation_state.dart';
 import 'package:opei/features/deposit/deposit_screen.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 
@@ -25,8 +26,7 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller =
-          ref.read(promoCardCreationControllerProvider.notifier);
+      final controller = ref.read(promoCardCreationControllerProvider.notifier);
       controller.reset();
       controller.prepare();
     });
@@ -71,8 +71,9 @@ class _CreateVirtualCardFlowState extends ConsumerState<CreateVirtualCardFlow> {
         return _ConfirmScreen(
           key: const ValueKey('confirm'),
           state: state,
-          onConfirm: () =>
-              ref.read(promoCardCreationControllerProvider.notifier).createCard(),
+          onConfirm: () => ref
+              .read(promoCardCreationControllerProvider.notifier)
+              .createCard(),
           onClose: () => Navigator.of(context).pop(),
         );
 
@@ -115,7 +116,9 @@ class _PreparingScreen extends StatelessWidget {
       onClose: hasError ? onClose : null,
       child: hasError
           ? _ErrorBody(message: errorMessage!, onRetry: onRetry)
-          : const _LoadingBody(label: 'Setting up your card\u2026'),
+          : _LoadingBody(
+              label: AppLocalizations.of(context)!.cardsSettingUpCardLoading,
+            ),
     );
   }
 }
@@ -181,8 +184,12 @@ class _ConfirmScreen extends ConsumerWidget {
                         Expanded(
                           child: Text(
                             canCreate
-                                ? 'Your virtual card is ready to create.'
-                                : 'Top up your wallet to continue card creation.',
+                                ? AppLocalizations.of(
+                                    context,
+                                  )!.cardsReadyToCreate
+                                : AppLocalizations.of(
+                                    context,
+                                  )!.cardsTopupToCreate,
                             style: const TextStyle(
                               fontFamily: kPrimaryFontFamily,
                               fontSize: 13,
@@ -197,7 +204,9 @@ class _ConfirmScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    canCreate ? 'PAYMENT SUMMARY' : 'TOP UP REQUIRED',
+                    canCreate
+                        ? AppLocalizations.of(context)!.cardsPaymentSummaryLabel
+                        : AppLocalizations.of(context)!.cardsTopupRequiredLabel,
                     style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 11,
@@ -225,7 +234,7 @@ class _ConfirmScreen extends ConsumerWidget {
                 ? SizedBox(
                     width: double.infinity,
                     child: _PrimaryButton(
-                      label: 'Create my card',
+                      label: AppLocalizations.of(context)!.cardsCreateMyCardCta,
                       loading: state.isBusy,
                       onTap: onConfirm,
                     ),
@@ -233,7 +242,7 @@ class _ConfirmScreen extends ConsumerWidget {
                 : SizedBox(
                     width: double.infinity,
                     child: _PrimaryButton(
-                      label: 'Add funds',
+                      label: AppLocalizations.of(context)!.cardsAddFundsCta,
                       onTap: () => showResponsiveBottomSheet(
                         context: context,
                         dismissOnBarrierTap: true,
@@ -274,19 +283,19 @@ class _CanCreateBody extends StatelessWidget {
             children: [
               _Row(
                 icon: Icons.payments_outlined,
-                label: 'Creation fee',
+                label: AppLocalizations.of(context)!.cardsCreationFeeRow,
                 value: _usd(prepare.creationFeeCents),
               ),
               const _Divider(),
               _Row(
                 icon: Icons.bolt_outlined,
-                label: 'Activation fee',
+                label: AppLocalizations.of(context)!.cardsActivationFeeRow,
                 value: _usd(prepare.sweepCents),
               ),
               const _Divider(),
               _Row(
                 icon: Icons.credit_card_outlined,
-                label: 'On your card',
+                label: AppLocalizations.of(context)!.cardsOnYourCardRow,
                 value: _usd(prepare.cardWillReceiveCents),
                 valueColor: OpeiBrand.success,
                 valueWeight: FontWeight.w700,
@@ -357,12 +366,14 @@ class _CanCreateBody extends StatelessWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Your balance',
+                      Text(
+                        AppLocalizations.of(context)!.walletBalanceRow,
                         style: TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 11,
@@ -386,15 +397,13 @@ class _CanCreateBody extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                width: 1,
-                height: 36,
-                color: OpeiBrand.hairline,
-              ),
+              Container(width: 1, height: 36, color: OpeiBrand.hairline),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 14),
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -433,7 +442,6 @@ class _CanCreateBody extends StatelessWidget {
   }
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Confirm — insufficient funds
 // ─────────────────────────────────────────────────────────────────────────────
@@ -457,12 +465,12 @@ class _InsufficientBody extends StatelessWidget {
           child: Column(
             children: [
               _Row(
-                label: 'Amount needed',
+                label: AppLocalizations.of(context)!.cardsAmountNeededRow,
                 value: _usd(prepare.totalToChargeCents),
               ),
               _Divider(),
               _Row(
-                label: 'Your balance',
+                label: AppLocalizations.of(context)!.walletBalanceRow,
                 value: _usd(prepare.walletBalanceCents),
               ),
             ],
@@ -528,7 +536,9 @@ class _CreatingScreen extends StatelessWidget {
     return _Shell(
       topPad: topPad,
       onClose: null,
-      child: const _LoadingBody(label: 'Creating your card\u2026'),
+      child: _LoadingBody(
+        label: AppLocalizations.of(context)!.cardsCreatingCardLoading,
+      ),
     );
   }
 }
@@ -541,11 +551,7 @@ class _SuccessScreen extends StatelessWidget {
   final PromoCardCreateResult result;
   final VoidCallback onDone;
 
-  const _SuccessScreen({
-    super.key,
-    required this.result,
-    required this.onDone,
-  });
+  const _SuccessScreen({super.key, required this.result, required this.onDone});
 
   @override
   Widget build(BuildContext context) {
@@ -604,7 +610,9 @@ class _SuccessScreen extends StatelessWidget {
             if (result.reference.isNotEmpty)
               Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 8),
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: OpeiBrand.surfaceMuted,
                   borderRadius: BorderRadius.circular(999),
@@ -635,7 +643,10 @@ class _SuccessScreen extends StatelessWidget {
             // ── Done button ───────────────────────────────────────
             SizedBox(
               width: double.infinity,
-              child: _PrimaryButton(label: 'Done', onTap: onDone),
+              child: _PrimaryButton(
+                label: AppLocalizations.of(context)!.doneCta,
+                onTap: onDone,
+              ),
             ),
           ],
         ),
@@ -654,11 +665,7 @@ class _Shell extends StatelessWidget {
   final VoidCallback? onClose;
   final Widget child;
 
-  const _Shell({
-    required this.topPad,
-    required this.child,
-    this.onClose,
-  });
+  const _Shell({required this.topPad, required this.child, this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -807,8 +814,7 @@ class _ErrorBody extends StatelessWidget {
           GestureDetector(
             onTap: onRetry,
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
                 color: OpeiBrand.primaryTint,
                 borderRadius: BorderRadius.circular(999),
@@ -845,8 +851,11 @@ class _InlineError extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline_rounded,
-              size: 15, color: OpeiBrand.danger),
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 15,
+            color: OpeiBrand.danger,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -871,11 +880,7 @@ class _PrimaryButton extends StatelessWidget {
   final VoidCallback? onTap;
   final bool loading;
 
-  const _PrimaryButton({
-    required this.label,
-    this.onTap,
-    this.loading = false,
-  });
+  const _PrimaryButton({required this.label, this.onTap, this.loading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -990,11 +995,7 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Divider(
-      height: 1,
-      thickness: 0.8,
-      color: OpeiBrand.hairline,
-    );
+    return const Divider(height: 1, thickness: 0.8, color: OpeiBrand.hairline);
   }
 }
 

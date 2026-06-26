@@ -8,6 +8,7 @@ import 'package:opei/features/auth/quick_auth/quick_auth_controller.dart';
 import 'package:opei/features/auth/quick_auth/quick_auth_state.dart';
 import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_activity_indicator.dart';
@@ -66,15 +67,13 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     final isFace = canUseBio
         ? await quickAuthService.hasFaceBiometric()
         : false;
-    final promptShown =
-        await quickAuthService.wasBiometricPromptShown(userIdentifier);
+    final promptShown = await quickAuthService.wasBiometricPromptShown(
+      userIdentifier,
+    );
 
     // Show the inline opt-in banner to existing users (have PIN, no
     // biometric yet, hardware available, not previously dismissed).
-    final showBanner = hasPin &&
-        canUseBio &&
-        !biometricEnabled &&
-        !promptShown;
+    final showBanner = hasPin && canUseBio && !biometricEnabled && !promptShown;
 
     if (!mounted) return;
     setState(() {
@@ -105,10 +104,9 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     setState(() => _enrollingBiometric = true);
 
     try {
+      final l10n = AppLocalizations.of(context)!;
       final ok = await quickAuthService.authenticateWithBiometric(
-        _isFaceBiometric
-            ? 'Set up Face ID for quick sign-in'
-            : 'Set up fingerprint for quick sign-in',
+        _isFaceBiometric ? l10n.faceIdPrompt : l10n.fingerprintPrompt,
       );
 
       if (!mounted) return;
@@ -149,6 +147,7 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(quickAuthControllerProvider);
 
     ref.listen<QuickAuthState>(quickAuthControllerProvider, (previous, next) {
@@ -191,8 +190,8 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                         ],
                         Text(
                           _hasPinSetup
-                              ? 'Enter your PIN'
-                              : 'No PIN set up',
+                              ? l10n.quickAuthEnterPinTitle
+                              : l10n.quickAuthNoPinTitle,
                           style: const TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
@@ -204,8 +203,8 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
                         const SizedBox(height: 6),
                         Text(
                           _hasPinSetup
-                              ? 'Use your 6-digit PIN to sign in'
-                              : 'Set up a PIN in your account settings',
+                              ? l10n.quickAuthEnterPinSubtitle
+                              : l10n.quickAuthNoPinSubtitle,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 13.5,
@@ -285,8 +284,7 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
   Future<void> _handleQuickAuthSuccess() async {
     if (!mounted) return;
     final navigator = GoRouter.of(context);
-    final dashboardController =
-        ref.read(dashboardControllerProvider.notifier);
+    final dashboardController = ref.read(dashboardControllerProvider.notifier);
     dashboardController.prepareForFreshLaunch();
     dashboardController.refreshBalance(showSpinner: true);
     navigator.go('/dashboard');
@@ -309,23 +307,20 @@ class _QuickAuthScreenState extends ConsumerState<QuickAuthScreen> {
     }
 
     unawaited(
-      authRepository.logout().timeout(const Duration(seconds: 8)).catchError(
-        (error, stackTrace) {
-          debugPrint('⚠️ Logout after quick-auth failure hit an error: $error');
-          return null;
-        },
-      ),
+      authRepository.logout().timeout(const Duration(seconds: 8)).catchError((
+        error,
+        stackTrace,
+      ) {
+        debugPrint('⚠️ Logout after quick-auth failure hit an error: $error');
+        return null;
+      }),
     );
 
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     messenger.showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          maxLines: 4,
-          overflow: TextOverflow.ellipsis,
-        ),
+        content: Text(message, maxLines: 4, overflow: TextOverflow.ellipsis),
         backgroundColor: OpeiBrand.danger,
       ),
     );
@@ -339,27 +334,28 @@ class _VerifyingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ResponsiveScaffold(
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
-              OpeiActivityIndicator(size: 52, strokeWidth: 2.6),
-              SizedBox(height: 24),
+            children: [
+              const OpeiActivityIndicator(size: 52, strokeWidth: 2.6),
+              const SizedBox(height: 24),
               Text(
-                'Verifying',
-                style: TextStyle(
+                l10n.quickAuthVerifyingTitle,
+                style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: OpeiBrand.ink,
                   letterSpacing: -0.3,
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
-                'One moment please',
-                style: TextStyle(
+                l10n.quickAuthVerifyingSubtitle,
+                style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w500,
                   color: OpeiBrand.inkSecondary,
@@ -417,8 +413,10 @@ class _BiometricOptInBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = isFace ? 'Use Face ID for faster sign-in'
-        : 'Use fingerprint for faster sign-in';
+    final l10n = AppLocalizations.of(context)!;
+    final label = isFace
+        ? l10n.quickAuthFaceIdBanner
+        : l10n.quickAuthFingerprintBanner;
     final iconData = isFace ? Icons.face_outlined : Icons.fingerprint;
 
     return Container(
@@ -473,13 +471,15 @@ class _BiometricOptInBanner extends StatelessWidget {
               onPressed: onEnable,
               style: TextButton.styleFrom(
                 foregroundColor: OpeiBrand.primary,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 minimumSize: const Size(0, 32),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text(
-                'Enable',
+              child: Text(
+                l10n.quickAuthEnableCta,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -489,13 +489,11 @@ class _BiometricOptInBanner extends StatelessWidget {
             ),
             IconButton(
               padding: EdgeInsets.zero,
-              constraints:
-                  const BoxConstraints(minWidth: 28, minHeight: 28),
+              constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
               iconSize: 16,
               onPressed: onDismiss,
-              icon: const Icon(Icons.close,
-                  color: OpeiBrand.inkTertiary),
-              tooltip: 'Dismiss',
+              icon: const Icon(Icons.close, color: OpeiBrand.inkTertiary),
+              tooltip: l10n.quickAuthDismissTooltip,
             ),
           ],
         ],
@@ -529,13 +527,11 @@ class _BiometricKey extends StatelessWidget {
 class _BottomLinks extends StatelessWidget {
   final VoidCallback onUsePassword;
   final VoidCallback onForgotPin;
-  const _BottomLinks({
-    required this.onUsePassword,
-    required this.onForgotPin,
-  });
+  const _BottomLinks({required this.onUsePassword, required this.onForgotPin});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -543,12 +539,11 @@ class _BottomLinks extends StatelessWidget {
           onPressed: onUsePassword,
           style: TextButton.styleFrom(
             foregroundColor: OpeiBrand.inkSecondary,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: const Text(
-            'Use password',
+          child: Text(
+            l10n.quickAuthUsePasswordCta,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -556,21 +551,16 @@ class _BottomLinks extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-          width: 1,
-          height: 14,
-          color: OpeiBrand.hairline,
-        ),
+        Container(width: 1, height: 14, color: OpeiBrand.hairline),
         TextButton(
           onPressed: onForgotPin,
           style: TextButton.styleFrom(
             foregroundColor: OpeiBrand.inkSecondary,
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: const Text(
-            'Forgot PIN?',
+          child: Text(
+            l10n.forgotPinCta,
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,

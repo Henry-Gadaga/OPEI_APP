@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:opei/data/models/beneficiary.dart';
 import 'package:opei/data/models/payout_result.dart';
 import 'package:opei/features/beneficiaries/send/send_mobile_money_controller.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_primary_button.dart';
 
@@ -22,19 +23,19 @@ class SendResultScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(sendMobileMoneyControllerProvider(beneficiary));
     final finalization = state.finalization;
     final initiation = state.initiation;
     final review = state.review;
-    final receiverName = beneficiary.accountName ?? 'Receiver';
+    final receiverName = beneficiary.accountName ?? l10n.sendReceiverFallback;
 
-    final stage = finalization?.stage ??
-        initiation?.stage ??
-        PayoutStage.unknown;
+    final stage =
+        finalization?.stage ?? initiation?.stage ?? PayoutStage.unknown;
 
     final isSuccess = stage == PayoutStage.success;
-    final isPending = stage == PayoutStage.pendingWebhook ||
-        stage == PayoutStage.initiated;
+    final isPending =
+        stage == PayoutStage.pendingWebhook || stage == PayoutStage.initiated;
     final isFailed = stage == PayoutStage.failed;
 
     late final Color iconBg;
@@ -48,36 +49,33 @@ class SendResultScreen extends ConsumerWidget {
       iconBg = const Color(0xFFE8F9EE);
       iconFg = OpeiBrand.success;
       icon = Icons.check_rounded;
-      title = 'Money sent';
-      subtitle = 'Your payment to $receiverName has been delivered.';
-      statusLabel = 'COMPLETED';
+      title = l10n.sendResultMoneySentTitle;
+      subtitle = l10n.sendResultMoneySentSubtitle(receiverName);
+      statusLabel = l10n.sendResultCompletedStatus;
     } else if (isFailed) {
       iconBg = OpeiBrand.danger.withValues(alpha: 0.10);
       iconFg = OpeiBrand.danger;
       icon = Icons.close_rounded;
-      title = 'Payment failed';
-      subtitle =
-          'The provider couldn\'t process this payment. No funds were taken.';
-      statusLabel = 'FAILED';
+      title = l10n.sendResultPaymentFailedTitle;
+      subtitle = l10n.sendResultPaymentFailedSubtitle;
+      statusLabel = l10n.sendResultFailedStatus;
     } else if (isPending) {
       iconBg = OpeiBrand.primaryTint;
       iconFg = OpeiBrand.primary;
       icon = Icons.schedule_rounded;
-      title = 'Sending in progress';
-      subtitle =
-          'Your payment is on its way to $receiverName. We\'ll notify you once it\'s confirmed.';
-      statusLabel = 'PROCESSING';
+      title = l10n.sendResultSendingInProgressTitle;
+      subtitle = l10n.sendResultSendingInProgressSubtitle(receiverName);
+      statusLabel = l10n.sendResultProcessingStatus;
     } else {
       iconBg = OpeiBrand.surfaceMuted;
       iconFg = OpeiBrand.inkTertiary;
       icon = Icons.help_outline_rounded;
-      title = 'Status unknown';
-      subtitle = 'Check Activity in a few moments to see the outcome.';
-      statusLabel = 'UNKNOWN';
+      title = l10n.sendResultStatusUnknownTitle;
+      subtitle = l10n.sendResultStatusUnknownSubtitle;
+      statusLabel = l10n.sendResultUnknownStatus;
     }
 
-    final reference =
-        finalization?.reference ?? initiation?.reference ?? '';
+    final reference = finalization?.reference ?? initiation?.reference ?? '';
     final dateText = DateFormat.yMMMd().add_jm().format(DateTime.now());
 
     return Scaffold(
@@ -153,7 +151,9 @@ class SendResultScreen extends ConsumerWidget {
                     // ── Status pill ──────────────────────────────────────
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: iconBg,
                         borderRadius: BorderRadius.circular(99),
@@ -200,7 +200,7 @@ class SendResultScreen extends ConsumerWidget {
                 MediaQuery.of(context).viewPadding.bottom + 14,
               ),
               child: OpeiPrimaryButton(
-                label: 'Done',
+                label: l10n.doneCta,
                 onPressed: () => _exit(context),
               ),
             ),
@@ -253,6 +253,7 @@ class _ReceiptCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final receiverFormatted =
         '${NumberFormat('#,##0.00').format(payoutMinor / 100)} $payoutCurrency';
 
@@ -303,10 +304,11 @@ class _ReceiptCard extends StatelessWidget {
                           color: OpeiBrand.surface,
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color: OpeiBrand.surfaceMuted, width: 1.5),
+                            color: OpeiBrand.surfaceMuted,
+                            width: 1.5,
+                          ),
                         ),
-                        child: Text(flag,
-                            style: const TextStyle(fontSize: 10)),
+                        child: Text(flag, style: const TextStyle(fontSize: 10)),
                       ),
                     ),
                   ],
@@ -348,8 +350,8 @@ class _ReceiptCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
-                        'RECEIVED',
+                      Text(
+                        l10n.sendResultReceivedLabel,
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.w800,
@@ -379,24 +381,24 @@ class _ReceiptCard extends StatelessWidget {
             ),
           ),
           const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline),
-          _Row(label: 'Amount', value: '\$$amountUsd'),
+          _Row(label: l10n.amountLabel, value: '\$$amountUsd'),
           const _Sep(),
-          _Row(label: 'Fee', value: '\$$feeUsd'),
+          _Row(label: l10n.feeRow, value: '\$$feeUsd'),
           const _Sep(),
           _Row(
-            label: 'Total paid',
+            label: l10n.totalPaidLabel,
             value: '\$$totalUsd',
             emphasized: true,
           ),
           const _Sep(),
-          _Row(label: 'Date', value: dateText),
+          _Row(label: l10n.sendResultDateRow, value: dateText),
           if (description.isNotEmpty) ...[
             const _Sep(),
-            _Row(label: 'Description', value: description),
+            _Row(label: l10n.sendDescriptionLabel, value: description),
           ],
           if (reference.isNotEmpty) ...[
             const _Sep(),
-            _Row(label: 'Reference', value: reference, mono: true),
+            _Row(label: l10n.referenceLabel, value: reference, mono: true),
           ],
         ],
       ),

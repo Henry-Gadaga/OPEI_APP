@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/repositories/beneficiary_repository.dart';
 import 'package:opei/features/beneficiaries/us_bank/us_bank_beneficiaries_controller.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// Modal bottom sheet for adding a US bank receiver.
@@ -102,7 +103,9 @@ class _UsBankAddReceiverSheetState
         ne(_bankAddressCtrl.text) &&
         ne(_cityCtrl.text) &&
         ne(_stateCtrl.text) &&
-        _postCodeCtrl.text.trim().length >= 3) { n++; }
+        _postCodeCtrl.text.trim().length >= 3) {
+      n++;
+    }
     // 4 – Purpose always selected (has default)
     n++;
     // 5 – Beneficiary details
@@ -110,7 +113,9 @@ class _UsBankAddReceiverSheetState
         ne(_bAddressCtrl.text) &&
         ne(_bCityCtrl.text) &&
         ne(_bStateCtrl.text) &&
-        _bPostCodeCtrl.text.trim().length >= 3) { n++; }
+        _bPostCodeCtrl.text.trim().length >= 3) {
+      n++;
+    }
     return n;
   }
 
@@ -138,8 +143,10 @@ class _UsBankAddReceiverSheetState
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_achWithBusinessConflict) {
-      showError(context,
-          'ACH transfers are only available for individuals. Switch to Wire for businesses.');
+      showError(
+        context,
+        'ACH transfers are only available for individuals. Switch to Wire for businesses.',
+      );
       return;
     }
 
@@ -175,6 +182,7 @@ class _UsBankAddReceiverSheetState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(usBankBeneficiariesControllerProvider);
     final viewInsets = MediaQuery.of(context).viewInsets;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
@@ -211,7 +219,7 @@ class _UsBankAddReceiverSheetState
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text('🇺🇸', style: TextStyle(fontSize: 26)),
+                  const Text("🇺🇸", style: TextStyle(fontSize: 26)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -264,15 +272,12 @@ class _UsBankAddReceiverSheetState
                     children: [
                       // ── 1 · Transfer setup ─────────────────────────────
                       _CardSection(
-                        title: 'Transfer setup',
+                        title: l10n.usBankTransferSetupTitle,
                         children: [
                           _CardRow(
-                            label: 'Transfer type',
+                            label: l10n.usBankTransferTypeLabel,
                             child: _Pill(
-                              options: const [
-                                ('WIRE', 'Wire'),
-                                ('ACH', 'ACH'),
-                              ],
+                              options: const [('WIRE', 'Wire'), ('ACH', 'ACH')],
                               selected: _transferType,
                               onSelect: (v) =>
                                   setState(() => _transferType = v),
@@ -280,7 +285,7 @@ class _UsBankAddReceiverSheetState
                           ),
                           _CardDivider(),
                           _CardRow(
-                            label: 'Beneficiary type',
+                            label: l10n.usBankBeneficiaryTypeLabel,
                             child: _Pill(
                               options: const [
                                 ('INDIVIDUAL', 'Individual'),
@@ -301,15 +306,14 @@ class _UsBankAddReceiverSheetState
                           ],
                           _CardDivider(),
                           _CardRow(
-                            label: 'Account type',
+                            label: l10n.usBankAccountTypeLabel,
                             child: _Pill(
                               options: const [
                                 ('CHECKING', 'Checking'),
                                 ('SAVINGS', 'Savings'),
                               ],
                               selected: _accountType,
-                              onSelect: (v) =>
-                                  setState(() => _accountType = v),
+                              onSelect: (v) => setState(() => _accountType = v),
                             ),
                           ),
                         ],
@@ -318,10 +322,10 @@ class _UsBankAddReceiverSheetState
 
                       // ── 2 · Account numbers ────────────────────────────
                       _CardSection(
-                        title: 'Account numbers',
+                        title: l10n.usBankAccountNumbersTitle,
                         children: [
                           _FieldRow(
-                            label: 'Account number',
+                            label: l10n.accountNumberLabel,
                             helper: '4 – 17 digits',
                             child: TextFormField(
                               controller: _accountNumberCtrl,
@@ -332,7 +336,10 @@ class _UsBankAddReceiverSheetState
                               ],
                               decoration: _dec(hint: '••••••••••'),
                               validator: (v) {
-                                final val = (v ?? '').replaceAll(RegExp(r'\D'), '');
+                                final val = (v ?? '').replaceAll(
+                                  RegExp(r'\D'),
+                                  '',
+                                );
                                 if (val.length < 4 || val.length > 17) {
                                   return 'Must be 4 – 17 digits.';
                                 }
@@ -342,7 +349,7 @@ class _UsBankAddReceiverSheetState
                           ),
                           _CardDivider(),
                           _FieldRow(
-                            label: 'Routing number',
+                            label: l10n.usBankRoutingNumberLabel,
                             helper: 'Exactly 9 digits',
                             child: TextFormField(
                               controller: _routingNumberCtrl,
@@ -353,7 +360,10 @@ class _UsBankAddReceiverSheetState
                               ],
                               decoration: _dec(hint: '9 digits'),
                               validator: (v) {
-                                final val = (v ?? '').replaceAll(RegExp(r'\D'), '');
+                                final val = (v ?? '').replaceAll(
+                                  RegExp(r'\D'),
+                                  '',
+                                );
                                 if (val.length != 9) {
                                   return 'Must be exactly 9 digits.';
                                 }
@@ -367,26 +377,24 @@ class _UsBankAddReceiverSheetState
 
                       // ── 3 · Bank information ────────────────────────────
                       _CardSection(
-                        title: 'Bank information',
+                        title: l10n.usBankBankInformationTitle,
                         children: [
                           _FieldRow(
-                            label: 'Bank name',
+                            label: l10n.usBankBankNameLabel,
                             child: TextFormField(
                               controller: _bankNameCtrl,
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(hint: 'e.g. Chase Bank'),
-                              validator:
-                                  _min(2, 'Enter the bank name.'),
+                              validator: _min(2, 'Enter the bank name.'),
                             ),
                           ),
                           _CardDivider(),
                           _FieldRow(
-                            label: 'Bank address',
+                            label: l10n.usBankBankAddressLabel,
                             child: TextFormField(
                               controller: _bankAddressCtrl,
                               textCapitalization: TextCapitalization.words,
-                              decoration:
-                                  _dec(hint: 'e.g. 270 Park Avenue'),
+                              decoration: _dec(hint: 'e.g. 270 Park Avenue'),
                               validator: _min(2, 'Enter the bank address.'),
                             ),
                           ),
@@ -397,7 +405,7 @@ class _UsBankAddReceiverSheetState
                               Expanded(
                                 flex: 3,
                                 child: _FieldRow(
-                                  label: 'City',
+                                  label: l10n.addressCityLabel,
                                   child: TextFormField(
                                     controller: _cityCtrl,
                                     textCapitalization:
@@ -411,7 +419,7 @@ class _UsBankAddReceiverSheetState
                               Expanded(
                                 flex: 3,
                                 child: _FieldRow(
-                                  label: 'State',
+                                  label: l10n.addressStateLabel,
                                   child: TextFormField(
                                     controller: _stateCtrl,
                                     textCapitalization:
@@ -425,7 +433,7 @@ class _UsBankAddReceiverSheetState
                               Expanded(
                                 flex: 2,
                                 child: _FieldRow(
-                                  label: 'ZIP',
+                                  label: l10n.addressZipCodeLabel,
                                   child: TextFormField(
                                     controller: _postCodeCtrl,
                                     keyboardType: TextInputType.number,
@@ -451,7 +459,7 @@ class _UsBankAddReceiverSheetState
 
                       // ── 4 · Purpose ─────────────────────────────────────
                       _CardSection(
-                        title: 'Remittance purpose',
+                        title: l10n.usBankRemittancePurposeTitle,
                         children: [
                           _PurposeDropdown(
                             value: _remittancePurpose,
@@ -464,19 +472,20 @@ class _UsBankAddReceiverSheetState
 
                       // ── 5 · Beneficiary details ─────────────────────────
                       _CardSection(
-                        title: 'Beneficiary details',
+                        title: l10n.usBankBeneficiaryDetailsTitle,
                         children: [
                           _FieldRow(
                             label: _beneficiaryType == 'BUSINESS'
-                                ? 'Business name'
-                                : 'Full name',
+                                ? l10n.usBankBusinessNameLabel
+                                : l10n.usBankFullNameLabel,
                             child: TextFormField(
                               controller: _bAccountNameCtrl,
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(
-                                  hint: _beneficiaryType == 'BUSINESS'
-                                      ? 'e.g. Saul Atta LLC'
-                                      : 'e.g. John Doe'),
+                                hint: _beneficiaryType == 'BUSINESS'
+                                    ? 'e.g. Saul Atta LLC'
+                                    : 'e.g. John Doe',
+                              ),
                               validator: (v) {
                                 if ((v ?? '').trim().length < 2) {
                                   return 'Enter the beneficiary name.';
@@ -487,12 +496,13 @@ class _UsBankAddReceiverSheetState
                           ),
                           _CardDivider(),
                           _FieldRow(
-                            label: 'Address',
+                            label: l10n.addressLabel,
                             child: TextFormField(
                               controller: _bAddressCtrl,
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(
-                                  hint: 'e.g. 123 Tech Avenue, Suite 400'),
+                                hint: 'e.g. 123 Tech Avenue, Suite 400',
+                              ),
                               validator: _min(2, 'Enter an address.'),
                             ),
                           ),
@@ -503,7 +513,7 @@ class _UsBankAddReceiverSheetState
                               Expanded(
                                 flex: 3,
                                 child: _FieldRow(
-                                  label: 'City',
+                                  label: l10n.addressCityLabel,
                                   child: TextFormField(
                                     controller: _bCityCtrl,
                                     textCapitalization:
@@ -517,7 +527,7 @@ class _UsBankAddReceiverSheetState
                               Expanded(
                                 flex: 3,
                                 child: _FieldRow(
-                                  label: 'State',
+                                  label: l10n.addressStateLabel,
                                   child: TextFormField(
                                     controller: _bStateCtrl,
                                     textCapitalization:
@@ -531,7 +541,7 @@ class _UsBankAddReceiverSheetState
                               Expanded(
                                 flex: 2,
                                 child: _FieldRow(
-                                  label: 'ZIP',
+                                  label: l10n.addressZipCodeLabel,
                                   child: TextFormField(
                                     controller: _bPostCodeCtrl,
                                     keyboardType: TextInputType.number,
@@ -560,8 +570,9 @@ class _UsBankAddReceiverSheetState
                         _InlineError(
                           message: state.createError!,
                           onClose: () => ref
-                              .read(usBankBeneficiariesControllerProvider
-                                  .notifier)
+                              .read(
+                                usBankBeneficiariesControllerProvider.notifier,
+                              )
                               .clearCreateError(),
                         ),
                       ],
@@ -623,43 +634,42 @@ class _UsBankAddReceiverSheetState
       (v) => (v ?? '').trim().length < n ? msg : null;
 
   InputDecoration _dec({required String hint}) => InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(
-          color: OpeiBrand.inkPlaceholder,
-          fontWeight: FontWeight.w500,
-          fontSize: 14,
-        ),
-        filled: true,
-        fillColor: OpeiBrand.surface,
-        isDense: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: OpeiBrand.hairline, width: 1),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: OpeiBrand.hairline, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: OpeiBrand.primary, width: 1.5),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: OpeiBrand.danger, width: 1),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: OpeiBrand.danger, width: 1.5),
-        ),
-        errorStyle: const TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w600,
-          color: OpeiBrand.danger,
-        ),
-      );
+    hintText: hint,
+    hintStyle: const TextStyle(
+      color: OpeiBrand.inkPlaceholder,
+      fontWeight: FontWeight.w500,
+      fontSize: 14,
+    ),
+    filled: true,
+    fillColor: OpeiBrand.surface,
+    isDense: true,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(color: OpeiBrand.hairline, width: 1),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(color: OpeiBrand.hairline, width: 1),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(color: OpeiBrand.primary, width: 1.5),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(color: OpeiBrand.danger, width: 1),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: const BorderSide(color: OpeiBrand.danger, width: 1.5),
+    ),
+    errorStyle: const TextStyle(
+      fontSize: 11,
+      fontWeight: FontWeight.w600,
+      color: OpeiBrand.danger,
+    ),
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -715,10 +725,10 @@ class _CardSection extends StatelessWidget {
 class _CardDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.symmetric(vertical: 10),
-        height: 0.5,
-        color: OpeiBrand.hairline,
-      );
+    margin: const EdgeInsets.symmetric(vertical: 10),
+    height: 0.5,
+    color: OpeiBrand.hairline,
+  );
 }
 
 /// Row with a label on top and the child (field or picker) below.
@@ -726,11 +736,7 @@ class _FieldRow extends StatelessWidget {
   final String label;
   final String? helper;
   final Widget child;
-  const _FieldRow({
-    required this.label,
-    this.helper,
-    required this.child,
-  });
+  const _FieldRow({required this.label, this.helper, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -881,8 +887,7 @@ class _Pill extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
-                        color:
-                            active ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+                        color: active ? OpeiBrand.ink : OpeiBrand.inkSecondary,
                         letterSpacing: -0.1,
                       ),
                       child: Text(opt.$2),
@@ -916,8 +921,11 @@ class _PurposeDropdown extends StatelessWidget {
         child: DropdownButton<String>(
           isExpanded: true,
           borderRadius: BorderRadius.circular(12),
-          icon: const Icon(Icons.expand_more_rounded,
-              size: 18, color: OpeiBrand.inkTertiary),
+          icon: const Icon(
+            Icons.expand_more_rounded,
+            size: 18,
+            color: OpeiBrand.inkTertiary,
+          ),
           value: value,
           onChanged: (v) {
             if (v != null) onChanged(v);
@@ -1004,13 +1012,18 @@ class _InlineError extends StatelessWidget {
         color: OpeiBrand.danger.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-            color: OpeiBrand.danger.withValues(alpha: 0.20), width: 1),
+          color: OpeiBrand.danger.withValues(alpha: 0.20),
+          width: 1,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline_rounded,
-              size: 16, color: OpeiBrand.danger),
+          const Icon(
+            Icons.error_outline_rounded,
+            size: 16,
+            color: OpeiBrand.danger,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -1028,8 +1041,11 @@ class _InlineError extends StatelessWidget {
             onTap: onClose,
             child: const Padding(
               padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              child: Icon(Icons.close_rounded,
-                  size: 15, color: OpeiBrand.danger),
+              child: Icon(
+                Icons.close_rounded,
+                size: 15,
+                color: OpeiBrand.danger,
+              ),
             ),
           ),
         ],
@@ -1066,8 +1082,7 @@ class _ProgressRing extends StatelessWidget {
             ),
           ),
           if (done)
-            const Icon(Icons.check_rounded,
-                size: 16, color: OpeiBrand.success)
+            const Icon(Icons.check_rounded, size: 16, color: OpeiBrand.success)
           else
             Text(
               '$pct%',

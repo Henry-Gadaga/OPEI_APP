@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/onboarding/onboarding_progress.dart';
 
@@ -28,15 +29,16 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
   }
 
   Future<void> _applyReferral() async {
+    final l10n = AppLocalizations.of(context)!;
     final rawCode = _codeController.text.trim();
     if (rawCode.isEmpty) {
-      _showSnack('Enter a valid referral code', isError: true);
+      _showSnack(l10n.referralEnterValidCodeError, isError: true);
       return;
     }
 
     final stage = ref.read(authSessionProvider).userStage;
     if (stage?.toUpperCase() == 'VERIFIED') {
-      _showSnack('Too late - already verified', isError: true);
+      _showSnack(l10n.referralTooLateVerifiedError, isError: true);
       return;
     }
 
@@ -44,14 +46,14 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
     try {
       await ref.read(referralRepositoryProvider).applyReferralCode(rawCode);
       if (!mounted) return;
-      _showSnack('Referral applied successfully.');
+      _showSnack(l10n.referralAppliedSuccess);
       context.go('/address');
     } on ApiError catch (error) {
       if (!mounted) return;
       _showSnack(_mapReferralError(error), isError: true);
     } catch (_) {
       if (!mounted) return;
-      _showSnack('Try again later', isError: true);
+      _showSnack(l10n.referralTryAgainLater, isError: true);
     } finally {
       if (mounted) setState(() => _isApplying = false);
     }
@@ -67,20 +69,18 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
     final shouldCancel = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
+        final l10n = AppLocalizations.of(dialogContext)!;
         return AlertDialog(
-          title: const Text('Cancel setup?'),
-          content: const Text(
-            'You will be signed out and returned to home. '
-            'You can continue onboarding after logging in again.',
-          ),
+          title: Text(l10n.onboardingCancelTitle),
+          content: Text(l10n.onboardingCancelMessage),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Keep going'),
+              child: Text(l10n.onboardingKeepGoingCta),
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Cancel setup'),
+              child: Text(l10n.onboardingCancelSetupCta),
             ),
           ],
         );
@@ -105,25 +105,26 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
   }
 
   String _mapReferralError(ApiError error) {
+    final l10n = AppLocalizations.of(context)!;
     final message = error.message.toLowerCase();
     if (error.statusCode == 400 && message.contains('invalid referral code')) {
-      return 'Invalid code - check and try again';
+      return l10n.referralInvalidCodeError;
     }
     if (error.statusCode == 400 &&
         message.contains('self-referral is not allowed')) {
-      return 'You can\'t use your own code';
+      return l10n.referralSelfCodeError;
     }
     if (error.statusCode == 400) {
-      return 'Enter a valid referral code';
+      return l10n.referralEnterValidCodeError;
     }
     if (error.statusCode == 403 && message.contains('before verification')) {
-      return 'Too late - already verified';
+      return l10n.referralTooLateVerifiedError;
     }
     if (error.statusCode == 409 && message.contains('already has a referrer')) {
-      return 'You already have a referrer';
+      return l10n.referralAlreadyHasReferrerError;
     }
     if (error.statusCode == 500) {
-      return 'Try again later';
+      return l10n.referralTryAgainLater;
     }
     return error.message;
   }
@@ -140,6 +141,7 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final media = MediaQuery.of(context);
     final bottomPad = media.viewPadding.bottom;
     final isBusy = _isApplying || _isCancelling;
@@ -152,7 +154,7 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Apply referral'),
+          title: Text(l10n.referralApplyTitle),
           actions: const [
             Padding(
               padding: EdgeInsets.only(right: 16),
@@ -168,8 +170,8 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Got a referral code?',
+                Text(
+                  l10n.referralGotCodeTitle,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 24,
@@ -178,8 +180,8 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Optional step. You can only apply a referral before verification.',
+                Text(
+                  l10n.referralOptionalSubtitle,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 14,
@@ -192,7 +194,7 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
                   textCapitalization: TextCapitalization.characters,
                   enabled: !_isApplying,
                   decoration: InputDecoration(
-                    hintText: 'Paste code or https://opei.app/r/CODE',
+                    hintText: l10n.referralCodeHint,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(
                         OpeiBrand.radiusField,
@@ -220,7 +222,7 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
                               color: Colors.white,
                             ),
                           )
-                        : const Text('Apply referral'),
+                        : Text(l10n.referralApplyCta),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -228,14 +230,14 @@ class _ApplyReferralScreenState extends ConsumerState<ApplyReferralScreen> {
                   width: double.infinity,
                   child: OutlinedButton(
                     onPressed: isBusy ? null : _skip,
-                    child: const Text('Skip for now'),
+                    child: Text(l10n.referralSkipForNowCta),
                   ),
                 ),
                 const SizedBox(height: 8),
                 Center(
                   child: TextButton(
                     onPressed: isBusy ? null : _cancelOnboarding,
-                    child: const Text('Cancel setup'),
+                    child: Text(l10n.onboardingCancelSetupCta),
                   ),
                 ),
               ],

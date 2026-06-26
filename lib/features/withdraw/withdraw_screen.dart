@@ -11,6 +11,7 @@ import 'package:opei/features/beneficiaries/bank_transfer_country_sheet.dart';
 import 'package:opei/features/beneficiaries/mobile_money_receivers_screen.dart';
 import 'package:opei/features/withdraw/withdraw_controller.dart';
 import 'package:opei/features/withdraw/withdraw_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
@@ -22,6 +23,7 @@ class WithdrawOptionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
 
     return Container(
@@ -45,8 +47,8 @@ class WithdrawOptionsSheet extends StatelessWidget {
           const SizedBox(height: 22),
 
           // ── Centered title ──────────────────────────────
-          const Text(
-            'Withdraw',
+          Text(
+            l10n.dashboardActionWithdraw,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 18,
@@ -57,8 +59,8 @@ class WithdrawOptionsSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
-            'Choose a withdrawal method',
+          Text(
+            l10n.withdrawChooseMethodSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -72,8 +74,8 @@ class WithdrawOptionsSheet extends StatelessWidget {
           // ── Options ─────────────────────────────────────
           const _RowDivider(),
           _WithdrawRow(
-            title: 'Mobile Money',
-            subtitle: 'M-Pesa, Airtel Money & more',
+            title: l10n.withdrawMobileMoneyTitle,
+            subtitle: l10n.withdrawMobileMoneySubtitle,
             onTap: () {
               Navigator.of(context).pop();
               showModalBottomSheet(
@@ -86,8 +88,8 @@ class WithdrawOptionsSheet extends StatelessWidget {
           ),
           const _RowDivider(),
           _WithdrawRow(
-            title: 'Bank Transfer',
-            subtitle: 'Send to Bank Account',
+            title: l10n.withdrawBankTransferTitle,
+            subtitle: l10n.withdrawBankTransferSubtitle,
             onTap: () {
               Navigator.of(context).pop();
               showModalBottomSheet(
@@ -101,8 +103,8 @@ class WithdrawOptionsSheet extends StatelessWidget {
           const _RowDivider(),
           if (FeatureFlags.enableClassicP2P) ...[
             _WithdrawRow(
-              title: 'P2P Exchange',
-              subtitle: 'Sell to buyers and get paid directly',
+              title: l10n.withdrawP2PExchangeTitle,
+              subtitle: l10n.withdrawP2PExchangeSubtitle,
               onTap: () {
                 context.pop();
                 context.push(
@@ -114,8 +116,8 @@ class WithdrawOptionsSheet extends StatelessWidget {
             const _RowDivider(),
           ],
           _WithdrawRow(
-            title: 'USD Stablecoin',
-            subtitle: 'Send USDT or USDC to your crypto wallet',
+            title: l10n.depositStablecoinTitle,
+            subtitle: l10n.withdrawStablecoinSubtitle,
             onTap: () {
               context.pop();
               context.push('/withdraw/crypto-currency');
@@ -236,13 +238,12 @@ class _MobileMoneyCountrySheet extends StatelessWidget {
                     highlightColor: OpeiBrand.surfaceMuted,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 16),
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
                       child: Row(
                         children: [
-                          Text(
-                            flag,
-                            style: const TextStyle(fontSize: 22),
-                          ),
+                          Text(flag, style: const TextStyle(fontSize: 22)),
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
@@ -377,15 +378,22 @@ class WithdrawOptionCard extends StatefulWidget {
   State<WithdrawOptionCard> createState() => _WithdrawOptionCardState();
 }
 
-class _WithdrawOptionCardState extends State<WithdrawOptionCard> with SingleTickerProviderStateMixin {
+class _WithdrawOptionCardState extends State<WithdrawOptionCard>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -419,13 +427,14 @@ class _WithdrawOptionCardState extends State<WithdrawOptionCard> with SingleTick
                 width: 28,
                 height: 28,
                 child: widget.iconAsset != null
-                    ? SvgPicture.asset(
-                        widget.iconAsset!,
-                        fit: BoxFit.contain,
-                      )
+                    ? SvgPicture.asset(widget.iconAsset!, fit: BoxFit.contain)
                     : (widget.icon != null
-                        ? Icon(widget.icon, color: OpeiColors.pureBlack, size: 24)
-                        : const SizedBox()),
+                          ? Icon(
+                              widget.icon,
+                              color: OpeiColors.pureBlack,
+                              size: 24,
+                            )
+                          : const SizedBox()),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -435,22 +444,26 @@ class _WithdrawOptionCardState extends State<WithdrawOptionCard> with SingleTick
                     Text(
                       widget.title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       widget.description,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 13.5,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 13.5,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: OpeiColors.iosLabelTertiary, size: 16),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: OpeiColors.iosLabelTertiary,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -474,15 +487,19 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: OpeiColors.pureBlack,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Select Method',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -494,9 +511,9 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
             Text(
               'Choose the method you want to withdraw with',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 15,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 15,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
             SizedBox(height: spacing * 2.5),
             _CurrencyOption(
@@ -504,7 +521,9 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
               name: 'Tether',
               networksLabel: 'Tron • Polygon • Ethereum • BSC',
               onTap: () {
-                ref.read(withdrawControllerProvider.notifier).setCurrency('USDT');
+                ref
+                    .read(withdrawControllerProvider.notifier)
+                    .setCurrency('USDT');
                 context.push('/withdraw/crypto-network', extra: 'USDT');
               },
             ),
@@ -514,7 +533,9 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
               name: 'USD Coin',
               networksLabel: 'Polygon • Ethereum • BSC',
               onTap: () {
-                ref.read(withdrawControllerProvider.notifier).setCurrency('USDC');
+                ref
+                    .read(withdrawControllerProvider.notifier)
+                    .setCurrency('USDC');
                 context.push('/withdraw/crypto-network', extra: 'USDC');
               },
             ),
@@ -542,7 +563,8 @@ class _CurrencyOption extends StatefulWidget {
   State<_CurrencyOption> createState() => _CurrencyOptionState();
 }
 
-class _CurrencyOptionState extends State<_CurrencyOption> with SingleTickerProviderStateMixin {
+class _CurrencyOptionState extends State<_CurrencyOption>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -560,8 +582,14 @@ class _CurrencyOptionState extends State<_CurrencyOption> with SingleTickerProvi
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -594,14 +622,12 @@ class _CurrencyOptionState extends State<_CurrencyOption> with SingleTickerProvi
                 width: 32,
                 height: 32,
                 child: _iconAsset != null
-                    ? SvgPicture.asset(
-                        _iconAsset!,
-                        fit: BoxFit.contain,
-                      )
+                    ? SvgPicture.asset(_iconAsset!, fit: BoxFit.contain)
                     : Center(
                         child: Text(
                           widget.currency,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -616,22 +642,26 @@ class _CurrencyOptionState extends State<_CurrencyOption> with SingleTickerProvi
                     Text(
                       widget.currency,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       widget.networksLabel,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 12.5,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 12.5,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: OpeiColors.iosLabelTertiary, size: 16),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: OpeiColors.iosLabelTertiary,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -667,15 +697,19 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: OpeiColors.pureBlack,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Select Network',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -687,9 +721,9 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
             Text(
               'Choose the network for your $currency withdrawal',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: 15,
-                    color: OpeiColors.iosLabelSecondary,
-                  ),
+                fontSize: 15,
+                color: OpeiColors.iosLabelSecondary,
+              ),
             ),
             SizedBox(height: spacing * 2.5),
             ..._networks.map(
@@ -699,10 +733,10 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
                   network: network,
                   onTap: () {
                     notifier.setNetwork(network);
-                    context.push('/withdraw/crypto-form', extra: {
-                      'currency': currency,
-                      'network': network,
-                    });
+                    context.push(
+                      '/withdraw/crypto-form',
+                      extra: {'currency': currency, 'network': network},
+                    );
                   },
                 ),
               ),
@@ -724,7 +758,8 @@ class _NetworkOption extends StatefulWidget {
   State<_NetworkOption> createState() => _NetworkOptionState();
 }
 
-class _NetworkOptionState extends State<_NetworkOption> with SingleTickerProviderStateMixin {
+class _NetworkOptionState extends State<_NetworkOption>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -746,8 +781,14 @@ class _NetworkOptionState extends State<_NetworkOption> with SingleTickerProvide
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.97).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
   @override
@@ -810,14 +851,12 @@ class _NetworkOptionState extends State<_NetworkOption> with SingleTickerProvide
                 width: 32,
                 height: 32,
                 child: _iconAsset != null
-                    ? SvgPicture.asset(
-                        _iconAsset!,
-                        fit: BoxFit.contain,
-                      )
+                    ? SvgPicture.asset(_iconAsset!, fit: BoxFit.contain)
                     : Center(
                         child: Text(
                           widget.network.toUpperCase()[0],
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -832,22 +871,26 @@ class _NetworkOptionState extends State<_NetworkOption> with SingleTickerProvide
                     Text(
                       _displayName,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       _networkHint,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontSize: 12,
-                            color: OpeiColors.iosLabelSecondary,
-                          ),
+                        fontSize: 12,
+                        color: OpeiColors.iosLabelSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, color: OpeiColors.iosLabelTertiary, size: 16),
+              const Icon(
+                Icons.arrow_forward_ios,
+                color: OpeiColors.iosLabelTertiary,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -860,13 +903,19 @@ class CryptoWithdrawFormScreen extends ConsumerStatefulWidget {
   final String currency;
   final String network;
 
-  const CryptoWithdrawFormScreen({super.key, required this.currency, required this.network});
+  const CryptoWithdrawFormScreen({
+    super.key,
+    required this.currency,
+    required this.network,
+  });
 
   @override
-  ConsumerState<CryptoWithdrawFormScreen> createState() => _CryptoWithdrawFormScreenState();
+  ConsumerState<CryptoWithdrawFormScreen> createState() =>
+      _CryptoWithdrawFormScreenState();
 }
 
-class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScreen> {
+class _CryptoWithdrawFormScreenState
+    extends ConsumerState<CryptoWithdrawFormScreen> {
   late final TextEditingController _amountController;
   late final TextEditingController _addressController;
   late final TextEditingController _memoController;
@@ -879,7 +928,9 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
     _memoController = TextEditingController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(withdrawControllerProvider.notifier).setCurrency(widget.currency);
+      ref
+          .read(withdrawControllerProvider.notifier)
+          .setCurrency(widget.currency);
       ref.read(withdrawControllerProvider.notifier).setNetwork(widget.network);
     });
   }
@@ -913,24 +964,25 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
   }
 
   Future<void> _handlePrimaryAction() async {
+    final l10n = AppLocalizations.of(context)!;
     final amountText = _amountController.text.trim();
     final addressText = _addressController.text.trim();
 
     // Validate required fields
     if (amountText.isEmpty) {
-      showError(context, 'Please enter an amount');
+      showError(context, l10n.withdrawEnterAmountError);
       return;
     }
 
     if (addressText.isEmpty) {
-      showError(context, 'Please enter a destination address');
+      showError(context, l10n.withdrawEnterDestinationError);
       return;
     }
 
     // Validate amount is a valid number
     final amountValue = double.tryParse(amountText.replaceAll(',', ''));
     if (amountValue == null || amountValue <= 0) {
-      showError(context, 'Please enter a valid amount greater than zero');
+      showError(context, l10n.withdrawEnterValidAmountError);
       return;
     }
 
@@ -966,10 +1018,10 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
     if (!mounted) return;
 
     if (success) {
-      context.push('/withdraw/crypto-success', extra: {
-        'currency': widget.currency,
-        'network': widget.network,
-      });
+      context.push(
+        '/withdraw/crypto-success',
+        extra: {'currency': widget.currency, 'network': widget.network},
+      );
     }
   }
 
@@ -977,8 +1029,12 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
     final amountText = _amountController.text.trim();
     final addressText = _addressController.text.trim();
     final currencyCode = widget.currency.toUpperCase();
-    final amountDisplay = amountText.isEmpty ? '—' : '$amountText $currencyCode';
-    final addressDisplay = addressText.isEmpty ? 'Not provided' : _shortenAddress(addressText);
+    final amountDisplay = amountText.isEmpty
+        ? '—'
+        : '$amountText $currencyCode';
+    final addressDisplay = addressText.isEmpty
+        ? 'Not provided'
+        : _shortenAddress(addressText);
     const feeDisplay = '\$1.50';
 
     return showResponsiveBottomSheet<bool>(
@@ -1049,6 +1105,7 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     ref.listen<WithdrawState>(withdrawControllerProvider, (previous, next) {
       final error = next.error;
       if (error != null && error != previous?.error && mounted) {
@@ -1069,15 +1126,19 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
         backgroundColor: OpeiColors.pureWhite,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: OpeiColors.pureBlack, size: 20),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: OpeiColors.pureBlack,
+            size: 20,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
           'Withdraw ${widget.currency}',
           style: textTheme.titleLarge?.copyWith(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -1086,34 +1147,42 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
           horizontal: tokens.horizontalPadding,
           vertical: spacing * 2.5,
         ),
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         children: [
           Text(
-            'Enter the details for your ${widget.currency} withdrawal on $_networkLabel.',
+            l10n.withdrawDetailsSubtitle(widget.currency, _networkLabel),
             style: textTheme.bodyMedium?.copyWith(
-                  fontSize: 15,
-                  color: OpeiColors.iosLabelSecondary,
-                ),
+              fontSize: 15,
+              color: OpeiColors.iosLabelSecondary,
+            ),
           ),
           SizedBox(height: spacing * 2.5),
-          _SummaryPill(
-            currency: widget.currency,
-            networkLabel: _networkLabel,
-          ),
+          _SummaryPill(currency: widget.currency, networkLabel: _networkLabel),
           SizedBox(height: spacing * 3),
           _LabeledField(
-            label: 'Amount',
-            helper: 'Enter the amount you want to send',
+            label: l10n.amountLabel,
+            helper: l10n.withdrawAmountHelper,
             child: CupertinoTextField(
               controller: _amountController,
-              placeholder: '0.00',
-              padding: EdgeInsets.symmetric(horizontal: spacing * 1.75, vertical: spacing * 1.25),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+              placeholder: l10n.withdrawAmountPlaceholder,
+              padding: EdgeInsets.symmetric(
+                horizontal: spacing * 1.75,
+                vertical: spacing * 1.25,
+              ),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+              ],
               decoration: BoxDecoration(
                 color: OpeiColors.pureWhite,
                 borderRadius: BorderRadius.circular(tokens.inputRadius),
-                border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
+                border: Border.all(
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.8),
+                ),
               ),
               style: textTheme.titleMedium?.copyWith(
                 fontSize: 17,
@@ -1123,43 +1192,53 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
           ),
           SizedBox(height: spacing * 1.75),
           _LabeledField(
-            label: 'Destination address',
-            helper: 'Paste the wallet address that will receive the funds',
+            label: l10n.withdrawDestinationAddressLabel,
+            helper: l10n.withdrawDestinationAddressHelper,
             child: CupertinoTextField(
               controller: _addressController,
-              placeholder: 'Wallet address',
-              padding: EdgeInsets.symmetric(horizontal: spacing * 1.75, vertical: spacing * 1.25),
+              placeholder: l10n.withdrawDestinationAddressPlaceholder,
+              padding: EdgeInsets.symmetric(
+                horizontal: spacing * 1.75,
+                vertical: spacing * 1.25,
+              ),
               textInputAction: TextInputAction.next,
               decoration: BoxDecoration(
                 color: OpeiColors.pureWhite,
                 borderRadius: BorderRadius.circular(tokens.inputRadius),
-                border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
+                border: Border.all(
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.8),
+                ),
               ),
-              style: textTheme.bodyMedium?.copyWith(
-                fontSize: 15,
-                height: 1.4,
-              ),
+              style: textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.4),
             ),
           ),
           SizedBox(height: spacing * 1.75),
           _LabeledField(
-            label: 'Memo (optional)',
-            helper: 'Add a note for your own records',
+            label: l10n.withdrawMemoOptionalLabel,
+            helper: l10n.withdrawMemoHelper,
             child: CupertinoTextField(
               controller: _memoController,
-              placeholder: 'Memo or description',
-              padding: EdgeInsets.symmetric(horizontal: spacing * 1.75, vertical: spacing * 1.25),
+              placeholder: l10n.withdrawMemoPlaceholder,
+              padding: EdgeInsets.symmetric(
+                horizontal: spacing * 1.75,
+                vertical: spacing * 1.25,
+              ),
               decoration: BoxDecoration(
                 color: OpeiColors.pureWhite,
                 borderRadius: BorderRadius.circular(tokens.inputRadius),
-                border: Border.all(color: OpeiColors.iosSeparator.withValues(alpha: 0.8)),
+                border: Border.all(
+                  color: OpeiColors.iosSeparator.withValues(alpha: 0.8),
+                ),
               ),
               style: textTheme.bodyMedium?.copyWith(fontSize: 15),
             ),
           ),
           SizedBox(height: spacing * 3),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: spacing * 0.5, vertical: spacing * 2),
+            padding: EdgeInsets.symmetric(
+              horizontal: spacing * 0.5,
+              vertical: spacing * 2,
+            ),
             decoration: const BoxDecoration(
               border: Border(
                 top: BorderSide(color: OpeiColors.iosSeparator, width: 0.6),
@@ -1168,10 +1247,10 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                _InfoRow(text: 'Double-check the network and address before submitting.'),
-                SizedBox(height: 10),
-                _InfoRow(text: 'We’ll notify you when the transfer status updates.'),
+              children: [
+                _InfoRow(text: l10n.withdrawInfoDoubleCheck),
+                const SizedBox(height: 10),
+                _InfoRow(text: l10n.withdrawInfoStatusUpdates),
               ],
             ),
           ),
@@ -1183,7 +1262,7 @@ class _CryptoWithdrawFormScreenState extends ConsumerState<CryptoWithdrawFormScr
             child: state.isLoading
                 ? const CupertinoActivityIndicator(color: OpeiColors.pureWhite)
                 : Text(
-                    'Withdraw',
+                    l10n.dashboardActionWithdraw,
                     style: textTheme.titleMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -1226,10 +1305,7 @@ class _SummaryPill extends StatelessWidget {
             width: 40,
             height: 40,
             child: _iconAsset != null
-                ? SvgPicture.asset(
-                    _iconAsset!,
-                    fit: BoxFit.contain,
-                  )
+                ? SvgPicture.asset(_iconAsset!, fit: BoxFit.contain)
                 : Center(
                     child: Text(
                       currency,
@@ -1274,7 +1350,11 @@ class _LabeledField extends StatelessWidget {
   final String helper;
   final Widget child;
 
-  const _LabeledField({required this.label, required this.helper, required this.child});
+  const _LabeledField({
+    required this.label,
+    required this.helper,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1363,12 +1443,15 @@ class _WithdrawConfirmationSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
     final theme = Theme.of(context);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewPadding.bottom + spacing * 2),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewPadding.bottom + spacing * 2,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1392,37 +1475,43 @@ class _WithdrawConfirmationSheet extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Review withdrawal',
+                  l10n.withdrawReviewTitle,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Confirm these details before we send your $currency.',
+                  l10n.withdrawReviewSubtitle(currency),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: OpeiColors.iosLabelSecondary,
                     height: 1.35,
                   ),
                 ),
                 SizedBox(height: spacing * 2.5),
-                _ReviewRow(label: 'Amount', value: amountDisplay),
+                _ReviewRow(label: l10n.amountLabel, value: amountDisplay),
                 SizedBox(height: spacing * 1.5),
                 const Divider(color: OpeiColors.iosSeparator),
                 SizedBox(height: spacing * 1.5),
-                _ReviewRow(label: 'Asset', value: currency),
+                _ReviewRow(label: l10n.withdrawAssetLabel, value: currency),
                 SizedBox(height: spacing * 1.5),
                 const Divider(color: OpeiColors.iosSeparator),
                 SizedBox(height: spacing * 1.5),
-                _ReviewRow(label: 'Network', value: networkLabel),
+                _ReviewRow(
+                  label: l10n.withdrawNetworkLabel,
+                  value: networkLabel,
+                ),
                 SizedBox(height: spacing * 1.5),
                 const Divider(color: OpeiColors.iosSeparator),
                 SizedBox(height: spacing * 1.5),
-                _ReviewRow(label: 'Destination', value: addressDisplay),
+                _ReviewRow(
+                  label: l10n.withdrawDestinationLabel,
+                  value: addressDisplay,
+                ),
                 SizedBox(height: spacing * 1.5),
                 const Divider(color: OpeiColors.iosSeparator),
                 SizedBox(height: spacing * 1.5),
-                _ReviewRow(label: 'Fee', value: feeDisplay),
+                _ReviewRow(label: l10n.feeRow, value: feeDisplay),
                 SizedBox(height: spacing * 2.5),
                 SizedBox(
                   width: double.infinity,
@@ -1431,7 +1520,7 @@ class _WithdrawConfirmationSheet extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: spacing * 1.75),
                     onPressed: onConfirm,
                     child: Text(
-                      'Confirm',
+                      l10n.withdrawConfirmCta,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -1448,7 +1537,7 @@ class _WithdrawConfirmationSheet extends StatelessWidget {
                     onPressed: onCancel,
                     child: Center(
                       child: Text(
-                        'Cancel',
+                        l10n.cancelCta,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -1530,6 +1619,7 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(withdrawControllerProvider);
     final response = state.transferResponse;
     final textTheme = Theme.of(context).textTheme;
@@ -1552,9 +1642,9 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
     }
 
     final networkLabel = _resolveNetworkLabel(network);
-    final statusLabel = response.status[0].toUpperCase() + response.status.substring(1);
+    final statusLabel =
+        response.status[0].toUpperCase() + response.status.substring(1);
     final amountDisplay = response.amount;
-    
 
     return ResponsiveScaffold(
       useSafeArea: false,
@@ -1571,11 +1661,11 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
           },
         ),
         title: Text(
-          'Withdrawal submitted',
+          l10n.withdrawSubmittedTitle,
           style: textTheme.titleLarge?.copyWith(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
       ),
@@ -1584,13 +1674,15 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
           horizontal: tokens.horizontalPadding,
           vertical: spacing * 3,
         ),
-        physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         children: [
           SizedBox(height: spacing * 1.5),
           const SuccessHero(iconHeight: 72, gap: 2),
           SizedBox(height: spacing * 2),
           Text(
-            'Withdrawal sent',
+            l10n.withdrawSentTitle,
             style: textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
@@ -1598,7 +1690,10 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
           ),
           SizedBox(height: spacing * 1.75),
           Text(
-            'We are processing your ${response.asset.toUpperCase()} transfer on $networkLabel network. You will receive an update as soon as confirmations land.',
+            l10n.withdrawSentSubtitle(
+              response.asset.toUpperCase(),
+              networkLabel,
+            ),
             style: textTheme.bodyMedium?.copyWith(
               fontSize: 14,
               color: OpeiColors.iosLabelSecondary,
@@ -1618,16 +1713,23 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                _DetailRow(label: 'Status', value: statusLabel),
-                SizedBox(height: spacing * 1.25),
-                _DetailRow(label: 'Reference', value: response.reference),
+                _DetailRow(label: l10n.statusLabel, value: statusLabel),
                 SizedBox(height: spacing * 1.25),
                 _DetailRow(
-                  label: 'Requested',
-                  value: '${amountDisplay.format(includeCurrencySymbol: false)} ${currency.toUpperCase()}',
+                  label: l10n.referenceLabel,
+                  value: response.reference,
                 ),
                 SizedBox(height: spacing * 1.25),
-                _DetailRow(label: 'Network', value: networkLabel),
+                _DetailRow(
+                  label: l10n.withdrawRequestedLabel,
+                  value:
+                      '${amountDisplay.format(includeCurrencySymbol: false)} ${currency.toUpperCase()}',
+                ),
+                SizedBox(height: spacing * 1.25),
+                _DetailRow(
+                  label: l10n.withdrawNetworkLabel,
+                  value: networkLabel,
+                ),
               ],
             ),
           ),
@@ -1640,7 +1742,7 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
               context.go('/dashboard');
             },
             child: Text(
-              'Done',
+              l10n.doneCta,
               style: textTheme.titleMedium?.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

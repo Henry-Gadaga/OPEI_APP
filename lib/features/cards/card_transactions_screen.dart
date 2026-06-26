@@ -8,6 +8,7 @@ import 'package:opei/features/cards/card_colors.dart';
 import 'package:opei/features/cards/card_transaction_detail_sheet.dart';
 import 'package:opei/features/cards/card_transactions_controller.dart';
 import 'package:opei/features/cards/card_transactions_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 class CardTransactionsScreen extends ConsumerStatefulWidget {
@@ -18,13 +19,18 @@ class CardTransactionsScreen extends ConsumerStatefulWidget {
     super.key,
     required this.cards,
     this.initialIndex = 0,
-  }) : assert(cards.isNotEmpty, 'CardTransactionsScreen requires at least one card.');
+  }) : assert(
+         cards.isNotEmpty,
+         'CardTransactionsScreen requires at least one card.',
+       );
 
   @override
-  ConsumerState<CardTransactionsScreen> createState() => _CardTransactionsScreenState();
+  ConsumerState<CardTransactionsScreen> createState() =>
+      _CardTransactionsScreenState();
 }
 
-class _CardTransactionsScreenState extends ConsumerState<CardTransactionsScreen> {
+class _CardTransactionsScreenState
+    extends ConsumerState<CardTransactionsScreen> {
   late final PageController _pageController;
   late final ScrollController _scrollController;
   late int _currentIndex;
@@ -39,8 +45,7 @@ class _CardTransactionsScreenState extends ConsumerState<CardTransactionsScreen>
       initialPage: _currentIndex,
       viewportFraction: 0.95,
     );
-    _scrollController = ScrollController()
-      ..addListener(_handleScroll);
+    _scrollController = ScrollController()..addListener(_handleScroll);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureTransactionsLoaded(force: true);
@@ -66,18 +71,18 @@ class _CardTransactionsScreenState extends ConsumerState<CardTransactionsScreen>
         child: Column(
           children: [
             Padding(
-               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
                   _CloseButton(onPressed: () => Navigator.of(context).pop()),
                   Expanded(
                     child: Text(
-                      'Card Transactions',
+                      AppLocalizations.of(context)!.cardsTransactionsTitle,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 40),
@@ -113,7 +118,9 @@ class _CardTransactionsScreenState extends ConsumerState<CardTransactionsScreen>
                 feed: feed,
                 card: _activeCard,
                 onRetry: () => _ensureTransactionsLoaded(force: true),
-                onRefresh: () => ref.read(cardTransactionsControllerProvider.notifier).refresh(_activeCard.id),
+                onRefresh: () => ref
+                    .read(cardTransactionsControllerProvider.notifier)
+                    .refresh(_activeCard.id),
               ),
             ),
           ],
@@ -123,23 +130,28 @@ class _CardTransactionsScreenState extends ConsumerState<CardTransactionsScreen>
   }
 
   void _ensureTransactionsLoaded({required bool force}) {
-    ref.read(cardTransactionsControllerProvider.notifier).loadInitial(
-          _activeCard.id,
-          force: force,
-        );
+    ref
+        .read(cardTransactionsControllerProvider.notifier)
+        .loadInitial(_activeCard.id, force: force);
   }
 
   void _handleScroll() {
     if (!_scrollController.hasClients) return;
     final position = _scrollController.position;
-    if (position.maxScrollExtent == 0 || position.pixels < position.maxScrollExtent - 120) {
+    if (position.maxScrollExtent == 0 ||
+        position.pixels < position.maxScrollExtent - 120) {
       return;
     }
 
     final controller = ref.read(cardTransactionsControllerProvider.notifier);
-    final feed = ref.read(cardTransactionsControllerProvider).feedFor(_activeCard.id);
+    final feed = ref
+        .read(cardTransactionsControllerProvider)
+        .feedFor(_activeCard.id);
 
-    if (feed.hasMore && !feed.isLoadingMore && !feed.isLoading && !feed.isRefreshing) {
+    if (feed.hasMore &&
+        !feed.isLoadingMore &&
+        !feed.isLoading &&
+        !feed.isRefreshing) {
       controller.loadMore(_activeCard.id);
     }
   }
@@ -179,29 +191,31 @@ class _TransactionsBody extends StatelessWidget {
       child: feed.transactions.isEmpty
           ? ListView(
               controller: scrollController,
-              physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-              children: const [
-                SizedBox(height: 40),
-                _EmptyTransactionsState(),
-              ],
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              children: const [SizedBox(height: 40), _EmptyTransactionsState()],
             )
           : ListView.builder(
               controller: scrollController,
-              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: feed.transactions.length + (feed.hasMore || feed.isLoadingMore ? 1 : 0),
+              itemCount:
+                  feed.transactions.length +
+                  (feed.hasMore || feed.isLoadingMore ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index >= feed.transactions.length) {
                   if (feed.loadMoreError != null) {
-                    return _LoadMoreErrorBanner(
-                      message: feed.loadMoreError!,
-                    );
+                    return _LoadMoreErrorBanner(message: feed.loadMoreError!);
                   }
                   return const _LoadMoreSpinner();
                 }
 
                 final transaction = feed.transactions[index];
-                final showDivider = index != feed.transactions.length - 1 || feed.isLoadingMore;
+                final showDivider =
+                    index != feed.transactions.length - 1 || feed.isLoadingMore;
                 return _CardTransactionTile(
                   transaction: transaction,
                   showDivider: showDivider,
@@ -225,28 +239,35 @@ class _CardTransactionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final isCredit = transaction.isCredit == true;
     final titleStyle = Theme.of(context).textTheme.titleSmall?.copyWith(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.2,
-        );
+      fontSize: 13,
+      fontWeight: FontWeight.w600,
+      letterSpacing: -0.2,
+    );
     final secondaryStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-          fontSize: 10.5,
-          color: OpeiColors.iosLabelSecondary,
-          letterSpacing: -0.05,
-        );
+      fontSize: 10.5,
+      color: OpeiColors.iosLabelSecondary,
+      letterSpacing: -0.05,
+    );
     final amountStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: isCredit ? OpeiColors.successGreen : OpeiColors.errorRed,
-          letterSpacing: -0.15,
-        );
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: isCredit ? OpeiColors.successGreen : OpeiColors.errorRed,
+      letterSpacing: -0.15,
+    );
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => showCardTransactionDetailSheet(context, transaction),
       child: Container(
         decoration: BoxDecoration(
-          border: showDivider ? Border(bottom: BorderSide(color: OpeiColors.iosSeparator, width: 0.5)) : null,
+          border: showDivider
+              ? Border(
+                  bottom: BorderSide(
+                    color: OpeiColors.iosSeparator,
+                    width: 0.5,
+                  ),
+                )
+              : null,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
         child: Row(
@@ -331,6 +352,7 @@ class _TransactionCardPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final statusLabel = _formatStatus(card.status);
     final statusColor = _statusColor(statusLabel);
 
@@ -362,13 +384,15 @@ class _TransactionCardPreview extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      card.cardName.isNotEmpty ? card.cardName : 'Virtual Card',
+                      card.cardName.isNotEmpty
+                          ? card.cardName
+                          : l10n.cardsVirtualCardLabel,
                       style: theme.textTheme.titleMedium?.copyWith(
-                            color: OpeiColors.pureWhite,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.3,
-                          ),
+                        color: OpeiColors.pureWhite,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.3,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     _CardStatusPill(label: statusLabel, color: statusColor),
@@ -381,11 +405,11 @@ class _TransactionCardPreview extends StatelessWidget {
           Text(
             _formatCardNumber(card.last4),
             style: theme.textTheme.titleLarge?.copyWith(
-                  color: OpeiColors.pureWhite,
-                  fontSize: 19,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 3.2,
-                ),
+              color: OpeiColors.pureWhite,
+              fontSize: 19,
+              fontWeight: FontWeight.w500,
+              letterSpacing: 3.2,
+            ),
           ),
           const SizedBox(height: 24),
           Row(
@@ -395,17 +419,19 @@ class _TransactionCardPreview extends StatelessWidget {
                 child: Row(
                   children: [
                     _CardInfoColumn(
-                      label: 'Expires',
-                      value: card.expiry == null || card.expiry!.trim().isEmpty ? '—' : card.expiry!,
+                      label: l10n.cardsExpiresLabel,
+                      value: card.expiry == null || card.expiry!.trim().isEmpty
+                          ? '—'
+                          : card.expiry!,
                     ),
                     const SizedBox(width: 28),
                     _CardInfoColumn(
-                      label: 'CVV',
+                      label: l10n.cardsCvvLabel,
                       value: _maskCvv(card.cvv),
                     ),
                     const SizedBox(width: 28),
                     _CardInfoColumn(
-                      label: 'Balance',
+                      label: l10n.walletBalanceRow,
                       value: _maskBalance(card.balance),
                     ),
                   ],
@@ -439,11 +465,7 @@ class _TransactionCardPreview extends StatelessWidget {
     if (palette != null) {
       return palette.gradient;
     }
-    return const [
-      Color(0xFF1A1A1A),
-      Color(0xFF2D2D2D),
-      Color(0xFF000000),
-    ];
+    return const [Color(0xFF1A1A1A), Color(0xFF2D2D2D), Color(0xFF000000)];
   }
 
   static String _formatCardNumber(String? last4) {
@@ -476,7 +498,10 @@ class _TransactionCardPreview extends StatelessWidget {
     return sanitized
         .split(' ')
         .where((part) => part.isNotEmpty)
-        .map((part) => '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}')
+        .map(
+          (part) =>
+              '${part[0].toUpperCase()}${part.substring(1).toLowerCase()}',
+        )
         .join(' ');
   }
 
@@ -521,11 +546,11 @@ class _CardStatusPill extends StatelessWidget {
       child: Text(
         normalized,
         style: theme.textTheme.labelSmall?.copyWith(
-              color: foregroundColor,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.2,
-              fontSize: 11,
-            ),
+          color: foregroundColor,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.2,
+          fontSize: 11,
+        ),
       ),
     );
   }
@@ -546,21 +571,21 @@ class _CardInfoColumn extends StatelessWidget {
         Text(
           label.toUpperCase(),
           style: theme.textTheme.bodySmall?.copyWith(
-                color: OpeiColors.pureWhite.withValues(alpha: 0.55),
-                letterSpacing: 1.0,
-                fontSize: 9,
-                fontWeight: FontWeight.w500,
-              ),
+            color: OpeiColors.pureWhite.withValues(alpha: 0.55),
+            letterSpacing: 1.0,
+            fontSize: 9,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 5),
         Text(
           value,
           style: theme.textTheme.titleSmall?.copyWith(
-                color: OpeiColors.pureWhite,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: -0.1,
-              ),
+            color: OpeiColors.pureWhite,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: -0.1,
+          ),
         ),
       ],
     );
@@ -581,7 +606,9 @@ class _TransactionsSkeleton extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
           decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: OpeiColors.iosSeparator, width: 0.5)),
+            border: Border(
+              bottom: BorderSide(color: OpeiColors.iosSeparator, width: 0.5),
+            ),
           ),
           child: Row(
             children: [
@@ -634,6 +661,7 @@ class _TransactionsErrorState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: Column(
@@ -643,10 +671,10 @@ class _TransactionsErrorState extends StatelessWidget {
             message,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 15,
-                  color: OpeiColors.pureBlack,
-                  height: 1.4,
-                ),
+              fontSize: 15,
+              color: OpeiColors.pureBlack,
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -655,7 +683,7 @@ class _TransactionsErrorState extends StatelessWidget {
               onPressed: onRetry,
               borderRadius: BorderRadius.circular(12),
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: const Text('Retry'),
+              child: Text(l10n.retryCta),
             ),
           ),
         ],
@@ -680,9 +708,9 @@ class _EmptyTransactionsState extends StatelessWidget {
         Text(
           'No card transactions yet',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         Padding(
@@ -691,10 +719,10 @@ class _EmptyTransactionsState extends StatelessWidget {
             'When you start using this card, your transaction history will appear here.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: 13,
-                  color: OpeiColors.iosLabelSecondary,
-                  height: 1.35,
-                ),
+              fontSize: 13,
+              color: OpeiColors.iosLabelSecondary,
+              height: 1.35,
+            ),
           ),
         ),
       ],
@@ -710,7 +738,9 @@ class _LoadMoreSpinner extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Center(
-        child: CupertinoActivityIndicator(color: OpeiColors.pureBlack.withValues(alpha: 0.6)),
+        child: CupertinoActivityIndicator(
+          color: OpeiColors.pureBlack.withValues(alpha: 0.6),
+        ),
       ),
     );
   }
@@ -728,15 +758,19 @@ class _LoadMoreErrorBanner extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.warning_amber_rounded, color: OpeiColors.errorRed.withValues(alpha: 0.9), size: 18),
+          Icon(
+            Icons.warning_amber_rounded,
+            color: OpeiColors.errorRed.withValues(alpha: 0.9),
+            size: 18,
+          ),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
               message,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: OpeiColors.errorRed,
-                    fontSize: 12,
-                  ),
+                color: OpeiColors.errorRed,
+                fontSize: 12,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -762,11 +796,7 @@ class _CloseButton extends StatelessWidget {
           color: OpeiColors.iosSurfaceMuted,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Icon(
-          Icons.close,
-          size: 18,
-          color: OpeiColors.pureBlack,
-        ),
+        child: const Icon(Icons.close, size: 18, color: OpeiColors.pureBlack),
       ),
     );
   }
@@ -776,7 +806,10 @@ class _CarouselPageIndicator extends StatelessWidget {
   final int itemCount;
   final int currentIndex;
 
-  const _CarouselPageIndicator({required this.itemCount, required this.currentIndex});
+  const _CarouselPageIndicator({
+    required this.itemCount,
+    required this.currentIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
