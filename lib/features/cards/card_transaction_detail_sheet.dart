@@ -25,6 +25,7 @@ class CardTransactionDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isCredit = transaction.isCredit;
     final amountColor =
         isCredit ? const Color(0xFF137A33) : OpeiBrand.ink;
@@ -46,17 +47,20 @@ class CardTransactionDetailSheet extends StatelessWidget {
 
     final entries = <_Entry>[
       if (transaction.normalizedType.isNotEmpty)
-        _Entry('Type', transaction.normalizedType),
+        _Entry(l10n.transactionTypeLabel, transaction.normalizedType),
       if (transaction.normalizedTransactionType.isNotEmpty)
-        _Entry('Transaction type', transaction.normalizedTransactionType),
-      _Entry('Direction', isCredit ? 'Incoming' : 'Outgoing'),
-      _Entry('Currency', transaction.currencyLabel),
+        _Entry(l10n.transactionTransactionTypeLabel, transaction.normalizedTransactionType),
+      _Entry(
+        l10n.transactionDirectionLabel,
+        isCredit ? l10n.transactionIncomingValue : l10n.transactionOutgoingValue,
+      ),
+      _Entry(l10n.currencyLabel, transaction.currencyLabel),
       if (transaction.balanceAfterDetail.isNotEmpty)
-        _Entry('Card balance after', transaction.balanceAfterDetail),
+        _Entry(l10n.cardBalanceAfterRow, transaction.balanceAfterDetail),
       if (transaction.normalizedMethod.isNotEmpty)
-        _Entry('Method', transaction.normalizedMethod),
+        _Entry(l10n.transactionMethodLabel, transaction.normalizedMethod),
       if ((transaction.reference ?? '').trim().isNotEmpty)
-        _Entry('Reference', transaction.reference!.trim(), isCopy: true),
+        _Entry(l10n.referenceLabel, transaction.reference!.trim(), isCopy: true),
     ];
 
     final narrative = (transaction.narrative ?? '').trim();
@@ -285,19 +289,21 @@ class _StatusChip extends StatelessWidget {
       case 'SUCCESS':
         bg = const Color(0xFFE6F6EA);
         fg = const Color(0xFF137A33);
-        label = 'Completed';
+        label = AppLocalizations.of(context)!.transactionStatusCompleted;
         break;
       case 'PENDING':
       case 'PROCESSING':
         bg = const Color(0xFFFFF6E0);
         fg = const Color(0xFF8A5A00);
-        label = 'Pending';
+        label = AppLocalizations.of(context)!.pendingStatus;
         break;
       case 'FAILED':
       case 'DECLINED':
         bg = const Color(0xFFFDECEC);
         fg = OpeiBrand.danger;
-        label = status == 'FAILED' ? 'Failed' : 'Declined';
+        label = status == 'FAILED'
+            ? AppLocalizations.of(context)!.transactionStatusFailed
+            : AppLocalizations.of(context)!.transactionStatusDeclined;
         break;
       default:
         bg = OpeiBrand.surfaceMuted;

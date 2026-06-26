@@ -4566,4 +4566,123 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trustFooterBankGradeEncryption => 'Bank-grade encryption';
+
+  @override
+  String get p2pUploadAtLeastOneProofError =>
+      'Upload at least one proof first.';
+
+  @override
+  String p2pSkippedLargeImagesCount(Object count) {
+    return 'Skipped $count images over 5 MB';
+  }
+
+  @override
+  String p2pSkippedUnreadableFilesCount(Object count) {
+    return 'Skipped $count unreadable files';
+  }
+
+  @override
+  String get p2pSelectUpToFiveTagsError => 'You can select up to 5 tags.';
+
+  @override
+  String get p2pEnterValidAmountToContinueError =>
+      'Enter a valid amount to continue.';
+
+  @override
+  String p2pEnterAtLeastAmountError(Object amount) {
+    return 'Enter at least $amount.';
+  }
+
+  @override
+  String p2pEnterNoMoreThanAmountError(Object amount) {
+    return 'Enter no more than $amount.';
+  }
+
+  @override
+  String p2pOnlyAmountLeftInAdError(Object amount) {
+    return 'Only $amount left in this ad.';
+  }
+
+  @override
+  String get p2pAdCannotAcceptPaymentsRightNowError =>
+      'This ad can’t accept payments right now.';
+
+  @override
+  String get p2pSelectedImageReadFailedError =>
+      'One of the selected images could not be read. Please re-upload.';
+
+  @override
+  String get transactionTypeLabel => 'Type';
+
+  @override
+  String get transactionTransactionTypeLabel => 'Transaction type';
+
+  @override
+  String get transactionDirectionLabel => 'Direction';
+
+  @override
+  String get transactionIncomingValue => 'Incoming';
+
+  @override
+  String get transactionOutgoingValue => 'Outgoing';
+
+  @override
+  String get transactionMethodLabel => 'Method';
+
+  @override
+  String get transactionFromLabel => 'From';
+
+  @override
+  String get transactionToLabel => 'To';
+
+  @override
+  String get transactionDateTimeLabel => 'Date & time';
+
+  @override
+  String get transactionStatusCompleted => 'Completed';
+
+  @override
+  String get transactionStatusFailed => 'Failed';
+
+  @override
+  String get transactionStatusDeclined => 'Declined';
+
+  @override
+  String get tokenTetherName => 'Tether';
+
+  @override
+  String get tokenUsdCoinName => 'USD Coin';
+
+  @override
+  String get mobileMoneyCountryGhana => 'Ghana';
+
+  @override
+  String get mobileMoneyCountryKenya => 'Kenya';
+
+  @override
+  String get mobileMoneyCountryUganda => 'Uganda';
+
+  @override
+  String get mobileMoneyCountryRwanda => 'Rwanda';
+
+  @override
+  String get mobileMoneyCountrySenegal => 'Senegal';
+
+  @override
+  String get mobileMoneyCountryCoteDIvoire => 'Côte d\'Ivoire';
+
+  @override
+  String get mobileMoneyCountryCameroon => 'Cameroon';
+
+  @override
+  String get mobileMoneyCountryDrCongo => 'DR Congo';
+
+  @override
+  String get mobileMoneyCountryGabon => 'Gabon';
+
+  @override
+  String get mobileMoneyCountryGambia => 'Gambia';
+
+  @override
+  String get mobileMoneyCountryZambia => 'Zambia';
 }

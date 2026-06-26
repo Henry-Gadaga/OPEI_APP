@@ -1677,5 +1677,65 @@
   "mobileMoneyMissingReviewOrSessionError": "Missing review or session. Please try again.",
   "mobileMoneyAddValidDescriptionError": "Please go back and add a valid description.",
   "mobileMoneyDescriptionTooLong120Error": "Description is too long. Use 120 characters or less.",
-  "trustFooterBankGradeEncryption": "Bank-grade encryption"
+  "trustFooterBankGradeEncryption": "Bank-grade encryption",
+  "p2pUploadAtLeastOneProofError": "Upload at least one proof first.",
+  "p2pSkippedLargeImagesCount": "Skipped {count} images over 5 MB",
+  "@p2pSkippedLargeImagesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "p2pSkippedUnreadableFilesCount": "Skipped {count} unreadable files",
+  "@p2pSkippedUnreadableFilesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "p2pSelectUpToFiveTagsError": "You can select up to 5 tags.",
+  "p2pEnterValidAmountToContinueError": "Enter a valid amount to continue.",
+  "p2pEnterAtLeastAmountError": "Enter at least {amount}.",
+  "@p2pEnterAtLeastAmountError": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pEnterNoMoreThanAmountError": "Enter no more than {amount}.",
+  "@p2pEnterNoMoreThanAmountError": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pOnlyAmountLeftInAdError": "Only {amount} left in this ad.",
+  "@p2pOnlyAmountLeftInAdError": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pAdCannotAcceptPaymentsRightNowError": "This ad can’t accept payments right now.",
+  "p2pSelectedImageReadFailedError": "One of the selected images could not be read. Please re-upload.",
+  "transactionTypeLabel": "Type",
+  "transactionTransactionTypeLabel": "Transaction type",
+  "transactionDirectionLabel": "Direction",
+  "transactionIncomingValue": "Incoming",
+  "transactionOutgoingValue": "Outgoing",
+  "transactionMethodLabel": "Method",
+  "transactionFromLabel": "From",
+  "transactionToLabel": "To",
+  "transactionDateTimeLabel": "Date & time",
+  "transactionStatusCompleted": "Completed",
+  "transactionStatusFailed": "Failed",
+  "transactionStatusDeclined": "Declined",
+  "tokenTetherName": "Tether",
+  "tokenUsdCoinName": "USD Coin",
+  "mobileMoneyCountryGhana": "Ghana",
+  "mobileMoneyCountryKenya": "Kenya",
+  "mobileMoneyCountryUganda": "Uganda",
+  "mobileMoneyCountryRwanda": "Rwanda",
+  "mobileMoneyCountrySenegal": "Senegal",
+  "mobileMoneyCountryCoteDIvoire": "Côte d'Ivoire",
+  "mobileMoneyCountryCameroon": "Cameroon",
+  "mobileMoneyCountryDrCongo": "DR Congo",
+  "mobileMoneyCountryGabon": "Gabon",
+  "mobileMoneyCountryGambia": "Gambia",
+  "mobileMoneyCountryZambia": "Zambia"
 }

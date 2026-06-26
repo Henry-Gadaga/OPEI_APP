@@ -5761,7 +5761,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     }
     if (_pickedProofImages.isEmpty) {
       setState(() {
-        _proofPickError = 'Upload at least one proof first.';
+        _proofPickError = l10n.p2pUploadAtLeastOneProofError;
         _proofSubmissionError = null;
         _proofSubmissionSuccess = false;
       });
@@ -5841,6 +5841,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   }
 
   Future<void> _handlePickProofs() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _proofPickError = null;
       _proofSubmissionError = null;
@@ -5850,7 +5851,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     final remainingSlots = _maxProofImages - _pickedProofImages.length;
     if (remainingSlots <= 0) {
       setState(() {
-        _proofPickError = 'You can upload up to $_maxProofImages images.';
+        _proofPickError = l10n.expressAttachUpToImagesError(_maxProofImages);
       });
       return;
     }
@@ -5891,8 +5892,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       if (accepted.isEmpty && (skippedLarge > 0 || skippedNoData > 0)) {
         setState(() {
           _proofPickError = skippedLarge > 0
-              ? 'Some images exceed 5 MB and were skipped.'
-              : 'Couldn’t read selected files. Please try again.';
+              ? l10n.p2pProofImagesTooLargeError
+              : l10n.p2pProofUploadFailedError;
           _isProofPicking = false;
         });
         return;
@@ -5902,8 +5903,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         _pickedProofImages.addAll(accepted);
         if (skippedLarge > 0 || skippedNoData > 0) {
           _proofPickError = [
-            if (skippedLarge > 0) 'Skipped $skippedLarge images over 5 MB',
-            if (skippedNoData > 0) 'Skipped $skippedNoData unreadable files',
+            if (skippedLarge > 0)
+              l10n.p2pSkippedLargeImagesCount(skippedLarge),
+            if (skippedNoData > 0)
+              l10n.p2pSkippedUnreadableFilesCount(skippedNoData),
           ].join(' • ');
         } else {
           _proofPickError = null;
@@ -5911,7 +5914,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       });
     } catch (_) {
       setState(() {
-        _proofPickError = 'Couldn’t pick images. Please try again.';
+        _proofPickError = l10n.expressCouldNotPickImagesTryAgain;
       });
     } finally {
       if (mounted && _isProofPicking) {
@@ -5939,8 +5942,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       final bytes = file.bytes;
       if (bytes == null || bytes.isEmpty) {
         throw ApiError(
-          message:
-              'One of the selected images could not be read. Please re-upload.',
+          message: ErrorHelper.l10n.p2pSelectedImageReadFailedError,
         );
       }
 
@@ -6279,13 +6281,14 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   }
 
   void _toggleRatingTag(String tag) {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       if (_selectedRatingTags.contains(tag)) {
         _selectedRatingTags.remove(tag);
         _ratingError = null;
       } else {
         if (_selectedRatingTags.length >= 5) {
-          _ratingError = 'You can select up to 5 tags.';
+          _ratingError = l10n.p2pSelectUpToFiveTagsError;
         } else {
           _selectedRatingTags.add(tag);
           _ratingError = null;
@@ -6297,7 +6300,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   Future<void> _handleSubmitRating() async {
     if (_selectedRating <= 0) {
       setState(() {
-        _ratingError = 'Select how many stars to give before submitting.';
+        _ratingError = AppLocalizations.of(context)!.p2pSelectStarRatingError;
       });
       return;
     }
@@ -6752,7 +6755,6 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
     final reason = _controller.text.trim();
     if (reason.length < 6) {
       setState(() {
-        _localError = 'Give a short reason (at least 6 characters).';
         _localError = AppLocalizations.of(context)!.p2pShortReasonMinChars;
       });
       return;
@@ -11322,7 +11324,11 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
     }
 
     if (cents <= 0) {
-      setState(() => _validationMessage = 'Enter a valid amount to continue.');
+      setState(
+        () =>
+            _validationMessage =
+                AppLocalizations.of(context)!.p2pEnterValidAmountToContinueError,
+      );
       return;
     }
 
@@ -11330,7 +11336,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
     if (cents < minCents) {
       setState(
         () => _validationMessage =
-            'Enter at least ${ad.minOrder.format(includeCurrencySymbol: true)}.',
+            AppLocalizations.of(context)!.p2pEnterAtLeastAmountError(
+              ad.minOrder.format(includeCurrencySymbol: true),
+            ),
       );
       return;
     }
@@ -11339,7 +11347,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
     if (maxCents > 0 && cents > maxCents) {
       setState(
         () => _validationMessage =
-            'Enter no more than ${ad.maxOrder.format(includeCurrencySymbol: true)}.',
+            AppLocalizations.of(context)!.p2pEnterNoMoreThanAmountError(
+              ad.maxOrder.format(includeCurrencySymbol: true),
+            ),
       );
       return;
     }
@@ -11347,7 +11357,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
     if (cents > ad.remainingAmount.cents) {
       setState(
         () => _validationMessage =
-            'Only ${ad.remainingAmount.format(includeCurrencySymbol: true)} left in this ad.',
+            AppLocalizations.of(context)!.p2pOnlyAmountLeftInAdError(
+              ad.remainingAmount.format(includeCurrencySymbol: true),
+            ),
       );
       return;
     }
@@ -11411,7 +11423,10 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       final methods = widget.ad.paymentMethods;
       if (methods.isEmpty) {
         setState(
-          () => _actionError = 'This ad can’t accept payments right now.',
+          () =>
+              _actionError = AppLocalizations.of(
+                context,
+              )!.p2pAdCannotAcceptPaymentsRightNowError,
         );
         return;
       }
@@ -11523,7 +11538,10 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       final methods = widget.ad.paymentMethods;
       if (methods.isEmpty) {
         setState(
-          () => _actionError = 'Buyer has not provided any payment methods.',
+          () =>
+              _actionError = AppLocalizations.of(
+                context,
+              )!.p2pBuyerNoSupportedPaymentMethodsError,
         );
         return;
       }
@@ -13521,7 +13539,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
     }
     if (_pickedImages.isEmpty) {
       setState(() {
-        _pickError = 'Upload at least one proof first.';
+        _pickError = l10n.p2pUploadAtLeastOneProofError;
         _submissionError = null;
         _submissionSuccess = false;
       });
@@ -13625,8 +13643,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       final bytes = file.bytes;
       if (bytes == null || bytes.isEmpty) {
         throw ApiError(
-          message:
-              'One of the selected images could not be read. Please re-upload.',
+          message: ErrorHelper.l10n.p2pSelectedImageReadFailedError,
         );
       }
 
@@ -13767,6 +13784,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
   }
 
   Future<void> _handlePickProofs() async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _pickError = null;
       _submissionError = null;
@@ -13776,7 +13794,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
     final remainingSlots = _maxImages - _pickedImages.length;
     if (remainingSlots <= 0) {
       setState(() {
-        _pickError = 'You can upload up to $_maxImages images.';
+        _pickError = l10n.expressAttachUpToImagesError(_maxImages);
       });
       return;
     }
@@ -13817,8 +13835,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       if (accepted.isEmpty && (skippedLarge > 0 || skippedNoData > 0)) {
         setState(() {
           _pickError = skippedLarge > 0
-              ? 'Some images exceed 5 MB and were skipped.'
-              : 'Couldn’t read selected files. Please try different images.';
+              ? l10n.p2pProofImagesTooLargeError
+              : l10n.p2pProofUploadFailedError;
         });
         return;
       }
@@ -13828,14 +13846,16 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         _submissionSuccess = false;
         if (skippedLarge > 0 || skippedNoData > 0) {
           _pickError = [
-            if (skippedLarge > 0) 'Skipped $skippedLarge images over 5 MB',
-            if (skippedNoData > 0) 'Skipped $skippedNoData unreadable files',
+            if (skippedLarge > 0)
+              l10n.p2pSkippedLargeImagesCount(skippedLarge),
+            if (skippedNoData > 0)
+              l10n.p2pSkippedUnreadableFilesCount(skippedNoData),
           ].join(' • ');
         }
       });
     } catch (e) {
       setState(() {
-        _pickError = 'Couldn’t pick images. Please try again.';
+        _pickError = l10n.expressCouldNotPickImagesTryAgain;
       });
     } finally {
       if (mounted && _isPickingProofs) {

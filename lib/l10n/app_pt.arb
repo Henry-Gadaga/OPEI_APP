@@ -1677,5 +1677,65 @@
   "mobileMoneyMissingReviewOrSessionError": "Revisao ou sessao em falta. Tente novamente.",
   "mobileMoneyAddValidDescriptionError": "Volte atras e adicione uma descricao valida.",
   "mobileMoneyDescriptionTooLong120Error": "A descricao e demasiado longa. Use 120 caracteres ou menos.",
-  "trustFooterBankGradeEncryption": "Encriptacao de nivel bancario"
+  "trustFooterBankGradeEncryption": "Encriptacao de nivel bancario",
+  "p2pUploadAtLeastOneProofError": "Envie pelo menos uma prova primeiro.",
+  "p2pSkippedLargeImagesCount": "{count} imagens acima de 5 MB ignoradas",
+  "@p2pSkippedLargeImagesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "p2pSkippedUnreadableFilesCount": "{count} ficheiros ilegiveis ignorados",
+  "@p2pSkippedUnreadableFilesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "p2pSelectUpToFiveTagsError": "Pode selecionar ate 5 etiquetas.",
+  "p2pEnterValidAmountToContinueError": "Insira um valor valido para continuar.",
+  "p2pEnterAtLeastAmountError": "Insira pelo menos {amount}.",
+  "@p2pEnterAtLeastAmountError": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pEnterNoMoreThanAmountError": "Insira no maximo {amount}.",
+  "@p2pEnterNoMoreThanAmountError": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pOnlyAmountLeftInAdError": "Restam apenas {amount} neste anuncio.",
+  "@p2pOnlyAmountLeftInAdError": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pAdCannotAcceptPaymentsRightNowError": "Este anuncio nao pode aceitar pagamentos neste momento.",
+  "p2pSelectedImageReadFailedError": "Uma das imagens selecionadas nao pode ser lida. Reenvie.",
+  "transactionTypeLabel": "Tipo",
+  "transactionTransactionTypeLabel": "Tipo de transacao",
+  "transactionDirectionLabel": "Direcao",
+  "transactionIncomingValue": "Entrada",
+  "transactionOutgoingValue": "Saida",
+  "transactionMethodLabel": "Metodo",
+  "transactionFromLabel": "De",
+  "transactionToLabel": "Para",
+  "transactionDateTimeLabel": "Data e hora",
+  "transactionStatusCompleted": "Concluida",
+  "transactionStatusFailed": "Falhada",
+  "transactionStatusDeclined": "Recusada",
+  "tokenTetherName": "Tether",
+  "tokenUsdCoinName": "USD Coin",
+  "mobileMoneyCountryGhana": "Gana",
+  "mobileMoneyCountryKenya": "Quenia",
+  "mobileMoneyCountryUganda": "Uganda",
+  "mobileMoneyCountryRwanda": "Ruanda",
+  "mobileMoneyCountrySenegal": "Senegal",
+  "mobileMoneyCountryCoteDIvoire": "Costa do Marfim",
+  "mobileMoneyCountryCameroon": "Camaroes",
+  "mobileMoneyCountryDrCongo": "RD Congo",
+  "mobileMoneyCountryGabon": "Gabao",
+  "mobileMoneyCountryGambia": "Gambia",
+  "mobileMoneyCountryZambia": "Zambia"
 }

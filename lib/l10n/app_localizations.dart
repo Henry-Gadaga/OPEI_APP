@@ -8158,6 +8158,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bank-grade encryption'**
   String get trustFooterBankGradeEncryption;
+
+  /// No description provided for @p2pUploadAtLeastOneProofError.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload at least one proof first.'**
+  String get p2pUploadAtLeastOneProofError;
+
+  /// No description provided for @p2pSkippedLargeImagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped {count} images over 5 MB'**
+  String p2pSkippedLargeImagesCount(Object count);
+
+  /// No description provided for @p2pSkippedUnreadableFilesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped {count} unreadable files'**
+  String p2pSkippedUnreadableFilesCount(Object count);
+
+  /// No description provided for @p2pSelectUpToFiveTagsError.
+  ///
+  /// In en, this message translates to:
+  /// **'You can select up to 5 tags.'**
+  String get p2pSelectUpToFiveTagsError;
+
+  /// No description provided for @p2pEnterValidAmountToContinueError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid amount to continue.'**
+  String get p2pEnterValidAmountToContinueError;
+
+  /// No description provided for @p2pEnterAtLeastAmountError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least {amount}.'**
+  String p2pEnterAtLeastAmountError(Object amount);
+
+  /// No description provided for @p2pEnterNoMoreThanAmountError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter no more than {amount}.'**
+  String p2pEnterNoMoreThanAmountError(Object amount);
+
+  /// No description provided for @p2pOnlyAmountLeftInAdError.
+  ///
+  /// In en, this message translates to:
+  /// **'Only {amount} left in this ad.'**
+  String p2pOnlyAmountLeftInAdError(Object amount);
+
+  /// No description provided for @p2pAdCannotAcceptPaymentsRightNowError.
+  ///
+  /// In en, this message translates to:
+  /// **'This ad can’t accept payments right now.'**
+  String get p2pAdCannotAcceptPaymentsRightNowError;
+
+  /// No description provided for @p2pSelectedImageReadFailedError.
+  ///
+  /// In en, this message translates to:
+  /// **'One of the selected images could not be read. Please re-upload.'**
+  String get p2pSelectedImageReadFailedError;
+
+  /// No description provided for @transactionTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get transactionTypeLabel;
+
+  /// No description provided for @transactionTransactionTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction type'**
+  String get transactionTransactionTypeLabel;
+
+  /// No description provided for @transactionDirectionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get transactionDirectionLabel;
+
+  /// No description provided for @transactionIncomingValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming'**
+  String get transactionIncomingValue;
+
+  /// No description provided for @transactionOutgoingValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Outgoing'**
+  String get transactionOutgoingValue;
+
+  /// No description provided for @transactionMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get transactionMethodLabel;
+
+  /// No description provided for @transactionFromLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get transactionFromLabel;
+
+  /// No description provided for @transactionToLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get transactionToLabel;
+
+  /// No description provided for @transactionDateTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date & time'**
+  String get transactionDateTimeLabel;
+
+  /// No description provided for @transactionStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get transactionStatusCompleted;
+
+  /// No description provided for @transactionStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get transactionStatusFailed;
+
+  /// No description provided for @transactionStatusDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get transactionStatusDeclined;
+
+  /// No description provided for @tokenTetherName.
+  ///
+  /// In en, this message translates to:
+  /// **'Tether'**
+  String get tokenTetherName;
+
+  /// No description provided for @tokenUsdCoinName.
+  ///
+  /// In en, this message translates to:
+  /// **'USD Coin'**
+  String get tokenUsdCoinName;
+
+  /// No description provided for @mobileMoneyCountryGhana.
+  ///
+  /// In en, this message translates to:
+  /// **'Ghana'**
+  String get mobileMoneyCountryGhana;
+
+  /// No description provided for @mobileMoneyCountryKenya.
+  ///
+  /// In en, this message translates to:
+  /// **'Kenya'**
+  String get mobileMoneyCountryKenya;
+
+  /// No description provided for @mobileMoneyCountryUganda.
+  ///
+  /// In en, this message translates to:
+  /// **'Uganda'**
+  String get mobileMoneyCountryUganda;
+
+  /// No description provided for @mobileMoneyCountryRwanda.
+  ///
+  /// In en, this message translates to:
+  /// **'Rwanda'**
+  String get mobileMoneyCountryRwanda;
+
+  /// No description provided for @mobileMoneyCountrySenegal.
+  ///
+  /// In en, this message translates to:
+  /// **'Senegal'**
+  String get mobileMoneyCountrySenegal;
+
+  /// No description provided for @mobileMoneyCountryCoteDIvoire.
+  ///
+  /// In en, this message translates to:
+  /// **'Côte d\'Ivoire'**
+  String get mobileMoneyCountryCoteDIvoire;
+
+  /// No description provided for @mobileMoneyCountryCameroon.
+  ///
+  /// In en, this message translates to:
+  /// **'Cameroon'**
+  String get mobileMoneyCountryCameroon;
+
+  /// No description provided for @mobileMoneyCountryDrCongo.
+  ///
+  /// In en, this message translates to:
+  /// **'DR Congo'**
+  String get mobileMoneyCountryDrCongo;
+
+  /// No description provided for @mobileMoneyCountryGabon.
+  ///
+  /// In en, this message translates to:
+  /// **'Gabon'**
+  String get mobileMoneyCountryGabon;
+
+  /// No description provided for @mobileMoneyCountryGambia.
+  ///
+  /// In en, this message translates to:
+  /// **'Gambia'**
+  String get mobileMoneyCountryGambia;
+
+  /// No description provided for @mobileMoneyCountryZambia.
+  ///
+  /// In en, this message translates to:
+  /// **'Zambia'**
+  String get mobileMoneyCountryZambia;
 }
 
 class _AppLocalizationsDelegate

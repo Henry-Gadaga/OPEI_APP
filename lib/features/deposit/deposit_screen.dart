@@ -339,16 +339,25 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
             SizedBox(height: spacing * 2.5),
             CurrencyOption(
               currency: 'USDT',
-              name: 'Tether',
-              networks: const ['Polygon', 'Ethereum', 'BSC', 'Tron'],
+              name: l10n.tokenTetherName,
+              networks: [
+                l10n.cryptoNetworkShortPolygon,
+                l10n.cryptoNetworkShortEthereum,
+                l10n.cryptoNetworkShortBsc,
+                l10n.cryptoNetworkShortTron,
+              ],
               onTap: () =>
                   context.push('/deposit/crypto-network', extra: 'USDT'),
             ),
             SizedBox(height: spacing * 0.5),
             CurrencyOption(
               currency: 'USDC',
-              name: 'USD Coin',
-              networks: const ['Polygon', 'Ethereum', 'BSC'],
+              name: l10n.tokenUsdCoinName,
+              networks: [
+                l10n.cryptoNetworkShortPolygon,
+                l10n.cryptoNetworkShortEthereum,
+                l10n.cryptoNetworkShortBsc,
+              ],
               onTap: () =>
                   context.push('/deposit/crypto-network', extra: 'USDC'),
             ),

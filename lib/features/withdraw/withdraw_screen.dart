@@ -139,22 +139,22 @@ class WithdrawOptionsSheet extends StatelessWidget {
 class _MobileMoneyCountrySheet extends StatelessWidget {
   const _MobileMoneyCountrySheet();
 
-  static const _countries = [
-    ('🇬🇭', 'Ghana', 'GH'),
-    ('🇰🇪', 'Kenya', 'KE'),
-    ('🇺🇬', 'Uganda', 'UG'),
-    ('🇷🇼', 'Rwanda', 'RW'),
-    ('🇸🇳', 'Senegal', 'SN'),
-    ('🇨🇮', "Côte d'Ivoire", 'CI'),
-    ('🇨🇲', 'Cameroon', 'CM'),
-    ('🇨🇩', 'DR Congo', 'CD'),
-    ('🇬🇦', 'Gabon', 'GA'),
-    ('🇬🇲', 'Gambia', 'GM'),
-    ('🇿🇲', 'Zambia', 'ZM'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final countries = [
+      ('🇬🇭', l10n.mobileMoneyCountryGhana, 'GH'),
+      ('🇰🇪', l10n.mobileMoneyCountryKenya, 'KE'),
+      ('🇺🇬', l10n.mobileMoneyCountryUganda, 'UG'),
+      ('🇷🇼', l10n.mobileMoneyCountryRwanda, 'RW'),
+      ('🇸🇳', l10n.mobileMoneyCountrySenegal, 'SN'),
+      ('🇨🇮', l10n.mobileMoneyCountryCoteDIvoire, 'CI'),
+      ('🇨🇲', l10n.mobileMoneyCountryCameroon, 'CM'),
+      ('🇨🇩', l10n.mobileMoneyCountryDrCongo, 'CD'),
+      ('🇬🇦', l10n.mobileMoneyCountryGabon, 'GA'),
+      ('🇬🇲', l10n.mobileMoneyCountryGambia, 'GM'),
+      ('🇿🇲', l10n.mobileMoneyCountryZambia, 'ZM'),
+    ];
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
     final maxHeight = MediaQuery.of(context).size.height * 0.82;
 
@@ -210,14 +210,14 @@ class _MobileMoneyCountrySheet extends StatelessWidget {
             child: ListView.separated(
               padding: EdgeInsets.zero,
               physics: const ClampingScrollPhysics(),
-              itemCount: _countries.length,
+              itemCount: countries.length,
               separatorBuilder: (context, i) => const Divider(
                 height: 1,
                 thickness: 0.5,
                 color: OpeiBrand.hairline,
               ),
               itemBuilder: (context, i) {
-                final (flag, name, code) = _countries[i];
+                final (flag, name, code) = countries[i];
                 return Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -518,8 +518,12 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
             SizedBox(height: spacing * 2.5),
             _CurrencyOption(
               currency: 'USDT',
-              name: 'Tether',
-              networksLabel: 'Tron • Polygon • Ethereum • BSC',
+              name: AppLocalizations.of(context)!.tokenTetherName,
+              networksLabel:
+                  '${AppLocalizations.of(context)!.cryptoNetworkShortTron} • '
+                  '${AppLocalizations.of(context)!.cryptoNetworkShortPolygon} • '
+                  '${AppLocalizations.of(context)!.cryptoNetworkShortEthereum} • '
+                  '${AppLocalizations.of(context)!.cryptoNetworkShortBsc}',
               onTap: () {
                 ref
                     .read(withdrawControllerProvider.notifier)
@@ -530,8 +534,11 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
             SizedBox(height: spacing * 0.5),
             _CurrencyOption(
               currency: 'USDC',
-              name: 'USD Coin',
-              networksLabel: 'Polygon • Ethereum • BSC',
+              name: AppLocalizations.of(context)!.tokenUsdCoinName,
+              networksLabel:
+                  '${AppLocalizations.of(context)!.cryptoNetworkShortPolygon} • '
+                  '${AppLocalizations.of(context)!.cryptoNetworkShortEthereum} • '
+                  '${AppLocalizations.of(context)!.cryptoNetworkShortBsc}',
               onTap: () {
                 ref
                     .read(withdrawControllerProvider.notifier)

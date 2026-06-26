@@ -25,6 +25,7 @@ class TransactionDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isIncoming = transaction.isIncoming;
     final amountColor = isIncoming ? const Color(0xFF137A33) : OpeiBrand.ink;
     final iconBg =
@@ -42,14 +43,20 @@ class TransactionDetailSheet extends StatelessWidget {
 
     final counterparty = transaction.counterpartyName?.trim();
     final entries = <_Entry>[
-      _Entry('Type', transaction.humanizedTransactionType),
-      _Entry('Direction', isIncoming ? 'Incoming' : 'Outgoing'),
+      _Entry(l10n.transactionTypeLabel, transaction.humanizedTransactionType),
+      _Entry(
+        l10n.transactionDirectionLabel,
+        isIncoming ? l10n.transactionIncomingValue : l10n.transactionOutgoingValue,
+      ),
       if (counterparty != null && counterparty.isNotEmpty)
-        _Entry(isIncoming ? 'From' : 'To', counterparty),
-      _Entry('Currency', transaction.currency.toUpperCase()),
-      _Entry('Reference', transaction.displayReference, isCopy: true),
+        _Entry(
+          isIncoming ? l10n.transactionFromLabel : l10n.transactionToLabel,
+          counterparty,
+        ),
+      _Entry(l10n.currencyLabel, transaction.currency.toUpperCase()),
+      _Entry(l10n.referenceLabel, transaction.displayReference, isCopy: true),
       if (transaction.formattedCreatedDateTime.isNotEmpty)
-        _Entry('Date & time', transaction.formattedCreatedDateTime),
+        _Entry(l10n.transactionDateTimeLabel, transaction.formattedCreatedDateTime),
     ];
     final note = (transaction.description ?? '').trim();
     final bottomPad = MediaQuery.of(context).padding.bottom;
@@ -271,19 +278,21 @@ class _StatusChip extends StatelessWidget {
       case 'SUCCESS':
         bg = const Color(0xFFE6F6EA);
         fg = const Color(0xFF137A33);
-        label = 'Completed';
+        label = AppLocalizations.of(context)!.transactionStatusCompleted;
         break;
       case 'PENDING':
       case 'PROCESSING':
         bg = const Color(0xFFFFF6E0);
         fg = const Color(0xFF8A5A00);
-        label = 'Pending';
+        label = AppLocalizations.of(context)!.pendingStatus;
         break;
       case 'FAILED':
       case 'DECLINED':
         bg = const Color(0xFFFDECEC);
         fg = OpeiBrand.danger;
-        label = status == 'FAILED' ? 'Failed' : 'Declined';
+        label = status == 'FAILED'
+            ? AppLocalizations.of(context)!.transactionStatusFailed
+            : AppLocalizations.of(context)!.transactionStatusDeclined;
         break;
       default:
         bg = OpeiBrand.surfaceMuted;
