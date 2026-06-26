@@ -22,6 +22,10 @@ import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 
+String _tr(BuildContext context, String en, String pt) {
+  return Localizations.localeOf(context).languageCode == 'pt' ? pt : en;
+}
+
 Route<PromoCardCreateResult?> _buildCreateCardFlowRoute() {
   return PageRouteBuilder<PromoCardCreateResult?>(
     pageBuilder: (_, animation, secondaryAnimation) =>
@@ -70,7 +74,11 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final resolvedErrorMessage = hasError
         ? (normalizedError.isNotEmpty
               ? normalizedError
-              : "We couldn't load your cards. Please try again.")
+              : _tr(
+                  context,
+                  "We couldn't load your cards. Please try again.",
+                  'Nao foi possivel carregar seus cartoes. Tente novamente.',
+                ))
         : null;
     final showErrorBanner = hasError && cardsState.cards.isNotEmpty;
     final showErrorState =
@@ -416,7 +424,14 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   Future<void> _handleTopUp(VirtualCard card) async {
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
-      showError(context, "We couldn't find this card.");
+      showError(
+        context,
+        _tr(
+          context,
+          "We couldn't find this card.",
+          'Nao foi possivel encontrar este cartao.',
+        ),
+      );
       return;
     }
 
@@ -430,7 +445,14 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   Future<void> _handleWithdraw(VirtualCard card) async {
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
-      showError(context, "We couldn't find this card.");
+      showError(
+        context,
+        _tr(
+          context,
+          "We couldn't find this card.",
+          'Nao foi possivel encontrar este cartao.',
+        ),
+      );
       return;
     }
 
@@ -592,13 +614,17 @@ class _TerminateConfirmationSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Terminate this card?',
+            _tr(context, 'Terminate this card?', 'Encerrar este cartao?'),
             style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'This card will be permanently removed. You won’t be able to use or view $cardLabel again.',
+            _tr(
+              context,
+              'This card will be permanently removed. You won’t be able to use or view $cardLabel again.',
+              'Este cartao sera removido permanentemente. Voce nao podera usar nem ver $cardLabel novamente.',
+            ),
             style: textTheme.bodyMedium?.copyWith(
               color: OpeiColors.iosLabelSecondary,
               height: 1.45,
@@ -630,7 +656,11 @@ class _TerminateConfirmationSheet extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Make sure you’ve moved any remaining funds before confirming.',
+                    _tr(
+                      context,
+                      'Make sure you’ve moved any remaining funds before confirming.',
+                      'Certifique-se de mover quaisquer fundos restantes antes de confirmar.',
+                    ),
                     style: textTheme.bodySmall?.copyWith(
                       color: OpeiColors.errorRed,
                       fontWeight: FontWeight.w600,
@@ -733,7 +763,7 @@ class _CardsErrorPlaceholder extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              'We ran into an issue',
+              _tr(context, 'We ran into an issue', 'Encontramos um problema'),
               style: theme.textTheme.titleMedium?.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1113,7 +1143,11 @@ class _UserCardView extends StatelessWidget {
                         const CupertinoActivityIndicator(radius: 12),
                         const SizedBox(height: 12),
                         Text(
-                          'Loading securely...',
+                          _tr(
+                            context,
+                            'Loading securely...',
+                            'Carregando com seguranca...',
+                          ),
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: OpeiColors.pureWhite.withValues(alpha: 0.85),
                             fontSize: 12,
@@ -1164,7 +1198,7 @@ class _UserCardView extends StatelessWidget {
   String _formatStatus(String raw) {
     final sanitized = raw.replaceAll('_', ' ').trim();
     if (sanitized.isEmpty) {
-      return 'Unknown';
+      return '—';
     }
 
     return sanitized
@@ -1345,8 +1379,8 @@ class _UserCardView extends StatelessWidget {
       builder: (sheetContext) {
         final theme = Theme.of(sheetContext);
         final copyLabel = data.isPlaceholder
-            ? 'Copy sample address'
-            : 'Copy address';
+            ? _tr(context, 'Copy sample address', 'Copiar endereco de exemplo')
+            : _tr(context, 'Copy address', 'Copiar endereco');
 
         return SafeArea(
           top: false,
@@ -1368,7 +1402,7 @@ class _UserCardView extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  'Card Address',
+                  _tr(context, 'Card Address', 'Endereco do cartao'),
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -1378,7 +1412,11 @@ class _UserCardView extends StatelessWidget {
                 if (data.isPlaceholder) ...[
                   const SizedBox(height: 6),
                   Text(
-                    'Sample data shown for layout. Real card addresses will appear here once provided by the gateway.',
+                    _tr(
+                      context,
+                      'Sample data shown for layout. Real card addresses will appear here once provided by the gateway.',
+                      'Dados de exemplo exibidos para layout. Enderecos reais do cartao aparecerao aqui quando forem fornecidos pelo gateway.',
+                    ),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: OpeiColors.grey600,
                       fontSize: 12,
@@ -1407,7 +1445,10 @@ class _UserCardView extends StatelessWidget {
                           return;
                         }
                         Navigator.of(sheetContext).pop();
-                        await onCopyValue('Card address', normalizedCopy);
+                        await onCopyValue(
+                          _tr(context, 'Card address', 'Endereco do cartao'),
+                          normalizedCopy,
+                        );
                       },
                       icon: const Icon(CupertinoIcons.doc_on_doc),
                       label: Text(copyLabel),
@@ -1979,15 +2020,31 @@ class _CardsEmptyState extends StatelessWidget {
   final VoidCallback onCreateCard;
   const _CardsEmptyState({required this.onCreateCard});
 
-  static const _features = [
-    (Icons.subscriptions_outlined, 'Subscriptions', 'Netflix, Spotify & more'),
-    (Icons.shopping_bag_outlined, 'Online Shopping', 'Shop from any store'),
-    (Icons.flight_outlined, 'Travel & Tickets', 'Flights and hotels'),
-    (Icons.public, 'Global Payments', 'Anywhere Visa is accepted'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final features = [
+      (
+        Icons.subscriptions_outlined,
+        l10n.cardsUseCaseSubscriptionsTitle,
+        l10n.cardsUseCaseSubscriptionsSubtitle,
+      ),
+      (
+        Icons.shopping_bag_outlined,
+        l10n.cardsUseCaseOnlineShoppingTitle,
+        l10n.cardsUseCaseOnlineShoppingSubtitle,
+      ),
+      (
+        Icons.flight_outlined,
+        l10n.cardsUseCaseTravelTitle,
+        l10n.cardsUseCaseTravelSubtitle,
+      ),
+      (
+        Icons.public,
+        l10n.cardsUseCaseInternationalTitle,
+        l10n.cardsUseCaseInternationalSubtitle,
+      ),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1997,8 +2054,8 @@ class _CardsEmptyState extends StatelessWidget {
         const SizedBox(height: 24),
 
         // ── Headline + subtitle ───────────────────────────────────
-        const Text(
-          'Your Opei Visa Card',
+        Text(
+          _tr(context, 'Your Opei Visa Card', 'Seu cartao Visa Opei'),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 22,
@@ -2009,8 +2066,12 @@ class _CardsEmptyState extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Pay anywhere Visa is accepted —\nsubscriptions, travel, and shopping.',
+        Text(
+          _tr(
+            context,
+            'Pay anywhere Visa is accepted —\nsubscriptions, travel, and shopping.',
+            'Pague em qualquer lugar onde Visa e aceito —\nassinaturas, viagens e compras.',
+          ),
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13.5,
@@ -2039,13 +2100,13 @@ class _CardsEmptyState extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
             ),
-            child: const Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.add_rounded, size: 18, color: OpeiBrand.primary),
                 SizedBox(width: 7),
                 Text(
-                  'Create card',
+                  _tr(context, 'Create card', 'Criar cartao'),
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -2064,17 +2125,17 @@ class _CardsEmptyState extends StatelessWidget {
           children: [
             Expanded(
               child: _FeatureTile(
-                icon: _features[0].$1,
-                title: _features[0].$2,
-                subtitle: _features[0].$3,
+                icon: features[0].$1,
+                title: features[0].$2,
+                subtitle: features[0].$3,
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _FeatureTile(
-                icon: _features[1].$1,
-                title: _features[1].$2,
-                subtitle: _features[1].$3,
+                icon: features[1].$1,
+                title: features[1].$2,
+                subtitle: features[1].$3,
               ),
             ),
           ],
@@ -2084,17 +2145,17 @@ class _CardsEmptyState extends StatelessWidget {
           children: [
             Expanded(
               child: _FeatureTile(
-                icon: _features[2].$1,
-                title: _features[2].$2,
-                subtitle: _features[2].$3,
+                icon: features[2].$1,
+                title: features[2].$2,
+                subtitle: features[2].$3,
               ),
             ),
             const SizedBox(width: 10),
             Expanded(
               child: _FeatureTile(
-                icon: _features[3].$1,
-                title: _features[3].$2,
-                subtitle: _features[3].$3,
+                icon: features[3].$1,
+                title: features[3].$2,
+                subtitle: features[3].$3,
               ),
             ),
           ],
@@ -2314,7 +2375,11 @@ class VirtualCardHero extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'CARD HOLDER',
+                                _tr(
+                                  context,
+                                  'CARD HOLDER',
+                                  'TITULAR DO CARTAO',
+                                ),
                                 style: TextStyle(
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w600,
@@ -2323,8 +2388,8 @@ class VirtualCardHero extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 3),
-                              const Text(
-                                'YOUR NAME',
+                              Text(
+                                _tr(context, 'YOUR NAME', 'SEU NOME'),
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -2339,7 +2404,7 @@ class VirtualCardHero extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                'EXPIRES',
+                                _tr(context, 'EXPIRES', 'VALIDADE'),
                                 style: TextStyle(
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w600,

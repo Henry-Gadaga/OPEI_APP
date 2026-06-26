@@ -19,6 +19,10 @@ class UsBankAddReceiverSheet extends ConsumerStatefulWidget {
 
 class _UsBankAddReceiverSheetState
     extends ConsumerState<UsBankAddReceiverSheet> {
+  String _tr(String en, String pt) {
+    return Localizations.localeOf(context).languageCode == 'pt' ? pt : en;
+  }
+
   final _formKey = GlobalKey<FormState>();
 
   // Destination options
@@ -145,7 +149,10 @@ class _UsBankAddReceiverSheetState
     if (_achWithBusinessConflict) {
       showError(
         context,
-        'ACH transfers are only available for individuals. Switch to Wire for businesses.',
+        _tr(
+          'ACH transfers are only available for individuals. Switch to Wire for businesses.',
+          'Transferencias ACH estao disponiveis apenas para individuos. Use Wire para empresas.',
+        ),
       );
       return;
     }
@@ -173,7 +180,7 @@ class _UsBankAddReceiverSheetState
 
     if (ok) {
       Navigator.of(context).pop(true);
-      showSuccess(context, 'Receiver added.');
+      showSuccess(context, _tr('Receiver added.', 'Destinatario adicionado.'));
     } else {
       final err = ref.read(usBankBeneficiariesControllerProvider).createError;
       if (err != null) showError(context, err);
@@ -225,9 +232,9 @@ class _UsBankAddReceiverSheetState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
-                      children: const [
+                      children: [
                         Text(
-                          'New receiver',
+                          _tr('New receiver', 'Novo destinatario'),
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
@@ -238,7 +245,10 @@ class _UsBankAddReceiverSheetState
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'United States · Bank Transfer',
+                          _tr(
+                            'United States · Bank Transfer',
+                            'Estados Unidos · Transferencia bancaria',
+                          ),
                           style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w500,
@@ -277,7 +287,10 @@ class _UsBankAddReceiverSheetState
                           _CardRow(
                             label: l10n.usBankTransferTypeLabel,
                             child: _Pill(
-                              options: const [('WIRE', 'Wire'), ('ACH', 'ACH')],
+                              options: [
+                                ('WIRE', _tr('Wire', 'Wire')),
+                                ('ACH', 'ACH'),
+                              ],
                               selected: _transferType,
                               onSelect: (v) =>
                                   setState(() => _transferType = v),
@@ -287,9 +300,9 @@ class _UsBankAddReceiverSheetState
                           _CardRow(
                             label: l10n.usBankBeneficiaryTypeLabel,
                             child: _Pill(
-                              options: const [
-                                ('INDIVIDUAL', 'Individual'),
-                                ('BUSINESS', 'Business'),
+                              options: [
+                                ('INDIVIDUAL', _tr('Individual', 'Individual')),
+                                ('BUSINESS', _tr('Business', 'Empresa')),
                               ],
                               selected: _beneficiaryType,
                               onSelect: (v) =>
@@ -300,17 +313,19 @@ class _UsBankAddReceiverSheetState
                             _CardDivider(),
                             _InfoBanner(
                               color: OpeiBrand.warning,
-                              message:
-                                  'ACH is only available for individuals. Switch to Wire to send to a business.',
+                              message: _tr(
+                                'ACH is only available for individuals. Switch to Wire to send to a business.',
+                                'ACH esta disponivel apenas para individuos. Use Wire para enviar para uma empresa.',
+                              ),
                             ),
                           ],
                           _CardDivider(),
                           _CardRow(
                             label: l10n.usBankAccountTypeLabel,
                             child: _Pill(
-                              options: const [
-                                ('CHECKING', 'Checking'),
-                                ('SAVINGS', 'Savings'),
+                              options: [
+                                ('CHECKING', _tr('Checking', 'Corrente')),
+                                ('SAVINGS', _tr('Savings', 'Poupanca')),
                               ],
                               selected: _accountType,
                               onSelect: (v) => setState(() => _accountType = v),
@@ -326,7 +341,7 @@ class _UsBankAddReceiverSheetState
                         children: [
                           _FieldRow(
                             label: l10n.accountNumberLabel,
-                            helper: '4 – 17 digits',
+                            helper: _tr('4 – 17 digits', '4 – 17 digitos'),
                             child: TextFormField(
                               controller: _accountNumberCtrl,
                               keyboardType: TextInputType.number,
@@ -341,7 +356,10 @@ class _UsBankAddReceiverSheetState
                                   '',
                                 );
                                 if (val.length < 4 || val.length > 17) {
-                                  return 'Must be 4 – 17 digits.';
+                                  return _tr(
+                                    'Must be 4 – 17 digits.',
+                                    'Deve ter de 4 a 17 digitos.',
+                                  );
                                 }
                                 return null;
                               },
@@ -350,7 +368,10 @@ class _UsBankAddReceiverSheetState
                           _CardDivider(),
                           _FieldRow(
                             label: l10n.usBankRoutingNumberLabel,
-                            helper: 'Exactly 9 digits',
+                            helper: _tr(
+                              'Exactly 9 digits',
+                              'Exatamente 9 digitos',
+                            ),
                             child: TextFormField(
                               controller: _routingNumberCtrl,
                               keyboardType: TextInputType.number,
@@ -358,14 +379,19 @@ class _UsBankAddReceiverSheetState
                                 FilteringTextInputFormatter.digitsOnly,
                                 LengthLimitingTextInputFormatter(9),
                               ],
-                              decoration: _dec(hint: '9 digits'),
+                              decoration: _dec(
+                                hint: _tr('9 digits', '9 digitos'),
+                              ),
                               validator: (v) {
                                 final val = (v ?? '').replaceAll(
                                   RegExp(r'\D'),
                                   '',
                                 );
                                 if (val.length != 9) {
-                                  return 'Must be exactly 9 digits.';
+                                  return _tr(
+                                    'Must be exactly 9 digits.',
+                                    'Deve ter exatamente 9 digitos.',
+                                  );
                                 }
                                 return null;
                               },
@@ -384,8 +410,19 @@ class _UsBankAddReceiverSheetState
                             child: TextFormField(
                               controller: _bankNameCtrl,
                               textCapitalization: TextCapitalization.words,
-                              decoration: _dec(hint: 'e.g. Chase Bank'),
-                              validator: _min(2, 'Enter the bank name.'),
+                              decoration: _dec(
+                                hint: _tr(
+                                  'e.g. Chase Bank',
+                                  'ex.: Banco Chase',
+                                ),
+                              ),
+                              validator: _min(
+                                2,
+                                _tr(
+                                  'Enter the bank name.',
+                                  'Digite o nome do banco.',
+                                ),
+                              ),
                             ),
                           ),
                           _CardDivider(),
@@ -394,8 +431,19 @@ class _UsBankAddReceiverSheetState
                             child: TextFormField(
                               controller: _bankAddressCtrl,
                               textCapitalization: TextCapitalization.words,
-                              decoration: _dec(hint: 'e.g. 270 Park Avenue'),
-                              validator: _min(2, 'Enter the bank address.'),
+                              decoration: _dec(
+                                hint: _tr(
+                                  'e.g. 270 Park Avenue',
+                                  'ex.: 270 Park Avenue',
+                                ),
+                              ),
+                              validator: _min(
+                                2,
+                                _tr(
+                                  'Enter the bank address.',
+                                  'Digite o endereco do banco.',
+                                ),
+                              ),
                             ),
                           ),
                           _CardDivider(),
@@ -410,8 +458,13 @@ class _UsBankAddReceiverSheetState
                                     controller: _cityCtrl,
                                     textCapitalization:
                                         TextCapitalization.words,
-                                    decoration: _dec(hint: 'New York'),
-                                    validator: _min(2, 'Required.'),
+                                    decoration: _dec(
+                                      hint: _tr('New York', 'Nova York'),
+                                    ),
+                                    validator: _min(
+                                      2,
+                                      _tr('Required.', 'Obrigatorio.'),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -424,8 +477,13 @@ class _UsBankAddReceiverSheetState
                                     controller: _stateCtrl,
                                     textCapitalization:
                                         TextCapitalization.words,
-                                    decoration: _dec(hint: 'New York'),
-                                    validator: _min(2, 'Required.'),
+                                    decoration: _dec(
+                                      hint: _tr('New York', 'Nova York'),
+                                    ),
+                                    validator: _min(
+                                      2,
+                                      _tr('Required.', 'Obrigatorio.'),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -444,7 +502,7 @@ class _UsBankAddReceiverSheetState
                                     decoration: _dec(hint: '10017'),
                                     validator: (v) {
                                       if ((v ?? '').trim().length < 3) {
-                                        return 'Required.';
+                                        return _tr('Required.', 'Obrigatorio.');
                                       }
                                       return null;
                                     },
@@ -483,12 +541,18 @@ class _UsBankAddReceiverSheetState
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(
                                 hint: _beneficiaryType == 'BUSINESS'
-                                    ? 'e.g. Saul Atta LLC'
-                                    : 'e.g. John Doe',
+                                    ? _tr(
+                                        'e.g. Saul Atta LLC',
+                                        'ex.: Saul Atta LLC',
+                                      )
+                                    : _tr('e.g. John Doe', 'ex.: John Doe'),
                               ),
                               validator: (v) {
                                 if ((v ?? '').trim().length < 2) {
-                                  return 'Enter the beneficiary name.';
+                                  return _tr(
+                                    'Enter the beneficiary name.',
+                                    'Digite o nome do beneficiario.',
+                                  );
                                 }
                                 return null;
                               },
@@ -501,9 +565,15 @@ class _UsBankAddReceiverSheetState
                               controller: _bAddressCtrl,
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(
-                                hint: 'e.g. 123 Tech Avenue, Suite 400',
+                                hint: _tr(
+                                  'e.g. 123 Tech Avenue, Suite 400',
+                                  'ex.: 123 Tech Avenue, Suite 400',
+                                ),
                               ),
-                              validator: _min(2, 'Enter an address.'),
+                              validator: _min(
+                                2,
+                                _tr('Enter an address.', 'Digite um endereco.'),
+                              ),
                             ),
                           ),
                           _CardDivider(),
@@ -518,8 +588,13 @@ class _UsBankAddReceiverSheetState
                                     controller: _bCityCtrl,
                                     textCapitalization:
                                         TextCapitalization.words,
-                                    decoration: _dec(hint: 'Austin'),
-                                    validator: _min(2, 'Required.'),
+                                    decoration: _dec(
+                                      hint: _tr('Austin', 'Austin'),
+                                    ),
+                                    validator: _min(
+                                      2,
+                                      _tr('Required.', 'Obrigatorio.'),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -532,8 +607,13 @@ class _UsBankAddReceiverSheetState
                                     controller: _bStateCtrl,
                                     textCapitalization:
                                         TextCapitalization.words,
-                                    decoration: _dec(hint: 'Texas'),
-                                    validator: _min(2, 'Required.'),
+                                    decoration: _dec(
+                                      hint: _tr('Texas', 'Texas'),
+                                    ),
+                                    validator: _min(
+                                      2,
+                                      _tr('Required.', 'Obrigatorio.'),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -552,7 +632,7 @@ class _UsBankAddReceiverSheetState
                                     decoration: _dec(hint: '78701'),
                                     validator: (v) {
                                       if ((v ?? '').trim().length < 3) {
-                                        return 'Required.';
+                                        return _tr('Required.', 'Obrigatorio.');
                                       }
                                       return null;
                                     },
@@ -609,8 +689,8 @@ class _UsBankAddReceiverSheetState
                                     color: Colors.white,
                                   ),
                                 )
-                              : const Text(
-                                  'Save receiver',
+                              : Text(
+                                  _tr('Save receiver', 'Salvar destinatario'),
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w700,

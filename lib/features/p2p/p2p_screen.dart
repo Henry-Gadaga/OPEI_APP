@@ -5776,7 +5776,13 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         throw ApiError(message: l10n.p2pPrepareProofUploadsError);
       }
 
-      await _performProofUploads(candidates, plans);
+      await _performProofUploads(
+        candidates,
+        plans,
+        uploadFailedStatusMessage: (statusCode) =>
+            l10n.p2pUploadFailedStatus(statusCode?.toString() ?? ''),
+        failedUploadProofMessage: (index) => l10n.p2pFailedUploadProof(index),
+      );
 
       final proofUrls = plans
           .map((plan) => plan.fileUrl)
@@ -13460,7 +13466,13 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       debugPrint(
         '📝 Received ${plans.length} presigned upload plan(s). Starting uploads...',
       );
-      await _performProofUploads(candidates, plans);
+      await _performProofUploads(
+        candidates,
+        plans,
+        uploadFailedStatusMessage: (statusCode) =>
+            l10n.p2pUploadFailedStatus(statusCode?.toString() ?? ''),
+        failedUploadProofMessage: (index) => l10n.p2pFailedUploadProof(index),
+      );
 
       final proofUrls = plans
           .map((plan) => plan.fileUrl)
@@ -14262,15 +14274,13 @@ class _ProofUploadCandidate {
   });
 }
 
-String _uploadFailedStatusMessage(int? statusCode) =>
-    'Upload failed with status $statusCode';
-
-String _failedUploadProofMessage(int index) =>
-    'Failed to upload proof $index. Please try again.';
-
 Future<void> _performProofUploads(
   List<_ProofUploadCandidate> candidates,
   List<P2PTradeProofUploadPlan> plans,
+  {
+  required String Function(int? statusCode) uploadFailedStatusMessage,
+  required String Function(int index) failedUploadProofMessage,
+}
 ) async {
   final dio = Dio();
 
@@ -14318,7 +14328,7 @@ Future<void> _performProofUploads(
         debugPrint('❌ Unexpected status code: ${response.statusCode}');
         debugPrint('📄 Response body: ${response.data}');
         throw ApiError(
-          message: _uploadFailedStatusMessage(response.statusCode),
+          message: uploadFailedStatusMessage(response.statusCode),
           statusCode: response.statusCode,
         );
       }
@@ -14339,7 +14349,7 @@ Future<void> _performProofUploads(
       debugPrint('🔴 Response body: ${error.response?.data}');
 
       throw ApiError(
-        message: _failedUploadProofMessage(i + 1),
+        message: failedUploadProofMessage(i + 1),
         statusCode: error.response?.statusCode,
       );
     }

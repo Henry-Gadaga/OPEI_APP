@@ -143,6 +143,75 @@ class AppLocalizationsEn extends AppLocalizations {
   String get phoneNumberLabel => 'Phone number';
 
   @override
+  String get phoneNumberRequiredError => 'Phone number is required';
+
+  @override
+  String phoneNumberExactDigitsError(Object digits) {
+    return 'Phone number must be exactly $digits digits';
+  }
+
+  @override
+  String phoneNumberMinDigitsError(Object digits) {
+    return 'Phone number must be at least $digits digits';
+  }
+
+  @override
+  String phoneNumberMaxDigitsError(Object digits) {
+    return 'Phone number can be at most $digits digits';
+  }
+
+  @override
+  String get legalTitle => 'Legal';
+
+  @override
+  String get legalBackToHomeCta => 'Back to Home';
+
+  @override
+  String get legalLastUpdated => 'Last updated: 3 January 2025';
+
+  @override
+  String get legalDocumentsTitle => 'Documents';
+
+  @override
+  String get termsAndConditionsTitle => 'Terms & Conditions';
+
+  @override
+  String get privacyPolicyTitle => 'Privacy Policy';
+
+  @override
+  String get legalCompanyName => 'Opei Technologies LLC';
+
+  @override
+  String get legalSupportEmail => 'Support Email: info@opeillc.com';
+
+  @override
+  String get legalSupportEmailShort => 'Email: info@opeillc.com';
+
+  @override
+  String get legalCompanyAddress =>
+      '500 Westover Dr, 31775\nSanford, NC 27330\nUnited States';
+
+  @override
+  String get legalCompanyPhone => 'Phone: +1 (681) 547-8620';
+
+  @override
+  String get legalCopyrightNotice => '© 2026 Opei Technologies LLC.';
+
+  @override
+  String get termsDocumentBody =>
+      'These Terms and Conditions govern your access to and use of Opei services.\n\nBy creating an account or using Opei, you agree to these Terms.\n\nOpei is a financial technology platform and relies on third-party providers for payments, cards, identity verification, and related services.\n\nYou must provide accurate information, keep your account credentials secure, and use the platform lawfully.\n\nTransactions may be irreversible. You are responsible for recipient details, amounts, and confirmation steps.\n\nFor P2P transactions, users transact directly with each other. Opei may review disputes at its discretion.\n\nVirtual card and wallet services are subject to third-party availability, rules, and processing outcomes.\n\nFees may apply and may change over time. Third-party fees can also apply.\n\nOpei may suspend, restrict, or terminate accounts for compliance, fraud prevention, risk, or legal reasons.\n\nServices are provided \"as is\" and \"as available\". To the extent permitted by law, liability is limited.\n\nThese Terms may be updated. Continued use of Opei means acceptance of updated Terms.';
+
+  @override
+  String get privacyPolicyDocumentBody =>
+      'This Privacy Policy explains how Opei collects, uses, and protects personal information.\n\nBy using Opei, you acknowledge and accept this Privacy Policy.\n\nWe may collect data you provide (such as name, email, phone, address, and verification details) and technical usage data.\n\nWe use personal information to operate services, verify identity, process transactions, improve product quality, and comply with legal obligations.\n\nWe may share data with trusted service providers and authorities when required by law.\n\nYour information may be processed in countries outside your residence, including the United States.\n\nWe retain data for as long as needed for service operation, compliance, fraud prevention, and dispute resolution.\n\nWe apply administrative, technical, and organizational safeguards, but no system can guarantee absolute security.\n\nDepending on jurisdiction, you may have rights such as access, correction, deletion requests, and objection to processing.\n\nWe may update this Policy over time. Continued use of Opei means acceptance of updated Policy terms.';
+
+  @override
+  String get selectCountryCodeTitle => 'Select country code';
+
+  @override
+  String get searchCountryCodeHint => 'Search country or code';
+
+  @override
   String get signupPinHelper =>
       'Keep this safe - it authorises all your payments.';
 

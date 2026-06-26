@@ -88,6 +88,10 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
     return NumberFormat.decimalPattern().format(major);
   }
 
+  String _quickAmountLabel(int amount) {
+    return '${_meta.symbol} ${_formatMajor(amount)}';
+  }
+
   void _onAmountChanged(String text) {
     if (_amountError != null) setState(() => _amountError = null);
     ref
@@ -273,7 +277,7 @@ class _SendAmountScreenState extends ConsumerState<SendAmountScreen> {
                           for (final amt in _meta.quickAmounts) ...[
                             Expanded(
                               child: _QuickAmount(
-                                label: '${_meta.symbol} ${_formatMajor(amt)}',
+                                label: _quickAmountLabel(amt),
                                 isActive:
                                     currentMinor ==
                                     (_meta.decimals == 0 ? amt : amt * 100),

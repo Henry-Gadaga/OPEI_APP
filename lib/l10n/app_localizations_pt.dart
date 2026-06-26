@@ -143,6 +143,75 @@ class AppLocalizationsPt extends AppLocalizations {
   String get phoneNumberLabel => 'Numero de telefone';
 
   @override
+  String get phoneNumberRequiredError => 'Numero de telefone e obrigatorio';
+
+  @override
+  String phoneNumberExactDigitsError(Object digits) {
+    return 'O numero de telefone deve ter exatamente $digits digitos';
+  }
+
+  @override
+  String phoneNumberMinDigitsError(Object digits) {
+    return 'O numero de telefone deve ter pelo menos $digits digitos';
+  }
+
+  @override
+  String phoneNumberMaxDigitsError(Object digits) {
+    return 'O numero de telefone pode ter no maximo $digits digitos';
+  }
+
+  @override
+  String get legalTitle => 'Legal';
+
+  @override
+  String get legalBackToHomeCta => 'Voltar para inicio';
+
+  @override
+  String get legalLastUpdated => 'Ultima atualizacao: 3 de janeiro de 2025';
+
+  @override
+  String get legalDocumentsTitle => 'Documentos';
+
+  @override
+  String get termsAndConditionsTitle => 'Termos e condicoes';
+
+  @override
+  String get privacyPolicyTitle => 'Politica de privacidade';
+
+  @override
+  String get legalCompanyName => 'Opei Technologies LLC';
+
+  @override
+  String get legalSupportEmail => 'Email de suporte: info@opeillc.com';
+
+  @override
+  String get legalSupportEmailShort => 'Email: info@opeillc.com';
+
+  @override
+  String get legalCompanyAddress =>
+      '500 Westover Dr, 31775\nSanford, NC 27330\nEstados Unidos';
+
+  @override
+  String get legalCompanyPhone => 'Telefone: +1 (681) 547-8620';
+
+  @override
+  String get legalCopyrightNotice => '© 2026 Opei Technologies LLC.';
+
+  @override
+  String get termsDocumentBody =>
+      'Estes Termos e Condicoes regem seu acesso e uso dos servicos da Opei.\n\nAo criar uma conta ou usar a Opei, voce concorda com estes Termos.\n\nA Opei e uma plataforma de tecnologia financeira e depende de provedores terceiros para pagamentos, cartoes, verificacao de identidade e servicos relacionados.\n\nVoce deve fornecer informacoes precisas, manter suas credenciais seguras e usar a plataforma de forma legal.\n\nAs transacoes podem ser irreversiveis. Voce e responsavel pelos dados do destinatario, valores e etapas de confirmacao.\n\nEm transacoes P2P, os usuarios negociam diretamente entre si. A Opei pode revisar disputas a seu criterio.\n\nServicos de cartao virtual e carteira estao sujeitos a disponibilidade, regras e resultados de processamento de terceiros.\n\nTaxas podem ser aplicadas e podem mudar ao longo do tempo. Taxas de terceiros tambem podem ser aplicadas.\n\nA Opei pode suspender, restringir ou encerrar contas por conformidade, prevencao de fraude, risco ou obrigacoes legais.\n\nOs servicos sao fornecidos \"como estao\" e \"conforme disponiveis\". Na extensao permitida por lei, a responsabilidade e limitada.\n\nEstes Termos podem ser atualizados. O uso continuo da Opei significa aceitacao dos Termos atualizados.';
+
+  @override
+  String get privacyPolicyDocumentBody =>
+      'Esta Politica de Privacidade explica como a Opei coleta, usa e protege informacoes pessoais.\n\nAo usar a Opei, voce reconhece e aceita esta Politica de Privacidade.\n\nPodemos coletar dados fornecidos por voce (como nome, email, telefone, endereco e dados de verificacao) e dados tecnicos de uso.\n\nUsamos informacoes pessoais para operar servicos, verificar identidade, processar transacoes, melhorar o produto e cumprir obrigacoes legais.\n\nPodemos compartilhar dados com provedores confiaveis e autoridades quando exigido por lei.\n\nSuas informacoes podem ser processadas em paises fora da sua residencia, incluindo os Estados Unidos.\n\nRetemos dados pelo tempo necessario para operacao do servico, conformidade, prevencao de fraude e resolucao de disputas.\n\nAplicamos protecoes administrativas, tecnicas e organizacionais, mas nenhum sistema pode garantir seguranca absoluta.\n\nDependendo da jurisdicao, voce pode ter direitos como acesso, correcao, solicitacao de exclusao e oposicao ao processamento.\n\nPodemos atualizar esta Politica ao longo do tempo. O uso continuo da Opei significa aceitacao dos termos atualizados da Politica.';
+
+  @override
+  String get selectCountryCodeTitle => 'Selecionar codigo do pais';
+
+  @override
+  String get searchCountryCodeHint => 'Buscar pais ou codigo';
+
+  @override
   String get signupPinHelper =>
       'Guarde bem este PIN - ele autoriza todos os seus pagamentos.';
 

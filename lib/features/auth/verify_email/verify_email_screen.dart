@@ -49,8 +49,17 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     }
 
     if (email == null && mounted) {
-      showError(context, 'Email not found. Please sign up again.');
-      context.go('/login');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final languageCode = Localizations.localeOf(context).languageCode;
+        showError(
+          context,
+          languageCode == 'pt'
+              ? 'Email nao encontrado. Cadastre-se novamente.'
+              : 'Email not found. Please sign up again.',
+        );
+        context.go('/login');
+      });
       return;
     }
 

@@ -362,6 +362,126 @@ abstract class AppLocalizations {
   /// **'Phone number'**
   String get phoneNumberLabel;
 
+  /// No description provided for @phoneNumberRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number is required'**
+  String get phoneNumberRequiredError;
+
+  /// No description provided for @phoneNumberExactDigitsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number must be exactly {digits} digits'**
+  String phoneNumberExactDigitsError(Object digits);
+
+  /// No description provided for @phoneNumberMinDigitsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number must be at least {digits} digits'**
+  String phoneNumberMinDigitsError(Object digits);
+
+  /// No description provided for @phoneNumberMaxDigitsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number can be at most {digits} digits'**
+  String phoneNumberMaxDigitsError(Object digits);
+
+  /// No description provided for @legalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal'**
+  String get legalTitle;
+
+  /// No description provided for @legalBackToHomeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Home'**
+  String get legalBackToHomeCta;
+
+  /// No description provided for @legalLastUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: 3 January 2025'**
+  String get legalLastUpdated;
+
+  /// No description provided for @legalDocumentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents'**
+  String get legalDocumentsTitle;
+
+  /// No description provided for @termsAndConditionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Conditions'**
+  String get termsAndConditionsTitle;
+
+  /// No description provided for @privacyPolicyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicyTitle;
+
+  /// No description provided for @legalCompanyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Opei Technologies LLC'**
+  String get legalCompanyName;
+
+  /// No description provided for @legalSupportEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Support Email: info@opeillc.com'**
+  String get legalSupportEmail;
+
+  /// No description provided for @legalSupportEmailShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Email: info@opeillc.com'**
+  String get legalSupportEmailShort;
+
+  /// No description provided for @legalCompanyAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'500 Westover Dr, 31775\nSanford, NC 27330\nUnited States'**
+  String get legalCompanyAddress;
+
+  /// No description provided for @legalCompanyPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone: +1 (681) 547-8620'**
+  String get legalCompanyPhone;
+
+  /// No description provided for @legalCopyrightNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'© 2026 Opei Technologies LLC.'**
+  String get legalCopyrightNotice;
+
+  /// No description provided for @termsDocumentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'These Terms and Conditions govern your access to and use of Opei services.\n\nBy creating an account or using Opei, you agree to these Terms.\n\nOpei is a financial technology platform and relies on third-party providers for payments, cards, identity verification, and related services.\n\nYou must provide accurate information, keep your account credentials secure, and use the platform lawfully.\n\nTransactions may be irreversible. You are responsible for recipient details, amounts, and confirmation steps.\n\nFor P2P transactions, users transact directly with each other. Opei may review disputes at its discretion.\n\nVirtual card and wallet services are subject to third-party availability, rules, and processing outcomes.\n\nFees may apply and may change over time. Third-party fees can also apply.\n\nOpei may suspend, restrict, or terminate accounts for compliance, fraud prevention, risk, or legal reasons.\n\nServices are provided \"as is\" and \"as available\". To the extent permitted by law, liability is limited.\n\nThese Terms may be updated. Continued use of Opei means acceptance of updated Terms.'**
+  String get termsDocumentBody;
+
+  /// No description provided for @privacyPolicyDocumentBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This Privacy Policy explains how Opei collects, uses, and protects personal information.\n\nBy using Opei, you acknowledge and accept this Privacy Policy.\n\nWe may collect data you provide (such as name, email, phone, address, and verification details) and technical usage data.\n\nWe use personal information to operate services, verify identity, process transactions, improve product quality, and comply with legal obligations.\n\nWe may share data with trusted service providers and authorities when required by law.\n\nYour information may be processed in countries outside your residence, including the United States.\n\nWe retain data for as long as needed for service operation, compliance, fraud prevention, and dispute resolution.\n\nWe apply administrative, technical, and organizational safeguards, but no system can guarantee absolute security.\n\nDepending on jurisdiction, you may have rights such as access, correction, deletion requests, and objection to processing.\n\nWe may update this Policy over time. Continued use of Opei means acceptance of updated Policy terms.'**
+  String get privacyPolicyDocumentBody;
+
+  /// No description provided for @selectCountryCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select country code'**
+  String get selectCountryCodeTitle;
+
+  /// No description provided for @searchCountryCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search country or code'**
+  String get searchCountryCodeHint;
+
   /// No description provided for @signupPinHelper.
   ///
   /// In en, this message translates to:

@@ -15,6 +15,10 @@ import 'package:opei/widgets/onboarding/onboarding_progress.dart';
 import 'package:opei/widgets/opei_premium/opei_premium.dart';
 import 'package:opei/widgets/success_hero.dart';
 
+String _tr(BuildContext context, String en, String pt) {
+  return Localizations.localeOf(context).languageCode == 'pt' ? pt : en;
+}
+
 class AddressScreen extends ConsumerStatefulWidget {
   final bool isFromProfile;
 
@@ -315,7 +319,11 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                     OpeiTextField(
                                       controller: _addressCtrl,
                                       label: l10n.addressLineLabel,
-                                      hint: '123 Main Street',
+                                      hint: _tr(
+                                        context,
+                                        '123 Main Street',
+                                        'Rua Principal 123',
+                                      ),
                                       textInputAction: TextInputAction.next,
                                       errorText:
                                           state.fieldErrors['addressLine'],
@@ -329,7 +337,11 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                           child: OpeiTextField(
                                             controller: _houseCtrl,
                                             label: l10n.addressAptSuiteLabel,
-                                            hint: 'Apt 4B',
+                                            hint: _tr(
+                                              context,
+                                              'Apt 4B',
+                                              'Apto 4B',
+                                            ),
                                             textInputAction:
                                                 TextInputAction.next,
                                             errorText: state
@@ -370,7 +382,11 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                           child: OpeiTextField(
                                             controller: _cityCtrl,
                                             label: l10n.addressCityLabel,
-                                            hint: 'New York',
+                                            hint: _tr(
+                                              context,
+                                              'New York',
+                                              'Nova York',
+                                            ),
                                             textInputAction:
                                                 TextInputAction.next,
                                             errorText:
@@ -383,7 +399,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                           child: OpeiTextField(
                                             controller: _stateCtrl,
                                             label: l10n.addressStateLabel,
-                                            hint: 'NY',
+                                            hint: _tr(context, 'NY', 'SP'),
                                             textInputAction:
                                                 TextInputAction.done,
                                             errorText:
@@ -398,8 +414,11 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                                       OpeiTextField(
                                         controller: _bvnCtrl,
                                         label: l10n.addressBvnLabel,
-                                        hint:
-                                            '11-digit Bank Verification Number',
+                                        hint: _tr(
+                                          context,
+                                          '11-digit Bank Verification Number',
+                                          'Numero de Verificacao Bancaria de 11 digitos',
+                                        ),
                                         keyboardType: TextInputType.number,
                                         textInputAction: TextInputAction.done,
                                         errorText: state.fieldErrors['bvn'],

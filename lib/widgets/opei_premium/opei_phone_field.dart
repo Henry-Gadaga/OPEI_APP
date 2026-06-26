@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:opei/core/constants/countries.dart';
 import 'package:opei/core/constants/country_dial_codes.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'opei_text_field.dart';
 
@@ -13,7 +14,7 @@ import 'opei_text_field.dart';
 /// - Per-country length validation via [validate]
 /// - Calls [onPhoneChanged] with the full E.164 string `+{dial}{number}`
 class OpeiPhoneField extends StatefulWidget {
-  final String label;
+  final String? label;
   final String? errorText;
   final String? helperText;
   final String selectedIso;
@@ -27,7 +28,7 @@ class OpeiPhoneField extends StatefulWidget {
 
   const OpeiPhoneField({
     super.key,
-    this.label = 'Phone number',
+    this.label,
     this.errorText,
     this.helperText,
     required this.selectedIso,
@@ -42,21 +43,26 @@ class OpeiPhoneField extends StatefulWidget {
 
   /// Validate a local-number string against the selected country's plan.
   /// Returns null if valid, or an error message describing the issue.
-  static String? validate(String iso, String localNumber) {
+  static String? validate(
+    BuildContext context,
+    String iso,
+    String localNumber,
+  ) {
+    final l10n = AppLocalizations.of(context)!;
     final dial = dialCodeFor(iso);
     final clean = localNumber.replaceAll(RegExp(r'\D'), '');
-    if (clean.isEmpty) return 'Phone number is required';
+    if (clean.isEmpty) return l10n.phoneNumberRequiredError;
     if (clean.length < dial.minDigits) {
       if (dial.minDigits == dial.maxDigits) {
-        return 'Phone number must be ${dial.minDigits} digits';
+        return l10n.phoneNumberExactDigitsError(dial.minDigits);
       }
-      return 'Phone number must be at least ${dial.minDigits} digits';
+      return l10n.phoneNumberMinDigitsError(dial.minDigits);
     }
     if (clean.length > dial.maxDigits) {
       if (dial.minDigits == dial.maxDigits) {
-        return 'Phone number must be ${dial.maxDigits} digits';
+        return l10n.phoneNumberExactDigitsError(dial.maxDigits);
       }
-      return 'Phone number can be at most ${dial.maxDigits} digits';
+      return l10n.phoneNumberMaxDigitsError(dial.maxDigits);
     }
     return null;
   }
@@ -127,14 +133,18 @@ class _OpeiPhoneFieldState extends State<OpeiPhoneField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dial = dialCodeFor(widget.selectedIso);
+    final effectiveLabel = (widget.label?.trim().isNotEmpty ?? false)
+        ? widget.label!
+        : l10n.phoneNumberLabel;
     final hasError = widget.errorText != null && widget.errorText!.isNotEmpty;
     final isFocused = _focusNode.hasFocus;
     final borderColor = hasError
         ? OpeiBrand.danger
         : isFocused
-            ? OpeiBrand.primary
-            : OpeiBrand.hairline;
+        ? OpeiBrand.primary
+        : OpeiBrand.hairline;
     final borderWidth = isFocused || hasError ? 1.5 : 1.0;
 
     return Column(
@@ -143,7 +153,7 @@ class _OpeiPhoneFieldState extends State<OpeiPhoneField> {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 6),
           child: Text(
-            widget.label,
+            effectiveLabel,
             style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 12.5,
@@ -201,11 +211,7 @@ class _OpeiPhoneFieldState extends State<OpeiPhoneField> {
                 ),
               ),
               // --- vertical divider ---
-              Container(
-                width: 1,
-                height: 24,
-                color: OpeiBrand.hairline,
-              ),
+              Container(width: 1, height: 24, color: OpeiBrand.hairline),
               // --- number input ---
               Expanded(
                 child: Padding(
@@ -231,15 +237,15 @@ class _OpeiPhoneFieldState extends State<OpeiPhoneField> {
                       letterSpacing: -0.2,
                       height: 1.25,
                     ),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       isDense: true,
                       isCollapsed: true,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       counterText: '',
-                      hintText: 'Phone number',
-                      hintStyle: TextStyle(
+                      hintText: l10n.phoneNumberLabel,
+                      hintStyle: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 15,
                         fontWeight: FontWeight.w400,
@@ -325,12 +331,14 @@ class _DialCountrySheetState extends State<_DialCountrySheet> {
         return;
       }
       final ql = q.toLowerCase();
-      _filtered = _baseList().where((c) {
-        final dial = kDialCodes[c.iso]!;
-        return c.name.toLowerCase().contains(ql) ||
-            c.iso.toLowerCase().contains(ql) ||
-            dial.dialCode.contains(ql.replaceAll('+', ''));
-      }).toList(growable: false);
+      _filtered = _baseList()
+          .where((c) {
+            final dial = kDialCodes[c.iso]!;
+            return c.name.toLowerCase().contains(ql) ||
+                c.iso.toLowerCase().contains(ql) ||
+                dial.dialCode.contains(ql.replaceAll('+', ''));
+          })
+          .toList(growable: false);
     });
   }
 
@@ -365,8 +373,8 @@ class _DialCountrySheetState extends State<_DialCountrySheet> {
               ),
             ),
             const SizedBox(height: 14),
-            const Text(
-              'Select country code',
+            Text(
+              AppLocalizations.of(context)!.selectCountryCodeTitle,
               style: TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 18,
@@ -380,7 +388,7 @@ class _DialCountrySheetState extends State<_DialCountrySheet> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: OpeiTextField(
                 controller: _searchCtrl,
-                hint: 'Search country or code',
+                hint: AppLocalizations.of(context)!.searchCountryCodeHint,
                 onChanged: _filter,
                 prefix: const Icon(
                   Icons.search_rounded,
@@ -408,7 +416,9 @@ class _DialCountrySheetState extends State<_DialCountrySheet> {
                     onTap: () => widget.onSelected(country.iso),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 14),
+                        horizontal: 20,
+                        vertical: 14,
+                      ),
                       child: Row(
                         children: [
                           Text(

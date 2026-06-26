@@ -76,7 +76,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen>
   }
 
   String? _validatePhone() =>
-      OpeiPhoneField.validate(_phoneIso, _localPhoneController.text);
+      OpeiPhoneField.validate(context, _phoneIso, _localPhoneController.text);
 
   String? _validatePin(String v) {
     if (v.isEmpty) return _l10n.pinRequiredError;
