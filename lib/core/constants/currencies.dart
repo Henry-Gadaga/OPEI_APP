@@ -11,9 +11,9 @@ class Currency {
 }
 
 const List<Currency> currencies = [
-  Currency(name: 'United States Dollar', code: 'USD', symbol: '\$'),
-  Currency(name: 'Zambian Kwacha', code: 'ZMW', symbol: 'ZK'),
-  Currency(name: 'Mozambican Metical', code: 'MZN', symbol: 'MT'),
-  Currency(name: 'Malawian Kwacha', code: 'MWK', symbol: 'MK'),
-  Currency(name: 'South African Rand', code: 'ZAR', symbol: 'R'),
+  Currency(name: 'USD', code: 'USD', symbol: '\$'),
+  Currency(name: 'ZMW', code: 'ZMW', symbol: 'ZK'),
+  Currency(name: 'MZN', code: 'MZN', symbol: 'MT'),
+  Currency(name: 'MWK', code: 'MWK', symbol: 'MK'),
+  Currency(name: 'ZAR', code: 'ZAR', symbol: 'R'),
 ];

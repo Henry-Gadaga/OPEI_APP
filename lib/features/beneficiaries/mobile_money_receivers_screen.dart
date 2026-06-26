@@ -329,7 +329,8 @@ class _ReceiverRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = beneficiary.accountName ?? 'Unnamed receiver';
+    final name =
+        beneficiary.accountName ?? AppLocalizations.of(context)!.mobileMoneyUnnamedReceiver;
     final masked = beneficiary.accountNumberMasked ?? '';
 
     final radius = BorderRadius.only(

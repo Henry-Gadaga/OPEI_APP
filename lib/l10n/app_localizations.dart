@@ -8368,6 +8368,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Zambia'**
   String get mobileMoneyCountryZambia;
+
+  /// No description provided for @bankTransferCountryUnitedStates.
+  ///
+  /// In en, this message translates to:
+  /// **'United States'**
+  String get bankTransferCountryUnitedStates;
+
+  /// No description provided for @expressCurrencyMznName.
+  ///
+  /// In en, this message translates to:
+  /// **'Mozambican Metical'**
+  String get expressCurrencyMznName;
+
+  /// No description provided for @expressCurrencyZmwName.
+  ///
+  /// In en, this message translates to:
+  /// **'Zambian Kwacha'**
+  String get expressCurrencyZmwName;
+
+  /// No description provided for @expressCurrencyMwkName.
+  ///
+  /// In en, this message translates to:
+  /// **'Malawian Kwacha'**
+  String get expressCurrencyMwkName;
+
+  /// No description provided for @expressCurrencyZarName.
+  ///
+  /// In en, this message translates to:
+  /// **'South African Rand'**
+  String get expressCurrencyZarName;
+
+  /// No description provided for @expressCurrencyKesName.
+  ///
+  /// In en, this message translates to:
+  /// **'Kenyan Shilling'**
+  String get expressCurrencyKesName;
+
+  /// No description provided for @expressCurrencyNgnName.
+  ///
+  /// In en, this message translates to:
+  /// **'Nigerian Naira'**
+  String get expressCurrencyNgnName;
+
+  /// No description provided for @currencyUsdName.
+  ///
+  /// In en, this message translates to:
+  /// **'United States Dollar'**
+  String get currencyUsdName;
+
+  /// No description provided for @p2pOpeningCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening…'**
+  String get p2pOpeningCta;
+
+  /// No description provided for @p2pNotRatedYetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not rated yet'**
+  String get p2pNotRatedYetLabel;
+
+  /// No description provided for @p2pBuyerPaymentDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer payment details'**
+  String get p2pBuyerPaymentDetailsTitle;
+
+  /// No description provided for @p2pChoosePaymentMethodsStepLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose payment methods'**
+  String get p2pChoosePaymentMethodsStepLabel;
+
+  /// No description provided for @p2pSetAmountAndPriceStepLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Set amount and price'**
+  String get p2pSetAmountAndPriceStepLabel;
+
+  /// No description provided for @p2pNoLimitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No limit'**
+  String get p2pNoLimitLabel;
+
+  /// No description provided for @p2pYouWillPayAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll pay {amount}'**
+  String p2pYouWillPayAmount(Object amount);
+
+  /// No description provided for @p2pBuyerWillSendAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer will send {amount}'**
+  String p2pBuyerWillSendAmount(Object amount);
+
+  /// No description provided for @p2pTotalValueAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total value {amount}'**
+  String p2pTotalValueAmount(Object amount);
+
+  /// No description provided for @p2pMinMaxLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Min {minLabel} · Max {maxLabel}'**
+  String p2pMinMaxLabel(Object minLabel, Object maxLabel);
+
+  /// No description provided for @p2pMinOnlyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Min {minLabel}'**
+  String p2pMinOnlyLabel(Object minLabel);
+
+  /// No description provided for @p2pNoInstructionsProvidedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No instructions provided.'**
+  String get p2pNoInstructionsProvidedLabel;
+
+  /// No description provided for @p2pReservedUsdBuyerPaysBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'We reserved your USD. The buyer will pay using the method below.'**
+  String get p2pReservedUsdBuyerPaysBelow;
+
+  /// No description provided for @p2pNoExtraInstructionsProvidedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No extra instructions provided.'**
+  String get p2pNoExtraInstructionsProvidedLabel;
+
+  /// No description provided for @p2pAddMoreImagesCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more'**
+  String get p2pAddMoreImagesCta;
+
+  /// No description provided for @p2pChooseImagesCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose images'**
+  String get p2pChooseImagesCta;
+
+  /// No description provided for @p2pAccountDetailsUnavailableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Account details unavailable'**
+  String get p2pAccountDetailsUnavailableLabel;
+
+  /// No description provided for @p2pSendLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get p2pSendLabel;
+
+  /// No description provided for @p2pSentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent'**
+  String get p2pSentLabel;
+
+  /// No description provided for @p2pReceivedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Received'**
+  String get p2pReceivedLabel;
+
+  /// No description provided for @p2pUsdRateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'1 USD = {rate}'**
+  String p2pUsdRateLine(Object rate);
+
+  /// No description provided for @dashboardBalanceLoadRetryError.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t load your balance right now. Please retry.'**
+  String get dashboardBalanceLoadRetryError;
+
+  /// No description provided for @retryPleaseTryAgainLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Please try again later.'**
+  String get retryPleaseTryAgainLater;
+
+  /// No description provided for @retryYouCanRetryAt.
+  ///
+  /// In en, this message translates to:
+  /// **'You can retry at {time}.'**
+  String retryYouCanRetryAt(Object time);
+
+  /// No description provided for @retryTryAgainInMinutesSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in {minutes}m {seconds}s.'**
+  String retryTryAgainInMinutesSeconds(Object minutes, Object seconds);
+
+  /// No description provided for @retryTryAgainInSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again in {seconds}s.'**
+  String retryTryAgainInSeconds(Object seconds);
+
+  /// No description provided for @errProviderMarkedBeneficiaryFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider marked beneficiary as failed'**
+  String get errProviderMarkedBeneficiaryFailed;
 }
 
 class _AppLocalizationsDelegate

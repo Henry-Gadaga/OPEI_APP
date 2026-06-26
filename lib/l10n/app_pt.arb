@@ -1737,5 +1737,87 @@
   "mobileMoneyCountryDrCongo": "RD Congo",
   "mobileMoneyCountryGabon": "Gabao",
   "mobileMoneyCountryGambia": "Gambia",
-  "mobileMoneyCountryZambia": "Zambia"
+  "mobileMoneyCountryZambia": "Zambia",
+  "bankTransferCountryUnitedStates": "Estados Unidos",
+  "expressCurrencyMznName": "Metical mocambicano",
+  "expressCurrencyZmwName": "Kwacha zambiano",
+  "expressCurrencyMwkName": "Kwacha malawiano",
+  "expressCurrencyZarName": "Rand sul-africano",
+  "expressCurrencyKesName": "Xelim queniano",
+  "expressCurrencyNgnName": "Naira nigeriana",
+  "currencyUsdName": "Dolar dos Estados Unidos",
+  "p2pOpeningCta": "A abrir…",
+  "p2pNotRatedYetLabel": "Ainda sem avaliacao",
+  "p2pBuyerPaymentDetailsTitle": "Detalhes de pagamento do comprador",
+  "p2pChoosePaymentMethodsStepLabel": "Escolher metodos de pagamento",
+  "p2pSetAmountAndPriceStepLabel": "Definir valor e preco",
+  "p2pNoLimitLabel": "Sem limite",
+  "p2pYouWillPayAmount": "Voce vai pagar {amount}",
+  "@p2pYouWillPayAmount": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pBuyerWillSendAmount": "O comprador vai enviar {amount}",
+  "@p2pBuyerWillSendAmount": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pTotalValueAmount": "Valor total {amount}",
+  "@p2pTotalValueAmount": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "p2pMinMaxLabel": "Min {minLabel} · Max {maxLabel}",
+  "@p2pMinMaxLabel": {
+    "placeholders": {
+      "minLabel": {},
+      "maxLabel": {}
+    }
+  },
+  "p2pMinOnlyLabel": "Min {minLabel}",
+  "@p2pMinOnlyLabel": {
+    "placeholders": {
+      "minLabel": {}
+    }
+  },
+  "p2pNoInstructionsProvidedLabel": "Sem instrucoes fornecidas.",
+  "p2pReservedUsdBuyerPaysBelow": "Reservamos seu USD. O comprador pagara usando o metodo abaixo.",
+  "p2pNoExtraInstructionsProvidedLabel": "Sem instrucoes adicionais.",
+  "p2pAddMoreImagesCta": "Adicionar mais",
+  "p2pChooseImagesCta": "Escolher imagens",
+  "p2pAccountDetailsUnavailableLabel": "Detalhes da conta indisponiveis",
+  "p2pSendLabel": "Enviar",
+  "p2pSentLabel": "Enviado",
+  "p2pReceivedLabel": "Recebido",
+  "p2pUsdRateLine": "1 USD = {rate}",
+  "@p2pUsdRateLine": {
+    "placeholders": {
+      "rate": {}
+    }
+  },
+  "dashboardBalanceLoadRetryError": "Nao foi possivel carregar seu saldo agora. Tente novamente.",
+  "retryPleaseTryAgainLater": "Tente novamente mais tarde.",
+  "retryYouCanRetryAt": "Voce pode tentar novamente as {time}.",
+  "@retryYouCanRetryAt": {
+    "placeholders": {
+      "time": {}
+    }
+  },
+  "retryTryAgainInMinutesSeconds": "Tente novamente em {minutes}m {seconds}s.",
+  "@retryTryAgainInMinutesSeconds": {
+    "placeholders": {
+      "minutes": {},
+      "seconds": {}
+    }
+  },
+  "retryTryAgainInSeconds": "Tente novamente em {seconds}s.",
+  "@retryTryAgainInSeconds": {
+    "placeholders": {
+      "seconds": {}
+    }
+  },
+  "errProviderMarkedBeneficiaryFailed": "O provedor marcou o beneficiario como falhado"
 }

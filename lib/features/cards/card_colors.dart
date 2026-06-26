@@ -29,9 +29,8 @@ class CardColorOption {
 }
 
 class CardColorPalette {
-  static const _skyBlueLabel = 'Sky Blue';
-  static const _skyBlueDescription =
-      'Signature sky blue finish for every virtual card.';
+  static const _skyBlueLabel = 'sky_blue';
+  static const _skyBlueDescription = 'sky_blue_description';
 
   static const List<CardColorOption> options = [
     CardColorOption(

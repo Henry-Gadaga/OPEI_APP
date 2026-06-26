@@ -95,6 +95,27 @@ String _resolveSendCurrency({required P2PTrade trade, Money? preferred}) {
   return trade.currency.toUpperCase();
 }
 
+String _currencyDisplayName(String code, AppLocalizations l10n) {
+  switch (code.toUpperCase()) {
+    case 'USD':
+      return l10n.currencyUsdName;
+    case 'MZN':
+      return l10n.expressCurrencyMznName;
+    case 'ZMW':
+      return l10n.expressCurrencyZmwName;
+    case 'MWK':
+      return l10n.expressCurrencyMwkName;
+    case 'ZAR':
+      return l10n.expressCurrencyZarName;
+    case 'KES':
+      return l10n.expressCurrencyKesName;
+    case 'NGN':
+      return l10n.expressCurrencyNgnName;
+    default:
+      return code.toUpperCase();
+  }
+}
+
 class P2PExchangeScreen extends ConsumerStatefulWidget {
   final P2PAdType? initialType;
   final int? initialTabIndex;
@@ -229,7 +250,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
       if (!mounted) return;
       final friendly = error is String
           ? error
-          : 'We couldn’t cancel this trade. Please try again.';
+          : AppLocalizations.of(context)!.p2pTradeCancelFailedError;
       messenger?.showSnackBar(
         SnackBar(
           content: Text(friendly, maxLines: 4, overflow: TextOverflow.ellipsis),
@@ -701,7 +722,10 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    currency.name,
+                                    _currencyDisplayName(
+                                      currency.code,
+                                      AppLocalizations.of(context)!,
+                                    ),
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
@@ -825,7 +849,8 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     }
 
     if (state.filteredAds.isEmpty) {
-      final message = state.infoMessage ?? 'No ads available right now.';
+      final message =
+          state.infoMessage ?? AppLocalizations.of(context)!.p2pNoAdsAvailableNowInfo;
       return SliverFillRemaining(
         hasScrollBody: false,
         child: _CenteredMessage(message: message),
@@ -1268,8 +1293,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
     } else {
       content = Center(
         child: _ProfileErrorCard(
-          message:
-              'We could not load your profile right now. Please try again.',
+          message: AppLocalizations.of(context)!.p2pProfileLoadFailedError,
           onRetry: _handleProfileRefresh,
         ),
       );
@@ -1516,8 +1540,9 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                                   maxCents != null &&
                                   minCents > maxCents) {
                                 setSheetState(() {
-                                  validationError =
-                                      'The minimum amount can’t be higher than the maximum.';
+                                  validationError = AppLocalizations.of(
+                                    context,
+                                  )!.p2pMinAmountHigherThanMaxError;
                                 });
                                 return;
                               }
@@ -2083,7 +2108,9 @@ class _CreateAdButtonState extends State<_CreateAdButton>
                   ),
                 SizedBox(width: widget.isLoading ? 8 : 6),
                 Text(
-                  widget.isLoading ? 'Opening…' : 'Create Ad',
+                  widget.isLoading
+                      ? AppLocalizations.of(context)!.p2pOpeningCta
+                      : AppLocalizations.of(context)!.p2pCreateAdTitle,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -2196,7 +2223,7 @@ class _ProfileContentView extends StatelessWidget {
     final numberFormat = NumberFormat.compact();
     final ratingLabel = profile.rating > 0
         ? profile.rating.toStringAsFixed(1)
-        : 'Not rated yet';
+        : AppLocalizations.of(context)!.p2pNotRatedYetLabel;
     final tradesLabel = numberFormat.format(profile.totalTrades);
     final joinedLabel = profile.createdAt != null
         ? DateFormat('d MMM yyyy').format(profile.createdAt!.toLocal())
@@ -2291,8 +2318,8 @@ class _ProfileErrorCard extends StatelessWidget {
     final isSessionIssue =
         normalized.contains('session') || normalized.contains('sign in');
     final title = isSessionIssue
-        ? 'You need to sign in again'
-        : 'We couldn’t load your profile';
+        ? AppLocalizations.of(context)!.p2pPleaseSignInAgainError
+        : AppLocalizations.of(context)!.p2pProfileLoadFailedError;
     final iconData = isSessionIssue ? Icons.lock_outline : Icons.error_outline;
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 26, 24, 24),
@@ -3648,7 +3675,7 @@ class _PaymentMethodTile extends StatelessWidget {
         ? method.accountNumber.trim()
         : (method.accountNumberMasked.trim().isNotEmpty
               ? method.accountNumberMasked.trim()
-              : 'Account details unavailable');
+              : AppLocalizations.of(context)!.p2pAccountDetailsUnavailableLabel);
     final addedLabel = method.createdAt != null
         ? DateFormat('MMM d, y').format(method.createdAt!.toLocal())
         : null;
@@ -3897,7 +3924,10 @@ class _CurrencySelectorSheetState extends State<_CurrencySelectorSheet> {
                       ),
                     ),
                     title: Text(
-                      currency.name,
+                      _currencyDisplayName(
+                        currency.code,
+                        AppLocalizations.of(context)!,
+                      ),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -4346,10 +4376,12 @@ class _OrderCardState extends State<_OrderCard>
     final bool showSellerReleaseShortcut =
         widget.isBuyer == false && trade.status == P2PTradeStatus.paidByBuyer;
     final String amountLabel = widget.isBuyer == true
-        ? (trade.status == P2PTradeStatus.completed ? 'Sent' : 'Send')
+        ? (trade.status == P2PTradeStatus.completed
+              ? AppLocalizations.of(context)!.p2pSentLabel
+              : AppLocalizations.of(context)!.p2pSendLabel)
         : (trade.status == P2PTradeStatus.completed
-              ? 'Received'
-              : "You'll receive");
+              ? AppLocalizations.of(context)!.p2pReceivedLabel
+              : AppLocalizations.of(context)!.youWillReceiveRow);
 
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
@@ -4422,7 +4454,7 @@ class _OrderCardState extends State<_OrderCard>
               const SizedBox(height: 8),
               _InfoRow(
                 label: AppLocalizations.of(context)!.rateLabel,
-                value: '1 USD = $rateLabel',
+                value: AppLocalizations.of(context)!.p2pUsdRateLine(rateLabel),
               ),
               const SizedBox(height: 8),
               _InfoRow(label: amountLabel, value: localAmountLabel),
@@ -4835,8 +4867,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         : null;
 
     final amountLabel = _formatUsdAmount(trade.amount);
-    final rateLabel =
-        '1 USD = ${trade.ad.rate.format(includeCurrencySymbol: true)}';
+    final rateLabel = AppLocalizations.of(
+      context,
+    )!.p2pUsdRateLine(trade.ad.rate.format(includeCurrencySymbol: true));
     final Money? sendAmount = trade.sendAmount;
     final Money fallbackSend = _resolveSendFallback(
       trade: trade,
@@ -5084,8 +5117,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 ],
                 Text(
                   isBuyer == true
-                      ? 'Seller payment details'
-                      : 'Buyer payment details',
+                      ? AppLocalizations.of(context)!.p2pSellerPaymentDetailsTitle
+                      : AppLocalizations.of(context)!.p2pBuyerPaymentDetailsTitle,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -7019,7 +7052,8 @@ class _MyAdCard extends StatelessWidget {
         ? AppLocalizations.of(context)!.p2pSellingUsdLabel
         : AppLocalizations.of(context)!.p2pBuyingUsdLabel;
     final remaining = _formatUsdAmount(ad.remainingAmount);
-    final rateLabel = '1 USD = ${_formatMoneyWithCode(ad.rate)}';
+    final rateLabel =
+        AppLocalizations.of(context)!.p2pUsdRateLine(_formatMoneyWithCode(ad.rate));
     final createdAt = ad.updatedAt ?? ad.createdAt;
     final createdLabel = createdAt != null
         ? DateFormat('d MMM').format(createdAt.toLocal())
@@ -7358,7 +7392,8 @@ class _MyAdDetailSheet extends ConsumerWidget {
         : AppLocalizations.of(context)!.p2pBuyingUsdLabel;
     final remaining = _formatUsdAmount(latest.remainingAmount);
     final total = _formatUsdAmount(latest.totalAmount);
-    final rate = '1 USD = ${_formatMoneyWithCode(latest.rate)}';
+    final rate =
+        AppLocalizations.of(context)!.p2pUsdRateLine(_formatMoneyWithCode(latest.rate));
     final min = _formatUsdAmount(latest.minOrder);
     final max = _formatUsdAmount(latest.maxOrder);
     final normalizedStatus = latest.status.trim().toUpperCase();
@@ -7445,7 +7480,7 @@ class _MyAdDetailSheet extends ConsumerWidget {
         }
         final friendly = error is String
             ? error
-            : 'We couldn\'t deactivate this ad. Please try again.';
+            : AppLocalizations.of(context)!.p2pDeactivateTryAgainError;
         ScaffoldMessenger.maybeOf(context)?.showSnackBar(
           SnackBar(
             content: Text(
@@ -8240,15 +8275,15 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                 Text(
                   _selectedType == P2PAdType.sell
                       ? (_step == 1
-                            ? 'Select payout currency'
+                            ? AppLocalizations.of(context)!.p2pPayoutCurrencyLabel
                             : _step == 2
-                            ? 'Choose payment methods'
-                            : 'Set amount and price')
+                            ? AppLocalizations.of(context)!.p2pChoosePaymentMethodsStepLabel
+                            : AppLocalizations.of(context)!.p2pSetAmountAndPriceStepLabel)
                       : (_step == 1
-                            ? 'Select payment currency'
+                            ? AppLocalizations.of(context)!.p2pPaymentCurrencyLabel
                             : _step == 2
-                            ? 'Choose payment methods'
-                            : 'Set amount and price'),
+                            ? AppLocalizations.of(context)!.p2pChoosePaymentMethodsStepLabel
+                            : AppLocalizations.of(context)!.p2pSetAmountAndPriceStepLabel),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 12,
                     color: OpeiColors.iosLabelSecondary,
@@ -8335,7 +8370,10 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     if (_selectedType == P2PAdType.sell) {
       switch (_step) {
         case 1:
-          return _buildCurrencyStep(theme, 'Payout currency');
+          return _buildCurrencyStep(
+            theme,
+            AppLocalizations.of(context)!.p2pPayoutCurrencyLabel,
+          );
         case 2:
           return _buildPaymentMethodsStep(theme, isBuy: false);
         case 3:
@@ -8344,7 +8382,10 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     } else {
       switch (_step) {
         case 1:
-          return _buildCurrencyStep(theme, 'Payment currency');
+          return _buildCurrencyStep(
+            theme,
+            AppLocalizations.of(context)!.p2pPaymentCurrencyLabel,
+          );
         case 2:
           return _buildPaymentMethodsStep(theme, isBuy: true);
         case 3:
@@ -8707,7 +8748,10 @@ class _CurrencyPickerSheet extends StatelessWidget {
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(vertical: 6),
                   title: Text(
-                    currency.name,
+                    _currencyDisplayName(
+                      currency.code,
+                      AppLocalizations.of(context)!,
+                    ),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -10684,7 +10728,7 @@ class _CompactSellerRow extends StatelessWidget {
         ? displayName
         : hasNickname
         ? nickname
-        : 'Trader';
+        : AppLocalizations.of(context)!.p2pTraderLabel;
     final ratingValue = seller.rating.clamp(0, 5).toDouble();
     final isNewSeller = ratingValue <= 0;
     final ratingDisplay = ratingValue.toStringAsFixed(1);
@@ -10797,7 +10841,7 @@ class _SellerIdentityRow extends StatelessWidget {
         ? displayName
         : hasNickname
         ? nickname
-        : 'Trader';
+        : AppLocalizations.of(context)!.p2pTraderLabel;
     final ratingValue = seller.rating.clamp(0, 5).toDouble();
     final isNewSeller = ratingValue <= 0;
     final ratingDisplay = ratingValue.toStringAsFixed(1);
@@ -10947,16 +10991,16 @@ class _CompactAdInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    // Show price as a USD-to-local conversion, e.g. "1 USD = ₦1,500"
+    // Show price as a USD-to-local conversion label.
     final localRate = ad.rate.format(includeCurrencySymbol: true);
-    final rateLabel = '1 USD = $localRate';
+    final rateLabel = AppLocalizations.of(context)!.p2pUsdRateLine(localRate);
     final remainingLabel = ad.remainingAmount.format(
       includeCurrencySymbol: true,
     );
     final minLabel = ad.minOrder.format(includeCurrencySymbol: true);
     final maxLabel = ad.maxOrder.cents > 0
         ? ad.maxOrder.format(includeCurrencySymbol: true)
-        : 'No limit';
+        : AppLocalizations.of(context)!.p2pNoLimitLabel;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -11262,8 +11306,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       final localCents = (usd.cents * rate.cents) ~/ 100;
       final local = Money.fromCents(localCents, currency: rate.currency);
       setState(() {
-        _costEstimate =
-            'You’ll pay ${local.format(includeCurrencySymbol: true)}';
+        _costEstimate = AppLocalizations.of(context)!.p2pYouWillPayAmount(
+          local.format(includeCurrencySymbol: true),
+        );
       });
       return;
     }
@@ -11278,8 +11323,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       final localCents = (usd.cents * rate.cents) ~/ 100;
       final local = Money.fromCents(localCents, currency: rate.currency);
       setState(() {
-        _costEstimate =
-            'Buyer will send ${local.format(includeCurrencySymbol: true)}';
+        _costEstimate = AppLocalizations.of(context)!.p2pBuyerWillSendAmount(
+          local.format(includeCurrencySymbol: true),
+        );
       });
       return;
     }
@@ -11294,7 +11340,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
     final totalCost = Money.fromCents(totalCostCents, currency: rate.currency);
     setState(() {
       _costEstimate = totalCost.cents > 0
-          ? 'Total value ${totalCost.format(includeCurrencySymbol: true)}'
+          ? AppLocalizations.of(context)!.p2pTotalValueAmount(
+              totalCost.format(includeCurrencySymbol: true),
+            )
           : null;
     });
   }
@@ -11760,8 +11808,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
     final hasMaxOrder = ad.maxOrder.cents > 0;
     final maxLabel = ad.maxOrder.format(includeCurrencySymbol: true);
     final limitsText = hasMaxOrder
-        ? 'Min $minLabel · Max $maxLabel'
-        : 'Min $minLabel';
+        ? AppLocalizations.of(context)!.p2pMinMaxLabel(minLabel, maxLabel)
+        : AppLocalizations.of(context)!.p2pMinOnlyLabel(minLabel);
     final amountPrefix = (_isBuyerFlow || _isSellerFlow)
         ? 'USD '
         : '${ad.currency} ';
@@ -11955,7 +12003,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           const SizedBox(height: 8),
           Text(
             ad.instructions.isEmpty
-                ? 'No instructions provided.'
+                ? AppLocalizations.of(context)!.p2pNoInstructionsProvidedLabel
                 : ad.instructions,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: 14,
@@ -12056,7 +12104,8 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
     final bottomPadding = 24 + MediaQuery.of(context).padding.bottom;
     final method =
         widget.paymentMethod ?? _fallbackAsTradeMethod(widget.fallbackMethod);
-    final providerName = method?.providerName ?? 'Payment method';
+    final providerName =
+        method?.providerName ?? AppLocalizations.of(context)!.paymentMethodLabel;
     final methodTypeLabel = _humanizeType(method?.methodType ?? '');
     final sendAmount = _resolveSendFallback(
       trade: _trade,
@@ -12068,15 +12117,16 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 : _resolveSendCurrency(trade: _trade, preferred: sendAmount))
             .toUpperCase();
     final amountLabel = _formatLocalAmount(sendAmount);
-    final rateLabel =
-        '1 USD = ${_trade.ad.rate.format(includeCurrencySymbol: true)}';
+    final rateLabel = AppLocalizations.of(
+      context,
+    )!.p2pUsdRateLine(_trade.ad.rate.format(includeCurrencySymbol: true));
     final currentUserId = ref.watch(authSessionProvider).userId;
     final canCancelTrade = _canCurrentUserCancelTrade(
       trade: _trade,
       currentUserId: currentUserId,
     );
     final heroDescription = _trade.status == P2PTradeStatus.initiated
-        ? 'We reserved your USD. The buyer will pay using the method below.'
+        ? AppLocalizations.of(context)!.p2pReservedUsdBuyerPaysBelow
         : _statusDescription(_trade.status);
 
     return SingleChildScrollView(
@@ -12350,7 +12400,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
       if (!mounted) return;
       final friendly = error is String
           ? error
-          : 'We couldn’t cancel this trade. Please try again.';
+          : AppLocalizations.of(context)!.p2pTradeCancelFailedError;
       setState(() {
         _cancelError = friendly;
       });
@@ -12538,7 +12588,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
     final fallback = widget.fallbackMethod;
     final trade = _trade;
     final providerName =
-        (method?.providerName ?? fallback?.providerName ?? 'Payment method')
+        (method?.providerName ??
+                fallback?.providerName ??
+                AppLocalizations.of(context)!.paymentMethodLabel)
             .toString();
     final methodType = (method?.methodType ?? fallback?.methodType)?.toString();
     final currency = (method?.currency ?? fallback?.currency)?.toString();
@@ -13047,7 +13099,10 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  hasCopy ? trimmed : 'No extra instructions provided.',
+                  hasCopy
+                      ? trimmed
+                      : AppLocalizations.of(context)!
+                          .p2pNoExtraInstructionsProvidedLabel,
                   style: textTheme.bodyMedium?.copyWith(
                     fontSize: 13,
                     color: hasCopy
@@ -13068,8 +13123,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
   Widget _buildDisputeButton(TextTheme textTheme) {
     final isDisabled = _trade.status == P2PTradeStatus.disputed || _isDisputing;
     final label = _trade.status == P2PTradeStatus.disputed
-        ? 'Dispute opened'
-        : 'Raise dispute';
+        ? AppLocalizations.of(context)!.p2pDisputeOpenedLabel
+        : AppLocalizations.of(context)!.p2pRaiseDisputeCta;
 
     return SizedBox(
       width: double.infinity,
@@ -13466,7 +13521,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       if (!mounted) return;
       final friendly = error is String
           ? error
-          : 'We couldn’t cancel this trade. Please try again.';
+          : AppLocalizations.of(context)!.p2pTradeCancelFailedError;
       setState(() {
         _cancelError = friendly;
       });
@@ -14597,7 +14652,9 @@ class _UploadProofSheet extends StatelessWidget {
                     size: 22,
                   ),
                   label: Text(
-                    hasImages ? 'Add more' : 'Choose images',
+                    hasImages
+                        ? AppLocalizations.of(context)!.p2pAddMoreImagesCta
+                        : AppLocalizations.of(context)!.p2pChooseImagesCta,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

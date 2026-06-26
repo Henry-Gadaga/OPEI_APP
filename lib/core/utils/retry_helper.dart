@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:opei/core/utils/error_helper.dart';
 
 class RetryInfo {
   final int? retryAfterSeconds;
@@ -54,7 +55,9 @@ int deriveRetrySeconds(RetryInfo info, {int fallbackSeconds = 120}) {
 }
 
 String buildRetryMessage(String baseMessage, RetryInfo info) {
-  final cleaned = baseMessage.trim().isEmpty ? 'Please try again later.' : baseMessage.trim();
+  final cleaned = baseMessage.trim().isEmpty
+      ? ErrorHelper.l10n.retryPleaseTryAgainLater
+      : baseMessage.trim();
 
   if (!info.hasData) {
     return cleaned;
@@ -65,16 +68,18 @@ String buildRetryMessage(String baseMessage, RetryInfo info) {
   if (info.retryAt != null) {
     final local = info.retryAt!.toLocal();
     final formatted = DateFormat('h:mm a').format(local);
-    buffer.write(' You can retry at $formatted.');
+    buffer.write(' ${ErrorHelper.l10n.retryYouCanRetryAt(formatted)}');
   } else if (info.retryAfterSeconds != null) {
     final seconds = info.retryAfterSeconds!.clamp(0, 3600);
     final duration = Duration(seconds: seconds);
     final minutes = duration.inMinutes;
     final remainingSeconds = duration.inSeconds % 60;
     if (minutes > 0) {
-      buffer.write(' Try again in ${minutes}m ${remainingSeconds.toString().padLeft(2, '0')}s.');
+      buffer.write(
+        ' ${ErrorHelper.l10n.retryTryAgainInMinutesSeconds(minutes, remainingSeconds.toString().padLeft(2, '0'))}',
+      );
     } else {
-      buffer.write(' Try again in ${remainingSeconds}s.');
+      buffer.write(' ${ErrorHelper.l10n.retryTryAgainInSeconds(remainingSeconds)}');
     }
   }
 

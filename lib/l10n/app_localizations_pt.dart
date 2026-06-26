@@ -4741,4 +4741,134 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get mobileMoneyCountryZambia => 'Zambia';
+
+  @override
+  String get bankTransferCountryUnitedStates => 'Estados Unidos';
+
+  @override
+  String get expressCurrencyMznName => 'Metical mocambicano';
+
+  @override
+  String get expressCurrencyZmwName => 'Kwacha zambiano';
+
+  @override
+  String get expressCurrencyMwkName => 'Kwacha malawiano';
+
+  @override
+  String get expressCurrencyZarName => 'Rand sul-africano';
+
+  @override
+  String get expressCurrencyKesName => 'Xelim queniano';
+
+  @override
+  String get expressCurrencyNgnName => 'Naira nigeriana';
+
+  @override
+  String get currencyUsdName => 'Dolar dos Estados Unidos';
+
+  @override
+  String get p2pOpeningCta => 'A abrir…';
+
+  @override
+  String get p2pNotRatedYetLabel => 'Ainda sem avaliacao';
+
+  @override
+  String get p2pBuyerPaymentDetailsTitle =>
+      'Detalhes de pagamento do comprador';
+
+  @override
+  String get p2pChoosePaymentMethodsStepLabel =>
+      'Escolher metodos de pagamento';
+
+  @override
+  String get p2pSetAmountAndPriceStepLabel => 'Definir valor e preco';
+
+  @override
+  String get p2pNoLimitLabel => 'Sem limite';
+
+  @override
+  String p2pYouWillPayAmount(Object amount) {
+    return 'Voce vai pagar $amount';
+  }
+
+  @override
+  String p2pBuyerWillSendAmount(Object amount) {
+    return 'O comprador vai enviar $amount';
+  }
+
+  @override
+  String p2pTotalValueAmount(Object amount) {
+    return 'Valor total $amount';
+  }
+
+  @override
+  String p2pMinMaxLabel(Object minLabel, Object maxLabel) {
+    return 'Min $minLabel · Max $maxLabel';
+  }
+
+  @override
+  String p2pMinOnlyLabel(Object minLabel) {
+    return 'Min $minLabel';
+  }
+
+  @override
+  String get p2pNoInstructionsProvidedLabel => 'Sem instrucoes fornecidas.';
+
+  @override
+  String get p2pReservedUsdBuyerPaysBelow =>
+      'Reservamos seu USD. O comprador pagara usando o metodo abaixo.';
+
+  @override
+  String get p2pNoExtraInstructionsProvidedLabel =>
+      'Sem instrucoes adicionais.';
+
+  @override
+  String get p2pAddMoreImagesCta => 'Adicionar mais';
+
+  @override
+  String get p2pChooseImagesCta => 'Escolher imagens';
+
+  @override
+  String get p2pAccountDetailsUnavailableLabel =>
+      'Detalhes da conta indisponiveis';
+
+  @override
+  String get p2pSendLabel => 'Enviar';
+
+  @override
+  String get p2pSentLabel => 'Enviado';
+
+  @override
+  String get p2pReceivedLabel => 'Recebido';
+
+  @override
+  String p2pUsdRateLine(Object rate) {
+    return '1 USD = $rate';
+  }
+
+  @override
+  String get dashboardBalanceLoadRetryError =>
+      'Nao foi possivel carregar seu saldo agora. Tente novamente.';
+
+  @override
+  String get retryPleaseTryAgainLater => 'Tente novamente mais tarde.';
+
+  @override
+  String retryYouCanRetryAt(Object time) {
+    return 'Voce pode tentar novamente as $time.';
+  }
+
+  @override
+  String retryTryAgainInMinutesSeconds(Object minutes, Object seconds) {
+    return 'Tente novamente em ${minutes}m ${seconds}s.';
+  }
+
+  @override
+  String retryTryAgainInSeconds(Object seconds) {
+    return 'Tente novamente em ${seconds}s.';
+  }
+
+  @override
+  String get errProviderMarkedBeneficiaryFailed =>
+      'O provedor marcou o beneficiario como falhado';
 }

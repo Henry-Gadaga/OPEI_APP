@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/core/utils/retry_helper.dart';
 import 'package:opei/data/models/signup_request.dart';
 import 'package:opei/features/auth/signup/signup_state.dart';
@@ -81,7 +82,7 @@ class SignupController extends Notifier<SignupState> {
       state = SignupError(e.message, fieldErrors: fieldErrors);
     } catch (e) {
       debugPrint('❌ Unexpected error during signup: $e');
-      state = SignupError('An unexpected error occurred. Please try again.');
+      state = SignupError(ErrorHelper.l10n.errGenericRetry);
     }
   }
 

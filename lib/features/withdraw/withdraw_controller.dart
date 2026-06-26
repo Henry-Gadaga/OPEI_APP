@@ -46,7 +46,7 @@ class WithdrawController extends Notifier<WithdrawState> {
 
     if (amountMoney.cents <= 0) {
       state = state.copyWith(
-        error: 'Enter an amount above 0.00 to continue.',
+        error: ErrorHelper.l10n.errAmountAboveZero,
         clearTransferResponse: true,
       );
       return false;
@@ -54,7 +54,7 @@ class WithdrawController extends Notifier<WithdrawState> {
 
     if (address.trim().isEmpty) {
       state = state.copyWith(
-        error: 'Enter a valid wallet address to continue.',
+        error: ErrorHelper.l10n.withdrawEnterDestinationError,
         clearTransferResponse: true,
       );
       return false;

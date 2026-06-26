@@ -20,18 +20,36 @@ String expressFiat(int cents, String currency) {
 /// Fiat currencies a customer can deposit from. USD is intentionally omitted as
 /// an Express deposit converts local fiat → USD.
 const List<ExpressCurrencyOption> kExpressCurrencies = <ExpressCurrencyOption>[
-  ExpressCurrencyOption('MZN', 'Mozambican Metical'),
-  ExpressCurrencyOption('ZMW', 'Zambian Kwacha'),
-  ExpressCurrencyOption('MWK', 'Malawian Kwacha'),
-  ExpressCurrencyOption('ZAR', 'South African Rand'),
-  ExpressCurrencyOption('KES', 'Kenyan Shilling'),
-  ExpressCurrencyOption('NGN', 'Nigerian Naira'),
+  ExpressCurrencyOption('MZN'),
+  ExpressCurrencyOption('ZMW'),
+  ExpressCurrencyOption('MWK'),
+  ExpressCurrencyOption('ZAR'),
+  ExpressCurrencyOption('KES'),
+  ExpressCurrencyOption('NGN'),
 ];
 
 class ExpressCurrencyOption {
   final String code;
-  final String name;
-  const ExpressCurrencyOption(this.code, this.name);
+  const ExpressCurrencyOption(this.code);
+}
+
+String expressCurrencyDisplayName(String code, AppLocalizations l10n) {
+  switch (code.toUpperCase()) {
+    case 'MZN':
+      return l10n.expressCurrencyMznName;
+    case 'ZMW':
+      return l10n.expressCurrencyZmwName;
+    case 'MWK':
+      return l10n.expressCurrencyMwkName;
+    case 'ZAR':
+      return l10n.expressCurrencyZarName;
+    case 'KES':
+      return l10n.expressCurrencyKesName;
+    case 'NGN':
+      return l10n.expressCurrencyNgnName;
+    default:
+      return code.toUpperCase();
+  }
 }
 
 /// Human-friendly method type label (e.g. MOBILE_MONEY → Mobile Money).

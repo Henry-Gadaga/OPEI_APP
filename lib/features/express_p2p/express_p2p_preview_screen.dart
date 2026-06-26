@@ -266,8 +266,9 @@ class _ExpressP2PPreviewScreenState
               ),
               _DetailRow(
                 label: AppLocalizations.of(context)!.exchangeRateLabel,
-                value:
-                    '1 USD = ${expressFiat(preview.lockedRateCents, preview.quoteCurrency)}',
+                value: AppLocalizations.of(context)!.p2pUsdRateLine(
+                  expressFiat(preview.lockedRateCents, preview.quoteCurrency),
+                ),
               ),
               const SizedBox(height: 20),
               Container(

@@ -365,7 +365,7 @@ class BeneficiaryRepository {
       if (ok == false || providerStatus == 'FAILED') {
         final msg = (payload['message']?.toString().isNotEmpty ?? false)
             ? payload['message'].toString()
-            : 'Provider marked beneficiary as failed';
+            : ErrorHelper.l10n.errProviderMarkedBeneficiaryFailed;
         throw ApiError(message: msg, statusCode: 502);
       }
 

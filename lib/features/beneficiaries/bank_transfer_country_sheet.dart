@@ -9,12 +9,12 @@ import 'package:opei/theme.dart';
 class BankTransferCountrySheet extends StatelessWidget {
   const BankTransferCountrySheet({super.key});
 
-  static const _countries = [
-    ('🇺🇸', 'United States', 'US'),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final countries = [
+      ('🇺🇸', l10n.bankTransferCountryUnitedStates, 'US'),
+    ];
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
 
     return Container(
@@ -67,14 +67,14 @@ class BankTransferCountrySheet extends StatelessWidget {
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: _countries.length,
+            itemCount: countries.length,
             separatorBuilder: (context, i) => const Divider(
               height: 1,
               thickness: 0.5,
               color: OpeiBrand.hairline,
             ),
             itemBuilder: (context, i) {
-              final (flag, name, code) = _countries[i];
+              final (flag, name, code) = countries[i];
               return Material(
                 color: Colors.transparent,
                 child: InkWell(

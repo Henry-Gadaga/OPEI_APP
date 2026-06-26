@@ -24,7 +24,6 @@ class UsBankReceiversScreen extends ConsumerStatefulWidget {
 class _UsBankReceiversScreenState
     extends ConsumerState<UsBankReceiversScreen> {
   static const _flag = '🇺🇸';
-  static const _countryName = 'United States';
 
   @override
   void initState() {
@@ -48,11 +47,12 @@ class _UsBankReceiversScreenState
   }
 
   void _onReceiverTap(Beneficiary b) {
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).push(
       OpeiPageRoute(
         builder: (_) => SendAmountScreen(
           beneficiary: b,
-          countryName: _countryName,
+          countryName: l10n.bankTransferCountryUnitedStates,
           flag: _flag,
         ),
       ),
@@ -61,6 +61,7 @@ class _UsBankReceiversScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(usBankBeneficiariesControllerProvider);
     final controller =
         ref.read(usBankBeneficiariesControllerProvider.notifier);
@@ -109,8 +110,8 @@ class _UsBankReceiversScreenState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
-                                  _countryName,
+                                Text(
+                                  l10n.bankTransferCountryUnitedStates,
                                   style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,
@@ -316,7 +317,8 @@ class _ReceiverRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final name = beneficiary.accountName ?? 'Unnamed receiver';
+    final name =
+        beneficiary.accountName ?? AppLocalizations.of(context)!.mobileMoneyUnnamedReceiver;
     final masked = beneficiary.accountNumberMasked ?? '';
 
     final radius = BorderRadius.only(

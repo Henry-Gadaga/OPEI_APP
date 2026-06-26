@@ -102,7 +102,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (result == null) {
       final loginState = ref.read(loginControllerProvider);
       if (loginState.errorMessage ==
-          'Invalid email or PIN. Please try again.') {
+          AppLocalizations.of(context)!.loginInvalidCredentialsError) {
         _pinController.clear();
         ref.read(loginControllerProvider.notifier).resetPasswordField();
         _pinFocusNode.requestFocus();

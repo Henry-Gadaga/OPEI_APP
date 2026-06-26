@@ -351,7 +351,7 @@ class _Page1Currency extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        c.name,
+                        expressCurrencyDisplayName(c.code, l10n),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

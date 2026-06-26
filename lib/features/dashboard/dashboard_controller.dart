@@ -16,8 +16,8 @@ final dashboardControllerProvider =
 
 class DashboardController extends Notifier<DashboardState> {
   static const Duration _walletLoadTimeout = Duration(seconds: 15);
-  static const String _walletTimeoutMessage =
-      "We couldn't load your balance right now. Please retry.";
+  static String get _walletTimeoutMessage =>
+      ErrorHelper.l10n.dashboardBalanceLoadRetryError;
 
   late WalletRepository _walletRepository;
   late TransactionRepository _transactionRepository;

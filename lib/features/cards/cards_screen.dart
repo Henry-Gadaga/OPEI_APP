@@ -2227,7 +2227,7 @@ class VirtualCardHero extends StatelessWidget {
                   ),
                 ),
               ),
-              // Card body — matches the real "Sky Blue" card gradient
+              // Card body — mirrors the default branded gradient
               // used after a card is created (CardColorPalette.defaultOption)
               Container(
                 decoration: BoxDecoration(
