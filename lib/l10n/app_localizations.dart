@@ -2756,6 +2756,12 @@ abstract class AppLocalizations {
   /// **'Network'**
   String get networkLabel;
 
+  /// No description provided for @paymentMethodsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment methods'**
+  String get paymentMethodsLabel;
+
   /// No description provided for @paymentMethodLabel.
   ///
   /// In en, this message translates to:
@@ -3379,6 +3385,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'0.00'**
   String get sendMoneyAmountHint;
+
+  /// No description provided for @allLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get allLabel;
+
+  /// No description provided for @ratingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get ratingLabel;
+
+  /// No description provided for @tradesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Trades'**
+  String get tradesLabel;
+
+  /// No description provided for @sinceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Since'**
+  String get sinceLabel;
+
+  /// No description provided for @rateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate'**
+  String get rateLabel;
+
+  /// No description provided for @paymentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get paymentLabel;
+
+  /// No description provided for @createdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get createdLabel;
+
+  /// No description provided for @availableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Available'**
+  String get availableLabel;
+
+  /// No description provided for @additionalDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Additional Details'**
+  String get additionalDetailsLabel;
+
+  /// No description provided for @remainingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get remainingLabel;
+
+  /// No description provided for @totalAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total amount'**
+  String get totalAmountLabel;
+
+  /// No description provided for @minOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Min order'**
+  String get minOrderLabel;
+
+  /// No description provided for @maxOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max order'**
+  String get maxOrderLabel;
+
+  /// No description provided for @p2pBuyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy'**
+  String get p2pBuyLabel;
+
+  /// No description provided for @p2pSellLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell'**
+  String get p2pSellLabel;
+
+  /// No description provided for @p2pCouldNotLoadAdsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn’t load your ads'**
+  String get p2pCouldNotLoadAdsTitle;
+
+  /// No description provided for @p2pOrdersTabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders'**
+  String get p2pOrdersTabLabel;
+
+  /// No description provided for @p2pMyAdsTabLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'My Ads'**
+  String get p2pMyAdsTabLabel;
+
+  /// No description provided for @p2pMinimumAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum amount'**
+  String get p2pMinimumAmountLabel;
+
+  /// No description provided for @p2pMaximumAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum amount'**
+  String get p2pMaximumAmountLabel;
+
+  /// No description provided for @p2pManagePayoutAccountsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage payout accounts'**
+  String get p2pManagePayoutAccountsSubtitle;
+
+  /// No description provided for @p2pSearchCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search currency'**
+  String get p2pSearchCurrencyHint;
+
+  /// No description provided for @p2pPaidLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get p2pPaidLabel;
+
+  /// No description provided for @p2pReleasedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Released'**
+  String get p2pReleasedLabel;
+
+  /// No description provided for @p2pCompletedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get p2pCompletedLabel;
+
+  /// No description provided for @p2pReasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get p2pReasonLabel;
+
+  /// No description provided for @p2pOrderIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order ID'**
+  String get p2pOrderIdLabel;
+
+  /// No description provided for @p2pShareShortNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a short note (<=500 chars)'**
+  String get p2pShareShortNoteHint;
+
+  /// No description provided for @p2pPrepareProofUploadsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t prepare proof uploads. Please try again.'**
+  String get p2pPrepareProofUploadsError;
+
+  /// No description provided for @p2pDisputeReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller never released after I sent funds'**
+  String get p2pDisputeReasonHint;
+
+  /// No description provided for @p2pSellUsdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sell USD'**
+  String get p2pSellUsdTitle;
+
+  /// No description provided for @p2pSellUsdSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive fiat or mobile money.'**
+  String get p2pSellUsdSubtitle;
+
+  /// No description provided for @p2pBuyUsdTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy USD'**
+  String get p2pBuyUsdTitle;
+
+  /// No description provided for @p2pBuyUsdSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Specify how you will pay sellers.'**
+  String get p2pBuyUsdSubtitle;
+
+  /// No description provided for @p2pTotalAmountUsdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total amount (USD)'**
+  String get p2pTotalAmountUsdLabel;
+
+  /// No description provided for @p2pPriceUsdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price (USD)'**
+  String get p2pPriceUsdLabel;
+
+  /// No description provided for @p2pMinOrderUsdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Min order (USD)'**
+  String get p2pMinOrderUsdLabel;
+
+  /// No description provided for @p2pMaxOrderUsdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max order (USD)'**
+  String get p2pMaxOrderUsdLabel;
+
+  /// No description provided for @p2pInstructionsOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions (optional)'**
+  String get p2pInstructionsOptionalLabel;
+
+  /// No description provided for @p2pInstructionsProofHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Proof of transfer required'**
+  String get p2pInstructionsProofHint;
+
+  /// No description provided for @p2pDisplayNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Display name'**
+  String get p2pDisplayNameLabel;
+
+  /// No description provided for @p2pDisplayNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Johnex'**
+  String get p2pDisplayNameHint;
+
+  /// No description provided for @p2pUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get p2pUsernameLabel;
+
+  /// No description provided for @p2pUsernameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'john_fx'**
+  String get p2pUsernameHint;
+
+  /// No description provided for @p2pBioLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get p2pBioLabel;
+
+  /// No description provided for @p2pBioHint.
+  ///
+  /// In en, this message translates to:
+  /// **'10 years trading USD/ZMW'**
+  String get p2pBioHint;
+
+  /// No description provided for @p2pPriceRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price (rate)'**
+  String get p2pPriceRateLabel;
+
+  /// No description provided for @p2pInstructionsAvailableHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Available 08:00-21:00'**
+  String get p2pInstructionsAvailableHint;
+
+  /// No description provided for @p2pInstructionsNeedProofHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Need proof of transfer'**
+  String get p2pInstructionsNeedProofHint;
+
+  /// No description provided for @p2pNameOnAccountHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name on account'**
+  String get p2pNameOnAccountHint;
+
+  /// No description provided for @p2pAccountNumberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Account number'**
+  String get p2pAccountNumberHint;
+
+  /// No description provided for @p2pExtraDetailsOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra details (optional)'**
+  String get p2pExtraDetailsOptionalLabel;
+
+  /// No description provided for @p2pBranchReferenceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Branch, reference'**
+  String get p2pBranchReferenceHint;
+
+  /// No description provided for @p2pChooseHowYouPayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you’ll pay'**
+  String get p2pChooseHowYouPayTitle;
+
+  /// No description provided for @p2pSelectSellerPaymentMethodSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select one of the seller’s payment methods for {currency}.'**
+  String p2pSelectSellerPaymentMethodSubtitle(Object currency);
+
+  /// No description provided for @p2pSelectPayoutRailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Select payout rail'**
+  String get p2pSelectPayoutRailTitle;
+
+  /// No description provided for @p2pChooseBuyerPaymentMethodSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the payment method the buyer should use for {currency}.'**
+  String p2pChooseBuyerPaymentMethodSubtitle(Object currency);
+
+  /// No description provided for @p2pMinimumOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum order'**
+  String get p2pMinimumOrderLabel;
+
+  /// No description provided for @p2pBuyerPaysViaLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Buyer pays via'**
+  String get p2pBuyerPaysViaLabel;
+
+  /// No description provided for @p2pPaymentCurrencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment currency'**
+  String get p2pPaymentCurrencyLabel;
+
+  /// No description provided for @p2pDisputeOpenedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Dispute opened. Support will review it shortly.'**
+  String get p2pDisputeOpenedSuccess;
+
+  /// No description provided for @p2pBackToOrdersTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to orders'**
+  String get p2pBackToOrdersTooltip;
+
+  /// No description provided for @p2pSellerReviewsProofLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Seller reviews your payment proof.'**
+  String get p2pSellerReviewsProofLabel;
+
+  /// No description provided for @p2pUploadFailedStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed with status {status}'**
+  String p2pUploadFailedStatus(Object status);
+
+  /// No description provided for @p2pFailedUploadProof.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to upload proof {index}. Please try again.'**
+  String p2pFailedUploadProof(Object index);
+
+  /// No description provided for @p2pSellerDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add any details the seller should know'**
+  String get p2pSellerDetailsHint;
 }
 
 class _AppLocalizationsDelegate

@@ -1446,6 +1446,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get networkLabel => 'Rede';
 
   @override
+  String get paymentMethodsLabel => 'Metodos de pagamento';
+
+  @override
   String get paymentMethodLabel => 'Metodo de pagamento';
 
   @override
@@ -1774,4 +1777,221 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get sendMoneyAmountHint => '0.00';
+
+  @override
+  String get allLabel => 'Todos';
+
+  @override
+  String get ratingLabel => 'Avaliacao';
+
+  @override
+  String get tradesLabel => 'Negociacoes';
+
+  @override
+  String get sinceLabel => 'Desde';
+
+  @override
+  String get rateLabel => 'Taxa';
+
+  @override
+  String get paymentLabel => 'Pagamento';
+
+  @override
+  String get createdLabel => 'Criado';
+
+  @override
+  String get availableLabel => 'Disponivel';
+
+  @override
+  String get additionalDetailsLabel => 'Detalhes adicionais';
+
+  @override
+  String get remainingLabel => 'Restante';
+
+  @override
+  String get totalAmountLabel => 'Valor total';
+
+  @override
+  String get minOrderLabel => 'Pedido min.';
+
+  @override
+  String get maxOrderLabel => 'Pedido max.';
+
+  @override
+  String get p2pBuyLabel => 'Comprar';
+
+  @override
+  String get p2pSellLabel => 'Vender';
+
+  @override
+  String get p2pCouldNotLoadAdsTitle =>
+      'Nao foi possivel carregar seus anuncios';
+
+  @override
+  String get p2pOrdersTabLabel => 'Pedidos';
+
+  @override
+  String get p2pMyAdsTabLabel => 'Meus anuncios';
+
+  @override
+  String get p2pMinimumAmountLabel => 'Valor minimo';
+
+  @override
+  String get p2pMaximumAmountLabel => 'Valor maximo';
+
+  @override
+  String get p2pManagePayoutAccountsSubtitle =>
+      'Gerenciar contas de recebimento';
+
+  @override
+  String get p2pSearchCurrencyHint => 'Buscar moeda';
+
+  @override
+  String get p2pPaidLabel => 'Pago';
+
+  @override
+  String get p2pReleasedLabel => 'Liberado';
+
+  @override
+  String get p2pCompletedLabel => 'Concluido';
+
+  @override
+  String get p2pReasonLabel => 'Motivo';
+
+  @override
+  String get p2pOrderIdLabel => 'ID do pedido';
+
+  @override
+  String get p2pShareShortNoteHint =>
+      'Compartilhe uma nota curta (<=500 caracteres)';
+
+  @override
+  String get p2pPrepareProofUploadsError =>
+      'Nao foi possivel preparar os uploads da prova. Tente novamente.';
+
+  @override
+  String get p2pDisputeReasonHint =>
+      'O vendedor nao liberou depois que eu enviei os fundos';
+
+  @override
+  String get p2pSellUsdTitle => 'Vender USD';
+
+  @override
+  String get p2pSellUsdSubtitle => 'Receba fiat ou dinheiro movel.';
+
+  @override
+  String get p2pBuyUsdTitle => 'Comprar USD';
+
+  @override
+  String get p2pBuyUsdSubtitle =>
+      'Especifique como voce vai pagar os vendedores.';
+
+  @override
+  String get p2pTotalAmountUsdLabel => 'Valor total (USD)';
+
+  @override
+  String get p2pPriceUsdLabel => 'Preco (USD)';
+
+  @override
+  String get p2pMinOrderUsdLabel => 'Pedido min. (USD)';
+
+  @override
+  String get p2pMaxOrderUsdLabel => 'Pedido max. (USD)';
+
+  @override
+  String get p2pInstructionsOptionalLabel => 'Instrucoes (opcional)';
+
+  @override
+  String get p2pInstructionsProofHint =>
+      'ex.: Prova de transferencia obrigatoria';
+
+  @override
+  String get p2pDisplayNameLabel => 'Nome de exibicao';
+
+  @override
+  String get p2pDisplayNameHint => 'Johnex';
+
+  @override
+  String get p2pUsernameLabel => 'Nome de usuario';
+
+  @override
+  String get p2pUsernameHint => 'john_fx';
+
+  @override
+  String get p2pBioLabel => 'Bio';
+
+  @override
+  String get p2pBioHint => '10 anos negociando USD/ZMW';
+
+  @override
+  String get p2pPriceRateLabel => 'Preco (taxa)';
+
+  @override
+  String get p2pInstructionsAvailableHint => 'ex.: Disponivel 08:00-21:00';
+
+  @override
+  String get p2pInstructionsNeedProofHint =>
+      'ex.: Precisa de comprovante de transferencia';
+
+  @override
+  String get p2pNameOnAccountHint => 'Nome na conta';
+
+  @override
+  String get p2pAccountNumberHint => 'Numero da conta';
+
+  @override
+  String get p2pExtraDetailsOptionalLabel => 'Detalhes extras (opcional)';
+
+  @override
+  String get p2pBranchReferenceHint => 'Agencia, referencia';
+
+  @override
+  String get p2pChooseHowYouPayTitle => 'Escolha como voce vai pagar';
+
+  @override
+  String p2pSelectSellerPaymentMethodSubtitle(Object currency) {
+    return 'Selecione um dos metodos de pagamento do vendedor para $currency.';
+  }
+
+  @override
+  String get p2pSelectPayoutRailTitle => 'Selecionar trilho de pagamento';
+
+  @override
+  String p2pChooseBuyerPaymentMethodSubtitle(Object currency) {
+    return 'Escolha o metodo de pagamento que o comprador deve usar para $currency.';
+  }
+
+  @override
+  String get p2pMinimumOrderLabel => 'Pedido minimo';
+
+  @override
+  String get p2pBuyerPaysViaLabel => 'Comprador paga via';
+
+  @override
+  String get p2pPaymentCurrencyLabel => 'Moeda de pagamento';
+
+  @override
+  String get p2pDisputeOpenedSuccess =>
+      'Disputa aberta. O suporte revisara em breve.';
+
+  @override
+  String get p2pBackToOrdersTooltip => 'Voltar para pedidos';
+
+  @override
+  String get p2pSellerReviewsProofLabel =>
+      'O vendedor revisa sua prova de pagamento.';
+
+  @override
+  String p2pUploadFailedStatus(Object status) {
+    return 'Falha no upload com status $status';
+  }
+
+  @override
+  String p2pFailedUploadProof(Object index) {
+    return 'Falha ao enviar a prova $index. Tente novamente.';
+  }
+
+  @override
+  String get p2pSellerDetailsHint =>
+      'Adicione qualquer detalhe que o vendedor deva saber';
 }

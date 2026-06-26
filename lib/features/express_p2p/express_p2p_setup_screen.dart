@@ -8,6 +8,7 @@ import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/p2p_payment_method_type.dart';
 import 'package:opei/features/express_p2p/express_p2p_preview_screen.dart';
 import 'package:opei/features/express_p2p/express_ui.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// 3-page wizard: currency → payment method → USD amount.
@@ -210,8 +211,9 @@ class _ExpressP2PSetupScreenState extends ConsumerState<ExpressP2PSetupScreen> {
                       error: _methodsError,
                       selected: _selectedMethod,
                       onSelect: (m) => setState(() => _selectedMethod = m),
-                      onRetry: () =>
-                          _currency != null ? _selectCurrency(_currency!) : null,
+                      onRetry: () => _currency != null
+                          ? _selectCurrency(_currency!)
+                          : null,
                     ),
                     _Page3Amount(
                       currency: _currency,
@@ -223,8 +225,8 @@ class _ExpressP2PSetupScreenState extends ConsumerState<ExpressP2PSetupScreen> {
                         final nextCents = current + value * 100;
                         final next = (nextCents / 100).toStringAsFixed(2);
                         _amountController.text = next;
-                        _amountController.selection =
-                            TextSelection.fromPosition(
+                        _amountController
+                            .selection = TextSelection.fromPosition(
                           TextPosition(offset: _amountController.text.length),
                         );
                         setState(() {});
@@ -318,13 +320,13 @@ class _Page1Currency extends StatelessWidget {
                   duration: OpeiBrand.motionFast,
                   curve: OpeiBrand.motionCurve,
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 9),
+                    horizontal: 10,
+                    vertical: 9,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: sel
-                          ? OpeiBrand.primary
-                          : OpeiBrand.hairlineStrong,
+                      color: sel ? OpeiBrand.primary : OpeiBrand.hairlineStrong,
                       width: sel ? 1.5 : 1,
                     ),
                   ),
@@ -467,8 +469,8 @@ class _Page3Amount extends StatelessWidget {
     final methodLabel = method == null
         ? ''
         : (method!.providerName.isNotEmpty
-            ? method!.providerName
-            : expressMethodTypeLabel(method!.methodType));
+              ? method!.providerName
+              : expressMethodTypeLabel(method!.methodType));
     return Column(
       children: [
         const SizedBox(height: 20),
@@ -484,8 +486,11 @@ class _Page3Amount extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.check_circle_rounded,
-                      size: 13, color: OpeiBrand.primary),
+                  const Icon(
+                    Icons.check_circle_rounded,
+                    size: 13,
+                    color: OpeiBrand.primary,
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     '$currency · $methodLabel',
@@ -589,9 +594,7 @@ class _MethodTile extends StatelessWidget {
                 child: Icon(
                   Icons.account_balance_wallet_outlined,
                   size: 18,
-                  color: selected
-                      ? OpeiBrand.primary
-                      : OpeiBrand.inkSecondary,
+                  color: selected ? OpeiBrand.primary : OpeiBrand.inkSecondary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -729,8 +732,9 @@ class _AmountFieldState extends State<_AmountField> {
               onChanged: widget.onChanged,
               focusNode: _focus,
               textAlign: TextAlign.center,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
               ],
@@ -742,8 +746,8 @@ class _AmountFieldState extends State<_AmountField> {
                 letterSpacing: -2,
                 height: 1,
               ),
-              decoration: const InputDecoration(
-                hintText: '0',
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.sendMoneyAmountHint,
                 // kill every possible border the theme might inject
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,

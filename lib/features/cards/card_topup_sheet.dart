@@ -295,8 +295,8 @@ class _AmountStepState extends ConsumerState<_AmountStep> {
                     letterSpacing: -2,
                     height: 1,
                   ),
-                  decoration: const InputDecoration(
-                    hintText: '0',
+                  decoration: InputDecoration(
+                    hintText: l10n.sendMoneyAmountHint,
                     border: InputBorder.none,
                     enabledBorder: InputBorder.none,
                     focusedBorder: InputBorder.none,

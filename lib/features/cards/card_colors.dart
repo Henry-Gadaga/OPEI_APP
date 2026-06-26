@@ -24,25 +24,27 @@ class CardColorOption {
 
   static String normalizeKey(String raw) => _normalize(raw);
 
-  static String _normalize(String raw) => raw.trim().toLowerCase().replaceAll(RegExp(r'[\s_]+'), '-');
+  static String _normalize(String raw) =>
+      raw.trim().toLowerCase().replaceAll(RegExp(r'[\s_]+'), '-');
 }
 
 class CardColorPalette {
+  static const _skyBlueLabel = 'Sky Blue';
+  static const _skyBlueDescription =
+      'Signature sky blue finish for every virtual card.';
+
   static const List<CardColorOption> options = [
     CardColorOption(
       key: 'sky-blue',
-      label: 'Sky Blue',
-      gradient: [
-        Color(0xFF5AA9F5),
-        Color(0xFF1F7BDF),
-        Color(0xFF0F4DA2),
-      ],
-      description: 'Signature sky blue finish for every virtual card.',
+      label: _skyBlueLabel,
+      gradient: [Color(0xFF5AA9F5), Color(0xFF1F7BDF), Color(0xFF0F4DA2)],
+      description: _skyBlueDescription,
       aliases: ['blue', 'default', 'royal-blue', 'eon-green', 'black'],
     ),
   ];
 
-  static CardColorOption? get defaultOption => options.isNotEmpty ? options.first : null;
+  static CardColorOption? get defaultOption =>
+      options.isNotEmpty ? options.first : null;
 
   static CardColorOption? fromKey(String? raw) {
     if (options.isEmpty) {

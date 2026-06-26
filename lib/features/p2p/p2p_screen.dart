@@ -555,7 +555,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                       Row(
                         children: [
                           _CompactToggleButton(
-                            label: 'Buy',
+                            label: AppLocalizations.of(context)!.p2pBuyLabel,
                             isSelected: state.selectedType == P2PAdType.buy,
                             isLoading:
                                 state.isLoading &&
@@ -564,7 +564,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                           ),
                           const SizedBox(width: 8),
                           _CompactToggleButton(
-                            label: 'Sell',
+                            label: AppLocalizations.of(context)!.p2pSellLabel,
                             isSelected: state.selectedType == P2PAdType.sell,
                             isLoading:
                                 state.isLoading &&
@@ -755,7 +755,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
           child: Row(
             children: [
               _PaymentMethodChip(
-                label: 'All',
+                label: AppLocalizations.of(context)!.allLabel,
                 isSelected: state.selectedPaymentMethod == null,
                 onTap: () => controller.updatePaymentMethod(null),
               ),
@@ -1093,7 +1093,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
             _OrdersErrorState(
               message: state.errorMessage!,
               onRetry: controller.refresh,
-              title: 'We couldn’t load your ads',
+              title: AppLocalizations.of(context)!.p2pCouldNotLoadAdsTitle,
             ),
           ],
         );
@@ -1355,28 +1355,28 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                 _NavItem(
                   icon: Icons.home_outlined,
                   selectedIcon: Icons.home,
-                  label: 'Home',
+                  label: AppLocalizations.of(context)!.dashboardNavHome,
                   isSelected: _selectedTab == 0,
                   onTap: () => _handleTabSelection(0),
                 ),
                 _NavItem(
                   icon: Icons.receipt_long_outlined,
                   selectedIcon: Icons.receipt_long,
-                  label: 'Orders',
+                  label: AppLocalizations.of(context)!.p2pOrdersTabLabel,
                   isSelected: _selectedTab == 1,
                   onTap: () => _handleTabSelection(1),
                 ),
                 _NavItem(
                   icon: Icons.campaign_outlined,
                   selectedIcon: Icons.campaign,
-                  label: 'My Ads',
+                  label: AppLocalizations.of(context)!.p2pMyAdsTabLabel,
                   isSelected: _selectedTab == 2,
                   onTap: () => _handleTabSelection(2),
                 ),
                 _NavItem(
                   icon: Icons.person_outline,
                   selectedIcon: Icons.person,
-                  label: 'Profile',
+                  label: AppLocalizations.of(context)!.dashboardNavProfile,
                   isSelected: _selectedTab == 3,
                   onTap: () => _handleTabSelection(3),
                 ),
@@ -1447,13 +1447,17 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                     ),
                     const SizedBox(height: 18),
                     _AmountField(
-                      label: 'Minimum amount',
+                      label: AppLocalizations.of(
+                        context,
+                      )!.p2pMinimumAmountLabel,
                       currency: state.selectedCurrencyCode,
                       controller: minController,
                     ),
                     const SizedBox(height: 14),
                     _AmountField(
-                      label: 'Maximum amount',
+                      label: AppLocalizations.of(
+                        context,
+                      )!.p2pMaximumAmountLabel,
                       currency: state.selectedCurrencyCode,
                       controller: maxController,
                     ),
@@ -2627,18 +2631,24 @@ class _ProfileHeroCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _ProfileMetric(
-                    label: 'Rating',
+                    label: AppLocalizations.of(context)!.ratingLabel,
                     value: ratingValue,
                     emphasize: hasRating,
                   ),
                 ),
                 const _ProfileMetricDivider(),
                 Expanded(
-                  child: _ProfileMetric(label: 'Trades', value: tradesValue),
+                  child: _ProfileMetric(
+                    label: AppLocalizations.of(context)!.tradesLabel,
+                    value: tradesValue,
+                  ),
                 ),
                 const _ProfileMetricDivider(),
                 Expanded(
-                  child: _ProfileMetric(label: 'Since', value: sinceValue),
+                  child: _ProfileMetric(
+                    label: AppLocalizations.of(context)!.sinceLabel,
+                    value: sinceValue,
+                  ),
                 ),
               ],
             ),
@@ -2974,8 +2984,10 @@ class _ProfileQuickActions extends StatelessWidget {
           _ActionTile(
             icon: Icons.account_balance_wallet_outlined,
             iconColor: const Color(0xFF007AFF),
-            title: 'Payment methods',
-            subtitle: 'Manage payout accounts',
+            title: AppLocalizations.of(context)!.paymentMethodsLabel,
+            subtitle: AppLocalizations.of(
+              context,
+            )!.p2pManagePayoutAccountsSubtitle,
             onTap: onManagePaymentMethods,
           ),
         ],
@@ -3728,13 +3740,13 @@ class _PaymentMethodTile extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _PaymentDetailRow(
-            label: 'Account name',
+            label: AppLocalizations.of(context)!.accountNameLabel,
             value: method.accountName,
             textTheme: theme.textTheme,
           ),
           const SizedBox(height: 6),
           _PaymentDetailRow(
-            label: 'Account number',
+            label: AppLocalizations.of(context)!.accountNumberLabel,
             value: accountLabel,
             textTheme: theme.textTheme,
             isMonospace: true,
@@ -3743,7 +3755,7 @@ class _PaymentMethodTile extends StatelessWidget {
               method.extraDetails!.isNotEmpty) ...[
             const SizedBox(height: 6),
             _PaymentDetailRow(
-              label: 'Extra details',
+              label: AppLocalizations.of(context)!.detailsLabel,
               value: method.extraDetails!,
               textTheme: theme.textTheme,
             ),
@@ -3830,7 +3842,7 @@ class _CurrencySelectorSheetState extends State<_CurrencySelectorSheet> {
             TextField(
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                hintText: 'Search currency',
+                hintText: AppLocalizations.of(context)!.p2pSearchCurrencyHint,
                 filled: true,
                 fillColor: OpeiColors.iosSurfaceMuted,
                 contentPadding: const EdgeInsets.symmetric(
@@ -4398,15 +4410,21 @@ class _OrderCardState extends State<_OrderCard>
                 ],
               ),
               const SizedBox(height: 12),
-              _InfoRow(label: 'Amount', value: usdAmount),
+              _InfoRow(
+                label: AppLocalizations.of(context)!.amountLabel,
+                value: usdAmount,
+              ),
               const SizedBox(height: 8),
-              _InfoRow(label: 'Rate', value: '1 USD = $rateLabel'),
+              _InfoRow(
+                label: AppLocalizations.of(context)!.rateLabel,
+                value: '1 USD = $rateLabel',
+              ),
               const SizedBox(height: 8),
               _InfoRow(label: amountLabel, value: localAmountLabel),
               if (method != null) ...[
                 const SizedBox(height: 8),
                 _InfoRow(
-                  label: 'Payment',
+                  label: AppLocalizations.of(context)!.paymentLabel,
                   value: method.providerName,
                   trailing: () {
                     final accountNumber = method.accountNumber.isNotEmpty
@@ -4913,29 +4931,49 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (createdLabel != null)
-                      _DetailRow(label: 'Created', value: createdLabel),
+                      _DetailRow(
+                        label: AppLocalizations.of(context)!.createdLabel,
+                        value: createdLabel,
+                      ),
                     if (expiresLabel != null)
-                      _DetailRow(label: 'Expires', value: expiresLabel),
+                      _DetailRow(
+                        label: AppLocalizations.of(context)!.cardsExpiresLabel,
+                        value: expiresLabel,
+                      ),
                     if (paidLabel != null)
-                      _DetailRow(label: 'Paid', value: paidLabel),
+                      _DetailRow(
+                        label: AppLocalizations.of(context)!.p2pPaidLabel,
+                        value: paidLabel,
+                      ),
                     if (releasedLabel != null)
-                      _DetailRow(label: 'Released', value: releasedLabel),
+                      _DetailRow(
+                        label: AppLocalizations.of(context)!.p2pReleasedLabel,
+                        value: releasedLabel,
+                      ),
                     if (completedLabel != null)
-                      _DetailRow(label: 'Completed', value: completedLabel),
+                      _DetailRow(
+                        label: AppLocalizations.of(context)!.p2pCompletedLabel,
+                        value: completedLabel,
+                      ),
                     if (trade.cancelledAt != null) ...[
                       _DetailRow(
-                        label: 'Cancelled',
+                        label: AppLocalizations.of(
+                          context,
+                        )!.transactionsCancelledStatus,
                         value: DateFormat(
                           'd MMM yyyy, HH:mm',
                         ).format(trade.cancelledAt!.toLocal()),
                       ),
                       if ((trade.cancelReason ?? '').isNotEmpty)
                         _DetailRow(
-                          label: 'Reason',
+                          label: AppLocalizations.of(context)!.p2pReasonLabel,
                           value: trade.cancelReason ?? '',
                         ),
                     ],
-                    _DetailRow(label: 'Order ID', value: trade.id),
+                    _DetailRow(
+                      label: AppLocalizations.of(context)!.p2pOrderIdLabel,
+                      value: trade.id,
+                    ),
                   ],
                 ),
               ),
@@ -5102,14 +5140,16 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       const SizedBox(height: 10),
                       if (method.accountName.isNotEmpty)
                         _PaymentDetailRow(
-                          label: 'Account Name',
+                          label: AppLocalizations.of(context)!.accountNameLabel,
                           value: method.accountName,
                           textTheme: theme.textTheme,
                         ),
                       if (method.accountNumber.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         _PaymentDetailRow(
-                          label: 'Account Number',
+                          label: AppLocalizations.of(
+                            context,
+                          )!.accountNumberLabel,
                           value: method.accountNumber,
                           textTheme: theme.textTheme,
                           isMonospace: true,
@@ -5118,7 +5158,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       if ((method.extraDetails ?? '').isNotEmpty) ...[
                         const SizedBox(height: 8),
                         _PaymentDetailRow(
-                          label: 'Additional Details',
+                          label: AppLocalizations.of(
+                            context,
+                          )!.additionalDetailsLabel,
                           value: method.extraDetails!,
                           textTheme: theme.textTheme,
                         ),
@@ -5381,7 +5423,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               }
             },
             decoration: InputDecoration(
-              hintText: 'Share a short note (≤500 chars)',
+              hintText: AppLocalizations.of(context)!.p2pShareShortNoteHint,
               hintStyle: TextStyle(fontSize: 12),
               filled: true,
               fillColor: OpeiColors.iosSurfaceMuted,
@@ -5693,6 +5735,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   }
 
   Future<void> _submitPaymentProof() async {
+    final l10n = AppLocalizations.of(context)!;
     final currentTrade = _trade;
     if (currentTrade.status != P2PTradeStatus.initiated) {
       return;
@@ -5730,9 +5773,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       );
 
       if (plans.length != candidates.length) {
-        throw ApiError(
-          message: 'Couldn’t prepare proof uploads. Please try again.',
-        );
+        throw ApiError(message: l10n.p2pPrepareProofUploadsError);
       }
 
       await _performProofUploads(candidates, plans);
@@ -6575,7 +6616,7 @@ void _showProofViewer(BuildContext context, String url) {
                       color: Colors.white,
                       size: 26,
                     ),
-                    tooltip: 'Close',
+                    tooltip: AppLocalizations.of(context)!.closeCta,
                     onPressed: () => Navigator.of(ctx).pop(),
                   ),
                 ),
@@ -6749,7 +6790,9 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
                     }
                   },
                   decoration: InputDecoration(
-                    hintText: 'Seller never released after I sent funds',
+                    hintText: AppLocalizations.of(
+                      context,
+                    )!.p2pDisputeReasonHint,
                     filled: true,
                     fillColor: OpeiColors.iosSurfaceMuted,
                     contentPadding: const EdgeInsets.symmetric(
@@ -6999,13 +7042,16 @@ class _MyAdCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _MyAdMetricCompact(
-                    label: 'Remaining',
+                    label: AppLocalizations.of(context)!.remainingLabel,
                     value: remaining,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: _MyAdMetricCompact(label: 'Rate', value: rateLabel),
+                  child: _MyAdMetricCompact(
+                    label: AppLocalizations.of(context)!.rateLabel,
+                    value: rateLabel,
+                  ),
                 ),
               ],
             ),
@@ -7439,15 +7485,30 @@ class _MyAdDetailSheet extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              _MyAdDetailRow(label: 'Remaining', value: remaining),
+              _MyAdDetailRow(
+                label: AppLocalizations.of(context)!.remainingLabel,
+                value: remaining,
+              ),
               const SizedBox(height: 12),
-              _MyAdDetailRow(label: 'Total amount', value: total),
+              _MyAdDetailRow(
+                label: AppLocalizations.of(context)!.totalAmountLabel,
+                value: total,
+              ),
               const SizedBox(height: 12),
-              _MyAdDetailRow(label: 'Rate', value: rate),
+              _MyAdDetailRow(
+                label: AppLocalizations.of(context)!.rateLabel,
+                value: rate,
+              ),
               const SizedBox(height: 12),
-              _MyAdDetailRow(label: 'Min order', value: min),
+              _MyAdDetailRow(
+                label: AppLocalizations.of(context)!.minOrderLabel,
+                value: min,
+              ),
               const SizedBox(height: 12),
-              _MyAdDetailRow(label: 'Max order', value: max),
+              _MyAdDetailRow(
+                label: AppLocalizations.of(context)!.maxOrderLabel,
+                value: max,
+              ),
               if (latest.paymentMethods.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 Text(
@@ -8031,15 +8092,15 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
               const SizedBox(height: 18),
               _CreateAdOptionTile(
                 icon: Icons.shopping_cart_checkout,
-                title: 'Sell USD',
-                subtitle: 'Receive fiat or mobile money.',
+                title: AppLocalizations.of(context)!.p2pSellUsdTitle,
+                subtitle: AppLocalizations.of(context)!.p2pSellUsdSubtitle,
                 onTap: () => _selectType(P2PAdType.sell),
               ),
               const SizedBox(height: 12),
               _CreateAdOptionTile(
                 icon: Icons.attach_money_rounded,
-                title: 'Buy USD',
-                subtitle: 'Specify how you will pay sellers.',
+                title: AppLocalizations.of(context)!.p2pBuyUsdTitle,
+                subtitle: AppLocalizations.of(context)!.p2pBuyUsdSubtitle,
                 onTap: () => _selectType(P2PAdType.buy),
               ),
             ],
@@ -8457,7 +8518,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
           children: [
             Expanded(
               child: _AmountField(
-                label: 'Total amount (USD)',
+                label: AppLocalizations.of(context)!.p2pTotalAmountUsdLabel,
                 currency: amountCurrencyLabel,
                 controller: _totalAmount,
                 focusNode: _totalFocus,
@@ -8468,7 +8529,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
             const SizedBox(width: 10),
             Expanded(
               child: _AmountField(
-                label: 'Price (USD)',
+                label: AppLocalizations.of(context)!.p2pPriceUsdLabel,
                 currency: priceCurrencyLabel,
                 controller: _rate,
                 focusNode: _priceFocus,
@@ -8483,7 +8544,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
           children: [
             Expanded(
               child: _AmountField(
-                label: 'Min order (USD)',
+                label: AppLocalizations.of(context)!.p2pMinOrderUsdLabel,
                 currency: amountCurrencyLabel,
                 controller: _minOrder,
                 focusNode: _minFocus,
@@ -8494,7 +8555,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
             const SizedBox(width: 10),
             Expanded(
               child: _AmountField(
-                label: 'Max order (USD)',
+                label: AppLocalizations.of(context)!.p2pMaxOrderUsdLabel,
                 currency: amountCurrencyLabel,
                 controller: _maxOrder,
                 focusNode: _maxFocus,
@@ -8506,9 +8567,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         ),
         const SizedBox(height: 10),
         _TextField(
-          label: 'Instructions (optional)',
+          label: AppLocalizations.of(context)!.p2pInstructionsOptionalLabel,
           controller: _instructions,
-          hintText: 'e.g., Proof of transfer required',
+          hintText: AppLocalizations.of(context)!.p2pInstructionsProofHint,
           maxLines: 3,
           textInputAction: TextInputAction.newline,
         ),
@@ -8938,21 +8999,21 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
             ],
             const SizedBox(height: 12),
             _TextField(
-              label: 'Display name',
+              label: AppLocalizations.of(context)!.p2pDisplayNameLabel,
               controller: _displayName,
-              hintText: 'Johnex',
+              hintText: AppLocalizations.of(context)!.p2pDisplayNameHint,
             ),
             const SizedBox(height: 10),
             _TextField(
-              label: 'Username',
+              label: AppLocalizations.of(context)!.p2pUsernameLabel,
               controller: _nickname,
-              hintText: 'john_fx',
+              hintText: AppLocalizations.of(context)!.p2pUsernameHint,
             ),
             const SizedBox(height: 10),
             _TextField(
-              label: 'Bio',
+              label: AppLocalizations.of(context)!.p2pBioLabel,
               controller: _bio,
-              hintText: '10 years trading USD/ZMW',
+              hintText: AppLocalizations.of(context)!.p2pBioHint,
               maxLines: 3,
             ),
             const SizedBox(height: 10),
@@ -9470,7 +9531,7 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                 children: [
                   Expanded(
                     child: _AmountField(
-                      label: 'Total amount',
+                      label: AppLocalizations.of(context)!.totalAmountLabel,
                       currency: _currency,
                       controller: _totalAmount,
                     ),
@@ -9478,7 +9539,7 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _AmountField(
-                      label: 'Price (rate)',
+                      label: AppLocalizations.of(context)!.p2pPriceRateLabel,
                       currency: _currency,
                       controller: _rate,
                     ),
@@ -9490,7 +9551,7 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                 children: [
                   Expanded(
                     child: _AmountField(
-                      label: 'Min order',
+                      label: AppLocalizations.of(context)!.minOrderLabel,
                       currency: _currency,
                       controller: _minOrder,
                     ),
@@ -9498,7 +9559,7 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _AmountField(
-                      label: 'Max order',
+                      label: AppLocalizations.of(context)!.maxOrderLabel,
                       currency: _currency,
                       controller: _maxOrder,
                     ),
@@ -9507,9 +9568,13 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
               ),
               const SizedBox(height: 10),
               _TextField(
-                label: 'Instructions (optional)',
+                label: AppLocalizations.of(
+                  context,
+                )!.p2pInstructionsOptionalLabel,
                 controller: _instructions,
-                hintText: 'e.g., Available 08:00–21:00',
+                hintText: AppLocalizations.of(
+                  context,
+                )!.p2pInstructionsAvailableHint,
               ),
             ],
           );
@@ -9814,7 +9879,7 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
               children: [
                 Expanded(
                   child: _AmountField(
-                    label: 'Total amount',
+                    label: AppLocalizations.of(context)!.totalAmountLabel,
                     currency: _currency,
                     controller: _totalAmount,
                   ),
@@ -9822,7 +9887,7 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _AmountField(
-                    label: 'Price (rate)',
+                    label: AppLocalizations.of(context)!.p2pPriceRateLabel,
                     currency: _currency,
                     controller: _rate,
                   ),
@@ -9834,7 +9899,7 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
               children: [
                 Expanded(
                   child: _AmountField(
-                    label: 'Min order',
+                    label: AppLocalizations.of(context)!.minOrderLabel,
                     currency: _currency,
                     controller: _minOrder,
                   ),
@@ -9842,7 +9907,7 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _AmountField(
-                    label: 'Max order',
+                    label: AppLocalizations.of(context)!.maxOrderLabel,
                     currency: _currency,
                     controller: _maxOrder,
                   ),
@@ -9851,9 +9916,11 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
             ),
             const SizedBox(height: 10),
             _TextField(
-              label: 'Instructions (optional)',
+              label: AppLocalizations.of(context)!.p2pInstructionsOptionalLabel,
               controller: _instructions,
-              hintText: 'e.g., Need proof of transfer',
+              hintText: AppLocalizations.of(
+                context,
+              )!.p2pInstructionsNeedProofHint,
             ),
             const SizedBox(height: 18),
             SizedBox(
@@ -10310,21 +10377,23 @@ class _AddPaymentMethodSheetState
                 ),
               const SizedBox(height: 12),
               _TextField(
-                label: 'Account name',
+                label: AppLocalizations.of(context)!.accountNameLabel,
                 controller: _accountName,
-                hintText: 'Name on account',
+                hintText: AppLocalizations.of(context)!.p2pNameOnAccountHint,
               ),
               const SizedBox(height: 10),
               _TextField(
-                label: 'Account number',
+                label: AppLocalizations.of(context)!.accountNumberLabel,
                 controller: _accountNumber,
-                hintText: 'Account number',
+                hintText: AppLocalizations.of(context)!.p2pAccountNumberHint,
               ),
               const SizedBox(height: 10),
               _TextField(
-                label: 'Extra details (optional)',
+                label: AppLocalizations.of(
+                  context,
+                )!.p2pExtraDetailsOptionalLabel,
                 controller: _extraDetails,
-                hintText: 'Branch, reference',
+                hintText: AppLocalizations.of(context)!.p2pBranchReferenceHint,
                 maxLines: 2,
               ),
               const SizedBox(height: 16),
@@ -11036,7 +11105,7 @@ class _AmountField extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: OpeiBrand.primary, width: 1),
             ),
-            hintText: '0.00',
+            hintText: AppLocalizations.of(context)!.sendMoneyAmountHint,
             hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontSize: 13,
               color: OpeiColors.iosLabelTertiary,
@@ -11268,9 +11337,10 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
         builder: (_) => _SelectAdPaymentMethodSheet(
           methods: methods,
           currency: widget.ad.currency,
-          title: 'Choose how you’ll pay',
-          subtitle:
-              'Select one of the seller’s payment methods for ${widget.ad.currency}.',
+          title: AppLocalizations.of(context)!.p2pChooseHowYouPayTitle,
+          subtitle: AppLocalizations.of(
+            context,
+          )!.p2pSelectSellerPaymentMethodSubtitle(widget.ad.currency),
           actionLabel: 'Continue',
         ),
       );
@@ -11375,9 +11445,10 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
         builder: (_) => _SelectAdPaymentMethodSheet(
           methods: methods,
           currency: widget.ad.currency,
-          title: 'Select payout rail',
-          subtitle:
-              'Choose the payment method the buyer should use for ${widget.ad.currency}.',
+          title: AppLocalizations.of(context)!.p2pSelectPayoutRailTitle,
+          subtitle: AppLocalizations.of(
+            context,
+          )!.p2pChooseBuyerPaymentMethodSubtitle(widget.ad.currency),
           actionLabel: 'Continue',
         ),
       );
@@ -11692,7 +11763,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
                   width: 1,
                 ),
               ),
-              hintText: '0.00',
+              hintText: AppLocalizations.of(context)!.sendMoneyAmountHint,
               hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontSize: 13,
                 color: OpeiColors.iosLabelTertiary,
@@ -11741,17 +11812,20 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
             ),
           ),
           const SizedBox(height: 24),
-          _DetailRow(label: 'Status', value: ad.statusLabel),
           _DetailRow(
-            label: 'Rate',
+            label: AppLocalizations.of(context)!.statusLabel,
+            value: ad.statusLabel,
+          ),
+          _DetailRow(
+            label: AppLocalizations.of(context)!.rateLabel,
             value: ad.rate.format(includeCurrencySymbol: true),
           ),
           _DetailRow(
-            label: 'Available',
+            label: AppLocalizations.of(context)!.availableLabel,
             value: ad.remainingAmount.format(includeCurrencySymbol: true),
           ),
           _DetailRow(
-            label: 'Minimum order',
+            label: AppLocalizations.of(context)!.p2pMinimumOrderLabel,
             value: ad.minOrder.format(includeCurrencySymbol: true),
           ),
           const SizedBox(height: 20),
@@ -11991,7 +12065,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 const SizedBox(height: 12),
                 _summaryRow(
                   textTheme: textTheme,
-                  label: 'Buyer pays via',
+                  label: AppLocalizations.of(context)!.p2pBuyerPaysViaLabel,
                   value: providerName,
                   emphasizeValue: true,
                 ),
@@ -12009,13 +12083,13 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 const SizedBox(height: 10),
                 _summaryRow(
                   textTheme: textTheme,
-                  label: 'Payment currency',
+                  label: AppLocalizations.of(context)!.p2pPaymentCurrencyLabel,
                   value: currency,
                 ),
                 const SizedBox(height: 8),
                 _summaryRow(
                   textTheme: textTheme,
-                  label: 'Rate',
+                  label: AppLocalizations.of(context)!.rateLabel,
                   value: rateLabel,
                 ),
               ],
@@ -12503,8 +12577,8 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           ],
           if (_disputeSuccess) ...[
             const SizedBox(height: 14),
-            const _MessageBanner(
-              message: 'Dispute opened. Support will review it shortly.',
+            _MessageBanner(
+              message: AppLocalizations.of(context)!.p2pDisputeOpenedSuccess,
               isError: false,
             ),
           ],
@@ -12647,7 +12721,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                     const SizedBox(height: 20),
                     if (accountName.isNotEmpty) ...[
                       _PaymentDetailRow(
-                        label: 'Account Name',
+                        label: AppLocalizations.of(context)!.accountNameLabel,
                         value: accountName,
                         textTheme: textTheme,
                       ),
@@ -12655,7 +12729,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                     ],
                     if (accountNumber.isNotEmpty) ...[
                       _PaymentDetailRow(
-                        label: 'Account Number',
+                        label: AppLocalizations.of(context)!.accountNumberLabel,
                         value: accountNumber,
                         textTheme: textTheme,
                         isMonospace: true,
@@ -12664,7 +12738,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                     if (extraDetails != null && extraDetails.isNotEmpty) ...[
                       const SizedBox(height: 12),
                       _PaymentDetailRow(
-                        label: 'Additional Details',
+                        label: AppLocalizations.of(
+                          context,
+                        )!.additionalDetailsLabel,
                         value: extraDetails,
                         textTheme: textTheme,
                       ),
@@ -13335,6 +13411,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
   }
 
   Future<void> _handleConfirmPaid() async {
+    final l10n = AppLocalizations.of(context)!;
     final currentTrade = _trade;
     if (currentTrade.status != P2PTradeStatus.initiated) {
       return;
@@ -13377,9 +13454,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       );
 
       if (plans.length != candidates.length) {
-        throw ApiError(
-          message: 'Couldn’t prepare proof uploads. Please try again.',
-        );
+        throw ApiError(message: l10n.p2pPrepareProofUploadsError);
       }
 
       debugPrint(
@@ -13892,7 +13967,9 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
                       size: 22,
                       color: OpeiColors.pureBlack,
                     ),
-                    tooltip: 'Back to orders',
+                    tooltip: AppLocalizations.of(
+                      context,
+                    )!.p2pBackToOrdersTooltip,
                     onPressed: _handleDone,
                   ),
                 ),
@@ -13975,7 +14052,9 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
                       ),
                       const SizedBox(height: 12),
                       _ProofSubmittedBullet(
-                        label: 'Seller reviews your payment proof.',
+                        label: AppLocalizations.of(
+                          context,
+                        )!.p2pSellerReviewsProofLabel,
                       ),
                       const SizedBox(height: 6),
                       _ProofSubmittedBullet(
@@ -14183,6 +14262,12 @@ class _ProofUploadCandidate {
   });
 }
 
+String _uploadFailedStatusMessage(int? statusCode) =>
+    'Upload failed with status $statusCode';
+
+String _failedUploadProofMessage(int index) =>
+    'Failed to upload proof $index. Please try again.';
+
 Future<void> _performProofUploads(
   List<_ProofUploadCandidate> candidates,
   List<P2PTradeProofUploadPlan> plans,
@@ -14233,7 +14318,7 @@ Future<void> _performProofUploads(
         debugPrint('❌ Unexpected status code: ${response.statusCode}');
         debugPrint('📄 Response body: ${response.data}');
         throw ApiError(
-          message: 'Upload failed with status ${response.statusCode}',
+          message: _uploadFailedStatusMessage(response.statusCode),
           statusCode: response.statusCode,
         );
       }
@@ -14254,7 +14339,7 @@ Future<void> _performProofUploads(
       debugPrint('🔴 Response body: ${error.response?.data}');
 
       throw ApiError(
-        message: 'Failed to upload proof ${i + 1}. Please try again.',
+        message: _failedUploadProofMessage(i + 1),
         statusCode: error.response?.statusCode,
       );
     }
@@ -14414,7 +14499,7 @@ class _UploadProofSheet extends StatelessWidget {
               textInputAction: TextInputAction.newline,
               inputFormatters: [LengthLimitingTextInputFormatter(500)],
               decoration: InputDecoration(
-                hintText: 'Add any details the seller should know',
+                hintText: AppLocalizations.of(context)!.p2pSellerDetailsHint,
                 hintStyle: theme.textTheme.bodySmall?.copyWith(
                   color: OpeiColors.iosLabelTertiary,
                   fontSize: 14,

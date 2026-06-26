@@ -13,6 +13,16 @@ import 'package:opei/features/cards/card_creation_state.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
 
 class CardCreationController extends Notifier<CardCreationState> {
+  static const _cardReadyMessage =
+      'Your card is ready. You can continue setting up your card.';
+  static const _completeProfileMessage = 'Complete your profile to continue.';
+  static const _genericTryAgainMessage =
+      'Something went wrong. Please try again in a moment.';
+  static const _sessionExpiredContinueMessage =
+      'Session expired. Please sign in again to continue.';
+  static const _serviceUnavailableMessage =
+      'Card service temporarily unavailable. Please try again shortly.';
+
   late CardRepository _cardRepository;
 
   @override
@@ -41,7 +51,7 @@ class CardCreationController extends Notifier<CardCreationState> {
     try {
       final response = await _cardRepository.registerUser();
       final alreadyRegisteredMessage = response.alreadyRegistered
-          ? 'Your card is ready. You can continue setting up your card.'
+          ? _cardReadyMessage
           : null;
 
       state = state.copyWith(
@@ -53,7 +63,9 @@ class CardCreationController extends Notifier<CardCreationState> {
         clearError: true,
       );
 
-      debugPrint('✅ Card registration resolved. alreadyRegistered=${response.alreadyRegistered}');
+      debugPrint(
+        '✅ Card registration resolved. alreadyRegistered=${response.alreadyRegistered}',
+      );
     } catch (error) {
       final handled = _handleRegistrationError(error);
 
@@ -65,7 +77,9 @@ class CardCreationController extends Notifier<CardCreationState> {
           clearError: true,
           clearRegistration: true,
         );
-        debugPrint('ℹ️ Registration skipped with allowContinue=true: ${handled.message}');
+        debugPrint(
+          'ℹ️ Registration skipped with allowContinue=true: ${handled.message}',
+        );
         return;
       }
 
@@ -113,7 +127,9 @@ class CardCreationController extends Notifier<CardCreationState> {
         clearCreatedCard: true,
       );
 
-      debugPrint('✅ Card creation preview loaded. Total charge: ${preview.totalToCharge.cents}');
+      debugPrint(
+        '✅ Card creation preview loaded. Total charge: ${preview.totalToCharge.cents}',
+      );
     } catch (error) {
       final message = _mapPreviewError(error);
       state = state.copyWith(
@@ -130,11 +146,14 @@ class CardCreationController extends Notifier<CardCreationState> {
     final amount = state.amount;
 
     if (currentPreview == null || amount == null) {
-      state = state.copyWith(errorMessage: 'Preview details are missing. Please try again.');
+      state = state.copyWith(
+        errorMessage: 'Preview details are missing. Please try again.',
+      );
       return;
     }
 
-    if (!currentPreview.canCreate || currentPreview.walletBalanceAfter.isNegative) {
+    if (!currentPreview.canCreate ||
+        currentPreview.walletBalanceAfter.isNegative) {
       state = state.copyWith(
         stage: CardCreationStage.preview,
         isBusy: false,
@@ -165,10 +184,16 @@ class CardCreationController extends Notifier<CardCreationState> {
         clearCreatedCard: true,
       );
 
-      debugPrint('🎉 Card creation submitted. Reference: ${response.reference}');
+      debugPrint(
+        '🎉 Card creation submitted. Reference: ${response.reference}',
+      );
 
       // Refresh wallet balance in the background after successful card creation.
-      unawaited(ref.read(dashboardControllerProvider.notifier).refreshBalance(showSpinner: false));
+      unawaited(
+        ref
+            .read(dashboardControllerProvider.notifier)
+            .refreshBalance(showSpinner: false),
+      );
 
       unawaited(_hydrateCreatedCard(response));
     } catch (error) {
@@ -223,7 +248,8 @@ class CardCreationController extends Notifier<CardCreationState> {
 
       state = state.copyWith(
         isBusy: false,
-        infoMessage: "Your card is ready. It will appear in your cards list shortly.",
+        infoMessage:
+            "Your card is ready. It will appear in your cards list shortly.",
       );
     }
   }
@@ -255,43 +281,34 @@ class CardCreationController extends Notifier<CardCreationState> {
       switch (statusCode) {
         case 409:
           return _RegistrationResolution(
-            message: 'Your card is ready. You can continue setting up your card.',
+            message: _cardReadyMessage,
             allowContinue: true,
           );
         case 400:
         case 422:
-          return _RegistrationResolution(
-            message: 'Complete your profile to continue.',
-          );
+          return _RegistrationResolution(message: _completeProfileMessage);
         case 401:
           if (rawMessage.contains('secret')) {
-            return _RegistrationResolution(
-              message: 'Something went wrong. Please try again in a moment.',
-            );
+            return _RegistrationResolution(message: _genericTryAgainMessage);
           }
-          if (rawMessage.contains('authorization') || rawMessage.contains('auth')) {
+          if (rawMessage.contains('authorization') ||
+              rawMessage.contains('auth')) {
             return _RegistrationResolution(
-              message: 'Session expired. Please sign in again to continue.',
+              message: _sessionExpiredContinueMessage,
             );
           }
           return _RegistrationResolution(
-            message: 'Session expired. Please sign in again to continue.',
+            message: _sessionExpiredContinueMessage,
           );
         case 502:
         case 503:
-          return _RegistrationResolution(
-            message: 'Card service temporarily unavailable. Please try again shortly.',
-          );
+          return _RegistrationResolution(message: _serviceUnavailableMessage);
         case 404:
-          return _RegistrationResolution(
-            message: 'Something went wrong. Please try again in a moment.',
-          );
+          return _RegistrationResolution(message: _genericTryAgainMessage);
       }
     }
 
-    return _RegistrationResolution(
-      message: ErrorHelper.getErrorMessage(error),
-    );
+    return _RegistrationResolution(message: ErrorHelper.getErrorMessage(error));
   }
 
   String _mapPreviewError(Object error) {
@@ -340,6 +357,7 @@ class _RegistrationResolution {
   _RegistrationResolution({required this.message, this.allowContinue = false});
 }
 
-final cardCreationControllerProvider = NotifierProvider<CardCreationController, CardCreationState>(
-  CardCreationController.new,
-);
+final cardCreationControllerProvider =
+    NotifierProvider<CardCreationController, CardCreationState>(
+      CardCreationController.new,
+    );

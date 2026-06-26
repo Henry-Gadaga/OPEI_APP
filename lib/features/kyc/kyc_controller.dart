@@ -5,6 +5,20 @@ import 'package:opei/core/providers/providers.dart';
 import 'package:opei/features/kyc/kyc_state.dart';
 
 class KycController extends Notifier<KycState> {
+  static const _genericErrorMessage = 'Something went wrong. Please try again.';
+  static const _sessionExpiredMessage = 'Session expired. Please login again.';
+  static const _alreadyCompleteMessage = 'Verification already complete!';
+  static const _underReviewMessage =
+      'Your verification is under review. Please check back later.';
+  static const _addressRequiredMessage =
+      'Please complete your address information first.';
+  static const _inactiveAccountMessage =
+      'Account suspended. Please contact support.';
+  static const _accountNotFoundMessage =
+      'Account not found. Please login again.';
+  static const _serviceUnavailableMessage =
+      'Service temporarily unavailable. Please try again later.';
+
   @override
   KycState build() => KycInitial();
 
@@ -38,7 +52,7 @@ class KycController extends Notifier<KycState> {
     } catch (e) {
       debugPrint('❌ KYC unexpected error: $e');
       state = KycError(
-        message: 'Something went wrong. Please try again.',
+        message: _genericErrorMessage,
         errorType: KycErrorType.general,
       );
     }
@@ -48,34 +62,35 @@ class KycController extends Notifier<KycState> {
     switch (error.statusCode) {
       case 401:
         return KycError(
-          message: 'Session expired. Please login again.',
+          message: _sessionExpiredMessage,
           errorType: KycErrorType.unauthorized,
         );
 
       case 403:
         final message = error.message.toLowerCase();
-        
+
         if (message.contains('already approved')) {
           return KycError(
-            message: 'Verification already complete!',
+            message: _alreadyCompleteMessage,
             errorType: KycErrorType.alreadyApproved,
           );
         }
         if (message.contains('under review')) {
           return KycError(
-            message: 'Your verification is under review. Please check back later.',
+            message: _underReviewMessage,
             errorType: KycErrorType.underReview,
           );
         }
-        if (message.contains('address') || message.contains('pending_address')) {
+        if (message.contains('address') ||
+            message.contains('pending_address')) {
           return KycError(
-            message: 'Please complete your address information first.',
+            message: _addressRequiredMessage,
             errorType: KycErrorType.wrongStage,
           );
         }
         if (message.contains('inactive') || message.contains('suspended')) {
           return KycError(
-            message: 'Account suspended. Please contact support.',
+            message: _inactiveAccountMessage,
             errorType: KycErrorType.inactiveUser,
           );
         }
@@ -86,7 +101,7 @@ class KycController extends Notifier<KycState> {
 
       case 404:
         return KycError(
-          message: 'Account not found. Please login again.',
+          message: _accountNotFoundMessage,
           errorType: KycErrorType.notFound,
         );
 
@@ -94,7 +109,7 @@ class KycController extends Notifier<KycState> {
       case 502:
       case 503:
         return KycError(
-          message: 'Service temporarily unavailable. Please try again later.',
+          message: _serviceUnavailableMessage,
           errorType: KycErrorType.serviceUnavailable,
         );
 

@@ -533,6 +533,7 @@
   "accountNameLabel": "Nome da conta",
   "detailsLabel": "Detalhes",
   "networkLabel": "Rede",
+  "paymentMethodsLabel": "Metodos de pagamento",
   "paymentMethodLabel": "Metodo de pagamento",
   "exchangeRateLabel": "Taxa de cambio",
   "withdrawChooseMethodSubtitle": "Escolha um metodo de saque",
@@ -658,5 +659,91 @@
   "usBankBusinessNameLabel": "Nome da empresa",
   "usBankFullNameLabel": "Nome completo",
   "referralCodeHint": "Cole o codigo ou https://opei.app/r/CODE",
-  "sendMoneyAmountHint": "0.00"
+  "sendMoneyAmountHint": "0.00",
+  "allLabel": "Todos",
+  "ratingLabel": "Avaliacao",
+  "tradesLabel": "Negociacoes",
+  "sinceLabel": "Desde",
+  "rateLabel": "Taxa",
+  "paymentLabel": "Pagamento",
+  "createdLabel": "Criado",
+  "availableLabel": "Disponivel",
+  "additionalDetailsLabel": "Detalhes adicionais",
+  "remainingLabel": "Restante",
+  "totalAmountLabel": "Valor total",
+  "minOrderLabel": "Pedido min.",
+  "maxOrderLabel": "Pedido max.",
+  "p2pBuyLabel": "Comprar",
+  "p2pSellLabel": "Vender",
+  "p2pCouldNotLoadAdsTitle": "Nao foi possivel carregar seus anuncios",
+  "p2pOrdersTabLabel": "Pedidos",
+  "p2pMyAdsTabLabel": "Meus anuncios",
+  "p2pMinimumAmountLabel": "Valor minimo",
+  "p2pMaximumAmountLabel": "Valor maximo",
+  "p2pManagePayoutAccountsSubtitle": "Gerenciar contas de recebimento",
+  "p2pSearchCurrencyHint": "Buscar moeda",
+  "p2pPaidLabel": "Pago",
+  "p2pReleasedLabel": "Liberado",
+  "p2pCompletedLabel": "Concluido",
+  "p2pReasonLabel": "Motivo",
+  "p2pOrderIdLabel": "ID do pedido",
+  "p2pShareShortNoteHint": "Compartilhe uma nota curta (<=500 caracteres)",
+  "p2pPrepareProofUploadsError": "Nao foi possivel preparar os uploads da prova. Tente novamente.",
+  "p2pDisputeReasonHint": "O vendedor nao liberou depois que eu enviei os fundos",
+  "p2pSellUsdTitle": "Vender USD",
+  "p2pSellUsdSubtitle": "Receba fiat ou dinheiro movel.",
+  "p2pBuyUsdTitle": "Comprar USD",
+  "p2pBuyUsdSubtitle": "Especifique como voce vai pagar os vendedores.",
+  "p2pTotalAmountUsdLabel": "Valor total (USD)",
+  "p2pPriceUsdLabel": "Preco (USD)",
+  "p2pMinOrderUsdLabel": "Pedido min. (USD)",
+  "p2pMaxOrderUsdLabel": "Pedido max. (USD)",
+  "p2pInstructionsOptionalLabel": "Instrucoes (opcional)",
+  "p2pInstructionsProofHint": "ex.: Prova de transferencia obrigatoria",
+  "p2pDisplayNameLabel": "Nome de exibicao",
+  "p2pDisplayNameHint": "Johnex",
+  "p2pUsernameLabel": "Nome de usuario",
+  "p2pUsernameHint": "john_fx",
+  "p2pBioLabel": "Bio",
+  "p2pBioHint": "10 anos negociando USD/ZMW",
+  "p2pPriceRateLabel": "Preco (taxa)",
+  "p2pInstructionsAvailableHint": "ex.: Disponivel 08:00-21:00",
+  "p2pInstructionsNeedProofHint": "ex.: Precisa de comprovante de transferencia",
+  "p2pNameOnAccountHint": "Nome na conta",
+  "p2pAccountNumberHint": "Numero da conta",
+  "p2pExtraDetailsOptionalLabel": "Detalhes extras (opcional)",
+  "p2pBranchReferenceHint": "Agencia, referencia",
+  "p2pChooseHowYouPayTitle": "Escolha como voce vai pagar",
+  "p2pSelectSellerPaymentMethodSubtitle": "Selecione um dos metodos de pagamento do vendedor para {currency}.",
+  "@p2pSelectSellerPaymentMethodSubtitle": {
+    "placeholders": {
+      "currency": {}
+    }
+  },
+  "p2pSelectPayoutRailTitle": "Selecionar trilho de pagamento",
+  "p2pChooseBuyerPaymentMethodSubtitle": "Escolha o metodo de pagamento que o comprador deve usar para {currency}.",
+  "@p2pChooseBuyerPaymentMethodSubtitle": {
+    "placeholders": {
+      "currency": {}
+    }
+  },
+  "p2pMinimumOrderLabel": "Pedido minimo",
+  "p2pBuyerPaysViaLabel": "Comprador paga via",
+  "p2pPaymentCurrencyLabel": "Moeda de pagamento",
+  "p2pDisputeOpenedSuccess": "Disputa aberta. O suporte revisara em breve.",
+  "p2pBackToOrdersTooltip": "Voltar para pedidos",
+  "p2pSellerReviewsProofLabel": "O vendedor revisa sua prova de pagamento.",
+  "p2pUploadFailedStatus": "Falha no upload com status {status}",
+  "@p2pUploadFailedStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "p2pFailedUploadProof": "Falha ao enviar a prova {index}. Tente novamente.",
+  "@p2pFailedUploadProof": {
+    "placeholders": {
+      "index": {}
+    }
+  },
+  "p2pSellerDetailsHint": "Adicione qualquer detalhe que o vendedor deva saber"
 }

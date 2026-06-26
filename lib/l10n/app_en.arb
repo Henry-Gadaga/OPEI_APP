@@ -533,6 +533,7 @@
   "accountNameLabel": "Account name",
   "detailsLabel": "Details",
   "networkLabel": "Network",
+  "paymentMethodsLabel": "Payment methods",
   "paymentMethodLabel": "Payment method",
   "exchangeRateLabel": "Exchange rate",
   "withdrawChooseMethodSubtitle": "Choose a withdrawal method",
@@ -658,5 +659,91 @@
   "usBankBusinessNameLabel": "Business name",
   "usBankFullNameLabel": "Full name",
   "referralCodeHint": "Paste code or https://opei.app/r/CODE",
-  "sendMoneyAmountHint": "0.00"
+  "sendMoneyAmountHint": "0.00",
+  "allLabel": "All",
+  "ratingLabel": "Rating",
+  "tradesLabel": "Trades",
+  "sinceLabel": "Since",
+  "rateLabel": "Rate",
+  "paymentLabel": "Payment",
+  "createdLabel": "Created",
+  "availableLabel": "Available",
+  "additionalDetailsLabel": "Additional Details",
+  "remainingLabel": "Remaining",
+  "totalAmountLabel": "Total amount",
+  "minOrderLabel": "Min order",
+  "maxOrderLabel": "Max order",
+  "p2pBuyLabel": "Buy",
+  "p2pSellLabel": "Sell",
+  "p2pCouldNotLoadAdsTitle": "We couldn’t load your ads",
+  "p2pOrdersTabLabel": "Orders",
+  "p2pMyAdsTabLabel": "My Ads",
+  "p2pMinimumAmountLabel": "Minimum amount",
+  "p2pMaximumAmountLabel": "Maximum amount",
+  "p2pManagePayoutAccountsSubtitle": "Manage payout accounts",
+  "p2pSearchCurrencyHint": "Search currency",
+  "p2pPaidLabel": "Paid",
+  "p2pReleasedLabel": "Released",
+  "p2pCompletedLabel": "Completed",
+  "p2pReasonLabel": "Reason",
+  "p2pOrderIdLabel": "Order ID",
+  "p2pShareShortNoteHint": "Share a short note (<=500 chars)",
+  "p2pPrepareProofUploadsError": "Couldn’t prepare proof uploads. Please try again.",
+  "p2pDisputeReasonHint": "Seller never released after I sent funds",
+  "p2pSellUsdTitle": "Sell USD",
+  "p2pSellUsdSubtitle": "Receive fiat or mobile money.",
+  "p2pBuyUsdTitle": "Buy USD",
+  "p2pBuyUsdSubtitle": "Specify how you will pay sellers.",
+  "p2pTotalAmountUsdLabel": "Total amount (USD)",
+  "p2pPriceUsdLabel": "Price (USD)",
+  "p2pMinOrderUsdLabel": "Min order (USD)",
+  "p2pMaxOrderUsdLabel": "Max order (USD)",
+  "p2pInstructionsOptionalLabel": "Instructions (optional)",
+  "p2pInstructionsProofHint": "e.g., Proof of transfer required",
+  "p2pDisplayNameLabel": "Display name",
+  "p2pDisplayNameHint": "Johnex",
+  "p2pUsernameLabel": "Username",
+  "p2pUsernameHint": "john_fx",
+  "p2pBioLabel": "Bio",
+  "p2pBioHint": "10 years trading USD/ZMW",
+  "p2pPriceRateLabel": "Price (rate)",
+  "p2pInstructionsAvailableHint": "e.g., Available 08:00-21:00",
+  "p2pInstructionsNeedProofHint": "e.g., Need proof of transfer",
+  "p2pNameOnAccountHint": "Name on account",
+  "p2pAccountNumberHint": "Account number",
+  "p2pExtraDetailsOptionalLabel": "Extra details (optional)",
+  "p2pBranchReferenceHint": "Branch, reference",
+  "p2pChooseHowYouPayTitle": "Choose how you’ll pay",
+  "p2pSelectSellerPaymentMethodSubtitle": "Select one of the seller’s payment methods for {currency}.",
+  "@p2pSelectSellerPaymentMethodSubtitle": {
+    "placeholders": {
+      "currency": {}
+    }
+  },
+  "p2pSelectPayoutRailTitle": "Select payout rail",
+  "p2pChooseBuyerPaymentMethodSubtitle": "Choose the payment method the buyer should use for {currency}.",
+  "@p2pChooseBuyerPaymentMethodSubtitle": {
+    "placeholders": {
+      "currency": {}
+    }
+  },
+  "p2pMinimumOrderLabel": "Minimum order",
+  "p2pBuyerPaysViaLabel": "Buyer pays via",
+  "p2pPaymentCurrencyLabel": "Payment currency",
+  "p2pDisputeOpenedSuccess": "Dispute opened. Support will review it shortly.",
+  "p2pBackToOrdersTooltip": "Back to orders",
+  "p2pSellerReviewsProofLabel": "Seller reviews your payment proof.",
+  "p2pUploadFailedStatus": "Upload failed with status {status}",
+  "@p2pUploadFailedStatus": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "p2pFailedUploadProof": "Failed to upload proof {index}. Please try again.",
+  "@p2pFailedUploadProof": {
+    "placeholders": {
+      "index": {}
+    }
+  },
+  "p2pSellerDetailsHint": "Add any details the seller should know"
 }
