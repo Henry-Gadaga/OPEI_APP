@@ -88,7 +88,7 @@ class P2PAdsController extends Notifier<P2PAdsState> {
 
     if (effectiveMin != null && effectiveMax != null && effectiveMin > effectiveMax) {
       state = state.copyWith(
-        errorMessage: 'The minimum amount can’t be higher than the maximum.',
+        errorMessage: ErrorHelper.l10n.p2pMinAmountHigherThanMaxError,
         clearInfo: true,
       );
       return;
@@ -124,7 +124,7 @@ class P2PAdsController extends Notifier<P2PAdsState> {
       selectedPaymentMethod: nextSelection,
       clearSelectedPaymentMethod: shouldClearSelection,
       filteredAds: filtered,
-      infoMessage: filtered.isEmpty ? 'No ads available right now.' : null,
+      infoMessage: filtered.isEmpty ? ErrorHelper.l10n.p2pNoAdsAvailableNowInfo : null,
       clearInfo: filtered.isNotEmpty,
       clearError: true,
     );
@@ -171,7 +171,7 @@ class P2PAdsController extends Notifier<P2PAdsState> {
         isLoading: false,
         isRefreshing: false,
         hasLoaded: true,
-        infoMessage: filteredAds.isEmpty ? 'No ads available right now.' : null,
+        infoMessage: filteredAds.isEmpty ? ErrorHelper.l10n.p2pNoAdsAvailableNowInfo : null,
         clearInfo: filteredAds.isNotEmpty,
         clearError: true,
       );
@@ -236,13 +236,13 @@ class P2PAdsController extends Notifier<P2PAdsState> {
 
       if (statusCode == 400) {
         if (message.contains('minamountcents cannot be greater than maxamountcents')) {
-          return 'The minimum amount can’t be higher than the maximum.';
+          return ErrorHelper.l10n.p2pMinAmountHigherThanMaxError;
         }
-        return 'We couldn’t apply those filters. Please try again.';
+        return ErrorHelper.l10n.p2pFiltersApplyFailedError;
       }
 
       if (statusCode != null && statusCode >= 500) {
-        return 'Something went wrong. Please try again.';
+        return ErrorHelper.l10n.errGenericRetry;
       }
     }
 
@@ -310,7 +310,7 @@ class MyP2PAdsController extends Notifier<MyP2PAdsState> {
         isLoading: false,
         isRefreshing: false,
         hasLoaded: true,
-        infoMessage: ads.isEmpty ? 'No ads found for this status yet.' : null,
+        infoMessage: ads.isEmpty ? ErrorHelper.l10n.p2pNoAdsForStatusInfo : null,
         clearInfo: ads.isNotEmpty,
         clearDeactivating: true,
       );
@@ -366,8 +366,8 @@ class MyP2PAdsController extends Notifier<MyP2PAdsState> {
       );
 
       return normalizedStatus == 'INACTIVE'
-          ? 'Ad moved to inactive.'
-          : 'Ad updated.';
+          ? ErrorHelper.l10n.p2pAdMovedToInactiveInfo
+          : ErrorHelper.l10n.p2pAdUpdatedInfo;
     } catch (error, stackTrace) {
       debugPrint('❌ Failed to deactivate P2P ad $adId: $error');
       debugPrint('$stackTrace');
@@ -404,16 +404,16 @@ class MyP2PAdsController extends Notifier<MyP2PAdsState> {
     if (error is ApiError) {
       final status = error.statusCode ?? 0;
       if (status == 400) {
-        return 'You can only deactivate your own ads.';
+        return ErrorHelper.l10n.p2pDeactivateOwnAdsError;
       }
       if (status == 404) {
-        return 'This ad is no longer available.';
+        return ErrorHelper.l10n.p2pAdNoLongerAvailableError;
       }
       if (status == 401 || status == 403) {
-        return 'Your session expired. Please sign in again.';
+        return ErrorHelper.l10n.errSessionExpired;
       }
       if (status >= 500) {
-        return 'We couldn’t deactivate this ad right now. Please try again.';
+        return ErrorHelper.l10n.p2pDeactivateTryAgainError;
       }
     }
 
@@ -480,20 +480,20 @@ class P2PProfileController extends Notifier<P2PProfileState> {
 
       if (statusCode == 400 || statusCode == 401) {
         if (message.contains('missing') && message.contains('x-user-id')) {
-          return 'We couldn’t verify your session. Please sign in again to view your profile.';
+          return ErrorHelper.l10n.p2pSessionVerifyProfileError;
         }
-        return 'We couldn’t verify your session. Please sign in again.';
+        return ErrorHelper.l10n.errSessionExpired;
       }
 
       if (statusCode == 403) {
-        return 'You don’t have permission to view this profile.';
+        return ErrorHelper.l10n.p2pNoPermissionViewProfileError;
       }
 
       if (statusCode >= 500) {
-        return 'We’re having trouble loading your profile right now. Please try again.';
+        return ErrorHelper.l10n.p2pProfileLoadingTryAgainError;
       }
 
-      return 'We couldn’t load your profile right now. Please try again.';
+      return ErrorHelper.l10n.p2pProfileLoadFailedError;
     }
 
     return ErrorHelper.getErrorMessage(error);
@@ -539,7 +539,7 @@ class P2POrdersController extends Notifier<P2POrdersState> {
   Future<P2PTrade> cancelTrade(P2PTrade trade) async {
     final tradeId = trade.id;
     if (tradeId.isEmpty) {
-      throw 'We couldn’t identify this trade. Please try again.';
+      throw ErrorHelper.l10n.p2pTradeIdentifyFailedError;
     }
 
     final pending = state.cancellingTradeIds.toSet()..add(tradeId);
@@ -616,7 +616,7 @@ class P2POrdersController extends Notifier<P2POrdersState> {
         isRefreshing: false,
         hasLoaded: true,
         errorMessage: null,
-        infoMessage: immutable.isEmpty ? 'No orders in this status yet.' : null,
+        infoMessage: immutable.isEmpty ? ErrorHelper.l10n.p2pNoOrdersForStatusInfo : null,
         clearInfo: immutable.isNotEmpty,
         clearError: true,
       );
@@ -646,13 +646,13 @@ class P2POrdersController extends Notifier<P2POrdersState> {
     if (error is ApiError) {
       final status = error.statusCode ?? 0;
       if (status == 401) {
-        return 'We couldn’t verify your session. Please sign in again.';
+        return ErrorHelper.l10n.errSessionExpired;
       }
       if (status == 400) {
-        return 'That filter isn’t available. Please pick another status.';
+        return ErrorHelper.l10n.p2pFilterUnavailableError;
       }
       if (status >= 500) {
-        return 'We’re having trouble loading your orders right now. Please try again.';
+        return ErrorHelper.l10n.p2pOrdersLoadingTryAgainError;
       }
     }
     return ErrorHelper.getErrorMessage(error);
@@ -665,11 +665,11 @@ class P2POrdersController extends Notifier<P2POrdersState> {
       final normalized = message.toLowerCase();
 
       if (status == 401) {
-        return 'We couldn’t verify your session. Please sign in again.';
+        return ErrorHelper.l10n.errSessionExpired;
       }
 
       if (status == 404) {
-        return 'We couldn’t find this trade. It may have been removed.';
+        return ErrorHelper.l10n.p2pTradeNotFoundMaybeRemovedError;
       }
 
       if (status == 403) {
@@ -678,16 +678,16 @@ class P2POrdersController extends Notifier<P2POrdersState> {
 
       if (status == 400) {
         if (normalized.contains('cannot') && normalized.contains('cancel')) {
-          return 'This trade can’t be cancelled anymore.';
+          return ErrorHelper.l10n.p2pTradeCannotCancelAnymoreError;
         }
         if (normalized.contains('already') && normalized.contains('cancel')) {
-          return 'This trade is already cancelled.';
+          return ErrorHelper.l10n.p2pTradeAlreadyCancelledError;
         }
-        return 'We couldn’t cancel this trade. Please try again.';
+        return ErrorHelper.l10n.p2pTradeCancelFailedError;
       }
 
       if (status >= 500) {
-        return 'We’re having trouble cancelling this trade right now. Please try again.';
+        return ErrorHelper.l10n.p2pTradeCancelTryAgainError;
       }
 
       if (message.isNotEmpty) {
@@ -697,18 +697,18 @@ class P2POrdersController extends Notifier<P2POrdersState> {
 
     final fallback = error.toString().toLowerCase();
     if (fallback.contains('missing') && fallback.contains('x-user-id')) {
-      return 'We couldn’t verify your session. Please sign in again.';
+      return ErrorHelper.l10n.errSessionExpired;
     }
     if (fallback.contains('unauthorized')) {
-      return 'Please sign in again to continue.';
+      return ErrorHelper.l10n.p2pPleaseSignInAgainError;
     }
-    return 'We couldn’t cancel this trade right now. Please try again.';
+    return ErrorHelper.l10n.p2pTradeCancelTryAgainError;
   }
 
   String _cancelPermissionMessage(P2PTrade trade) {
     if (trade.ad.type == P2PAdType.sell) {
-      return 'Only the buyer who opened this trade can cancel it.';
+      return ErrorHelper.l10n.p2pOnlyBuyerCanCancelTradeError;
     }
-    return 'Only the seller who listed this ad can cancel it.';
+    return ErrorHelper.l10n.p2pOnlySellerCanCancelTradeError;
   }
 }

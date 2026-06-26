@@ -22,6 +22,7 @@ import 'package:opei/data/models/p2p_user_payment_method.dart';
 import 'package:opei/data/models/p2p_payment_method_type.dart';
 import 'package:opei/data/models/p2p_user_profile.dart';
 import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/p2p_trade.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
@@ -443,7 +444,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
   }
 
   String _friendlyGenericError(Object e) {
-    return 'Something went wrong. Please try again.';
+    return ErrorHelper.l10n.errGenericRetry;
   }
 
   Future<void> _onAdCreated() async {
@@ -537,7 +538,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                           _BackButton(onTap: () => context.go('/dashboard')),
                           SizedBox(width: spacing),
                           Text(
-                            'P2P',
+                            AppLocalizations.of(context)!.p2pSectionTitle,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -658,7 +659,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
-                'Select Currency',
+                AppLocalizations.of(context)!.p2pSelectCurrency,
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
@@ -781,7 +782,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
               if (hasMin)
                 _ActiveFilterChip(
                   label:
-                      'Min ${_formatMoneyLabel(Money.fromCents(state.minAmountCents!, currency: currency))}',
+                      '${AppLocalizations.of(context)!.minLabel} ${_formatMoneyLabel(Money.fromCents(state.minAmountCents!, currency: currency))}',
                   onClear: () => controller.updateAmountBounds(
                     minAmountCents: null,
                     maxAmountCents: state.maxAmountCents,
@@ -790,7 +791,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
               if (hasMax)
                 _ActiveFilterChip(
                   label:
-                      'Max ${_formatMoneyLabel(Money.fromCents(state.maxAmountCents!, currency: currency))}',
+                      '${AppLocalizations.of(context)!.maxLabel} ${_formatMoneyLabel(Money.fromCents(state.maxAmountCents!, currency: currency))}',
                   onClear: () => controller.updateAmountBounds(
                     minAmountCents: state.minAmountCents,
                     maxAmountCents: null,
@@ -988,7 +989,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                     child: _BackButton(onTap: () => _handleTabSelection(0)),
                   ),
                   Text(
-                    'Orders',
+                    AppLocalizations.of(context)!.p2pOrdersTabLabel,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -1162,7 +1163,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                     child: _BackButton(onTap: () => _handleTabSelection(0)),
                   ),
                   Text(
-                    'My Ads',
+                    AppLocalizations.of(context)!.p2pMyAdsTabLabel,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -1298,7 +1299,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                     child: _BackButton(onTap: () => _handleTabSelection(0)),
                   ),
                   Text(
-                    'Profile',
+                    AppLocalizations.of(context)!.dashboardNavProfile,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -1438,7 +1439,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Amount filters',
+                      AppLocalizations.of(context)!.p2pAmountFiltersTitle,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontSize: 17,
                         fontWeight: FontWeight.w600,
@@ -1978,7 +1979,7 @@ class _FilterButton extends StatelessWidget {
             Icon(Icons.tune_rounded, size: 15, color: OpeiColors.pureBlack),
             const SizedBox(width: 6),
             Text(
-              'Amount',
+              AppLocalizations.of(context)!.amountLabel,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -2265,7 +2266,7 @@ class _ProfileLoadingCard extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'Loading profile…',
+          AppLocalizations.of(context)!.p2pLoadingProfileLabel,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -2356,8 +2357,8 @@ class _ProfileErrorCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              child: const Text(
-                'Refresh session',
+              child: Text(
+                AppLocalizations.of(context)!.p2pRefreshSessionCta,
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
             ),
@@ -2415,7 +2416,7 @@ class _ProfileEmptyCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Set up your P2P profile',
+            AppLocalizations.of(context)!.p2pSetUpProfileTitle,
             textAlign: TextAlign.center,
             style: theme.textTheme.titleMedium?.copyWith(
               fontSize: 18,
@@ -2425,7 +2426,7 @@ class _ProfileEmptyCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Let buyers and sellers know who they’re dealing with. A verified profile speeds up trust checks and trade approvals.',
+            AppLocalizations.of(context)!.p2pSetUpProfileSubtitle,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontSize: 13,
@@ -2435,15 +2436,15 @@ class _ProfileEmptyCard extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Column(
-            children: const [
+            children: [
               _ProfileHighlightRow(
                 icon: Icons.check_circle_outline,
-                text: 'Share a friendly name and short bio',
+                text: AppLocalizations.of(context)!.p2pProfileHighlightNameBio,
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               _ProfileHighlightRow(
                 icon: Icons.lock_open_rounded,
-                text: 'Unlock higher limits with verified details',
+                text: AppLocalizations.of(context)!.p2pProfileHighlightLimits,
               ),
             ],
           ),
@@ -2464,13 +2465,13 @@ class _ProfileEmptyCard extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                children: const [
+                children: [
                   Text(
-                    'Create profile',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                    AppLocalizations.of(context)!.p2pCreateProfileCta,
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_forward_rounded, size: 18),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward_rounded, size: 18),
                 ],
               ),
             ),
@@ -2584,7 +2585,7 @@ class _ProfileHeroCard extends StatelessWidget {
                     if (joinedLabel != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Since $sinceValue',
+                        '${AppLocalizations.of(context)!.sinceLabel} $sinceValue',
                         style: theme.textTheme.bodySmall?.copyWith(
                           fontSize: 10,
                           color: OpeiColors.iosLabelSecondary,
@@ -2773,7 +2774,7 @@ class _ProfileBioSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'About',
+            AppLocalizations.of(context)!.aboutLabel,
             style: theme.textTheme.titleMedium?.copyWith(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -2810,9 +2811,12 @@ class _ProfileDetailsSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final entries = <MapEntry<String, String>>[
-      MapEntry('Preferred currency', preferredCurrency),
-      MapEntry('Preferred language', preferredLanguage),
-      MapEntry('Member since', joinedLabel ?? 'Not available'),
+      MapEntry(AppLocalizations.of(context)!.p2pPreferredCurrency, preferredCurrency),
+      MapEntry(AppLocalizations.of(context)!.p2pPreferredLanguage, preferredLanguage),
+      MapEntry(
+        AppLocalizations.of(context)!.memberSinceLabel,
+        joinedLabel ?? AppLocalizations.of(context)!.notAvailableLabel,
+      ),
     ];
 
     return Container(
@@ -2837,7 +2841,7 @@ class _ProfileDetailsSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 6),
             child: Text(
-              'Profile details',
+              AppLocalizations.of(context)!.p2pProfileDetailsTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -2972,7 +2976,7 @@ class _ProfileQuickActions extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 6),
             child: Text(
-              'Account tools',
+              AppLocalizations.of(context)!.p2pAccountToolsTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -3127,29 +3131,30 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
   }
 
   String _mapError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final status = error.statusCode ?? 0;
       final message = error.message.toLowerCase();
       if (status == 400 || status == 401) {
         if (message.contains('missing') && message.contains('x-user-id')) {
-          return 'We couldn’t verify your session. Please sign in again to manage payment methods.';
+          return l10n.p2pSessionVerifyManageMethodsError;
         }
-        return 'We couldn’t verify your session. Please sign in again.';
+        return l10n.errSessionExpired;
       }
       if (status >= 500) {
-        return 'We’re having trouble loading your payment methods right now. Please try again shortly.';
+        return l10n.p2pPaymentMethodsLoadTryAgainSoonError;
       }
-      return 'We couldn’t load payment methods right now. Please try again.';
+      return l10n.p2pPaymentMethodsLoadFailedError;
     }
 
     final message = error.toString().toLowerCase();
     if (message.contains('missing') && message.contains('x-user-id')) {
-      return 'We couldn’t verify your session. Please sign in again to manage payment methods.';
+      return l10n.p2pSessionVerifyManageMethodsError;
     }
     if (message.contains('unauthorized')) {
-      return 'We couldn’t verify your session. Please sign in again.';
+      return l10n.errSessionExpired;
     }
-    return 'We couldn’t load payment methods right now. Please try again.';
+    return l10n.p2pPaymentMethodsLoadFailedError;
   }
 
   Future<void> _handleAddMethod() async {
@@ -3256,7 +3261,7 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Payment methods',
+                    AppLocalizations.of(context)!.paymentMethodsLabel,
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
@@ -3278,8 +3283,8 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                     ),
                   ),
                   icon: const Icon(Icons.add_rounded, size: 16),
-                  label: const Text(
-                    'Add',
+                  label: Text(
+                    AppLocalizations.of(context)!.addCta,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -3287,7 +3292,7 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Manage the accounts you accept for trades. Each method is tied to a single currency.',
+              AppLocalizations.of(context)!.p2pManageAcceptedAccountsSubtitle,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 11,
                 color: OpeiColors.iosLabelSecondary,
@@ -3322,7 +3327,7 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Something went wrong',
+                          AppLocalizations.of(context)!.somethingWentWrongTitle,
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -3351,8 +3356,8 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
-                          child: const Text(
-                            'Try again',
+                          child: Text(
+                            AppLocalizations.of(context)!.tryAgainCta,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -3385,7 +3390,7 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'No payment methods yet',
+                                AppLocalizations.of(context)!.p2pNoPaymentMethodsYetTitle,
                                 style: theme.textTheme.titleSmall?.copyWith(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -3393,7 +3398,7 @@ class _PaymentMethodsSheetState extends ConsumerState<_PaymentMethodsSheet> {
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                'Add your first method to make it easier for buyers to pay you.',
+                                AppLocalizations.of(context)!.p2pNoPaymentMethodsYetSubtitle,
                                 style: theme.textTheme.bodyMedium?.copyWith(
                                   fontSize: 12,
                                   color: OpeiColors.iosLabelSecondary,
@@ -3718,7 +3723,7 @@ class _PaymentMethodTile extends StatelessWidget {
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       Icon(
                         Icons.verified_rounded,
                         size: 14,
@@ -3726,7 +3731,7 @@ class _PaymentMethodTile extends StatelessWidget {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        'Verified',
+                        AppLocalizations.of(context)!.verifiedLabel,
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -3765,7 +3770,7 @@ class _PaymentMethodTile extends StatelessWidget {
             children: [
               if (addedLabel != null)
                 Text(
-                  'Added $addedLabel',
+                  '${AppLocalizations.of(context)!.addedLabel} $addedLabel',
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontSize: 11,
                     color: OpeiColors.iosLabelSecondary,
@@ -3832,7 +3837,7 @@ class _CurrencySelectorSheetState extends State<_CurrencySelectorSheet> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Select currency',
+              AppLocalizations.of(context)!.p2pSelectCurrency,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -4166,7 +4171,7 @@ class _OrdersEmptyState extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'No orders in this view',
+          AppLocalizations.of(context)!.p2pNoOrdersInViewTitle,
           style: theme.textTheme.titleMedium?.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -4174,7 +4179,7 @@ class _OrdersEmptyState extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          info ?? 'Once you start trading, your activity will show here.',
+          info ?? AppLocalizations.of(context)!.p2pNoOrdersInViewSubtitle,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontSize: 13,
@@ -4214,7 +4219,7 @@ class _OrdersErrorState extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title ?? 'We couldn’t load your orders',
+            title ?? AppLocalizations.of(context)!.p2pCouldNotLoadOrdersTitle,
             style: theme.textTheme.titleMedium?.copyWith(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -4243,8 +4248,8 @@ class _OrdersErrorState extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Try again',
+              child: Text(
+                AppLocalizations.of(context)!.tryAgainCta,
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               ),
             ),
@@ -4451,7 +4456,7 @@ class _OrderCardState extends State<_OrderCard>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'ID: $shortId',
+                    '${AppLocalizations.of(context)!.idLabel}: $shortId',
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 11,
                       color: OpeiColors.iosLabelSecondary,
@@ -4470,7 +4475,7 @@ class _OrderCardState extends State<_OrderCard>
               if (expiresLabel != null) ...[
                 const SizedBox(height: 5),
                 Text(
-                  'Expires $expiresLabel',
+                  '${AppLocalizations.of(context)!.cardsExpiresLabel} $expiresLabel',
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontSize: 10,
                     color: OpeiColors.iosLabelTertiary,
@@ -4518,7 +4523,7 @@ class _OrderCardState extends State<_OrderCard>
                                   ),
                                 )
                               : Text(
-                                  'Cancel trade',
+                                  AppLocalizations.of(context)!.p2pCancelTradeCta,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
@@ -4545,7 +4550,9 @@ class _OrderCardState extends State<_OrderCard>
                             ),
                           ),
                           child: Text(
-                            'Rate $counterpartLabel',
+                            AppLocalizations.of(
+                              context,
+                            )!.p2pRateCounterpartyTitle(counterpartLabel),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -4571,7 +4578,7 @@ class _OrderCardState extends State<_OrderCard>
                       ),
                     ),
                     child: Text(
-                      'Confirm release',
+                      AppLocalizations.of(context)!.p2pConfirmReleaseCta,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -5008,8 +5015,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                               ),
                             ),
                           )
-                        : const Text(
-                            'Cancel trade',
+                        : Text(
+                            AppLocalizations.of(context)!.p2pCancelTradeCta,
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -5043,7 +5050,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Send this amount',
+                          AppLocalizations.of(context)!.p2pSendThisAmountTitle,
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -5061,7 +5068,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Transfer $sendLabel to the seller before marking payment as sent.',
+                          AppLocalizations.of(
+                            context,
+                          )!.p2pTransferAmountBeforePaid(sendLabel),
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontSize: 11.5,
                             color: OpeiColors.iosLabelSecondary,
@@ -5172,7 +5181,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               if (proofs.isNotEmpty) ...[
                 const SizedBox(height: 14),
                 Text(
-                  'Proofs submitted',
+                  AppLocalizations.of(context)!.p2pProofsSubmittedTitle,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -5195,9 +5204,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               ],
               if (_proofSubmissionSuccess) ...[
                 const SizedBox(height: 12),
-                const _MessageBanner(
-                  message:
-                      'Payment marked as paid. Waiting for seller confirmation.',
+                _MessageBanner(
+                  message: AppLocalizations.of(
+                    context,
+                  )!.p2pPaymentMarkedPaidWaitingSeller,
                   isError: false,
                 ),
               ],
@@ -5219,9 +5229,10 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
               ],
               if (_disputeSuccess) ...[
                 const SizedBox(height: 12),
-                const _MessageBanner(
-                  message:
-                      'Dispute opened. Our support team will review it shortly.',
+                _MessageBanner(
+                  message: AppLocalizations.of(
+                    context,
+                  )!.p2pDisputeOpenedSupportReviewSoon,
                   isError: false,
                 ),
               ],
@@ -5244,7 +5255,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       ),
                     ),
                     child: Text(
-                      alreadyDisputed ? 'Dispute opened' : 'Raise dispute',
+                      alreadyDisputed
+                          ? AppLocalizations.of(context)!.p2pDisputeOpenedLabel
+                          : AppLocalizations.of(context)!.p2pRaiseDisputeCta,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -5279,8 +5292,8 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
     }
 
     final counterpartLabel = currentUserId == trade.buyerId
-        ? 'seller'
-        : 'buyer';
+        ? AppLocalizations.of(context)!.p2pSellerLabel.toLowerCase()
+        : AppLocalizations.of(context)!.p2pBuyerLabel.toLowerCase();
 
     if (hasRated && trade.yourRating != null) {
       return _buildRatingSummaryCard(trade.yourRating!, counterpartLabel);
@@ -5313,7 +5326,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'You rated this $counterpartLabel',
+            AppLocalizations.of(
+              context,
+            )!.p2pYouRatedCounterparty(counterpartLabel),
             style: theme.textTheme.titleSmall?.copyWith(
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -5348,7 +5363,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           if (createdLabel != null) ...[
             const SizedBox(height: 8),
             Text(
-              'Submitted $createdLabel',
+              '${AppLocalizations.of(context)!.submittedLabel} $createdLabel',
               style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 10,
                 color: OpeiColors.iosLabelTertiary,
@@ -5386,7 +5401,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Rate the $counterpartLabel',
+            AppLocalizations.of(context)!.p2pRateCounterpartyTitle(
+              counterpartLabel,
+            ),
             style: textTheme.titleSmall?.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -5394,7 +5411,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Your feedback helps keep trades safe and respectful.',
+            AppLocalizations.of(context)!.p2pFeedbackHelpsSafetySubtitle,
             style: textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: OpeiColors.iosLabelSecondary,
@@ -5404,7 +5421,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           _buildInteractiveStarsRow(),
           const SizedBox(height: 10),
           Text(
-            'Optional comment',
+            AppLocalizations.of(context)!.p2pOptionalCommentLabel,
             style: textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: OpeiColors.iosLabelSecondary,
@@ -5457,7 +5474,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           ),
           const SizedBox(height: 10),
           Text(
-            'Tags (optional)',
+            AppLocalizations.of(context)!.p2pTagsOptionalLabel,
             style: textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: OpeiColors.iosLabelSecondary,
@@ -5505,7 +5522,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 ),
               ),
               child: Text(
-                _isRatingSubmitting ? 'Submitting…' : 'Submit rating',
+                _isRatingSubmitting
+                    ? AppLocalizations.of(context)!.submittingLabel
+                    : AppLocalizations.of(context)!.p2pSubmitRatingCta,
                 style: textTheme.bodyMedium?.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -5542,7 +5561,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ready to confirm payment?',
+            AppLocalizations.of(context)!.p2pReadyToConfirmPaymentTitle,
             style: textTheme.titleSmall?.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -5550,7 +5569,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Upload clear payment proof so the seller can release the funds.',
+            AppLocalizations.of(context)!.p2pUploadClearProofSubtitle,
             style: textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: OpeiColors.iosLabelSecondary,
@@ -5582,7 +5601,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       ),
                     )
                   : Text(
-                      'I’ve Paid',
+                      AppLocalizations.of(context)!.p2pIvePaidCta,
                       style: textTheme.bodyMedium?.copyWith(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -5612,7 +5631,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Buyer marked payment as sent',
+            AppLocalizations.of(context)!.p2pBuyerMarkedPaidTitle,
             style: textTheme.titleSmall?.copyWith(
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -5620,7 +5639,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Confirm the funds have arrived in your account, then release the funds to complete the trade.',
+            AppLocalizations.of(context)!.p2pConfirmFundsThenReleaseSubtitle,
             style: textTheme.bodySmall?.copyWith(
               fontSize: 11,
               color: OpeiColors.iosLabelSecondary,
@@ -5654,7 +5673,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                       ),
                     )
                   : Text(
-                      'Confirm release',
+                      AppLocalizations.of(context)!.p2pConfirmReleaseCta,
                       style: textTheme.bodyMedium?.copyWith(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -5984,45 +6003,46 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   }
 
   String _mapProofSubmissionError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final status = error.statusCode ?? 0;
       final message = error.message;
 
       if (status == 400) {
         if (message.toLowerCase().contains('already marked')) {
-          return 'You already confirmed payment for this trade.';
+          return l10n.p2pAlreadyConfirmedPaymentError;
         }
         return message.isNotEmpty
             ? message
-            : 'We couldn’t submit those proofs. Please check and try again.';
+            : l10n.p2pSubmitProofCheckTryAgainError;
       }
 
       if (status == 401 || status == 403) {
-        return 'Your session expired. Please sign in again.';
+        return l10n.errSessionExpired;
       }
 
       if (status == 413) {
-        return 'Those images are too large. Please upload photos under 5 MB each.';
+        return l10n.p2pProofImagesTooLargeError;
       }
 
       if (status >= 500) {
-        return 'Server issue while submitting your proofs. Please try again in a moment.';
+        return l10n.p2pProofServerIssueRetryError;
       }
 
       return message.isNotEmpty
           ? message
-          : 'We couldn’t submit your proofs right now.';
+          : l10n.p2pProofSubmitNowError;
     }
 
     if (error is DioException) {
       if (error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.connectionError) {
-        return 'Network issue while uploading. Check your connection and retry.';
+        return l10n.p2pProofNetworkUploadRetryError;
       }
-      return 'Upload failed. Please try again.';
+      return l10n.p2pProofUploadFailedError;
     }
 
-    return 'Something went wrong while submitting your proofs. Please try again.';
+    return l10n.p2pProofSubmitFailedRetryError;
   }
 
   Future<void> _promptReleaseConfirmation() async {
@@ -6043,7 +6063,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 borderRadius: BorderRadius.circular(20),
               ),
               title: Text(
-                'Confirm release',
+                AppLocalizations.of(dialogContext)!.p2pConfirmReleaseCta,
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -6053,7 +6073,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Do not release funds before receiving payment.',
+                    AppLocalizations.of(
+                      dialogContext,
+                    )!.p2pDoNotReleaseBeforeReceiving,
                     style: textTheme.bodyMedium?.copyWith(
                       height: 1.45,
                       fontWeight: FontWeight.w600,
@@ -6061,7 +6083,9 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Releasing funds without confirmed payment may cause irreversible loss. Opei is not responsible for losses resulting from releasing funds before payment is received.',
+                    AppLocalizations.of(
+                      dialogContext,
+                    )!.p2pReleaseLossWarning,
                     style: textTheme.bodySmall?.copyWith(
                       height: 1.5,
                       color: const Color(0xFFD62E1F),
@@ -6160,30 +6184,31 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   }
 
   String _mapReleaseError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final status = error.statusCode ?? 0;
       final message = error.message.toLowerCase();
 
       if (status == 401) {
-        return 'We couldn’t verify your session. Please sign in again.';
+        return l10n.errSessionExpired;
       }
       if (status == 403) {
-        return 'Only the seller assigned to this trade can release the funds.';
+        return l10n.p2pOnlyAssignedSellerReleaseError;
       }
       if (status == 404) {
-        return 'We couldn’t find this trade. It may have been closed already.';
+        return l10n.p2pTradeNotFoundMaybeClosedError;
       }
       if (status == 400) {
         if (message.contains('already released')) {
-          return 'This trade has already been released.';
+          return l10n.p2pTradeAlreadyReleasedError;
         }
         if (message.contains('not paid')) {
-          return 'You can only release once the buyer marks payment as sent.';
+          return l10n.p2pReleaseAfterBuyerMarksPaidError;
         }
-        return 'We couldn’t release this trade right now. Please try again.';
+        return l10n.p2pReleaseTradeFailedError;
       }
       if (status >= 500) {
-        return 'We’re having trouble releasing funds right now. Please try again soon.';
+        return l10n.p2pReleaseFundsTryAgainSoonError;
       }
       if (error.message.isNotEmpty) {
         return error.message;
@@ -6192,12 +6217,12 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
 
     final fallback = error.toString().toLowerCase();
     if (fallback.contains('missing') && fallback.contains('x-user-id')) {
-      return 'We couldn’t verify your session. Please sign in again.';
+      return l10n.errSessionExpired;
     }
     if (fallback.contains('unauthorized')) {
-      return 'Please sign in again to continue.';
+      return l10n.p2pPleaseSignInAgainError;
     }
-    return 'We couldn’t release this trade right now. Please try again.';
+    return l10n.p2pReleaseTradeFailedError;
   }
 
   Future<void> _refreshOrdersSilently() async {
@@ -6373,7 +6398,7 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
       final messenger = ScaffoldMessenger.maybeOf(context);
       final friendly = error is String
           ? error
-          : 'We couldn’t cancel this trade. Please try again.';
+          : ErrorHelper.l10n.p2pTradeCancelFailedError;
       messenger?.showSnackBar(
         SnackBar(
           content: Text(friendly, maxLines: 4, overflow: TextOverflow.ellipsis),
@@ -6383,39 +6408,40 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
   }
 
   String _mapRatingError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final status = error.statusCode ?? 0;
       final message = error.message.toLowerCase();
 
       if (status == 401) {
-        return 'We couldn’t verify your session. Please sign in again.';
+        return l10n.errSessionExpired;
       }
 
       if (status == 403) {
-        return 'You’re not part of this trade, so you can’t leave a rating.';
+        return l10n.p2pNotPartOfTradeRatingError;
       }
 
       if (status == 404) {
-        return 'We couldn’t find this trade. It might have been removed.';
+        return l10n.p2pTradeNotFoundRemovedError;
       }
 
       if (status == 400) {
         if (message.contains('already') && message.contains('rated')) {
-          return 'You already rated this trade.';
+          return l10n.p2pAlreadyRatedTradeError;
         }
         if (message.contains('profile')) {
-          return 'Please create your profile before leaving a rating.';
+          return l10n.p2pCreateProfileBeforeRatingError;
         }
         if (message.contains('completed') || message.contains('not finished')) {
-          return 'You can rate once the trade is marked as completed.';
+          return l10n.p2pRateAfterCompletedError;
         }
         return error.message.isEmpty
-            ? 'We couldn’t submit your rating. Please try again.'
+            ? l10n.p2pRatingSubmitTryAgainError
             : error.message;
       }
 
       if (status >= 500) {
-        return 'We’re having trouble saving your rating right now. Please try again shortly.';
+        return l10n.p2pRatingSaveTryAgainSoonError;
       }
 
       if (error.message.isNotEmpty) {
@@ -6425,13 +6451,13 @@ class _TradeDetailSheetState extends ConsumerState<_TradeDetailSheet> {
 
     final fallback = error.toString().toLowerCase();
     if (fallback.contains('missing') && fallback.contains('x-user-id')) {
-      return 'We couldn’t verify your session. Please sign in again.';
+      return l10n.errSessionExpired;
     }
     if (fallback.contains('unauthorized')) {
-      return 'Please sign in again to continue.';
+      return l10n.p2pPleaseSignInAgainError;
     }
 
-    return 'We couldn’t submit your rating right now. Please try again.';
+    return l10n.p2pRatingSubmitTryAgainError;
   }
 
   String _formatRatingTag(String tag) {
@@ -6553,7 +6579,7 @@ void _showProofViewer(BuildContext context, String url) {
   showGeneralDialog(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Close',
+    barrierLabel: AppLocalizations.of(context)!.closeCta,
     transitionDuration: Duration.zero,
     pageBuilder: (ctx, animation, secondaryAnimation) {
       return SafeArea(
@@ -6727,6 +6753,7 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
     if (reason.length < 6) {
       setState(() {
         _localError = 'Give a short reason (at least 6 characters).';
+        _localError = AppLocalizations.of(context)!.p2pShortReasonMinChars;
       });
       return;
     }
@@ -6767,7 +6794,7 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Raise a dispute',
+                  AppLocalizations.of(context)!.p2pRaiseDisputeCta,
                   style: textTheme.titleMedium?.copyWith(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -6776,7 +6803,7 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Tell us what went wrong so our support team can review it quickly.',
+                  AppLocalizations.of(context)!.p2pTellUsWhatWentWrongSubtitle,
                   style: textTheme.bodySmall?.copyWith(
                     fontSize: 12,
                     color: OpeiColors.iosLabelSecondary,
@@ -6880,34 +6907,35 @@ class _DisputeReasonSheetState extends State<_DisputeReasonSheet> {
 }
 
 String _mapDisputeError(Object error) {
+  final l10n = ErrorHelper.l10n;
   if (error is ApiError) {
     final status = error.statusCode ?? 0;
     final message = error.message.trim();
     final normalized = message.toLowerCase();
 
     if (status == 401) {
-      return 'We couldn’t verify your session. Please sign in again.';
+      return l10n.errSessionExpired;
     }
 
     if (status == 403 || status == 404) {
-      return 'We couldn’t find this trade or you’re not a participant.';
+      return l10n.p2pTradeNotFoundOrNotParticipantError;
     }
 
     if (status == 400) {
       if (normalized.contains('after payment')) {
-        return 'You can only open a dispute after marking this trade as paid.';
+        return l10n.p2pOpenDisputeAfterPaidError;
       }
       if (normalized.contains('already in dispute') ||
           normalized.contains('already open')) {
-        return 'This trade already has an open dispute.';
+        return l10n.p2pTradeAlreadyInDisputeError;
       }
       return message.isEmpty
-          ? 'We couldn’t open a dispute for this trade. Please try again.'
+          ? l10n.p2pOpenDisputeForTradeFailedError
           : message;
     }
 
     if (status >= 500) {
-      return 'We’re having trouble opening a dispute right now. Please try again shortly.';
+      return l10n.p2pOpenDisputeTryAgainSoonError;
     }
 
     if (message.isNotEmpty) {
@@ -6917,13 +6945,13 @@ String _mapDisputeError(Object error) {
 
   final fallback = error.toString().toLowerCase();
   if (fallback.contains('missing') && fallback.contains('x-user-id')) {
-    return 'We couldn’t verify your session. Please sign in again.';
+    return l10n.errSessionExpired;
   }
   if (fallback.contains('unauthorized')) {
-    return 'Please sign in again to continue.';
+    return l10n.p2pPleaseSignInAgainError;
   }
 
-  return 'We couldn’t open a dispute right now. Please try again.';
+  return l10n.p2pOpenDisputeTryAgainError;
 }
 
 class _MyAdsEmptyState extends StatelessWidget {
@@ -6953,7 +6981,7 @@ class _MyAdsEmptyState extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Text(
-          'No ads just yet',
+          AppLocalizations.of(context)!.p2pNoAdsYetTitle,
           style: theme.textTheme.titleMedium?.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -6961,7 +6989,7 @@ class _MyAdsEmptyState extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Launch your first buy or sell ad to start trading directly with other users.',
+          AppLocalizations.of(context)!.p2pNoAdsYetSubtitle,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
             fontSize: 13,
@@ -6986,8 +7014,8 @@ class _MyAdCard extends StatelessWidget {
     final theme = Theme.of(context);
     final typeLabel = ad.type.displayLabel;
     final actionLabel = ad.type == P2PAdType.sell
-        ? 'Selling USD'
-        : 'Buying USD';
+        ? AppLocalizations.of(context)!.p2pSellingUsdLabel
+        : AppLocalizations.of(context)!.p2pBuyingUsdLabel;
     final remaining = _formatUsdAmount(ad.remainingAmount);
     final rateLabel = '1 USD = ${_formatMoneyWithCode(ad.rate)}';
     final createdAt = ad.updatedAt ?? ad.createdAt;
@@ -7157,7 +7185,7 @@ class _DeactivateAdButton extends StatelessWidget {
                       ),
                     )
                   : Text(
-                      'Deactivate ad',
+                      AppLocalizations.of(context)!.deactivateCta,
                       style: theme.textTheme.labelLarge?.copyWith(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -7323,7 +7351,9 @@ class _MyAdDetailSheet extends ConsumerWidget {
     );
 
     final isSelling = latest.type == P2PAdType.sell;
-    final actionLabel = isSelling ? 'Selling USD' : 'Buying USD';
+    final actionLabel = isSelling
+        ? AppLocalizations.of(context)!.p2pSellingUsdLabel
+        : AppLocalizations.of(context)!.p2pBuyingUsdLabel;
     final remaining = _formatUsdAmount(latest.remainingAmount);
     final total = _formatUsdAmount(latest.totalAmount);
     final rate = '1 USD = ${_formatMoneyWithCode(latest.rate)}';
@@ -7343,14 +7373,14 @@ class _MyAdDetailSheet extends ConsumerWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            'Deactivate Ad',
+            AppLocalizations.of(ctx)!.deactivateCta,
             style: theme.textTheme.titleMedium?.copyWith(
               fontSize: 17,
               fontWeight: FontWeight.w600,
             ),
           ),
           content: Text(
-            'This ad will no longer be visible to traders. You can reactivate it later if needed.',
+            AppLocalizations.of(ctx)!.p2pDeactivateAdConfirmSubtitle,
             style: theme.textTheme.bodyMedium?.copyWith(
               fontSize: 13,
               color: OpeiColors.iosLabelSecondary,
@@ -7518,7 +7548,7 @@ class _MyAdDetailSheet extends ConsumerWidget {
               if (latest.paymentMethods.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 Text(
-                  'Payment methods',
+                  AppLocalizations.of(context)!.paymentMethodsLabel,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -7572,7 +7602,7 @@ class _MyAdDetailSheet extends ConsumerWidget {
               if (latest.instructions.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 Text(
-                  'Instructions',
+                  AppLocalizations.of(context)!.instructionsLabel,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -7672,6 +7702,7 @@ class _CreateAdFlowSheet extends ConsumerStatefulWidget {
 }
 
 String _formatCreateAdError(Object error, {required P2PAdType adType}) {
+  final l10n = ErrorHelper.l10n;
   int? statusCode;
   String rawMessage = error.toString().trim();
   Map<String, dynamic>? fieldErrors;
@@ -7703,99 +7734,101 @@ String _formatCreateAdError(Object error, {required P2PAdType adType}) {
   final isSellAd = adType == P2PAdType.sell;
 
   if (statusCode == 401 || normalized.contains('missing x-user-id')) {
-    return 'Please sign in again.';
+    return l10n.p2pPleaseSignInAgainError;
   }
 
   if (statusCode == 403) {
-    return 'You don’t have permission to publish this ad.';
+    return l10n.p2pNoPermissionPublishAdError;
   }
 
   if (statusCode == 404 || normalized.contains('not found')) {
     return isSellAd
-        ? 'One of the selected payment methods is no longer available. Refresh and try again.'
-        : 'This ad is no longer available. Refresh and try again.';
+        ? l10n.p2pSelectedPaymentMethodUnavailableRefreshError
+        : l10n.p2pAdNoLongerAvailableRefreshError;
   }
 
   if (normalized.contains('sell') &&
       normalized.contains('without userpaymentmethodids')) {
-    return 'Add at least one payment method.';
+    return l10n.p2pAddAtLeastOnePaymentMethodError;
   }
 
   if (normalized.contains('attach at least one payment method')) {
-    return 'Add at least one payment method.';
+    return l10n.p2pAddAtLeastOnePaymentMethodError;
   }
 
   if (normalized.contains('must not include userpaymentmethodids')) {
-    return 'Payment methods aren’t needed for buy ads.';
+    return l10n.p2pPaymentMethodsNotNeededBuyAdsError;
   }
 
   if (normalized.contains('only attach up to 5 payment methods')) {
-    return 'You can attach up to five payment methods.';
+    return l10n.p2pAttachUpToFiveMethodsPerAd;
   }
 
   if (normalized.contains('duplicate')) {
-    return 'Remove duplicate payment methods before submitting.';
+    return l10n.p2pRemoveDuplicatePaymentMethodsError;
   }
 
   if (normalized.contains('payment provider') &&
       normalized.contains('inactive')) {
-    return 'One of the payment providers is inactive right now. Please choose another option.';
+    return l10n.p2pPaymentProviderInactiveChooseAnotherError;
   }
 
   if (normalized.contains('currency does not match')) {
-    return 'Payment method currency must match your ad currency.';
+    return l10n.p2pPaymentMethodCurrencyMatchAdError;
   }
 
   if (normalized.contains('don’t belong to user') ||
       normalized.contains('dont belong to user')) {
-    return 'Selected payment methods belong to another account.';
+    return l10n.p2pSelectedPaymentMethodsAnotherAccountError;
   }
 
   if (normalized.contains('selected payment methods') &&
       normalized.contains('invalid')) {
-    return 'Selected payment methods are invalid for this ad.';
+    return l10n.p2pSelectedPaymentMethodsInvalidError;
   }
 
   if (normalized.contains('greater than available')) {
-    return 'Your sell total exceeds your available balance.';
+    return l10n.p2pSellTotalExceedsBalanceError;
   }
 
   if (normalized.contains('insufficient available balance') ||
       (normalized.contains('insufficient') && normalized.contains('balance'))) {
-    return 'You don’t have enough balance to publish this ${isSellAd ? 'sell' : 'buy'} ad.';
+    return l10n.p2pInsufficientBalancePublishAdError(
+      isSellAd ? l10n.p2pSideSell : l10n.p2pSideBuy,
+    );
   }
 
   if (normalized.contains('must be a valid integer')) {
-    return 'Use whole numbers when entering amounts.';
+    return l10n.p2pUseWholeNumbersAmountsError;
   }
 
   if (normalized.contains('not numeric') ||
       normalized.contains('not ordered')) {
-    return 'Please review your amounts and limits.';
+    return l10n.p2pReviewAmountsLimitsError;
   }
 
   if (normalized.contains(
     'totalamountcents must be greater than or equal to minordercents',
   )) {
-    return 'Total amount must be at least your minimum order.';
+    return l10n.p2pTotalAmountAtLeastMinOrderError;
   }
 
   if (normalized.contains(
     'maxordercents must be greater than or equal to minordercents',
   )) {
-    return 'Max order must be greater than or equal to the minimum order.';
+    return l10n.p2pMaxOrderAtLeastMinOrderError;
   }
 
   if (normalized.contains('ratecents') && normalized.contains('> 0')) {
-    return 'Enter a valid price rate.';
+    return l10n.p2pEnterValidPriceRateError;
   }
 
   if (normalized.contains('instructions') && normalized.contains('500')) {
-    return 'Instructions are too long (max 500 characters).';
+    return l10n.p2pInstructionsTooLongError;
   }
 
   if (statusCode != null && statusCode >= 500) {
-    return 'Server error. Please try again shortly.';
+    return l10n.errServerSideShortly;
   }
 
   if (rawMessage.isNotEmpty &&
@@ -7806,14 +7839,14 @@ String _formatCreateAdError(Object error, {required P2PAdType adType}) {
   }
 
   if (normalized.contains('internal') || normalized.contains('server')) {
-    return 'Server error. Please try again shortly.';
+    return l10n.errServerSideShortly;
   }
 
   if (normalized.contains('timeout')) {
-    return 'Request timed out. Please try again.';
+    return l10n.p2pRequestTimedOutError;
   }
 
-  return 'Failed to create ad. Check your input and try again.';
+  return l10n.p2pCreateAdFailedCheckInputError;
 }
 
 class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
@@ -7998,14 +8031,16 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
     if (_selectedMethodIds.isEmpty) {
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Select at least one payment method.';
+        _errorMessage =
+            AppLocalizations.of(context)!.p2pSelectAtLeastOnePaymentMethodError;
       });
       return;
     }
     if (!(total > 0 && rate > 0 && min > 0 && max >= min)) {
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Enter valid amounts, limits and price.';
+        _errorMessage =
+            AppLocalizations.of(context)!.p2pEnterValidAmountsLimitsPriceError;
       });
       return;
     }
@@ -8143,8 +8178,8 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                   children: [
                     Text(
                       _selectedType == P2PAdType.sell
-                          ? 'Create SELL ad'
-                          : 'Create BUY ad',
+                          ? AppLocalizations.of(context)!.p2pCreateSellAdTitle
+                          : AppLocalizations.of(context)!.p2pCreateBuyAdTitle,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
@@ -8168,7 +8203,10 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                           ),
                         ),
                         child: Text(
-                          'Step $_step of 3',
+                          AppLocalizations.of(context)!.p2pStepOfTotal(
+                            _step.toString(),
+                            '3',
+                          ),
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -8189,8 +8227,8 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text(
-                        'Cancel',
+                      child: Text(
+                        AppLocalizations.of(context)!.cancelCta,
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -8368,10 +8406,12 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
 
   Widget _buildPaymentMethodsStep(ThemeData theme, {required bool isBuy}) {
     final helperText = isBuy
-        ? 'Choose the payment methods you\'ll use to pay sellers. Only the rail name appears on your ad.'
-        : 'Select how buyers can pay you in $_currency. We\'ll share the details after a trade opens.';
+        ? AppLocalizations.of(context)!.p2pChooseMethodsToPaySellers
+        : AppLocalizations.of(context)!.p2pSelectHowBuyersPayYou(_currency);
 
-    final emptyCopy = 'No $_currency methods yet. Add one to continue.';
+    final emptyCopy = AppLocalizations.of(
+      context,
+    )!.p2pNoMethodsYetForCurrency(_currency);
     final limitReached = _selectedMethodIds.length >= 5;
 
     Widget buildTile(P2PUserPaymentMethod method) {
@@ -8400,7 +8440,9 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
           setState(() {
             if (selected == true) {
               if (_selectedMethodIds.length >= 5) {
-                _errorMessage = 'You can attach up to five payment methods.';
+                _errorMessage = AppLocalizations.of(
+                  context,
+                )!.p2pAttachUpToFiveMethodsError;
               } else {
                 _selectedMethodIds.add(method.id);
                 if (_errorMessage != null &&
@@ -8502,8 +8544,8 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
         const SizedBox(height: 4),
         Text(
           limitReached
-              ? 'Maximum of five payment methods per ad.'
-              : 'You can attach up to five payment methods per ad.',
+              ? AppLocalizations.of(context)!.p2pMaxFiveMethodsPerAd
+              : AppLocalizations.of(context)!.p2pAttachUpToFiveMethodsPerAd,
           style: theme.textTheme.bodySmall?.copyWith(
             fontSize: 11,
             color: OpeiColors.iosLabelTertiary,
@@ -8900,38 +8942,39 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
   }
 
   String _mapProfileError(Object error) {
+    final l10n = ErrorHelper.l10n;
     final message = error.toString().toLowerCase();
     if (message.contains('missing x-user-id') || message.contains('session')) {
-      return 'Please sign in again to continue.';
+      return l10n.p2pPleaseSignInAgainError;
     }
     if (message.contains('displayname') &&
         message.contains('longer than or equal to 3')) {
-      return 'Your display name must be between 3 and 50 characters.';
+      return l10n.p2pDisplayNameLengthError;
     }
     if (message.contains('nickname') && message.contains('3-30')) {
-      return 'Your username can only contain letters, numbers, or underscores, and must be 3–30 characters long.';
+      return l10n.p2pUsernameFormatLengthError;
     }
     if (message.contains('bio') && message.contains('500')) {
-      return 'Your bio is too long. Please keep it under 500 characters.';
+      return l10n.p2pBioTooLongError;
     }
     if (message.contains('preferredlanguage') &&
         message.contains('longer than')) {
-      return 'Please select a valid language.';
+      return l10n.p2pSelectValidLanguageError;
     }
     if (message.contains('preferredcurrency') && message.contains('enum')) {
-      return 'Please select a supported currency.';
+      return l10n.p2pSelectSupportedCurrencyError;
     }
     if (message.contains('already in use')) {
-      return 'That display name or username is already taken. Please choose another one.';
+      return l10n.p2pDisplayNameUsernameTakenError;
     }
     if (message.contains('unauthorized')) {
-      return 'Please sign in again to continue.';
+      return l10n.p2pPleaseSignInAgainError;
     }
     if (message.contains('internal server error') ||
         message.contains('server')) {
-      return 'We’re having trouble saving your profile right now. Please try again shortly.';
+      return l10n.p2pProfileSaveTryAgainSoonError;
     }
-    return 'Something went wrong. Please try again.';
+    return l10n.errGenericRetry;
   }
 
   @override
@@ -8973,7 +9016,7 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Set up your P2P profile',
+                        AppLocalizations.of(context)!.p2pSetUpProfileTitle,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontSize: 17,
                           fontWeight: FontWeight.w700,
@@ -8981,7 +9024,9 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Tell others how to recognize you. You can edit this later.',
+                        AppLocalizations.of(
+                          context,
+                        )!.p2pTellOthersRecognizeSubtitle,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontSize: 12,
                           color: OpeiColors.iosLabelSecondary,
@@ -9140,7 +9185,9 @@ class _ProfileSetupSheetState extends ConsumerState<_ProfileSetupSheet> {
                   padding: const EdgeInsets.symmetric(vertical: 13),
                 ),
                 child: Text(
-                  _isSubmitting ? 'Saving…' : 'Save profile',
+                  _isSubmitting
+                      ? AppLocalizations.of(context)!.savingLabel
+                      : AppLocalizations.of(context)!.p2pSaveProfileCta,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -9276,14 +9323,16 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
     if (_selectedMethodIds.isEmpty) {
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Select at least one payment method.';
+        _errorMessage =
+            AppLocalizations.of(context)!.p2pSelectAtLeastOnePaymentMethodError;
       });
       return;
     }
     if (!(total > 0 && rate > 0 && min > 0 && max >= min)) {
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Please enter valid amounts, limits and price.';
+        _errorMessage =
+            AppLocalizations.of(context)!.p2pEnterValidAmountsLimitsPriceError;
       });
       return;
     }
@@ -9327,7 +9376,7 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
       return Row(
         children: [
           Text(
-            'Create SELL ad',
+            AppLocalizations.of(context)!.p2pCreateSellAdTitle,
             style: theme.textTheme.titleMedium?.copyWith(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -9345,7 +9394,10 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
               ),
             ),
             child: Text(
-              'Step ${_step + 1} of 3',
+              AppLocalizations.of(context)!.p2pStepOfTotal(
+                (_step + 1).toString(),
+                '3',
+              ),
               style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -9444,7 +9496,9 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                     ),
                   ),
                   child: Text(
-                    'No $_currency methods yet. Add one to continue.',
+                    AppLocalizations.of(
+                      context,
+                    )!.p2pNoMethodsYetForCurrency(_currency),
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 12,
                       color: OpeiColors.iosLabelSecondary,
@@ -9526,7 +9580,9 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Set the amount, limits, price, and instructions (optional).',
+                AppLocalizations.of(
+                  context,
+                )!.p2pSetAmountLimitsPriceInstructions,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 12,
                   color: OpeiColors.iosLabelSecondary,
@@ -9620,10 +9676,11 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
                 }
                 if (_step == 1) {
                   if (_selectedMethodIds.isEmpty) {
-                    setState(
-                      () =>
-                          _errorMessage = 'Select at least one payment method.',
-                    );
+                    setState(() {
+                      _errorMessage = AppLocalizations.of(
+                        context,
+                      )!.p2pSelectAtLeastOnePaymentMethodError;
+                    });
                     return;
                   }
                   setState(() => _errorMessage = null);
@@ -9635,8 +9692,10 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
               ),
               child: Text(
                 isLast
-                    ? (_isSubmitting ? 'Submitting…' : 'Submit for review')
-                    : 'Continue',
+                    ? (_isSubmitting
+                          ? AppLocalizations.of(context)!.submittingLabel
+                          : AppLocalizations.of(context)!.p2pSubmitForReviewCta)
+                    : AppLocalizations.of(context)!.continueCta,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -9756,7 +9815,9 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
     if (!(total > 0 && rate > 0 && min > 0 && max >= min)) {
       setState(() {
         _isSubmitting = false;
-        _errorMessage = 'Please enter valid amounts, limits and price.';
+        _errorMessage = AppLocalizations.of(
+          context,
+        )!.p2pEnterValidAmountsLimitsPriceError;
       });
       return;
     }
@@ -9937,7 +9998,9 @@ class _CreateBuyAdSheetState extends ConsumerState<_CreateBuyAdSheet> {
                   padding: const EdgeInsets.symmetric(vertical: 13),
                 ),
                 child: Text(
-                  _isSubmitting ? 'Submitting…' : 'Submit for review',
+                  _isSubmitting
+                      ? AppLocalizations.of(context)!.submittingLabel
+                      : AppLocalizations.of(context)!.p2pSubmitForReviewCta,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -10025,7 +10088,7 @@ class _AddPaymentMethodSheetState
       if (!mounted) return;
       setState(
         () => _errorMessage =
-            'We couldn’t load payment options. Please try again.',
+            AppLocalizations.of(context)!.p2pCouldNotLoadPaymentOptionsError,
       );
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -10033,6 +10096,7 @@ class _AddPaymentMethodSheetState
   }
 
   String _mapError(Object error) {
+    final l10n = AppLocalizations.of(context)!;
     String msg = error.toString().toLowerCase();
     int? statusCode;
     if (error is ApiError) {
@@ -10040,48 +10104,52 @@ class _AddPaymentMethodSheetState
       msg = (error.message).toLowerCase();
     }
     if (msg.contains('missing x-user-id')) {
-      return 'Please sign in again to continue.';
+      return l10n.p2pPleaseSignInAgainError;
     }
     if (msg.contains('inactive')) {
-      return 'Payment provider is currently inactive.';
+      return l10n.p2pPaymentProviderInactiveError;
     }
     if (msg.contains('payment method not found')) {
-      return 'Payment method no longer exists.';
+      return l10n.p2pPaymentMethodNoLongerExistsError;
     }
     if (msg.contains('active ad')) {
-      return 'This payment method is attached to an active ad and can’t be edited.';
+      return l10n.p2pPaymentMethodAttachedToActiveAdError;
     }
     if (msg.contains('ongoing trade')) {
-      return 'This payment method is being used in an ongoing trade.';
+      return l10n.p2pPaymentMethodInOngoingTradeError;
     }
     if (msg.contains('not available') || msg.contains('not found')) {
-      return 'Payment provider is not available.';
+      return l10n.p2pPaymentProviderNotAvailableError;
     }
     if (msg.contains('already exists') || msg.contains('account number')) {
-      return 'Account number already exists for this user.';
+      return l10n.p2pAccountNumberExistsError;
     }
     if (msg.contains('maximum number')) {
-      return 'Maximum payment methods reached for this currency.';
+      return l10n.p2pMaxPaymentMethodsReachedError;
     }
     if (statusCode == 404) {
-      return 'Payment method no longer exists.';
+      return l10n.p2pPaymentMethodNoLongerExistsError;
     }
     if (statusCode == 400 && msg.contains('active ad')) {
-      return 'This payment method is attached to an active ad and can’t be edited.';
+      return l10n.p2pPaymentMethodAttachedToActiveAdError;
     }
     if (statusCode == 400 && msg.contains('ongoing')) {
-      return 'This payment method is being used in an ongoing trade.';
+      return l10n.p2pPaymentMethodInOngoingTradeError;
     }
     if (msg.contains('validation') || msg.contains('bad request')) {
-      return 'Please check your details and try again.';
+      return l10n.p2pCheckDetailsTryAgainError;
     }
-    return 'We couldn’t save this method. Please try again.';
+    return l10n.p2pCouldNotSaveMethodError;
   }
 
   Future<void> _submit() async {
     if (_isSubmitting) return;
     if (!_isEditing && _selectedTypeId == null) {
-      setState(() => _errorMessage = 'Select a payment provider.');
+      setState(
+        () =>
+            _errorMessage =
+                AppLocalizations.of(context)!.p2pSelectPaymentProviderError,
+      );
       return;
     }
     setState(() {
@@ -10113,7 +10181,8 @@ class _AddPaymentMethodSheetState
           if (mounted) {
             setState(() {
               _isSubmitting = false;
-              _errorMessage = 'No changes detected.';
+              _errorMessage =
+                  AppLocalizations.of(context)!.p2pNoChangesDetectedError;
             });
           }
           return;
@@ -10178,7 +10247,7 @@ class _AddPaymentMethodSheetState
                 ),
                 SizedBox(height: spacing * 1.5),
                 Text(
-                  'Select provider',
+                  AppLocalizations.of(context)!.p2pSelectProviderTitle,
                   style: Theme.of(sheetContext).textTheme.titleMedium?.copyWith(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
@@ -10251,7 +10320,9 @@ class _AddPaymentMethodSheetState
             ),
             const SizedBox(height: 18),
             Text(
-              _isEditing ? 'Edit payment method' : 'Add payment method',
+              _isEditing
+                  ? AppLocalizations.of(context)!.p2pEditPaymentMethodTitle
+                  : AppLocalizations.of(context)!.p2pAddPaymentMethodTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -10260,8 +10331,12 @@ class _AddPaymentMethodSheetState
             const SizedBox(height: 6),
             Text(
               _isEditing
-                  ? 'Update the details for this payment method.'
-                  : 'Choose a provider and add your account details.',
+                  ? AppLocalizations.of(
+                      context,
+                    )!.p2pUpdatePaymentMethodDetailsSubtitle
+                  : AppLocalizations.of(
+                      context,
+                    )!.p2pChooseProviderAddAccountSubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontSize: 12,
                 color: OpeiColors.iosLabelSecondary,
@@ -10346,8 +10421,12 @@ class _AddPaymentMethodSheetState
                               if (_selectedTypeId == null)
                                 Text(
                                   _types.isEmpty
-                                      ? 'No providers available'
-                                      : 'Select provider…',
+                                      ? AppLocalizations.of(
+                                          context,
+                                        )!.p2pNoProvidersAvailableLabel
+                                      : AppLocalizations.of(
+                                          context,
+                                        )!.p2pSelectProviderTitle,
                                   style: theme.textTheme.bodyMedium?.copyWith(
                                     fontSize: 13,
                                     color: OpeiColors.iosLabelSecondary,
@@ -10412,10 +10491,10 @@ class _AddPaymentMethodSheetState
                   ),
                   child: Text(
                     _isSubmitting
-                        ? 'Saving…'
+                        ? AppLocalizations.of(context)!.savingLabel
                         : _isEditing
-                        ? 'Update method'
-                        : 'Save method',
+                        ? AppLocalizations.of(context)!.p2pUpdateMethodCta
+                        : AppLocalizations.of(context)!.p2pSaveMethodCta,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -10682,7 +10761,7 @@ class _CompactSellerRow extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    '$tradesDisplay trades',
+                    AppLocalizations.of(context)!.p2pTradesCount(tradesDisplay),
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
@@ -10773,7 +10852,7 @@ class _SellerIdentityRow extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    '$tradesDisplay trades',
+                    AppLocalizations.of(context)!.p2pTradesCount(tradesDisplay),
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -10889,7 +10968,7 @@ class _CompactAdInfo extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Price',
+                    AppLocalizations.of(context)!.p2pPriceLabel,
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 9,
                       fontWeight: FontWeight.w500,
@@ -10915,7 +10994,7 @@ class _CompactAdInfo extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Available',
+                    AppLocalizations.of(context)!.availableLabel,
                     style: theme.textTheme.bodySmall?.copyWith(
                       fontSize: 9,
                       fontWeight: FontWeight.w500,
@@ -10941,7 +11020,7 @@ class _CompactAdInfo extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Min: $minLabel',
+                '${AppLocalizations.of(context)!.minLabel}: $minLabel',
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
@@ -10952,7 +11031,7 @@ class _CompactAdInfo extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Max: $maxLabel',
+                '${AppLocalizations.of(context)!.maxLabel}: $maxLabel',
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontSize: 9,
                   fontWeight: FontWeight.w500,
@@ -11319,7 +11398,11 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
             await ref.read(p2pProfileControllerProvider.notifier).refresh();
           } catch (_) {}
         } else {
-          setState(() => _actionError = 'Set up your P2P profile to continue.');
+          setState(
+            () =>
+                _actionError =
+                    AppLocalizations.of(context)!.p2pSetUpProfileToContinue,
+          );
           return;
         }
       }
@@ -11347,7 +11430,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           subtitle: AppLocalizations.of(
             context,
           )!.p2pSelectSellerPaymentMethodSubtitle(widget.ad.currency),
-          actionLabel: 'Continue',
+          actionLabel: AppLocalizations.of(context)!.continueCta,
         ),
       );
 
@@ -11428,7 +11511,11 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
             await ref.read(p2pProfileControllerProvider.notifier).refresh();
           } catch (_) {}
         } else {
-          setState(() => _actionError = 'Set up your P2P profile to continue.');
+          setState(
+            () =>
+                _actionError =
+                    AppLocalizations.of(context)!.p2pSetUpProfileToContinue,
+          );
           return;
         }
       }
@@ -11455,7 +11542,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           subtitle: AppLocalizations.of(
             context,
           )!.p2pChooseBuyerPaymentMethodSubtitle(widget.ad.currency),
-          actionLabel: 'Continue',
+          actionLabel: AppLocalizations.of(context)!.continueCta,
         ),
       );
 
@@ -11517,6 +11604,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
   }
 
   String _mapTradeError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final status = error.statusCode ?? 0;
       final message = error.message.trim();
@@ -11524,9 +11612,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
       if (status == 401) {
         if (messageLower.contains('missing') &&
             messageLower.contains('x-user-id')) {
-          return 'We couldn’t verify your session. Please sign in again.';
+          return l10n.errSessionExpired;
         }
-        return 'Your session has expired. Please sign in and try again.';
+        return l10n.p2pSessionExpiredSignInTryAgainError;
       }
       if ((status == 400 || status == 403 || status == 404) &&
           message.isNotEmpty &&
@@ -11534,38 +11622,38 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
         return message;
       }
       if (status == 404) {
-        return 'This ad is no longer available.';
+        return l10n.p2pAdNoLongerAvailableError;
       }
       if (status == 400) {
         if (messageLower.contains('own ad')) {
-          return 'You can’t trade on your own ad.';
+          return l10n.p2pCannotTradeOwnAdError;
         }
         if (messageLower.contains('min') ||
             messageLower.contains('max') ||
             messageLower.contains('remaining')) {
-          return 'Enter an amount within the ad’s limits.';
+          return l10n.p2pAmountWithinAdLimitsError;
         }
         if (messageLower.contains('exceeds seller') ||
             messageLower.contains('available balance')) {
-          return 'The seller doesn’t have enough available for that amount.';
+          return l10n.p2pSellerInsufficientAvailableError;
         }
         if (messageLower.contains('without adpaymentmethodid') ||
             messageLower.contains('not on the ad') ||
             messageLower.contains('payment method')) {
-          return 'Select a payment method offered on this ad.';
+          return l10n.p2pSelectPaymentMethodOnAdError;
         }
         if (messageLower.contains('buyer has not specified') ||
             messageLower.contains('supported payment methods')) {
-          return 'Buyer has not shared any supported payment methods yet.';
+          return l10n.p2pBuyerNoSupportedPaymentMethodsError;
         }
         if (messageLower.contains('wallet') &&
             messageLower.contains('reservation')) {
-          return 'We couldn’t reserve funds right now. Please try again.';
+          return l10n.p2pReserveFundsTryAgainError;
         }
-        return 'We couldn’t start this trade. Please review your input and try again.';
+        return l10n.p2pStartTradeReviewInputError;
       }
       if (status >= 500) {
-        return 'Something went wrong on our side. Please try again.';
+        return l10n.errGenericRetry;
       }
       if (message.isNotEmpty) {
         return message;
@@ -11574,9 +11662,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
     // Fallback
     final text = error.toString().toLowerCase();
     if (text.contains('unauthorized') || text.contains('missing x-user-id')) {
-      return 'We couldn’t verify your session. Please sign in again.';
+      return l10n.errSessionExpired;
     }
-    return 'We couldn’t start this trade. Please try again.';
+    return l10n.p2pStartTradeTryAgainError;
   }
 
   bool _isGenericTradeMessage(String messageLower) {
@@ -11660,11 +11748,13 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
         ? 'USD '
         : '${ad.currency} ';
     final actionLabel = intentType == P2PAdType.buy
-        ? 'Buy USD'
+        ? AppLocalizations.of(context)!.p2pBuyUsdTitle
         : intentType == P2PAdType.sell
-        ? 'Sell USD'
+        ? AppLocalizations.of(context)!.p2pSellUsdTitle
         : '$intentLabel ${ad.currency}';
-    final primaryButtonLabel = _isSubmitting ? 'Please wait…' : actionLabel;
+    final primaryButtonLabel = _isSubmitting
+        ? AppLocalizations.of(context)!.p2pPleaseWaitLabel
+        : actionLabel;
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(24, 16, 24, bottomPadding),
@@ -11696,7 +11786,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           const SizedBox(height: 8),
           if (ad.paymentMethods.isNotEmpty) ...[
             Text(
-              'Payment methods',
+              AppLocalizations.of(context)!.paymentMethodsLabel,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -11717,8 +11807,8 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           const SizedBox(height: 20),
           Text(
             intentType == P2PAdType.buy
-                ? 'How much USD do you want to buy?'
-                : 'How much USD do you want to sell?',
+                ? AppLocalizations.of(context)!.p2pHowMuchUsdBuy
+                : AppLocalizations.of(context)!.p2pHowMuchUsdSell,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -11811,7 +11901,9 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Available ${ad.remainingAmount.format(includeCurrencySymbol: true)}',
+            AppLocalizations.of(context)!.p2pAvailableAmount(
+              ad.remainingAmount.format(includeCurrencySymbol: true),
+            ),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontSize: 12,
               color: OpeiColors.iosLabelSecondary,
@@ -11836,7 +11928,7 @@ class _AdDetailsSheetState extends ConsumerState<_AdDetailsSheet> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Instructions',
+            AppLocalizations.of(context)!.instructionsLabel,
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -12008,7 +12100,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Trade created',
+                  AppLocalizations.of(context)!.p2pTradeCreatedTitle,
                   style: textTheme.titleLarge?.copyWith(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -12051,7 +12143,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'You will receive',
+                  AppLocalizations.of(context)!.p2pYouWillReceiveLabel,
                   style: textTheme.bodySmall?.copyWith(
                     fontSize: 11,
                     color: OpeiColors.iosLabelSecondary,
@@ -12114,7 +12206,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Ad instructions',
+                    AppLocalizations.of(context)!.p2pAdInstructionsLabel,
                     style: textTheme.bodySmall?.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -12145,7 +12237,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 ),
               ),
               child: Text(
-                'We’ll notify you once the buyer marks payment as sent. Go to Orders to review proof and release the funds.',
+                AppLocalizations.of(context)!.p2pNotifyWhenBuyerMarksPaid,
                 style: textTheme.bodySmall?.copyWith(
                   fontSize: 12,
                   color: OpeiColors.iosLabelSecondary,
@@ -12176,7 +12268,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 ),
               ),
               child: Text(
-                'Done',
+                AppLocalizations.of(context)!.doneCta,
                 style: textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -12193,7 +12285,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
               padding: const EdgeInsets.symmetric(vertical: 8),
             ),
             child: Text(
-              'Close',
+              AppLocalizations.of(context)!.closeCta,
               style: textTheme.bodyMedium?.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
@@ -12284,7 +12376,7 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
                 ),
               )
             : Text(
-                'Cancel trade',
+                AppLocalizations.of(context)!.p2pCancelTradeCta,
                 style: textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -12335,21 +12427,22 @@ class _SellTradeSuccessViewState extends ConsumerState<SellTradeSuccessView> {
   }
 
   String _statusDescription(P2PTradeStatus status) {
+    final l10n = ErrorHelper.l10n;
     switch (status) {
       case P2PTradeStatus.initiated:
-        return 'Active trade.';
+        return l10n.p2pStatusDescriptionActiveTrade;
       case P2PTradeStatus.paidByBuyer:
-        return 'Buyer marked the trade as paid. Review the proof before releasing the funds.';
+        return l10n.p2pStatusDescriptionBuyerMarkedPaid;
       case P2PTradeStatus.releasedBySeller:
-        return 'You released this trade. Funds are on the way to the buyer.';
+        return l10n.p2pStatusDescriptionReleasedBySeller;
       case P2PTradeStatus.completed:
-        return 'Trade completed successfully.';
+        return l10n.p2pStatusDescriptionCompleted;
       case P2PTradeStatus.cancelled:
-        return 'This trade was cancelled.';
+        return l10n.p2pStatusDescriptionCancelled;
       case P2PTradeStatus.disputed:
-        return 'This trade is under review.';
+        return l10n.p2pStatusDescriptionUnderReview;
       case P2PTradeStatus.expired:
-        return 'This trade expired before the buyer confirmed payment.';
+        return l10n.p2pStatusDescriptionExpiredBeforeConfirm;
     }
   }
 
@@ -12488,7 +12581,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Trade created',
+                  AppLocalizations.of(context)!.p2pTradeCreatedTitle,
                   style: textTheme.titleLarge?.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
@@ -12497,7 +12590,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Send payment using the details below.',
+                  AppLocalizations.of(context)!.p2pSendPaymentUsingDetails,
                   textAlign: TextAlign.center,
                   style: textTheme.bodyMedium?.copyWith(
                     fontSize: 13,
@@ -12530,7 +12623,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
-                    'Pay within 30 minutes & confirm, or this trade will be cancelled.',
+                    AppLocalizations.of(
+                      context,
+                    )!.p2pPayWithin30MinutesWarning,
                     style: textTheme.bodySmall?.copyWith(
                       fontSize: 11,
                       color: OpeiColors.iosLabelSecondary,
@@ -12626,7 +12721,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Seller Payment Details',
+          AppLocalizations.of(context)!.p2pSellerPaymentDetailsTitle,
           style: textTheme.titleSmall?.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -12762,7 +12857,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Seller will share the final account details in chat.',
+                      AppLocalizations.of(
+                        context,
+                      )!.p2pSellerSharesFinalDetailsInChat,
                       textAlign: TextAlign.center,
                       style: textTheme.bodySmall?.copyWith(
                         fontSize: 13,
@@ -12811,7 +12908,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'You send',
+                AppLocalizations.of(context)!.p2pYouSendLabel,
                 style: textTheme.bodyMedium?.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -12855,7 +12952,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                'You\'ll receive',
+                AppLocalizations.of(context)!.p2pYouWillReceiveLabel,
                 style: textTheme.bodyMedium?.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
@@ -12887,7 +12984,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Seller Instructions',
+          AppLocalizations.of(context)!.p2pSellerInstructionsTitle,
           style: textTheme.titleSmall?.copyWith(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -13010,7 +13107,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 ),
               )
             : Text(
-                'Cancel trade',
+                AppLocalizations.of(context)!.p2pCancelTradeCta,
                 style: textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -13058,7 +13155,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
               ),
               const SizedBox(width: 10),
               Text(
-                'Waiting for the seller',
+                AppLocalizations.of(context)!.p2pWaitingForSellerTitle,
                 style: textTheme.titleSmall?.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -13068,7 +13165,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           ),
           const SizedBox(height: 12),
           Text(
-            'We\'ve notified the other party. Once they confirm payment, your USD will be released to your wallet. We\'ll let you know immediately.',
+            AppLocalizations.of(context)!.p2pWaitingForSellerSubtitle,
             style: textTheme.bodySmall?.copyWith(
               fontSize: 13,
               height: 1.45,
@@ -13089,7 +13186,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
                 ),
               ),
               child: Text(
-                'Done',
+                AppLocalizations.of(context)!.doneCta,
                 style: textTheme.bodyMedium?.copyWith(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -13128,7 +13225,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Adding your proof...',
+              AppLocalizations.of(context)!.p2pAddingYourProofLabel,
               style: textTheme.bodySmall?.copyWith(
                 fontSize: 12,
                 color: OpeiColors.iosLabelSecondary,
@@ -13155,7 +13252,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           elevation: 0,
         ),
         child: Text(
-          'I\'ve Paid',
+          AppLocalizations.of(context)!.p2pIvePaidCta,
           style: textTheme.bodyMedium?.copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w600,
@@ -13238,7 +13335,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Submitted proofs',
+          AppLocalizations.of(context)!.p2pSubmittedProofsTitle,
           style: textTheme.titleSmall?.copyWith(
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -13249,7 +13346,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         Wrap(spacing: 8, runSpacing: 8, children: thumbnails),
         const SizedBox(height: 6),
         Text(
-          'Visible to the seller and support team.',
+          AppLocalizations.of(context)!.p2pVisibleToSellerSupport,
           style: textTheme.bodySmall?.copyWith(
             fontSize: 11,
             color: OpeiColors.iosLabelTertiary,
@@ -13592,63 +13689,65 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
   }
 
   String _mapSubmissionError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final status = error.statusCode ?? 0;
       final message = error.message;
 
       if (status == 400) {
         if (message.toLowerCase().contains('already marked')) {
-          return 'You already confirmed payment for this trade.';
+          return l10n.p2pAlreadyConfirmedPaymentError;
         }
         return message.isNotEmpty
             ? message
-            : 'We couldn’t submit those proofs. Please check and try again.';
+            : l10n.p2pSubmitProofCheckTryAgainError;
       }
 
       if (status == 401 || status == 403) {
-        return 'Your session expired. Please sign in again.';
+        return l10n.errSessionExpired;
       }
 
       if (status == 413) {
-        return 'Those images are too large. Please upload photos under 5 MB each.';
+        return l10n.p2pProofImagesTooLargeError;
       }
 
       if (status >= 500) {
-        return 'Server issue while submitting your proofs. Please try again in a moment.';
+        return l10n.p2pProofServerIssueRetryError;
       }
 
       return message.isNotEmpty
           ? message
-          : 'We couldn’t submit your proofs right now.';
+          : l10n.p2pProofSubmitNowError;
     }
 
     if (error is DioException) {
       if (error.type == DioExceptionType.connectionTimeout ||
           error.type == DioExceptionType.connectionError) {
-        return 'Network issue while uploading. Check your connection and retry.';
+        return l10n.p2pProofNetworkUploadRetryError;
       }
-      return 'Upload failed. Please try again.';
+      return l10n.p2pProofUploadFailedError;
     }
 
-    return 'Something went wrong while submitting your proofs. Please try again.';
+    return l10n.p2pProofSubmitFailedRetryError;
   }
 
   String _statusDescription(P2PTradeStatus status) {
+    final l10n = ErrorHelper.l10n;
     switch (status) {
       case P2PTradeStatus.paidByBuyer:
-        return 'Payment sent. The seller has been notified. You’ll receive funds once they release the funds.';
+        return l10n.p2pStatusDescriptionPaymentSent;
       case P2PTradeStatus.releasedBySeller:
-        return 'Seller confirmed payment. We’re releasing your funds shortly.';
+        return l10n.p2pStatusDescriptionSellerConfirmedReleasing;
       case P2PTradeStatus.completed:
-        return 'Trade completed successfully. Funds should now reflect in your wallet.';
+        return l10n.p2pStatusDescriptionCompletedWalletUpdated;
       case P2PTradeStatus.cancelled:
-        return 'This trade was cancelled. Reach out to support if you need help.';
+        return l10n.p2pStatusDescriptionCancelledSupportHelp;
       case P2PTradeStatus.disputed:
-        return 'This trade is under review. Our team will contact you if more details are needed.';
+        return l10n.p2pStatusDescriptionUnderReviewTeamContact;
       case P2PTradeStatus.expired:
-        return 'This trade expired before you confirmed payment.';
+        return l10n.p2pStatusDescriptionExpiredBeforeConfirm;
       case P2PTradeStatus.initiated:
-        return 'Active trade.';
+        return l10n.p2pStatusDescriptionActiveTrade;
     }
   }
 
@@ -13752,7 +13851,7 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Proof of payment',
+          AppLocalizations.of(context)!.p2pProofOfPaymentTitle,
           style: textTheme.titleSmall?.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w600,
@@ -13781,7 +13880,9 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
         ),
         const SizedBox(height: 6),
         Text(
-          '${_pickedImages.length}/$_maxImages selected',
+          AppLocalizations.of(
+            context,
+          )!.p2pSelectedCount(_pickedImages.length.toString(), _maxImages.toString()),
           style: textTheme.bodySmall?.copyWith(
             fontSize: 11,
             color: OpeiColors.iosLabelSecondary,
@@ -14008,7 +14109,7 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Proof submitted',
+                  AppLocalizations.of(context)!.p2pProofSubmittedTitle,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontSize: 24,
@@ -14018,7 +14119,7 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'We’ve notified the seller. They’ll review your proof and release the funds once they confirm payment.',
+                  AppLocalizations.of(context)!.p2pProofSubmittedSellerNotified,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 14,
@@ -14054,7 +14155,9 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'What happens next?',
+                            AppLocalizations.of(
+                              context,
+                            )!.p2pWhatHappensNextTitle,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -14071,12 +14174,16 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
                       const SizedBox(height: 6),
                       _ProofSubmittedBullet(
                         label:
-                            'Once confirmed, the funds are released automatically.',
+                            AppLocalizations.of(
+                              context,
+                            )!.p2pOnceConfirmedFundsReleased,
                       ),
                       const SizedBox(height: 6),
                       _ProofSubmittedBullet(
                         label:
-                            'You’ll receive a notification for every update.',
+                            AppLocalizations.of(
+                              context,
+                            )!.p2pReceiveNotificationEveryUpdate,
                       ),
                     ],
                   ),
@@ -14107,7 +14214,7 @@ class _ProofSubmittedScreenState extends State<ProofSubmittedScreen>
                             ),
                           )
                         : Text(
-                            'Done',
+                            AppLocalizations.of(context)!.doneCta,
                             style: theme.textTheme.bodyLarge?.copyWith(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -14177,7 +14284,7 @@ Future<bool> showP2PCancelTradeWarningDialog(BuildContext context) async {
               borderRadius: BorderRadius.circular(20),
             ),
             title: Text(
-              'Cancel this trade?',
+              AppLocalizations.of(dialogContext)!.p2pCancelThisTradeTitle,
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
@@ -14187,7 +14294,9 @@ Future<bool> showP2PCancelTradeWarningDialog(BuildContext context) async {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Do not cancel after sending money.',
+                  AppLocalizations.of(
+                    dialogContext,
+                  )!.p2pDoNotCancelAfterSending,
                   style: textTheme.bodyMedium?.copyWith(
                     height: 1.45,
                     fontWeight: FontWeight.w600,
@@ -14195,7 +14304,9 @@ Future<bool> showP2PCancelTradeWarningDialog(BuildContext context) async {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Canceling after payment may cause irreversible loss. Opei is not responsible for losses resulting from user cancellation after payment.',
+                  AppLocalizations.of(
+                    dialogContext,
+                  )!.p2pCancelAfterPaymentLossWarning,
                   style: textTheme.bodySmall?.copyWith(
                     height: 1.5,
                     color: const Color(0xFFD62E1F),
@@ -14411,7 +14522,7 @@ class _UploadProofSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Upload Proof',
+              AppLocalizations.of(context)!.p2pUploadProofTitle,
               style: theme.textTheme.titleLarge?.copyWith(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
@@ -14420,7 +14531,7 @@ class _UploadProofSheet extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Upload 1–3 clear images showing your payment confirmation',
+              AppLocalizations.of(context)!.p2pUploadProofSubtitle,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontSize: 14,
                 color: OpeiColors.iosLabelSecondary,
@@ -14479,7 +14590,7 @@ class _UploadProofSheet extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  'Up to 3 images • Max 5 MB each',
+                  AppLocalizations.of(context)!.p2pUpTo3ImagesMax5Mb,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontSize: 12,
@@ -14493,7 +14604,7 @@ class _UploadProofSheet extends StatelessWidget {
             ],
             const SizedBox(height: 18),
             Text(
-              'Note (optional)',
+              AppLocalizations.of(context)!.p2pNoteOptionalLabel,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -14572,7 +14683,7 @@ class _UploadProofSheet extends StatelessWidget {
                         ),
                       )
                     : Text(
-                        'Submit Proof',
+                        AppLocalizations.of(context)!.p2pSubmitProofCta,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontSize: 17,
                           fontWeight: FontWeight.w600,

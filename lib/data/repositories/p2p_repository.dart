@@ -296,7 +296,7 @@ class P2PRepository {
     if (data is Map<String, dynamic>) {
       return P2PTrade.fromJson(data);
     }
-    throw ApiError(message: 'Invalid response when cancelling trade.');
+    throw ApiError(message: 'E-2101');
   }
 
   // --- Create trade (place order against an ad) ---
@@ -333,7 +333,7 @@ class P2PRepository {
     // and include x-user-id header. No tradeId in payload.
     final userId = (await _storage.getUser())?.id;
     if (userId == null || userId.isEmpty) {
-      throw ApiError(message: 'missing x-user-id');
+      throw ApiError(message: 'E-2102');
     }
 
     debugPrint(
@@ -363,7 +363,7 @@ class P2PRepository {
 
       final plan = P2PTradeProofUploadPlan.fromJson(body);
       if (plan.uploadUrl.isEmpty || plan.fileUrl.isEmpty) {
-        throw ApiError(message: 'Invalid presign response');
+        throw ApiError(message: 'E-2103');
       }
       plans.add(plan);
     }
@@ -389,7 +389,7 @@ class P2PRepository {
       return P2PTrade.fromJson(data);
     }
 
-    throw ApiError(message: 'Invalid response when marking trade as paid.');
+    throw ApiError(message: 'E-2104');
   }
 
   Future<P2PTrade> releaseTrade({required String tradeId}) async {
@@ -398,7 +398,7 @@ class P2PRepository {
     if (data is Map<String, dynamic>) {
       return P2PTrade.fromJson(data);
     }
-    throw ApiError(message: 'Invalid response when releasing trade.');
+    throw ApiError(message: 'E-2105');
   }
 
   Future<P2PTradeRating> rateTrade({
@@ -427,7 +427,7 @@ class P2PRepository {
       return P2PTradeRating.fromJson(data);
     }
 
-    throw ApiError(message: 'Invalid response when reviewing trade rating.');
+    throw ApiError(message: 'E-2106');
   }
 
   Future<P2PTrade> raiseTradeDispute({
@@ -447,7 +447,7 @@ class P2PRepository {
       return P2PTrade.fromJson(data);
     }
 
-    throw ApiError(message: 'Invalid response when opening trade dispute.');
+    throw ApiError(message: 'E-2107');
   }
 
   Future<List<P2PTrade>> fetchMyTrades({String? status}) async {

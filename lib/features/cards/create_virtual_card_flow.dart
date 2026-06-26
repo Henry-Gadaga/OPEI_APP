@@ -328,9 +328,9 @@ class _CanCreateBody extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Total charged',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.sendPreviewTotalChargedRow,
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -407,9 +407,9 @@ class _CanCreateBody extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'After creation',
-                        style: TextStyle(
+                      Text(
+                        AppLocalizations.of(context)!.cardsAfterCreationRow,
+                        style: const TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
@@ -494,9 +494,9 @@ class _InsufficientBody extends StatelessWidget {
                 color: Color(0xFFB36B00),
               ),
               const SizedBox(width: 10),
-              const Text(
-                'Add to continue',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.cardsAddToContinueLabel,
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -582,9 +582,9 @@ class _SuccessScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Card on its way!',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.cardsOnItsWayTitle,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 26,
                 fontWeight: FontWeight.w800,
@@ -593,10 +593,10 @@ class _SuccessScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Your virtual card is being set up.\nIt will be active in a moment.',
+            Text(
+              AppLocalizations.of(context)!.cardsOnItsWayMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -707,9 +707,9 @@ class _Shell extends StatelessWidget {
                   else
                     const SizedBox(width: 36),
                   const Spacer(),
-                  const Text(
-                    'Create Card',
-                    style: TextStyle(
+                  Text(
+                    AppLocalizations.of(context)!.cardsCreateCardCta,
+                    style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -789,9 +789,9 @@ class _ErrorBody extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Couldn\'t load card details',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.cardsLoadDetailsError,
+            style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -819,9 +819,9 @@ class _ErrorBody extends StatelessWidget {
                 color: OpeiBrand.primaryTint,
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: const Text(
-                'Try again',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.tryAgainCta,
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,

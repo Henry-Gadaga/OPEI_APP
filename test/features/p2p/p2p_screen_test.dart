@@ -7,6 +7,7 @@ import 'package:opei/data/models/p2p_trade.dart';
 import 'package:opei/features/p2p/p2p_controller.dart';
 import 'package:opei/features/p2p/p2p_screen.dart';
 import 'package:opei/features/p2p/p2p_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 void main() {
@@ -78,6 +79,9 @@ Future<void> _pumpP2PScreen(
       ],
       child: MaterialApp.router(
         routerConfig: router,
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData.from(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         ).copyWith(

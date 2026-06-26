@@ -73,7 +73,7 @@ class ExpressOrderRepository {
     if (data is Map<String, dynamic>) {
       return ExpressOrderPreview.fromJson(data);
     }
-    throw ApiError(message: 'Could not load a quote. Please try again.');
+    throw ApiError(message: 'E-2201');
   }
 
   // ── D. Create order ────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ class ExpressOrderRepository {
         'amountUsdCents': amountUsdCents.toString(),
       },
     );
-    return _parseOrder(payload, action: 'creating your order');
+    return _parseOrder(payload);
   }
 
   // ── E. Customer inbox ───────────────────────────────────────────────────────
@@ -112,7 +112,7 @@ class ExpressOrderRepository {
     final payload = await _apiClient.get<Map<String, dynamic>>(
       '/p2p/express-orders/$orderId',
     );
-    return _parseOrder(payload, action: 'loading your order');
+    return _parseOrder(payload);
   }
 
   // ── G. Customer marks paid (with proof) ─────────────────────────────────────
@@ -130,7 +130,7 @@ class ExpressOrderRepository {
           'message': message.trim(),
       },
     );
-    return _parseOrder(payload, action: 'submitting your payment');
+    return _parseOrder(payload);
   }
 
   // ── G2. Buyer cancel order ───────────────────────────────────────────────────
@@ -139,7 +139,7 @@ class ExpressOrderRepository {
     final payload = await _apiClient.post<Map<String, dynamic>>(
       '/p2p/express-orders/$orderId/cancel',
     );
-    return _parseOrder(payload, action: 'cancelling your order');
+    return _parseOrder(payload);
   }
 
   // ── G3. Open dispute (buyer or assigned agent) ───────────────────────────────
@@ -156,7 +156,7 @@ class ExpressOrderRepository {
         if (imageUrls.isNotEmpty) 'imageUrls': imageUrls,
       },
     );
-    return _parseOrder(payload, action: 'opening your dispute');
+    return _parseOrder(payload);
   }
 
   // ── H. Proof uploads (presign + PUT) ────────────────────────────────────────
@@ -166,7 +166,7 @@ class ExpressOrderRepository {
 
     final userId = (await _storage.getUser())?.id;
     if (userId == null || userId.isEmpty) {
-      throw ApiError(message: 'Your session expired. Please sign in again.');
+      throw ApiError(message: 'E-2202');
     }
 
     final dio = Dio();
@@ -184,7 +184,7 @@ class ExpressOrderRepository {
           : payload;
       final plan = P2PTradeProofUploadPlan.fromJson(body);
       if (plan.uploadUrl.isEmpty || plan.fileUrl.isEmpty) {
-        throw ApiError(message: 'Could not prepare the upload. Please retry.');
+        throw ApiError(message: 'E-2203');
       }
 
       final headers = Map<String, String>.from(plan.headers);
@@ -198,17 +198,11 @@ class ExpressOrderRepository {
           options: Options(headers: headers, validateStatus: (status) => true),
         );
         if (response.statusCode != 200 && response.statusCode != 204) {
-          throw ApiError(
-            message: 'Upload failed. Please try again.',
-            statusCode: response.statusCode,
-          );
+          throw ApiError(message: 'E-2204', statusCode: response.statusCode);
         }
       } on DioException catch (error) {
         debugPrint('❌ Express proof upload failed: ${error.message}');
-        throw ApiError(
-          message: 'Failed to upload your proof. Please try again.',
-          statusCode: error.response?.statusCode,
-        );
+        throw ApiError(message: 'E-2205', statusCode: error.response?.statusCode);
       }
 
       publicUrls.add(plan.fileUrl);
@@ -244,7 +238,7 @@ class ExpressOrderRepository {
     final payload = await _apiClient.post<Map<String, dynamic>>(
       '/p2p/express-orders/$orderId/accept',
     );
-    return _parseOrder(payload, action: 'accepting the order');
+    return _parseOrder(payload);
   }
 
   // ── L. Agent — confirm order ────────────────────────────────────────────────
@@ -253,19 +247,16 @@ class ExpressOrderRepository {
     final payload = await _apiClient.post<Map<String, dynamic>>(
       '/p2p/express-orders/$orderId/confirm',
     );
-    return _parseOrder(payload, action: 'confirming the order');
+    return _parseOrder(payload);
   }
 
   // ── helpers ─────────────────────────────────────────────────────────────────
-  ExpressOrder _parseOrder(
-    Map<String, dynamic> payload, {
-    required String action,
-  }) {
+  ExpressOrder _parseOrder(Map<String, dynamic> payload) {
     final data = payload['data'];
     if (data is Map<String, dynamic>) {
       return ExpressOrder.fromJson(data);
     }
-    throw ApiError(message: 'Something went wrong while $action.');
+    throw ApiError(message: 'E-2206');
   }
 
   List<ExpressOrder> _parseOrderList(Map<String, dynamic> payload) {

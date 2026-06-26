@@ -72,7 +72,8 @@ class UsBankBeneficiariesController
     final userId = ref.read(authSessionProvider).userId;
     if (userId == null) {
       state = state.copyWith(
-          error: 'You need to be signed in to view receivers.');
+        error: ErrorHelper.l10n.p2pPleaseSignInAgainError,
+      );
       return;
     }
 
@@ -119,7 +120,8 @@ class UsBankBeneficiariesController
     final userId = ref.read(authSessionProvider).userId;
     if (userId == null) {
       this.state = this.state.copyWith(
-          createError: 'You need to be signed in to add a receiver.');
+        createError: ErrorHelper.l10n.p2pPleaseSignInAgainError,
+      );
       return false;
     }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opei/core/money/money.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/express_order.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
@@ -37,15 +38,15 @@ class ExpressCurrencyOption {
 String expressMethodTypeLabel(String methodType) {
   switch (methodType.toUpperCase()) {
     case 'MOBILE_MONEY':
-      return 'Mobile Money';
+      return ErrorHelper.l10n.withdrawMobileMoneyTitle;
     case 'BANK':
     case 'BANK_TRANSFER':
-      return 'Bank Transfer';
+      return ErrorHelper.l10n.withdrawBankTransferTitle;
     case 'CARD':
-      return 'Card';
+      return ErrorHelper.l10n.cardsVirtualCardLabel;
     default:
       final cleaned = methodType.replaceAll('_', ' ').toLowerCase().trim();
-      if (cleaned.isEmpty) return 'Payment';
+      if (cleaned.isEmpty) return ErrorHelper.l10n.paymentMethodLabel;
       return cleaned[0].toUpperCase() + cleaned.substring(1);
   }
 }

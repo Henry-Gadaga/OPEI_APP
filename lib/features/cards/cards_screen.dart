@@ -22,10 +22,6 @@ import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 
-String _tr(BuildContext context, String en, String pt) {
-  return Localizations.localeOf(context).languageCode == 'pt' ? pt : en;
-}
-
 Route<PromoCardCreateResult?> _buildCreateCardFlowRoute() {
   return PageRouteBuilder<PromoCardCreateResult?>(
     pageBuilder: (_, animation, secondaryAnimation) =>
@@ -74,11 +70,7 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final resolvedErrorMessage = hasError
         ? (normalizedError.isNotEmpty
               ? normalizedError
-              : _tr(
-                  context,
-                  "We couldn't load your cards. Please try again.",
-                  'Nao foi possivel carregar seus cartoes. Tente novamente.',
-                ))
+              : l10n.cardsLoadFailedMessage)
         : null;
     final showErrorBanner = hasError && cardsState.cards.isNotEmpty;
     final showErrorState =
@@ -422,15 +414,12 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   }
 
   Future<void> _handleTopUp(VirtualCard card) async {
+    final l10n = AppLocalizations.of(context)!;
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
       showError(
         context,
-        _tr(
-          context,
-          "We couldn't find this card.",
-          'Nao foi possivel encontrar este cartao.',
-        ),
+        l10n.cardsNotFoundError,
       );
       return;
     }
@@ -443,15 +432,12 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   }
 
   Future<void> _handleWithdraw(VirtualCard card) async {
+    final l10n = AppLocalizations.of(context)!;
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
       showError(
         context,
-        _tr(
-          context,
-          "We couldn't find this card.",
-          'Nao foi possivel encontrar este cartao.',
-        ),
+        l10n.cardsNotFoundError,
       );
       return;
     }
@@ -614,17 +600,13 @@ class _TerminateConfirmationSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            _tr(context, 'Terminate this card?', 'Encerrar este cartao?'),
+            l10n.cardsTerminateConfirmTitle,
             style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            _tr(
-              context,
-              'This card will be permanently removed. You won’t be able to use or view $cardLabel again.',
-              'Este cartao sera removido permanentemente. Voce nao podera usar nem ver $cardLabel novamente.',
-            ),
+            l10n.cardsTerminateConfirmSubtitle(cardLabel),
             style: textTheme.bodyMedium?.copyWith(
               color: OpeiColors.iosLabelSecondary,
               height: 1.45,
@@ -656,11 +638,7 @@ class _TerminateConfirmationSheet extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    _tr(
-                      context,
-                      'Make sure you’ve moved any remaining funds before confirming.',
-                      'Certifique-se de mover quaisquer fundos restantes antes de confirmar.',
-                    ),
+                    l10n.cardsTerminateMoveFundsWarning,
                     style: textTheme.bodySmall?.copyWith(
                       color: OpeiColors.errorRed,
                       fontWeight: FontWeight.w600,
@@ -763,7 +741,7 @@ class _CardsErrorPlaceholder extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              _tr(context, 'We ran into an issue', 'Encontramos um problema'),
+              l10n.genericIssueTitle,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1143,11 +1121,7 @@ class _UserCardView extends StatelessWidget {
                         const CupertinoActivityIndicator(radius: 12),
                         const SizedBox(height: 12),
                         Text(
-                          _tr(
-                            context,
-                            'Loading securely...',
-                            'Carregando com seguranca...',
-                          ),
+                          l10n.loadingSecurelyLabel,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: OpeiColors.pureWhite.withValues(alpha: 0.85),
                             fontSize: 12,
@@ -1378,9 +1352,10 @@ class _UserCardView extends StatelessWidget {
       context: context,
       builder: (sheetContext) {
         final theme = Theme.of(sheetContext);
+        final l10n = AppLocalizations.of(sheetContext)!;
         final copyLabel = data.isPlaceholder
-            ? _tr(context, 'Copy sample address', 'Copiar endereco de exemplo')
-            : _tr(context, 'Copy address', 'Copiar endereco');
+            ? l10n.cardsCopySampleAddressCta
+            : l10n.cardsCopyAddressCta;
 
         return SafeArea(
           top: false,
@@ -1402,7 +1377,7 @@ class _UserCardView extends StatelessWidget {
                 ),
                 const SizedBox(height: 18),
                 Text(
-                  _tr(context, 'Card Address', 'Endereco do cartao'),
+                  l10n.cardsAddressTitle,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -1412,11 +1387,7 @@ class _UserCardView extends StatelessWidget {
                 if (data.isPlaceholder) ...[
                   const SizedBox(height: 6),
                   Text(
-                    _tr(
-                      context,
-                      'Sample data shown for layout. Real card addresses will appear here once provided by the gateway.',
-                      'Dados de exemplo exibidos para layout. Enderecos reais do cartao aparecerao aqui quando forem fornecidos pelo gateway.',
-                    ),
+                    l10n.cardsSampleAddressHelper,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: OpeiColors.grey600,
                       fontSize: 12,
@@ -1446,7 +1417,7 @@ class _UserCardView extends StatelessWidget {
                         }
                         Navigator.of(sheetContext).pop();
                         await onCopyValue(
-                          _tr(context, 'Card address', 'Endereco do cartao'),
+                          l10n.cardsAddressTitle,
                           normalizedCopy,
                         );
                       },
@@ -2055,7 +2026,7 @@ class _CardsEmptyState extends StatelessWidget {
 
         // ── Headline + subtitle ───────────────────────────────────
         Text(
-          _tr(context, 'Your Opei Visa Card', 'Seu cartao Visa Opei'),
+          l10n.cardsEmptyStateTitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 22,
@@ -2067,11 +2038,7 @@ class _CardsEmptyState extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          _tr(
-            context,
-            'Pay anywhere Visa is accepted —\nsubscriptions, travel, and shopping.',
-            'Pague em qualquer lugar onde Visa e aceito —\nassinaturas, viagens e compras.',
-          ),
+          l10n.cardsEmptyStateSubtitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 13.5,
@@ -2106,7 +2073,7 @@ class _CardsEmptyState extends StatelessWidget {
                 Icon(Icons.add_rounded, size: 18, color: OpeiBrand.primary),
                 SizedBox(width: 7),
                 Text(
-                  _tr(context, 'Create card', 'Criar cartao'),
+                  l10n.cardsCreateCardCta,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -2375,11 +2342,9 @@ class VirtualCardHero extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _tr(
+                                AppLocalizations.of(
                                   context,
-                                  'CARD HOLDER',
-                                  'TITULAR DO CARTAO',
-                                ),
+                                )!.cardsHolderLabel.toUpperCase(),
                                 style: TextStyle(
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w600,
@@ -2389,7 +2354,9 @@ class VirtualCardHero extends StatelessWidget {
                               ),
                               const SizedBox(height: 3),
                               Text(
-                                _tr(context, 'YOUR NAME', 'SEU NOME'),
+                                AppLocalizations.of(
+                                  context,
+                                )!.cardsYourNamePlaceholder,
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
@@ -2404,7 +2371,9 @@ class VirtualCardHero extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                _tr(context, 'EXPIRES', 'VALIDADE'),
+                                AppLocalizations.of(
+                                  context,
+                                )!.cardsExpiresLabel.toUpperCase(),
                                 style: TextStyle(
                                   fontSize: 8.5,
                                   fontWeight: FontWeight.w600,

@@ -535,12 +535,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   String _languageLabel(String languageCode) {
+    final l10n = AppLocalizations.of(context)!;
     switch (languageCode) {
       case kLanguagePortuguese:
-        return 'Português';
+        return l10n.profileLanguagePortuguese;
       case kLanguageEnglish:
       default:
-        return 'English';
+        return l10n.profileLanguageEnglish;
     }
   }
 }

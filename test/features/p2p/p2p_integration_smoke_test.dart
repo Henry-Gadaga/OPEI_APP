@@ -7,6 +7,7 @@ import 'package:opei/data/models/p2p_ad.dart';
 import 'package:opei/features/p2p/p2p_controller.dart';
 import 'package:opei/features/p2p/p2p_screen.dart';
 import 'package:opei/features/p2p/p2p_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +44,12 @@ void main() {
           myP2PAdsControllerProvider.overrideWith(() => myAdsController),
           p2pProfileControllerProvider.overrideWith(() => profileController),
         ],
-        child: MaterialApp.router(routerConfig: router),
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
       ),
     );
 

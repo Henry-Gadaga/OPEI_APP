@@ -157,7 +157,7 @@ class CardsController extends Notifier<CardsState> {
   Future<String?> toggleCardDetails(VirtualCard card) async {
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
-      return "We couldn't find this card.";
+      return ErrorHelper.l10n.cardsNotFoundError;
     }
 
     if (state.detailLoadingIds.contains(cardId)) {
@@ -221,13 +221,13 @@ class CardsController extends Notifier<CardsState> {
     if (error is ApiError) {
       switch (error.statusCode) {
         case 400:
-          return 'Something went wrong. Please try again.';
+          return ErrorHelper.l10n.errGenericRetry;
         case 401:
-          return 'Your session has expired. Please log in again.';
+          return ErrorHelper.l10n.errSessionExpired;
         case 404:
-          return "We couldn't find this card.";
+          return ErrorHelper.l10n.cardsNotFoundError;
         case 503:
-          return "We're having trouble loading your card details. Please try again soon.";
+          return ErrorHelper.l10n.cardsDetailsLoadUnavailableError;
         default:
           return ErrorHelper.getErrorMessage(error);
       }
@@ -238,7 +238,7 @@ class CardsController extends Notifier<CardsState> {
   Future<CardActionResult> freezeCard(VirtualCard card) async {
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
-      return const CardActionResult(error: "We couldn't find this card.");
+      return CardActionResult(error: ErrorHelper.l10n.cardsNotFoundError);
     }
 
     if (state.actionInFlightIds.contains(cardId)) {
@@ -253,7 +253,7 @@ class CardsController extends Notifier<CardsState> {
       final responseMessage = await _cardRepository.freezeCard(cardId);
       _updateCardStatus(cardId, 'locked');
       return CardActionResult(
-        message: responseMessage.isNotEmpty ? responseMessage : 'Card locked',
+        message: responseMessage.isNotEmpty ? responseMessage : ErrorHelper.l10n.cardsLockedMessage,
       );
     } catch (error, stackTrace) {
       debugPrint('❌ Failed to freeze card $cardId: $error');
@@ -269,7 +269,7 @@ class CardsController extends Notifier<CardsState> {
   Future<CardActionResult> unfreezeCard(VirtualCard card) async {
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
-      return const CardActionResult(error: "We couldn't find this card.");
+      return CardActionResult(error: ErrorHelper.l10n.cardsNotFoundError);
     }
 
     if (state.actionInFlightIds.contains(cardId)) {
@@ -284,7 +284,9 @@ class CardsController extends Notifier<CardsState> {
       final responseMessage = await _cardRepository.unfreezeCard(cardId);
       _updateCardStatus(cardId, 'active');
       return CardActionResult(
-        message: responseMessage.isNotEmpty ? responseMessage : 'Card unlocked',
+        message: responseMessage.isNotEmpty
+            ? responseMessage
+            : ErrorHelper.l10n.cardsUnlockedMessage,
       );
     } catch (error, stackTrace) {
       debugPrint('❌ Failed to unfreeze card $cardId: $error');
@@ -300,7 +302,7 @@ class CardsController extends Notifier<CardsState> {
   Future<CardActionResult> terminateCard(VirtualCard card) async {
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
-      return const CardActionResult(error: "We couldn't find this card.");
+      return CardActionResult(error: ErrorHelper.l10n.cardsNotFoundError);
     }
 
     if (state.actionInFlightIds.contains(cardId)) {
@@ -315,7 +317,9 @@ class CardsController extends Notifier<CardsState> {
       final responseMessage = await _cardRepository.terminateCard(cardId);
       _updateCardStatus(cardId, 'terminated');
       return CardActionResult(
-        message: responseMessage.isNotEmpty ? responseMessage : 'Card terminated',
+        message: responseMessage.isNotEmpty
+            ? responseMessage
+            : ErrorHelper.l10n.cardsTerminatedMessage,
       );
     } catch (error, stackTrace) {
       debugPrint('❌ Failed to terminate card $cardId: $error');
@@ -345,11 +349,11 @@ class CardsController extends Notifier<CardsState> {
     if (error is ApiError) {
       switch (error.statusCode) {
         case 401:
-          return 'Your session has expired. Please log in again.';
+          return ErrorHelper.l10n.errSessionExpired;
         case 404:
-          return "We couldn't find this card.";
+          return ErrorHelper.l10n.cardsNotFoundError;
         case 503:
-          return "We're having trouble updating your card. Please try again soon.";
+          return ErrorHelper.l10n.cardsUpdateUnavailableError;
         default:
           return ErrorHelper.getErrorMessage(error);
       }
@@ -361,13 +365,13 @@ class CardsController extends Notifier<CardsState> {
     if (error is ApiError) {
       switch (error.statusCode) {
         case 400:
-          return 'Something went wrong. Please try again.';
+          return ErrorHelper.l10n.errGenericRetry;
         case 401:
-          return 'Your session has expired. Please log in again.';
+          return ErrorHelper.l10n.errSessionExpired;
         case 404:
-          return "We couldn't find this card.";
+          return ErrorHelper.l10n.cardsNotFoundError;
         case 503:
-          return "We're having trouble updating your card. Please try again soon.";
+          return ErrorHelper.l10n.cardsUpdateUnavailableError;
         default:
           return ErrorHelper.getErrorMessage(error);
       }
@@ -379,11 +383,11 @@ class CardsController extends Notifier<CardsState> {
     if (error is ApiError) {
       switch (error.statusCode) {
         case 401:
-          return 'Your session has expired. Please log in again.';
+          return ErrorHelper.l10n.errSessionExpired;
         case 404:
-          return "We couldn't find this card.";
+          return ErrorHelper.l10n.cardsNotFoundError;
         case 503:
-          return "We're having trouble closing your card. Please try again soon.";
+          return ErrorHelper.l10n.cardsCloseUnavailableError;
         default:
           return ErrorHelper.getErrorMessage(error);
       }

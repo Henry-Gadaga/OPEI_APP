@@ -4,6 +4,7 @@ import 'package:opei/core/config/api_config.dart';
 import 'package:opei/core/constants/app_constants.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/storage/secure_storage_service.dart';
+import 'package:opei/core/utils/error_helper.dart';
 
 class ApiClient {
   late final Dio _dio;
@@ -193,15 +194,11 @@ class ApiClient {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return ApiError(message: 'Connection timeout. Please try again.');
+        return ApiError(message: 'E-2001');
       case DioExceptionType.connectionError:
-        return ApiError(
-          message: 'No internet connection. Please check your network.',
-        );
+        return ApiError(message: 'E-2002');
       default:
-        return ApiError(
-          message: 'An unexpected error occurred. Please try again.',
-        );
+        return ApiError(message: 'E-2003');
     }
   }
 
@@ -276,21 +273,22 @@ class ApiClient {
   }
 
   String _getStatusCodeMessage(int? statusCode) {
+    final l10n = ErrorHelper.l10n;
     switch (statusCode) {
       case 400:
-        return 'Invalid request. Please check your information.';
+        return l10n.errInvalidRequestCheckDetails;
       case 401:
-        return 'Your session has expired. Please log in again.';
+        return l10n.errSessionExpired;
       case 403:
-        return 'You don\'t have permission to access this resource.';
+        return l10n.errNoPermission;
       case 404:
-        return 'The requested resource was not found.';
+        return l10n.errRecordNotFound;
       case 500:
       case 502:
       case 503:
-        return 'Server error. Please try again later.';
+        return l10n.errServerSideShortly;
       default:
-        return 'An error occurred. Please try again.';
+        return l10n.errGenericRetry;
     }
   }
 

@@ -31,8 +31,6 @@ class _ExpressP2PSetupScreenState extends ConsumerState<ExpressP2PSetupScreen> {
   bool _loadingMethods = false;
   String? _methodsError;
 
-  static const _titles = ['Select currency', 'Payment method', 'Enter amount'];
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -140,6 +138,12 @@ class _ExpressP2PSetupScreenState extends ConsumerState<ExpressP2PSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final titles = [
+      l10n.expressSetupSelectCurrencyTitle,
+      l10n.expressSetupPaymentMethodTitle,
+      l10n.expressSetupEnterAmountTitle,
+    ];
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -172,7 +176,7 @@ class _ExpressP2PSetupScreenState extends ConsumerState<ExpressP2PSetupScreen> {
               ),
             ),
             child: Text(
-              _titles[_page],
+              titles[_page],
               key: ValueKey(_page),
               style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
@@ -291,11 +295,12 @@ class _Page1Currency extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       physics: const BouncingScrollPhysics(),
       children: [
-        const _PageHint('Choose the local currency you will be paying in.'),
+        _PageHint(l10n.expressSetupCurrencyHint),
         const SizedBox(height: 16),
         GridView.builder(
           shrinkWrap: true,
@@ -398,8 +403,8 @@ class _Page2Method extends StatelessWidget {
       children: [
         _PageHint(
           currency != null
-              ? 'Pick how you will send $currency to the agent.'
-              : 'Loading methods…',
+              ? AppLocalizations.of(context)!.expressPickSendMethodHint(currency!)
+              : AppLocalizations.of(context)!.expressLoadingMethods,
         ),
         const SizedBox(height: 16),
         if (loading)
@@ -421,9 +426,9 @@ class _Page2Method extends StatelessWidget {
               color: OpeiBrand.surfaceMuted,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Text(
-              'No payment methods available for this currency yet.',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.expressNoMethodsForCurrency,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 13,
                 color: OpeiBrand.inkSecondary,
@@ -507,9 +512,9 @@ class _Page3Amount extends StatelessWidget {
           ),
         const Expanded(child: SizedBox()),
         // label
-        const Text(
-          'AMOUNT TO RECEIVE',
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.expressAmountToReceiveLabel,
+          style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 10.5,
             fontWeight: FontWeight.w700,
@@ -826,7 +831,7 @@ class _BottomBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                isLast ? 'Review deposit' : 'Continue',
+                isLast ? l10n.expressSetupReviewDepositCta : l10n.continueCta,
                 style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 15,
@@ -881,9 +886,9 @@ class _InlineError extends StatelessWidget {
           const SizedBox(height: 10),
           GestureDetector(
             onTap: onRetry,
-            child: const Text(
-              'Try again',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.tryAgainCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 12.8,
                 fontWeight: FontWeight.w700,

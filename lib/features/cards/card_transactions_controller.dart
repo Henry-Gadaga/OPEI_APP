@@ -151,25 +151,25 @@ class CardTransactionsController extends Notifier<CardTransactionsState> {
     if (error is ApiError) {
       switch (error.statusCode) {
         case 401:
-          return const _ErrorResolution(
-            'Your session has expired. Please log in again.',
+          return _ErrorResolution(
+            ErrorHelper.l10n.cardsTransactionsSessionExpiredError,
             shouldResetSession: true,
           );
         case 404:
-          return const _ErrorResolution("We couldn't find this card.");
+          return _ErrorResolution(ErrorHelper.l10n.cardsCardNotFoundError);
         case 503:
-          return const _ErrorResolution(
-            "We're having trouble loading your transactions. Please try again soon.",
+          return _ErrorResolution(
+            ErrorHelper.l10n.cardsTransactionsLoadTryAgainSoonError,
           );
         case 400:
         case 422:
-          return const _ErrorResolution('Something went wrong. Please try again.');
+          return _ErrorResolution(ErrorHelper.l10n.errGenericRetry);
       }
     }
 
     final fallback = ErrorHelper.getErrorMessage(error);
     if (fallback.isEmpty) {
-      return const _ErrorResolution('Something went wrong. Please try again.');
+      return _ErrorResolution(ErrorHelper.l10n.errGenericRetry);
     }
     return _ErrorResolution(fallback);
   }

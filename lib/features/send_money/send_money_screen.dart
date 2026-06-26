@@ -346,9 +346,9 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'RECIPIENT GETS',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.recipientGetsLabel,
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 10,
                         fontWeight: FontWeight.w800,

@@ -6,6 +6,7 @@ import 'package:opei/data/models/promo_card_prepare.dart';
 import 'package:opei/features/cards/create_virtual_card_flow.dart';
 import 'package:opei/features/cards/promo_card_creation_controller.dart';
 import 'package:opei/features/cards/promo_card_creation_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 void main() {
@@ -174,6 +175,9 @@ Future<void> _pumpCreateVirtualCardFlow(
         promoCardCreationControllerProvider.overrideWith(() => controller),
       ],
       child: MaterialApp(
+        locale: const Locale('en'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: ThemeData.from(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         ).copyWith(

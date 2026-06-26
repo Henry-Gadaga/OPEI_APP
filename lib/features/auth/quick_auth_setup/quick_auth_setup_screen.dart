@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_controller.dart';
 import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_activity_indicator.dart';
@@ -57,22 +58,22 @@ class _SavingPinView extends StatelessWidget {
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: const [
-              OpeiActivityIndicator(size: 52, strokeWidth: 2.6),
-              SizedBox(height: 24),
+            children: [
+              const OpeiActivityIndicator(size: 52, strokeWidth: 2.6),
+              const SizedBox(height: 24),
               Text(
-                'Saving',
-                style: TextStyle(
+                AppLocalizations.of(context)!.savingLabel,
+                style: const TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: OpeiBrand.ink,
                   letterSpacing: -0.3,
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
               Text(
-                'One moment please',
-                style: TextStyle(
+                AppLocalizations.of(context)!.quickAuthVerifyingSubtitle,
+                style: const TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w500,
                   color: OpeiBrand.inkSecondary,
@@ -124,7 +125,9 @@ class _PinEntryScreen extends ConsumerWidget {
                     _Glyph(isConfirming: isConfirming),
                     const SizedBox(height: 18),
                     Text(
-                      isConfirming ? 'Confirm PIN' : 'Create PIN',
+                      isConfirming
+                          ? AppLocalizations.of(context)!.quickAuthSetupConfirmPinTitle
+                          : AppLocalizations.of(context)!.quickAuthSetupCreatePinTitle,
                       style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
@@ -136,8 +139,10 @@ class _PinEntryScreen extends ConsumerWidget {
                     const SizedBox(height: 5),
                     Text(
                       isConfirming
-                          ? 'Enter your PIN again to confirm'
-                          : 'Choose a 6-digit PIN to sign in faster',
+                          ? AppLocalizations.of(context)!
+                              .quickAuthSetupConfirmPinSubtitle
+                          : AppLocalizations.of(context)!
+                              .quickAuthSetupCreatePinSubtitle,
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 14,

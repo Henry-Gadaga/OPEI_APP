@@ -1,6 +1,7 @@
 import 'package:opei/core/network/api_client.dart';
 import 'package:opei/core/money/money.dart';
 import 'package:opei/core/network/api_error.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/card_creation_preview.dart';
 import 'package:opei/data/models/card_creation_response.dart';
 import 'package:opei/data/models/card_details.dart';
@@ -88,20 +89,20 @@ class CardRepository {
     switch (code) {
       case 'INCOMPLETE_PROFILE':
       case 'REGISTRATION_FAILED':
-        return 'Your profile is incomplete. Please finish KYC before creating a card.';
+        return ErrorHelper.l10n.cardsRepoIncompleteProfileError;
       case 'REGISTRATION_UNAVAILABLE':
-        return 'Card registration is temporarily unavailable. Please try again shortly.';
+        return ErrorHelper.l10n.cardsRepoRegistrationUnavailableError;
       case 'PROMO_CARD_CONFIG_NOT_FOUND':
       case 'INVALID_PROMO_CONFIG':
-        return 'Virtual card is not available right now. Please try again later.';
+        return ErrorHelper.l10n.cardsRepoVirtualCardUnavailableError;
       case 'PROMO_CONFIG_UNAVAILABLE':
-        return 'Card service is temporarily unavailable. Please try again shortly.';
+        return ErrorHelper.l10n.cardsRepoServiceUnavailableError;
       case 'WALLET_NOT_FOUND':
-        return 'Wallet not found. Please contact support.';
+        return ErrorHelper.l10n.cardsTopupWalletNotFoundError;
       case 'WALLET_UNAVAILABLE':
-        return 'Wallet service is temporarily unavailable. Please try again shortly.';
+        return ErrorHelper.l10n.cardsPromoWalletUnavailableError;
       default:
-        return 'Something went wrong. Please try again.';
+        return ErrorHelper.l10n.errGenericRetry;
     }
   }
 
@@ -172,7 +173,7 @@ class CardRepository {
     );
 
     if (response.isEmpty) {
-      return 'Card locked';
+      return ErrorHelper.l10n.cardsLockedMessage;
     }
 
     final message = response['message']?.toString().trim();
@@ -180,7 +181,7 @@ class CardRepository {
       return message;
     }
 
-    return 'Card locked';
+    return ErrorHelper.l10n.cardsLockedMessage;
   }
 
   Future<String> unfreezeCard(String cardId) async {
@@ -190,7 +191,7 @@ class CardRepository {
     );
 
     if (response.isEmpty) {
-      return 'Card unlocked';
+      return ErrorHelper.l10n.cardsUnlockedMessage;
     }
 
     final message = response['message']?.toString().trim();
@@ -198,7 +199,7 @@ class CardRepository {
       return message;
     }
 
-    return 'Card unlocked';
+    return ErrorHelper.l10n.cardsUnlockedMessage;
   }
 
   Future<String> terminateCard(String cardId) async {
@@ -208,7 +209,7 @@ class CardRepository {
     );
 
     if (response.isEmpty) {
-      return 'Card terminated';
+      return ErrorHelper.l10n.cardsTerminatedMessage;
     }
 
     final message = response['message']?.toString().trim();
@@ -216,7 +217,7 @@ class CardRepository {
       return message;
     }
 
-    return 'Card terminated';
+    return ErrorHelper.l10n.cardsTerminatedMessage;
   }
 
   Future<CardTopUpPreview> previewTopUp({
@@ -235,7 +236,7 @@ class CardRepository {
     final payload = _unwrapDataEnvelope(response);
 
     if (payload is! Map<String, dynamic>) {
-      throw Exception('Invalid top-up preview payload');
+      throw Exception('E-2501');
     }
 
     return CardTopUpPreview.fromJson(
@@ -261,7 +262,7 @@ class CardRepository {
     final payload = _unwrapDataEnvelope(response);
 
     if (payload is! Map<String, dynamic>) {
-      throw Exception('Invalid top-up response payload');
+      throw Exception('E-2502');
     }
 
     return CardTopUpResponse.fromJson(
@@ -287,7 +288,7 @@ class CardRepository {
     final payload = _unwrapDataEnvelope(response);
 
     if (payload is! Map<String, dynamic>) {
-      throw Exception('Invalid withdraw preview payload');
+      throw Exception('E-2503');
     }
 
     return CardWithdrawPreview.fromJson(
@@ -315,7 +316,7 @@ class CardRepository {
     final payload = _unwrapDataEnvelope(response);
 
     if (payload is! Map<String, dynamic>) {
-      throw Exception('Invalid withdraw response payload');
+      throw Exception('E-2504');
     }
 
     return CardWithdrawResponse.fromJson(
@@ -333,7 +334,7 @@ class CardRepository {
         final success = response['success'] == true;
         if (!success) {
           final message = response['message']?.toString().trim();
-          throw Exception(message?.isNotEmpty == true ? message : 'Request failed');
+          throw Exception(message?.isNotEmpty == true ? message : 'E-2505');
         }
 
         final data = response['data'];

@@ -56,7 +56,7 @@ class ReferralRepository {
   Future<ReferralApplyResult> applyReferralCode(String rawInput) async {
     final referralCode = ReferralCodeParser.normalize(rawInput);
     if (referralCode.isEmpty) {
-      throw ApiError(message: 'Enter a valid referral code', statusCode: 400);
+      throw ApiError(message: 'E-2301', statusCode: 400);
     }
 
     final payload = await _apiClient.post<Map<String, dynamic>>(
@@ -67,9 +67,7 @@ class ReferralRepository {
     final success = payload['success'] == true;
     final data = payload['data'];
     if (!success || data is! Map<String, dynamic>) {
-      throw ApiError(
-        message: (payload['message'] as String?) ?? 'Failed to apply referral',
-      );
+      throw ApiError(message: (payload['message'] as String?) ?? 'E-2302');
     }
 
     return ReferralApplyResult.fromJson(data);
@@ -82,11 +80,7 @@ class ReferralRepository {
     final success = payload['success'] == true;
     final data = payload['data'];
     if (!success || data is! Map<String, dynamic>) {
-      throw ApiError(
-        message:
-            (payload['message'] as String?) ??
-            'Failed to load referral details',
-      );
+      throw ApiError(message: (payload['message'] as String?) ?? 'E-2303');
     }
     return MyReferralSummary.fromJson(data);
   }

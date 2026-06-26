@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/features/beneficiaries/us_bank/us_bank_receivers_screen.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// Bank-Transfer country picker. Only the US is enabled for now; more
@@ -37,10 +38,10 @@ class BankTransferCountrySheet extends StatelessWidget {
           const SizedBox(height: 22),
 
           // Header
-          const Text(
-            'Select country',
+          Text(
+            AppLocalizations.of(context)!.addressSelectCountryTitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: OpeiBrand.ink,
@@ -49,10 +50,10 @@ class BankTransferCountrySheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
-            'Bank Transfer supported countries',
+          Text(
+            AppLocalizations.of(context)!.bankTransferCountriesSubtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: OpeiBrand.inkSecondary,

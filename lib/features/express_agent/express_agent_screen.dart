@@ -107,7 +107,10 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
       await ref.read(expressOrderRepositoryProvider).acceptOrder(order.id);
       if (!mounted) return;
       setState(() => _acceptingId = null);
-      _toast('Order accepted. Find it under "My queue".', OpeiBrand.success);
+      _toast(
+        AppLocalizations.of(context)!.expressOrderAcceptedToast,
+        OpeiBrand.success,
+      );
       _tabController.animateTo(1);
       await _load();
     } on ApiError catch (e) {
@@ -130,9 +133,9 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
         ),
-        title: const Text(
-          'Accept this order?',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.expressAcceptOrderTitle,
+          style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 17,
             fontWeight: FontWeight.w800,
@@ -140,8 +143,8 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
           ),
         ),
         content: Text(
-          '${expressUsd(order.amountUsdCents)} will be reserved from your wallet for this order. '
-          'Only accept when you are ready to complete this trade to avoid potential financial loss.',
+          AppLocalizations.of(context)!
+              .expressAcceptOrderMessage(expressUsd(order.amountUsdCents)),
           style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 13.5,
@@ -152,9 +155,9 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.cancelCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 color: OpeiBrand.inkSecondary,
               ),
@@ -169,9 +172,9 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text(
-              'Accept',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.expressAcceptCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
@@ -237,9 +240,15 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
                 fontWeight: FontWeight.w700,
               ),
               tabs: [
-                Tab(text: 'Available (${_available.length})'),
-                Tab(text: 'Queue (${queue.length})'),
-                const Tab(text: 'History'),
+                Tab(
+                  text: AppLocalizations.of(context)!
+                      .expressTabAvailable(_available.length),
+                ),
+                Tab(
+                  text: AppLocalizations.of(context)!
+                      .expressTabQueue(queue.length),
+                ),
+                Tab(text: AppLocalizations.of(context)!.expressTabHistory),
               ],
             ),
           ),
@@ -253,7 +262,8 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
                     children: [
                       _OrderList(
                         orders: _available,
-                        emptyText: 'No orders available right now.',
+                        emptyText: AppLocalizations.of(context)!
+                            .expressNoAvailableOrders,
                         error: _error,
                         onRefresh: _load,
                         builder: (o) => _AvailableCard(
@@ -265,7 +275,8 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
                       ),
                       _OrderList(
                         orders: queue,
-                        emptyText: 'No active orders in your queue.',
+                        emptyText:
+                            AppLocalizations.of(context)!.expressNoQueueOrders,
                         error: _error,
                         onRefresh: _load,
                         builder: (o) =>
@@ -273,7 +284,8 @@ class _ExpressAgentScreenState extends ConsumerState<ExpressAgentScreen>
                       ),
                       _OrderList(
                         orders: history,
-                        emptyText: 'No completed orders yet.',
+                        emptyText: AppLocalizations.of(context)!
+                            .expressNoCompletedOrders,
                         error: _error,
                         onRefresh: _load,
                         builder: (o) =>
@@ -307,14 +319,14 @@ class _Header extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Express Agent',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.expressAgentTitle,
+                  style: const TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
@@ -322,10 +334,10 @@ class _Header extends StatelessWidget {
                     letterSpacing: -0.5,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'Accept and complete deposits',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.expressAgentSubtitle,
+                  style: const TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -356,13 +368,14 @@ class _InactiveBanner extends StatelessWidget {
       color: const Color(0xFFFFF4E0),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
-        children: const [
-          Icon(Icons.info_outline_rounded, size: 16, color: OpeiBrand.warning),
-          SizedBox(width: 8),
+        children: [
+          const Icon(Icons.info_outline_rounded,
+              size: 16, color: OpeiBrand.warning),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Your agent account is inactive. You can view orders but cannot accept or confirm.',
-              style: TextStyle(
+              AppLocalizations.of(context)!.expressAgentInactiveViewOnly,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 12.5,
                 color: Color(0xFF8A5A00),
@@ -524,12 +537,12 @@ class _AvailableCard extends StatelessWidget {
                         color: Colors.white,
                       ),
                     )
-                  : const Text(
-                      'Accept order',
+                  : Text(
+                      AppLocalizations.of(context)!.expressAcceptOrderCta,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -703,7 +716,9 @@ class _AgentContactRow extends StatelessWidget {
           const SizedBox(width: 6),
           Expanded(
             child: Text(
-              hasNumber ? contact : 'Buyer contact unavailable',
+              hasNumber
+                  ? contact
+                  : AppLocalizations.of(context)!.expressBuyerContactUnavailable,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(

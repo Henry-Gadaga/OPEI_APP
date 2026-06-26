@@ -2,22 +2,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/kyc/kyc_state.dart';
 
 class KycController extends Notifier<KycState> {
-  static const _genericErrorMessage = 'Something went wrong. Please try again.';
-  static const _sessionExpiredMessage = 'Session expired. Please login again.';
-  static const _alreadyCompleteMessage = 'Verification already complete!';
-  static const _underReviewMessage =
-      'Your verification is under review. Please check back later.';
-  static const _addressRequiredMessage =
-      'Please complete your address information first.';
-  static const _inactiveAccountMessage =
-      'Account suspended. Please contact support.';
-  static const _accountNotFoundMessage =
-      'Account not found. Please login again.';
-  static const _serviceUnavailableMessage =
-      'Service temporarily unavailable. Please try again later.';
+  String get _genericErrorMessage => ErrorHelper.l10n.errGenericRetry;
+  String get _sessionExpiredMessage => ErrorHelper.l10n.kycSessionExpiredError;
+  String get _alreadyCompleteMessage => ErrorHelper.l10n.kycVerificationAlreadyCompleteError;
+  String get _underReviewMessage => ErrorHelper.l10n.kycVerificationUnderReviewError;
+  String get _addressRequiredMessage => ErrorHelper.l10n.kycAddressRequiredBeforeVerificationError;
+  String get _inactiveAccountMessage => ErrorHelper.l10n.kycAccountSuspendedError;
+  String get _accountNotFoundMessage => ErrorHelper.l10n.kycAccountNotFoundError;
+  String get _serviceUnavailableMessage => ErrorHelper.l10n.kycServiceUnavailableError;
 
   @override
   KycState build() => KycInitial();

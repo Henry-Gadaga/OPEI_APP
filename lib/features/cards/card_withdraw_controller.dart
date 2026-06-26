@@ -43,14 +43,15 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
   }
 
   Future<void> previewWithdraw(Money amount) async {
+    final l10n = ErrorHelper.l10n;
     final cardId = state.cardId.trim();
     if (cardId.isEmpty) {
-      state = state.copyWith(errorMessage: "We couldn't find this card.");
+      state = state.copyWith(errorMessage: l10n.cardsNotFoundError);
       return;
     }
 
     if (amount.cents <= 0) {
-      state = state.copyWith(errorMessage: 'Please enter an amount above zero.');
+      state = state.copyWith(errorMessage: l10n.cardsWithdrawAmountAboveZeroError);
       return;
     }
 
@@ -72,7 +73,9 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
       );
 
       final friendly = _friendlyReason(preview.reasonCode);
-      final message = preview.canWithdraw ? friendly : (friendly ?? "This amount can't be withdrawn right now. Please adjust it and try again.");
+      final message = preview.canWithdraw
+          ? friendly
+          : (friendly ?? l10n.cardsWithdrawAmountNotAllowedError);
 
       state = state.copyWith(
         isPreviewLoading: false,
@@ -91,12 +94,13 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
   }
 
   Future<void> confirmWithdraw() async {
+    final l10n = ErrorHelper.l10n;
     final cardId = state.cardId.trim();
     final amount = state.amount;
     final preview = state.preview;
 
     if (cardId.isEmpty || amount == null || preview == null) {
-      state = state.copyWith(errorMessage: 'Please review the withdrawal details before confirming.');
+      state = state.copyWith(errorMessage: l10n.cardsWithdrawReviewDetailsError);
       return;
     }
 
@@ -174,27 +178,29 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
   String? friendlyReason(String? reasonCode) => _friendlyReason(reasonCode);
 
   String? _friendlyReason(String? reasonCode) {
+    final l10n = ErrorHelper.l10n;
     if (reasonCode == null) {
       return null;
     }
 
     switch (reasonCode.toUpperCase()) {
       case 'INSUFFICIENT_CARD_BALANCE':
-        return 'Your card balance is not enough for this withdrawal.';
+        return l10n.cardsWithdrawCardBalanceLowError;
       case 'AMOUNT_TOO_LOW_AFTER_FEES':
-        return 'The amount is too small once fees are applied. Try a slightly higher amount.';
+        return l10n.cardsWithdrawAmountTooLowAfterFeesError;
       case 'CARD_NOT_READY':
-        return 'This card is still being set up. Please try again shortly.';
+        return l10n.cardsWithdrawCardNotReadyError;
       case 'CARD_TERMINATED':
-        return "This card has been closed and can't be used for withdrawals.";
+        return l10n.cardsWithdrawCardClosedError;
       case 'MINIMUM_CARD_BALANCE_REQUIRED':
-        return 'You must keep at least \$1 on the card.';
+        return l10n.cardsWithdrawMinimumBalanceRequiredError;
       default:
         return null;
     }
   }
 
   String _mapPreviewError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final code = _extractErrorCode(error);
 
@@ -202,34 +208,34 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
         case 400:
         case 401:
           if (code == 'INVALID_AMOUNT') {
-            return 'Please enter an amount above zero.';
+            return l10n.cardsWithdrawAmountAboveZeroError;
           }
           if (code == 'CARD_NOT_ACTIVE') {
-            return 'This card is not active; unfreeze it before withdrawing.';
+            return l10n.cardsWithdrawCardInactiveError;
           }
           if (code == 'CARD_NOT_READY') {
-            return 'This card is still being set up. Please try again shortly.';
+            return l10n.cardsWithdrawCardNotReadyError;
           }
           if (code == 'CARD_TERMINATED') {
-            return "This card has been closed and can't be used for withdrawals.";
+            return l10n.cardsWithdrawCardClosedError;
           }
           if (code == 'MINIMUM_CARD_BALANCE_REQUIRED') {
-            return 'You must keep at least \$1 on the card.';
+            return l10n.cardsWithdrawMinimumBalanceRequiredError;
           }
           if (code == 'MISSING_USER_CONTEXT' ||
               code == 'MISSING_USER_ID' ||
               code == 'NO_USER_CONTEXT' ||
               code == 'INVALID_TOKEN') {
-            return "We couldn't verify your account session. Please sign in again.";
+            return l10n.cardsWithdrawSessionVerifyError;
           }
-          return "We couldn't start the withdrawal. Please try again.";
+          return l10n.cardsWithdrawStartFailedError;
         case 404:
           if (code == 'CARD_NOT_FOUND') {
-            return "We couldn't find this card. Please refresh and try again.";
+            return l10n.cardsTopupCardNotFoundRefreshError;
           }
-          return "We couldn't find this card. Please refresh and try again.";
+          return l10n.cardsTopupCardNotFoundRefreshError;
         case 503:
-          return "We're having trouble reaching the card provider. Please try again in a moment.";
+          return l10n.cardsWithdrawProviderUnavailableMomentError;
       }
     }
 
@@ -237,59 +243,62 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
   }
 
   String _mapConfirmError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final code = _extractErrorCode(error);
 
       switch (error.statusCode) {
         case 400:
           if (code == 'INVALID_AMOUNT') {
-            return 'Please enter a valid amount above zero.';
+            return l10n.cardsWithdrawValidAmountAboveZeroError;
           }
           if (code == 'CARD_NOT_ACTIVE') {
-            return 'This card is not active; unfreeze it before withdrawing.';
+            return l10n.cardsWithdrawCardInactiveError;
           }
           if (code == 'USER_NOT_REGISTERED_FOR_CARD') {
-            return 'Please finish your card setup before withdrawing.';
+            return l10n.cardsWithdrawFinishSetupError;
           }
           if (code == 'CARD_NOT_READY') {
-            return 'This card is still being set up. Please try again shortly.';
+            return l10n.cardsWithdrawCardNotReadyError;
           }
           if (code == 'CARD_TERMINATED') {
-            return "This card has been closed and can't be used for withdrawals.";
+            return l10n.cardsWithdrawCardClosedError;
           }
           if (code == 'INSUFFICIENT_CARD_BALANCE') {
-            return 'Your card balance is not enough for this withdrawal.';
+            return l10n.cardsWithdrawCardBalanceLowError;
           }
           if (code == 'AMOUNT_TOO_LOW_AFTER_FEES') {
-            return 'The amount is too small once fees are applied. Try a higher amount.';
+            return l10n.cardsWithdrawAmountTooLowAfterFeesHigherError;
           }
           if (code == 'MINIMUM_CARD_BALANCE_REQUIRED') {
-            return 'You must keep at least \$1 on the card.';
+            return l10n.cardsWithdrawMinimumBalanceRequiredError;
           }
-            return "We couldn't complete the withdrawal. Please try again.";
+            return l10n.cardsWithdrawCompleteFailedError;
         case 401:
-          return "We couldn't verify your account session. Please sign in again.";
+          return l10n.cardsWithdrawSessionVerifyError;
         case 404:
           if (code == 'CARD_NOT_FOUND') {
-            return "We couldn't find this card on your account.";
+            return l10n.cardsTopupCardNotFoundOnAccountError;
           }
-          return "We couldn't find this card on your account.";
+          return l10n.cardsTopupCardNotFoundOnAccountError;
         case 429:
           if (error.errors != null) {
             final retryAfter = error.errors!['retryAfterSeconds'];
             if (retryAfter is num) {
               final seconds = retryAfter.round();
-              return 'Too many attempts. Please try again in about ${seconds ~/ 60 > 0 ? '${seconds ~/ 60} minute(s)' : '${seconds}s'}.';
+              return l10n.cardsWithdrawTooManyAttemptsError(
+                seconds ~/ 60 > 0 ? '${seconds ~/ 60} min' : '${seconds}s',
+              );
             }
           }
           if (code == 'TRY_AGAIN_AFTER_4_MINUTES') {
-            return "We're processing another request. Give it a moment before retrying.";
+            return l10n.cardsWithdrawRequestInProgressRetryError;
           }
-          return "We're processing another request. Please wait a moment and try again.";
+          return l10n.cardsWithdrawRequestInProgressWaitError;
         case 503:
-          return "We're having trouble with the card provider right now. Please try again shortly.";
+          return l10n.cardsWithdrawProviderUnavailableShortlyError;
         case 500:
-          return "Something went wrong on our side. Please try again.";
+          return l10n.errGenericRetry;
       }
     }
 

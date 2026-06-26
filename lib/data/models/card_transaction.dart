@@ -1,4 +1,5 @@
 import 'package:opei/core/money/money.dart';
+import 'package:opei/core/utils/error_helper.dart';
 
 class CardTransaction {
   final String id;
@@ -61,7 +62,7 @@ class CardTransaction {
     if (raw.isNotEmpty) {
       return raw;
     }
-    return 'Card transaction';
+    return ErrorHelper.l10n.cardTransactionFallbackTitle;
   }
 
   String get subtitle {
@@ -269,6 +270,13 @@ class CardTransaction {
     final raw = value?.replaceAll('_', ' ').trim() ?? '';
     if (raw.isEmpty) {
       return '';
+    }
+    final normalized = raw.toLowerCase();
+    if (normalized == 'debit') {
+      return ErrorHelper.l10n.cardTransactionDebitLabel;
+    }
+    if (normalized == 'credit') {
+      return ErrorHelper.l10n.cardTransactionCreditLabel;
     }
     return raw
         .split(RegExp(r"\s+"))

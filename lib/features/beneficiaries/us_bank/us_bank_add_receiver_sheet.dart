@@ -19,10 +19,6 @@ class UsBankAddReceiverSheet extends ConsumerStatefulWidget {
 
 class _UsBankAddReceiverSheetState
     extends ConsumerState<UsBankAddReceiverSheet> {
-  String _tr(String en, String pt) {
-    return Localizations.localeOf(context).languageCode == 'pt' ? pt : en;
-  }
-
   final _formKey = GlobalKey<FormState>();
 
   // Destination options
@@ -144,16 +140,11 @@ class _UsBankAddReceiverSheetState
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context)!;
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_achWithBusinessConflict) {
-      showError(
-        context,
-        _tr(
-          'ACH transfers are only available for individuals. Switch to Wire for businesses.',
-          'Transferencias ACH estao disponiveis apenas para individuos. Use Wire para empresas.',
-        ),
-      );
+      showError(context, l10n.usBankAchIndividualsOnlyError);
       return;
     }
 
@@ -180,7 +171,7 @@ class _UsBankAddReceiverSheetState
 
     if (ok) {
       Navigator.of(context).pop(true);
-      showSuccess(context, _tr('Receiver added.', 'Destinatario adicionado.'));
+      showSuccess(context, l10n.usBankReceiverAdded);
     } else {
       final err = ref.read(usBankBeneficiariesControllerProvider).createError;
       if (err != null) showError(context, err);
@@ -234,7 +225,7 @@ class _UsBankAddReceiverSheetState
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          _tr('New receiver', 'Novo destinatario'),
+                          l10n.usBankNewReceiverTitle,
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
@@ -245,10 +236,7 @@ class _UsBankAddReceiverSheetState
                         ),
                         SizedBox(height: 2),
                         Text(
-                          _tr(
-                            'United States · Bank Transfer',
-                            'Estados Unidos · Transferencia bancaria',
-                          ),
+                          l10n.usBankHeaderSubtitle,
                           style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w500,
@@ -288,7 +276,7 @@ class _UsBankAddReceiverSheetState
                             label: l10n.usBankTransferTypeLabel,
                             child: _Pill(
                               options: [
-                                ('WIRE', _tr('Wire', 'Wire')),
+                                ('WIRE', l10n.usBankWireOptionLabel),
                                 ('ACH', 'ACH'),
                               ],
                               selected: _transferType,
@@ -301,8 +289,8 @@ class _UsBankAddReceiverSheetState
                             label: l10n.usBankBeneficiaryTypeLabel,
                             child: _Pill(
                               options: [
-                                ('INDIVIDUAL', _tr('Individual', 'Individual')),
-                                ('BUSINESS', _tr('Business', 'Empresa')),
+                                ('INDIVIDUAL', l10n.usBankIndividualOptionLabel),
+                                ('BUSINESS', l10n.usBankBusinessOptionLabel),
                               ],
                               selected: _beneficiaryType,
                               onSelect: (v) =>
@@ -313,10 +301,7 @@ class _UsBankAddReceiverSheetState
                             _CardDivider(),
                             _InfoBanner(
                               color: OpeiBrand.warning,
-                              message: _tr(
-                                'ACH is only available for individuals. Switch to Wire to send to a business.',
-                                'ACH esta disponivel apenas para individuos. Use Wire para enviar para uma empresa.',
-                              ),
+                              message: l10n.usBankAchIndividualsOnlyInfo,
                             ),
                           ],
                           _CardDivider(),
@@ -324,8 +309,8 @@ class _UsBankAddReceiverSheetState
                             label: l10n.usBankAccountTypeLabel,
                             child: _Pill(
                               options: [
-                                ('CHECKING', _tr('Checking', 'Corrente')),
-                                ('SAVINGS', _tr('Savings', 'Poupanca')),
+                                ('CHECKING', l10n.usBankCheckingOptionLabel),
+                                ('SAVINGS', l10n.usBankSavingsOptionLabel),
                               ],
                               selected: _accountType,
                               onSelect: (v) => setState(() => _accountType = v),
@@ -341,7 +326,7 @@ class _UsBankAddReceiverSheetState
                         children: [
                           _FieldRow(
                             label: l10n.accountNumberLabel,
-                            helper: _tr('4 – 17 digits', '4 – 17 digitos'),
+                            helper: l10n.usBankAccountDigitsHelper,
                             child: TextFormField(
                               controller: _accountNumberCtrl,
                               keyboardType: TextInputType.number,
@@ -356,10 +341,7 @@ class _UsBankAddReceiverSheetState
                                   '',
                                 );
                                 if (val.length < 4 || val.length > 17) {
-                                  return _tr(
-                                    'Must be 4 – 17 digits.',
-                                    'Deve ter de 4 a 17 digitos.',
-                                  );
+                                  return l10n.usBankAccountDigitsError;
                                 }
                                 return null;
                               },
@@ -368,10 +350,7 @@ class _UsBankAddReceiverSheetState
                           _CardDivider(),
                           _FieldRow(
                             label: l10n.usBankRoutingNumberLabel,
-                            helper: _tr(
-                              'Exactly 9 digits',
-                              'Exatamente 9 digitos',
-                            ),
+                            helper: l10n.usBankRoutingDigitsHelper,
                             child: TextFormField(
                               controller: _routingNumberCtrl,
                               keyboardType: TextInputType.number,
@@ -380,7 +359,7 @@ class _UsBankAddReceiverSheetState
                                 LengthLimitingTextInputFormatter(9),
                               ],
                               decoration: _dec(
-                                hint: _tr('9 digits', '9 digitos'),
+                                hint: l10n.usBankRoutingHint,
                               ),
                               validator: (v) {
                                 final val = (v ?? '').replaceAll(
@@ -388,10 +367,7 @@ class _UsBankAddReceiverSheetState
                                   '',
                                 );
                                 if (val.length != 9) {
-                                  return _tr(
-                                    'Must be exactly 9 digits.',
-                                    'Deve ter exatamente 9 digitos.',
-                                  );
+                                  return l10n.usBankRoutingDigitsError;
                                 }
                                 return null;
                               },
@@ -411,17 +387,11 @@ class _UsBankAddReceiverSheetState
                               controller: _bankNameCtrl,
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(
-                                hint: _tr(
-                                  'e.g. Chase Bank',
-                                  'ex.: Banco Chase',
-                                ),
+                                hint: l10n.usBankBankNameHint,
                               ),
                               validator: _min(
                                 2,
-                                _tr(
-                                  'Enter the bank name.',
-                                  'Digite o nome do banco.',
-                                ),
+                                l10n.usBankBankNameRequired,
                               ),
                             ),
                           ),
@@ -432,17 +402,11 @@ class _UsBankAddReceiverSheetState
                               controller: _bankAddressCtrl,
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(
-                                hint: _tr(
-                                  'e.g. 270 Park Avenue',
-                                  'ex.: 270 Park Avenue',
-                                ),
+                                hint: l10n.usBankBankAddressHint,
                               ),
                               validator: _min(
                                 2,
-                                _tr(
-                                  'Enter the bank address.',
-                                  'Digite o endereco do banco.',
-                                ),
+                                l10n.usBankBankAddressRequired,
                               ),
                             ),
                           ),
@@ -459,11 +423,11 @@ class _UsBankAddReceiverSheetState
                                     textCapitalization:
                                         TextCapitalization.words,
                                     decoration: _dec(
-                                      hint: _tr('New York', 'Nova York'),
+                                      hint: l10n.addressCityHintExample,
                                     ),
                                     validator: _min(
                                       2,
-                                      _tr('Required.', 'Obrigatorio.'),
+                                      l10n.fieldRequiredError,
                                     ),
                                   ),
                                 ),
@@ -478,11 +442,11 @@ class _UsBankAddReceiverSheetState
                                     textCapitalization:
                                         TextCapitalization.words,
                                     decoration: _dec(
-                                      hint: _tr('New York', 'Nova York'),
+                                      hint: l10n.addressCityHintExample,
                                     ),
                                     validator: _min(
                                       2,
-                                      _tr('Required.', 'Obrigatorio.'),
+                                      l10n.fieldRequiredError,
                                     ),
                                   ),
                                 ),
@@ -502,7 +466,7 @@ class _UsBankAddReceiverSheetState
                                     decoration: _dec(hint: '10017'),
                                     validator: (v) {
                                       if ((v ?? '').trim().length < 3) {
-                                        return _tr('Required.', 'Obrigatorio.');
+                                        return l10n.fieldRequiredError;
                                       }
                                       return null;
                                     },
@@ -541,18 +505,12 @@ class _UsBankAddReceiverSheetState
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(
                                 hint: _beneficiaryType == 'BUSINESS'
-                                    ? _tr(
-                                        'e.g. Saul Atta LLC',
-                                        'ex.: Saul Atta LLC',
-                                      )
-                                    : _tr('e.g. John Doe', 'ex.: John Doe'),
+                                    ? l10n.usBankBusinessNameHint
+                                    : l10n.usBankFullNameHint,
                               ),
                               validator: (v) {
                                 if ((v ?? '').trim().length < 2) {
-                                  return _tr(
-                                    'Enter the beneficiary name.',
-                                    'Digite o nome do beneficiario.',
-                                  );
+                                  return l10n.usBankBeneficiaryNameRequired;
                                 }
                                 return null;
                               },
@@ -565,14 +523,11 @@ class _UsBankAddReceiverSheetState
                               controller: _bAddressCtrl,
                               textCapitalization: TextCapitalization.words,
                               decoration: _dec(
-                                hint: _tr(
-                                  'e.g. 123 Tech Avenue, Suite 400',
-                                  'ex.: 123 Tech Avenue, Suite 400',
-                                ),
+                                hint: l10n.usBankBeneficiaryAddressHint,
                               ),
                               validator: _min(
                                 2,
-                                _tr('Enter an address.', 'Digite um endereco.'),
+                                l10n.usBankAddressRequired,
                               ),
                             ),
                           ),
@@ -589,11 +544,11 @@ class _UsBankAddReceiverSheetState
                                     textCapitalization:
                                         TextCapitalization.words,
                                     decoration: _dec(
-                                      hint: _tr('Austin', 'Austin'),
+                                      hint: l10n.usBankBeneficiaryCityHint,
                                     ),
                                     validator: _min(
                                       2,
-                                      _tr('Required.', 'Obrigatorio.'),
+                                      l10n.fieldRequiredError,
                                     ),
                                   ),
                                 ),
@@ -608,11 +563,11 @@ class _UsBankAddReceiverSheetState
                                     textCapitalization:
                                         TextCapitalization.words,
                                     decoration: _dec(
-                                      hint: _tr('Texas', 'Texas'),
+                                      hint: l10n.usBankBeneficiaryStateHint,
                                     ),
                                     validator: _min(
                                       2,
-                                      _tr('Required.', 'Obrigatorio.'),
+                                      l10n.fieldRequiredError,
                                     ),
                                   ),
                                 ),
@@ -632,7 +587,7 @@ class _UsBankAddReceiverSheetState
                                     decoration: _dec(hint: '78701'),
                                     validator: (v) {
                                       if ((v ?? '').trim().length < 3) {
-                                        return _tr('Required.', 'Obrigatorio.');
+                                        return l10n.fieldRequiredError;
                                       }
                                       return null;
                                     },
@@ -690,7 +645,7 @@ class _UsBankAddReceiverSheetState
                                   ),
                                 )
                               : Text(
-                                  _tr('Save receiver', 'Salvar destinatario'),
+                                  l10n.mobileMoneySaveReceiverCta,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w700,
@@ -1022,7 +977,7 @@ class _PurposeDropdown extends StatelessWidget {
               DropdownMenuItem<String>(
                 value: item.value,
                 child: Text(
-                  item.label,
+                  remittancePurposeLabel(context, item.value),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1176,5 +1131,82 @@ class _ProgressRing extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+/// Maps a remittance-purpose wire value to its localized, human-readable label.
+String remittancePurposeLabel(BuildContext context, String value) {
+  final l10n = AppLocalizations.of(context)!;
+  switch (value) {
+    case 'FAMILY_SUPPORT':
+      return l10n.remPurposeFamilySupport;
+    case 'EDUCATION':
+      return l10n.remPurposeEducation;
+    case 'GIFT_AND_DONATION':
+      return l10n.remPurposeGiftAndDonation;
+    case 'MEDICAL_TREATMENT':
+      return l10n.remPurposeMedicalTreatment;
+    case 'MAINTENANCE_EXPENSES':
+      return l10n.remPurposeMaintenanceExpenses;
+    case 'TRAVEL':
+      return l10n.remPurposeTravel;
+    case 'SMALL_VALUE_REMITTANCE':
+      return l10n.remPurposeSmallValueRemittance;
+    case 'LIBERALIZED_REMITTANCE':
+      return l10n.remPurposeLiberalizedRemittance;
+    case 'PERSONAL_TRANSFER':
+      return l10n.remPurposePersonalTransfer;
+    case 'SALARY_PAYMENT':
+      return l10n.remPurposeSalaryPayment;
+    case 'LOAN_PAYMENT':
+      return l10n.remPurposeLoanPayment;
+    case 'TAX_PAYMENT':
+      return l10n.remPurposeTaxPayment;
+    case 'UTILITY_BILLS':
+      return l10n.remPurposeUtilityBills;
+    case 'PROPERTY_PURCHASE':
+      return l10n.remPurposePropertyPurchase;
+    case 'PROPERTY_RENTAL':
+      return l10n.remPurposePropertyRental;
+    case 'CONSTRUCTION_EXPENSES':
+      return l10n.remPurposeConstructionExpenses;
+    case 'HOTEL_ACCOMMODATION':
+      return l10n.remPurposeHotelAccommodation;
+    case 'TRANSPORTATION_FEES':
+      return l10n.remPurposeTransportationFees;
+    case 'DELIVERY_FEES':
+      return l10n.remPurposeDeliveryFees;
+    case 'OFFICE_EXPENSES':
+      return l10n.remPurposeOfficeExpenses;
+    case 'ADVERTISING_EXPENSES':
+      return l10n.remPurposeAdvertisingExpenses;
+    case 'ADVISORY_FEES':
+      return l10n.remPurposeAdvisoryFees;
+    case 'SERVICE_CHARGES':
+      return l10n.remPurposeServiceCharges;
+    case 'BUSINESS_INSURANCE':
+      return l10n.remPurposeBusinessInsurance;
+    case 'INSURANCE_CLAIMS':
+      return l10n.remPurposeInsuranceClaims;
+    case 'EXPORTED_GOODS':
+      return l10n.remPurposeExportedGoods;
+    case 'SHARES_INVESTMENT':
+      return l10n.remPurposeSharesInvestment;
+    case 'FUND_INVESTMENT':
+      return l10n.remPurposeFundInvestment;
+    case 'ROYALTY_FEES':
+      return l10n.remPurposeRoyaltyFees;
+    case 'COMPUTER_SERVICES':
+      return l10n.remPurposeComputerServices;
+    case 'REWARD_PAYMENT':
+      return l10n.remPurposeRewardPayment;
+    case 'INFLUENCER_PAYMENT':
+      return l10n.remPurposeInfluencerPayment;
+    case 'OTHER_FEES':
+      return l10n.remPurposeOtherFees;
+    case 'OTHER':
+      return l10n.remPurposeOther;
+    default:
+      return value;
   }
 }

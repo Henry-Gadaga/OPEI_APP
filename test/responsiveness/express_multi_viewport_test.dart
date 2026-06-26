@@ -10,6 +10,16 @@ import 'package:opei/features/express_agent/express_agent_order_screen.dart';
 import 'package:opei/features/express_agent/express_agent_screen.dart';
 import 'package:opei/features/express_p2p/express_order_detail_screen.dart';
 import 'package:opei/features/express_p2p/express_p2p_hub_screen.dart';
+import 'package:opei/l10n/app_localizations.dart';
+
+MaterialApp _app(Widget home, {Locale locale = const Locale('en')}) {
+  return MaterialApp(
+    locale: locale,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: home,
+  );
+}
 
 const _viewports = <({String label, Size size})>[
   (label: 'iPhone SE 320x568', size: Size(320, 568)),
@@ -124,8 +134,8 @@ void main() {
               overrides: [
                 expressOrderRepositoryProvider.overrideWithValue(repo),
               ],
-              child: const MaterialApp(
-                home: ExpressOrderDetailScreen(orderId: customerOrderId),
+              child: _app(
+                const ExpressOrderDetailScreen(orderId: customerOrderId),
               ),
             ),
           );
@@ -153,8 +163,8 @@ void main() {
               overrides: [
                 expressOrderRepositoryProvider.overrideWithValue(repo),
               ],
-              child: const MaterialApp(
-                home: ExpressAgentOrderScreen(orderId: agentOrderId),
+              child: _app(
+                const ExpressAgentOrderScreen(orderId: agentOrderId),
               ),
             ),
           );
@@ -180,7 +190,7 @@ void main() {
               overrides: [
                 expressOrderRepositoryProvider.overrideWithValue(repo),
               ],
-              child: const MaterialApp(home: ExpressP2PHubScreen()),
+              child: _app(const ExpressP2PHubScreen()),
             ),
           );
           await tester.pumpAndSettle();
@@ -216,7 +226,132 @@ void main() {
               overrides: [
                 expressOrderRepositoryProvider.overrideWithValue(repo),
               ],
-              child: const MaterialApp(home: ExpressAgentScreen()),
+              child: _app(const ExpressAgentScreen()),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          expect(tester.takeException(), isNull);
+          expect(find.byType(ExpressAgentScreen), findsOneWidget);
+        },
+      );
+    }
+  });
+
+  // Portuguese strings are typically longer than English, so re-run the same
+  // screens in pt to catch locale-specific overflow / layout breaks.
+  group('Express multi-viewport responsiveness (pt)', () {
+    const pt = Locale('pt');
+    for (final vp in _viewports) {
+      testWidgets(
+        'Customer express order detail [pt] has no layout errors on ${vp.label}',
+        (tester) async {
+          final repo = _MockExpressOrderRepository();
+          when(
+            () => repo.fetchOrder(customerOrderId),
+          ).thenAnswer((_) async => customerOrder);
+
+          await tester.binding.setSurfaceSize(vp.size);
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                expressOrderRepositoryProvider.overrideWithValue(repo),
+              ],
+              child: _app(
+                const ExpressOrderDetailScreen(orderId: customerOrderId),
+                locale: pt,
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          expect(tester.takeException(), isNull);
+          expect(find.byType(ExpressOrderDetailScreen), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'Agent express order detail [pt] has no layout errors on ${vp.label}',
+        (tester) async {
+          final repo = _MockExpressOrderRepository();
+          when(
+            () => repo.fetchOrder(agentOrderId),
+          ).thenAnswer((_) async => agentOrder);
+
+          await tester.binding.setSurfaceSize(vp.size);
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                expressOrderRepositoryProvider.overrideWithValue(repo),
+              ],
+              child: _app(
+                const ExpressAgentOrderScreen(orderId: agentOrderId),
+                locale: pt,
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          expect(tester.takeException(), isNull);
+          expect(find.byType(ExpressAgentOrderScreen), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'Customer hub list (large amounts) [pt] has no overflow on ${vp.label}',
+        (tester) async {
+          final repo = _MockExpressOrderRepository();
+          when(() => repo.fetchMyOrders()).thenAnswer((_) async => largeOrders);
+
+          await tester.binding.setSurfaceSize(vp.size);
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                expressOrderRepositoryProvider.overrideWithValue(repo),
+              ],
+              child: _app(const ExpressP2PHubScreen(), locale: pt),
+            ),
+          );
+          await tester.pumpAndSettle();
+
+          expect(tester.takeException(), isNull);
+          expect(find.byType(ExpressP2PHubScreen), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        'Agent queue list (large amounts) [pt] has no overflow on ${vp.label}',
+        (tester) async {
+          final repo = _MockExpressOrderRepository();
+          when(() => repo.getAgentStatus()).thenAnswer(
+            (_) async => const ExpressAgentStatus(
+              isAgent: true,
+              isActive: true,
+              agentProfileId: 'agent-profile-1',
+            ),
+          );
+          when(
+            () => repo.fetchAvailableOrders(),
+          ).thenAnswer((_) async => largeOrders);
+          when(
+            () => repo.fetchAgentOrders(),
+          ).thenAnswer((_) async => largeOrders);
+
+          await tester.binding.setSurfaceSize(vp.size);
+          addTearDown(() => tester.binding.setSurfaceSize(null));
+
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                expressOrderRepositoryProvider.overrideWithValue(repo),
+              ],
+              child: _app(const ExpressAgentScreen(), locale: pt),
             ),
           );
           await tester.pumpAndSettle();

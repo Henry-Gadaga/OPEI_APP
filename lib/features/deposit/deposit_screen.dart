@@ -462,7 +462,8 @@ class _CurrencyOptionState extends State<CurrencyOption>
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${widget.name} • ${widget.networks.length} networks',
+                      AppLocalizations.of(context)!.depositNetworksCount(
+                          widget.name, widget.networks.length),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 12.5,
                         color: OpeiColors.iosLabelSecondary,
@@ -636,30 +637,32 @@ class _NetworkOptionState extends ConsumerState<NetworkOption>
   }
 
   String get _networkDisplayName {
+    final l10n = AppLocalizations.of(context)!;
     switch (widget.network.toLowerCase()) {
       case 'polygon':
-        return 'Polygon (MATIC)';
+        return l10n.cryptoNetworkPolygonMatic;
       case 'ethereum':
-        return 'Ethereum (ERC-20)';
+        return l10n.cryptoNetworkEthereumErc20;
       case 'bsc':
-        return 'BNB Smart Chain (BEP-20)';
+        return l10n.cryptoNetworkBscBep20;
       case 'tron':
-        return 'Tron (TRC-20)';
+        return l10n.cryptoNetworkTronTrc20;
       default:
         return widget.network;
     }
   }
 
   String get _networkFee {
+    final l10n = AppLocalizations.of(context)!;
     switch (widget.network.toLowerCase()) {
       case 'polygon':
-        return 'Low fees • Fast';
+        return l10n.cryptoNetworkHintLowFeesFast;
       case 'ethereum':
-        return 'High fees • Secure';
+        return l10n.cryptoNetworkHintHighFeesSecure;
       case 'bsc':
-        return 'Low fees • Fast';
+        return l10n.cryptoNetworkHintLowFeesFast;
       case 'tron':
-        return 'Very low fees • Fast';
+        return l10n.cryptoNetworkHintVeryLowFeesFast;
       default:
         return '';
     }
@@ -751,16 +754,16 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
     required this.network,
   });
 
-  String _resolveNetworkLabel(String value) {
+  String _resolveNetworkLabel(BuildContext context, String value) {
     switch (value.toLowerCase()) {
       case 'polygon':
-        return 'Polygon';
+        return AppLocalizations.of(context)!.cryptoNetworkShortPolygon;
       case 'ethereum':
-        return 'Ethereum';
+        return AppLocalizations.of(context)!.cryptoNetworkShortEthereum;
       case 'bsc':
-        return 'BSC';
+        return AppLocalizations.of(context)!.cryptoNetworkShortBsc;
       case 'tron':
-        return 'Tron';
+        return AppLocalizations.of(context)!.cryptoNetworkShortTron;
       default:
         return value;
     }
@@ -787,7 +790,7 @@ class CryptoAddressDisplayScreen extends ConsumerWidget {
     final state = ref.watch(depositControllerProvider);
     final displayCurrency = state.selectedCurrency ?? currency;
     final displayNetwork = state.selectedNetwork ?? network;
-    final networkLabel = _resolveNetworkLabel(displayNetwork);
+    final networkLabel = _resolveNetworkLabel(context, displayNetwork);
     final addressValue = state.addressResponse?.address ?? '';
     final hasAddress = addressValue.isNotEmpty;
     final networkIcon = _resolveNetworkIcon(displayNetwork);

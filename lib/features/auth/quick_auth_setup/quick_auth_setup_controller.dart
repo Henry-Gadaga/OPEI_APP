@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/services/quick_auth_service.dart';
 import 'package:opei/core/storage/secure_storage_service.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
 
 class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
@@ -20,7 +21,7 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
     identifier ??= await quickAuthService.getRegisteredUserId();
 
     if (identifier == null) {
-      throw Exception('No active user context available for quick auth setup');
+      throw Exception(ErrorHelper.l10n.quickAuthSetupNoActiveUserError);
     }
 
     return identifier;
@@ -67,7 +68,7 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
     if (confirmPin != firstPin) {
       if (!ref.mounted) return;
       state = QuickAuthSetupPinEntry(
-        errorMessage: 'PINs do not match. Please try again.',
+        errorMessage: ErrorHelper.l10n.resetPinMismatchError,
       );
       await Future.delayed(const Duration(seconds: 2));
       if (!ref.mounted) return;
@@ -97,11 +98,11 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
           );
 
       debugPrint('✅ PIN saved successfully');
-      state = QuickAuthSetupSuccess('PIN setup complete');
+      state = QuickAuthSetupSuccess(ErrorHelper.l10n.quickAuthSetupPinSavedSuccess);
     } catch (e) {
       debugPrint('❌ Failed to save PIN: $e');
       if (!ref.mounted) return;
-      state = QuickAuthSetupError('Failed to save PIN. Please try again.');
+      state = QuickAuthSetupError(ErrorHelper.l10n.quickAuthSetupPinSaveFailedError);
     }
   }
 
@@ -119,13 +120,13 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
       if (!canUseBiometric) {
         if (!ref.mounted) return;
         state = QuickAuthSetupError(
-            'Biometric authentication is not available on this device');
+            ErrorHelper.l10n.quickAuthSetupBiometricUnavailableError);
         return;
       }
 
       // Authenticate to setup
       final authenticated = await quickAuthService.authenticateWithBiometric(
-        'Set up biometric authentication for quick access',
+        ErrorHelper.l10n.quickAuthSetupBiometricPromptReason,
       );
 
       if (!ref.mounted) return;
@@ -146,14 +147,18 @@ class QuickAuthSetupController extends Notifier<QuickAuthSetupState> {
             );
 
         debugPrint('✅ Biometric enabled successfully');
-        state = QuickAuthSetupSuccess('Biometric authentication enabled');
+        state = QuickAuthSetupSuccess(
+          ErrorHelper.l10n.quickAuthSetupBiometricEnabledSuccess,
+        );
       } else {
-        state = QuickAuthSetupError('Biometric authentication failed');
+        state = QuickAuthSetupError(ErrorHelper.l10n.quickAuthBiometricFailedError);
       }
     } catch (e) {
       debugPrint('❌ Biometric setup failed: $e');
       if (!ref.mounted) return;
-      state = QuickAuthSetupError('Failed to enable biometric authentication');
+      state = QuickAuthSetupError(
+        ErrorHelper.l10n.quickAuthSetupBiometricEnableFailedError,
+      );
     }
   }
 

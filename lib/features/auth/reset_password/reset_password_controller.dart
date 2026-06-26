@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/auth/reset_password/reset_password_state.dart';
 
 class ResetPasswordController extends Notifier<ResetPasswordState> {
@@ -41,22 +42,22 @@ class ResetPasswordController extends Notifier<ResetPasswordState> {
     String? confirmPasswordError;
 
     if (state.code.trim().isEmpty) {
-      codeError = 'Verification code is required';
+      codeError = ErrorHelper.l10n.resetPinCodeRequiredError;
     } else if (state.code.trim().length != 6) {
-      codeError = 'Code must be 6 digits';
+      codeError = ErrorHelper.l10n.resetPinCodeMustBeSixDigitsError;
     }
 
     // The user's credential is a 6-digit numeric PIN (matches signup).
     if (state.newPassword.isEmpty) {
-      passwordError = 'PIN is required';
+      passwordError = ErrorHelper.l10n.pinRequiredError;
     } else if (!RegExp(r'^\d{6}$').hasMatch(state.newPassword)) {
-      passwordError = 'PIN must be exactly 6 digits';
+      passwordError = ErrorHelper.l10n.pinInvalidError;
     }
 
     if (state.confirmPassword.isEmpty) {
-      confirmPasswordError = 'Please confirm your PIN';
+      confirmPasswordError = ErrorHelper.l10n.resetPinConfirmRequiredError;
     } else if (state.confirmPassword != state.newPassword) {
-      confirmPasswordError = 'PINs do not match';
+      confirmPasswordError = ErrorHelper.l10n.resetPinMismatchError;
     }
 
     if (codeError != null ||
@@ -118,7 +119,7 @@ class ResetPasswordController extends Notifier<ResetPasswordState> {
       debugPrint('❌ Password reset unexpected error: $e');
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Something went wrong. Please try again.',
+        errorMessage: ErrorHelper.l10n.errGenericRetry,
       );
       return false;
     }

@@ -49,12 +49,12 @@ class TransferRepository {
       final isSuccess = response['success'] == true;
       if (!isSuccess) {
         final message = response['message']?.toString().trim();
-        throw Exception(message?.isNotEmpty == true ? message : 'Failed to preview transfer');
+        throw Exception(message?.isNotEmpty == true ? message : 'E-2401');
       }
 
       final data = response['data'];
       if (data is! Map<String, dynamic>) {
-        throw Exception('Invalid transfer preview payload');
+        throw Exception('E-2402');
       }
 
       return TransferPreviewResponse.fromJson(

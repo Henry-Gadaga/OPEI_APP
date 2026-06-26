@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/money/money.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/card_transaction.dart';
 import 'package:opei/data/models/virtual_card.dart';
 import 'package:opei/features/cards/card_colors.dart';
@@ -327,7 +328,10 @@ class _CardTransactionTile extends StatelessWidget {
                   if (transaction.balanceAfterLabel.isNotEmpty) ...[
                     const SizedBox(height: 3),
                     Text(
-                      'Balance: ${transaction.balanceAfterLabel}',
+                      AppLocalizations.of(context)!
+                          .cardsTransactionBalanceRow(
+                        transaction.balanceAfterLabel,
+                      ),
                       style: secondaryStyle?.copyWith(
                         color: OpeiColors.iosLabelTertiary,
                         fontSize: 10,
@@ -493,7 +497,7 @@ class _TransactionCardPreview extends StatelessWidget {
   static String _formatStatus(String raw) {
     final sanitized = raw.replaceAll('_', ' ').trim();
     if (sanitized.isEmpty) {
-      return 'Unknown';
+      return ErrorHelper.l10n.cardStatusUnknown;
     }
     return sanitized
         .split(' ')
@@ -531,7 +535,9 @@ class _CardStatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final normalized = label.trim().isEmpty ? 'Unknown' : label.trim();
-    final isUnknown = normalized.toLowerCase() == 'unknown';
+    final isUnknown =
+        normalized.toLowerCase() ==
+        ErrorHelper.l10n.cardStatusUnknown.toLowerCase();
     final backgroundColor = isUnknown
         ? OpeiColors.pureWhite.withValues(alpha: 0.18)
         : color.withValues(alpha: 0.18);
@@ -706,7 +712,7 @@ class _EmptyTransactionsState extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          'No card transactions yet',
+          AppLocalizations.of(context)!.cardsTransactionsEmptyTitle,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -716,7 +722,7 @@ class _EmptyTransactionsState extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Text(
-            'When you start using this card, your transaction history will appear here.',
+            AppLocalizations.of(context)!.cardsTransactionsEmptyMessage,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
               fontSize: 13,

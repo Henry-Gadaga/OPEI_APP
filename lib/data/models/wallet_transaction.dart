@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:opei/core/money/money.dart';
+import 'package:opei/core/utils/error_helper.dart';
 
 class WalletTransaction {
   final String id;
@@ -56,15 +57,19 @@ class WalletTransaction {
 
   String get humanizedTransactionType {
     if (isCryptoTransfer) {
-      return isIncoming ? 'USD Deposit' : 'USD Withdrawal';
+      return isIncoming
+          ? ErrorHelper.l10n.walletUsdDepositLabel
+          : ErrorHelper.l10n.walletUsdWithdrawalLabel;
     }
     if (_hasTrdReferencePrefix) {
-      return isIncoming ? 'Buy USD' : 'Sell USD';
+      return isIncoming
+          ? ErrorHelper.l10n.walletBuyUsdLabel
+          : ErrorHelper.l10n.walletSellUsdLabel;
     }
 
     final type = rawType?.trim();
     if (type == null || type.isEmpty) {
-      return 'Deposit / Withdraw';
+      return ErrorHelper.l10n.walletDepositWithdrawLabel;
     }
 
     final spaced = type.replaceAll('_', ' ').replaceAll('-', ' ').trim();
@@ -87,17 +92,23 @@ class WalletTransaction {
     }
 
     if (isCryptoTransfer) {
-      return isIncoming ? 'USD Deposit' : 'USD Withdrawal';
+      return isIncoming
+          ? ErrorHelper.l10n.walletUsdDepositLabel
+          : ErrorHelper.l10n.walletUsdWithdrawalLabel;
     }
     if (_hasTrdReferencePrefix) {
-      return isIncoming ? 'Buy USD' : 'Sell USD';
+      return isIncoming
+          ? ErrorHelper.l10n.walletBuyUsdLabel
+          : ErrorHelper.l10n.walletSellUsdLabel;
     }
     if (isPeerToPeer) {
       final derived = _derivePeerToPeerName(description ?? title);
       if (derived != null && derived.isNotEmpty) {
         return derived;
       }
-      return isIncoming ? 'Money received' : 'Money sent';
+      return isIncoming
+          ? ErrorHelper.l10n.walletMoneyReceivedLabel
+          : ErrorHelper.l10n.walletMoneySentLabel;
     }
     return humanizedTransactionType;
   }
@@ -414,7 +425,9 @@ class WalletTransaction {
       'transaction_name',
       'eventTitle',
       'event_title',
-    ], fallback: rawDescription.isNotEmpty ? rawDescription : 'Transaction');
+    ], fallback: rawDescription.isNotEmpty
+        ? rawDescription
+        : ErrorHelper.l10n.walletFallbackTitle);
 
     final id = readString([
       'id',
@@ -530,7 +543,7 @@ class WalletTransaction {
     final amountCents = parseAmountCents();
     final isCredit = parseIsCredit(amountCents);
     final amountMoney = Money.fromCents(amountCents.abs(), currency: currency);
-    var title = rawTitle.isEmpty ? 'Transaction' : rawTitle;
+    var title = rawTitle.isEmpty ? ErrorHelper.l10n.walletFallbackTitle : rawTitle;
 
     if (rawType.toUpperCase().startsWith('P2P')) {
       final derived = _derivePeerToPeerName(

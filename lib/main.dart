@@ -12,6 +12,7 @@ import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/core/utils/asset_preloader.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/providers/express_agent_access_provider.dart';
 import 'package:opei/core/services/session_lock_service.dart';
@@ -256,6 +257,7 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final localeState = ref.watch(appLocaleControllerProvider);
+    ErrorHelper.activeLocale = localeState.locale;
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       debugShowCheckedModeBanner: false,

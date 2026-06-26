@@ -4,13 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/beneficiary.dart';
 import 'package:opei/data/repositories/beneficiary_repository.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 import 'beneficiaries_controller.dart';
-
-String _tr(BuildContext context, String en, String pt) {
-  return Localizations.localeOf(context).languageCode == 'pt' ? pt : en;
-}
 
 /// Bottom sheet listing existing mobile-money receivers for [country], with an
 /// "Add new" option that opens [_AddMobileMoneyReceiverSheet].
@@ -48,6 +45,7 @@ class _MobileMoneyBeneficiariesSheetState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(beneficiariesControllerProvider(widget.country));
     final controller = ref.read(
       beneficiariesControllerProvider(widget.country).notifier,
@@ -99,11 +97,7 @@ class _MobileMoneyBeneficiariesSheetState
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        _tr(
-                          context,
-                          'Mobile Money receivers',
-                          'Destinatarios de Mobile Money',
-                        ),
+                        l10n.mobileMoneyReceiversTitle,
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -250,7 +244,7 @@ class _AddNewRow extends StatelessWidget {
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
-                  _tr(context, 'Add new receiver', 'Adicionar destinatario'),
+                  AppLocalizations.of(context)!.mobileMoneyAddNewReceiverCta,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -290,7 +284,7 @@ class _ReceiverRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final name =
         beneficiary.accountName ??
-        _tr(context, 'Unnamed receiver', 'Destinatario sem nome');
+        AppLocalizations.of(context)!.mobileMoneyUnnamedReceiver;
     final masked = beneficiary.accountNumberMasked ?? '';
 
     return Material(
@@ -371,12 +365,13 @@ class _EmptyBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 28),
       child: Column(
         children: [
           Text(
-            _tr(context, 'No receivers yet', 'Sem destinatarios ainda'),
+            l10n.mobileMoneyNoReceiversTitle,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -386,11 +381,7 @@ class _EmptyBlock extends StatelessWidget {
           ),
           SizedBox(height: 6),
           Text(
-            _tr(
-              context,
-              'Add your first receiver to start sending mobile money.',
-              'Adicione seu primeiro destinatario para comecar a enviar mobile money.',
-            ),
+            l10n.mobileMoneyNoReceiversSubtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
@@ -413,6 +404,7 @@ class _ErrorBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
       child: Column(
@@ -432,11 +424,7 @@ class _ErrorBlock extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            _tr(
-              context,
-              'Couldn\'t load receivers',
-              'Nao foi possivel carregar os destinatarios',
-            ),
+            l10n.mobileMoneyLoadReceiversFailed,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -467,7 +455,7 @@ class _ErrorBlock extends StatelessWidget {
               ),
             ),
             child: Text(
-              _tr(context, 'Try again', 'Tentar novamente'),
+              l10n.retryCta,
               style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
             ),
           ),
@@ -575,16 +563,14 @@ class _MobileMoneyAddReceiverSheetState
   }
 
   Future<void> _submit() async {
+    final l10n = AppLocalizations.of(context)!;
     FocusScope.of(context).unfocus();
     // Belt-and-suspenders: even though the button is gated by [_isFormReady],
     // run Form.validate() so we render any field-level errors if something
     // slipped through.
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_selectedNetwork == null) {
-      showError(
-        context,
-        _tr(context, 'Please choose a network.', 'Escolha uma rede.'),
-      );
+      showError(context, l10n.mobileMoneyChooseNetworkError);
       return;
     }
 
@@ -600,10 +586,7 @@ class _MobileMoneyAddReceiverSheetState
 
     if (ok) {
       Navigator.of(context).pop(true);
-      showSuccess(
-        context,
-        _tr(context, 'Receiver added.', 'Destinatario adicionado.'),
-      );
+      showSuccess(context, l10n.mobileMoneyReceiverAdded);
     } else {
       // Error banner inside the sheet is already bound via Riverpod; also
       // surface the snackbar so it's impossible to miss.
@@ -618,6 +601,7 @@ class _MobileMoneyAddReceiverSheetState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(beneficiariesControllerProvider(widget.country));
     final viewInsets = MediaQuery.of(context).viewInsets;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
@@ -655,7 +639,7 @@ class _MobileMoneyAddReceiverSheetState
 
                 // ── Centered title ──────────────────────────────
                 Text(
-                  _tr(context, 'New receiver', 'Novo destinatario'),
+                  l10n.mobileMoneyNewReceiverTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 18,
@@ -667,7 +651,7 @@ class _MobileMoneyAddReceiverSheetState
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  '${widget.flag}  ${widget.countryName} · ${_tr(context, 'Mobile Money', 'Mobile Money')}',
+                  '${widget.flag}  ${widget.countryName} · ${l10n.mobileMoneyLabel}',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 13,
@@ -692,7 +676,7 @@ class _MobileMoneyAddReceiverSheetState
                       // ── Network ─────────────────────────────────
                       Row(
                         children: [
-                          _FieldLabel(_tr(context, 'Network', 'Rede')),
+                          _FieldLabel(l10n.networkLabel),
                           const Spacer(),
                           if (_selectedNetwork != null)
                             const _CheckPill()
@@ -713,11 +697,7 @@ class _MobileMoneyAddReceiverSheetState
                         Row(
                           children: [
                             _FieldLabel(
-                              _tr(
-                                context,
-                                'Receiver name',
-                                'Nome do destinatario',
-                              ),
+                              l10n.mobileMoneyReceiverNameLabel,
                             ),
                             const Spacer(),
                             if (_nameCtrl.text.trim().length >= 2 &&
@@ -732,23 +712,15 @@ class _MobileMoneyAddReceiverSheetState
                           controller: _nameCtrl,
                           textCapitalization: TextCapitalization.words,
                           decoration: _inputDecoration(
-                            hint: _tr(context, 'Full name', 'Nome completo'),
+                            hint: l10n.mobileMoneyReceiverFullNameHint,
                           ),
                           validator: (v) {
                             final value = v?.trim() ?? '';
                             if (value.length < 2) {
-                              return _tr(
-                                context,
-                                'Enter the receiver\'s full name.',
-                                'Digite o nome completo do destinatario.',
-                              );
+                              return l10n.mobileMoneyReceiverFullNameRequired;
                             }
                             if (!value.contains(' ')) {
-                              return _tr(
-                                context,
-                                'Include first and last name.',
-                                'Inclua nome e sobrenome.',
-                              );
+                              return l10n.mobileMoneyReceiverFirstLastNameRequired;
                             }
                             return null;
                           },
@@ -760,7 +732,7 @@ class _MobileMoneyAddReceiverSheetState
                       Row(
                         children: [
                           _FieldLabel(
-                            _tr(context, 'Phone number', 'Numero de telefone'),
+                            l10n.phoneNumberLabel,
                           ),
                           const Spacer(),
                           if (_numberCtrl.text.trim().length ==
@@ -785,46 +757,31 @@ class _MobileMoneyAddReceiverSheetState
                           ),
                         ],
                         decoration: _inputDecoration(
-                          hint: _tr(
-                            context,
-                            '${_phoneMeta.nationalLength} digits',
-                            '${_phoneMeta.nationalLength} digitos',
+                          hint: l10n.mobileMoneyDigitsHint(
+                            _phoneMeta.nationalLength,
                           ),
                           prefix: _DialPrefix(dialCode: _phoneMeta.dialCode),
                         ),
                         validator: (v) {
                           final value = v?.trim() ?? '';
                           if (value.isEmpty) {
-                            return _tr(
-                              context,
-                              'Enter the phone number.',
-                              'Digite o numero de telefone.',
-                            );
+                            return l10n.mobileMoneyPhoneRequired;
                           }
                           if (value.length != _phoneMeta.nationalLength) {
-                            return _tr(
-                              context,
-                              'Phone number must be exactly ${_phoneMeta.nationalLength} digits for ${widget.countryName}.',
-                              'O numero deve ter exatamente ${_phoneMeta.nationalLength} digitos para ${widget.countryName}.',
+                            return l10n.mobileMoneyPhoneExactDigitsForCountry(
+                              _phoneMeta.nationalLength,
+                              widget.countryName,
                             );
                           }
                           if (value.startsWith('0')) {
-                            return _tr(
-                              context,
-                              'Don\'t include the leading 0 — the country code is added for you.',
-                              'Nao inclua o 0 inicial — o codigo do pais e adicionado automaticamente.',
-                            );
+                            return l10n.mobileMoneyPhoneLeadingZeroError;
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        _tr(
-                          context,
-                          'Enter the local number without the leading 0. We\'ll send it as ${_phoneMeta.dialCode}.',
-                          'Digite o numero local sem o 0 inicial. Enviaremos como ${_phoneMeta.dialCode}.',
-                        ),
+                        l10n.mobileMoneyLocalNumberHelper(_phoneMeta.dialCode),
                         style: const TextStyle(
                           fontSize: 11.5,
                           fontWeight: FontWeight.w500,
@@ -879,11 +836,7 @@ class _MobileMoneyAddReceiverSheetState
                                   ),
                                 )
                               : Text(
-                                  _tr(
-                                    context,
-                                    'Save receiver',
-                                    'Salvar destinatario',
-                                  ),
+                                  l10n.mobileMoneySaveReceiverCta,
                                   style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w700,
@@ -954,7 +907,7 @@ class _RequiredPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(99),
       ),
       child: Text(
-        _tr(context, 'REQUIRED', 'OBRIGATORIO'),
+        AppLocalizations.of(context)!.requiredLabel,
         style: TextStyle(
           fontSize: 9.5,
           fontWeight: FontWeight.w800,
@@ -1010,7 +963,7 @@ class _CheckPill extends StatelessWidget {
           Icon(Icons.check_rounded, size: 11, color: OpeiBrand.success),
           SizedBox(width: 3),
           Text(
-            _tr(context, 'OK', 'OK'),
+            AppLocalizations.of(context)!.okLabel,
             style: TextStyle(
               fontSize: 9.5,
               fontWeight: FontWeight.w800,
@@ -1141,11 +1094,7 @@ class _NetworkSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     if (networks.isEmpty) {
       return Text(
-        _tr(
-          context,
-          'No networks available for this country.',
-          'Nenhuma rede disponivel para este pais.',
-        ),
+        AppLocalizations.of(context)!.mobileMoneyNoNetworksForCountry,
         style: TextStyle(fontSize: 13, color: OpeiBrand.inkSecondary),
       );
     }

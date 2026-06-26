@@ -94,7 +94,7 @@ class _ExpressAgentOrderScreenState
         _confirming = false;
       });
       _toast(
-        'Order confirmed. Funds released to the customer.',
+        AppLocalizations.of(context)!.expressOrderConfirmedFundsReleased,
         OpeiBrand.success,
       );
     } on ApiError catch (e) {
@@ -146,7 +146,7 @@ class _ExpressAgentOrderScreenState
         _order = updated;
         _openingDispute = false;
       });
-      _toast('Dispute opened. Under admin review.', OpeiBrand.ink);
+      _toast(AppLocalizations.of(context)!.expressDisputeOpenedUnderReview, OpeiBrand.ink);
     } on ApiError catch (e) {
       if (!mounted) return;
       setState(() => _openingDispute = false);
@@ -170,13 +170,14 @@ class _ExpressAgentOrderScreenState
   }
 
   String _mapErrorMessage(ApiError e) {
+    final l10n = AppLocalizations.of(context)!;
     switch (e.statusCode) {
       case 403:
-        return 'You are not allowed to perform this action.';
+        return l10n.expressNotAllowedActionError;
       case 404:
-        return 'Order no longer exists.';
+        return l10n.expressOrderNoLongerExistsError;
       case 409:
-        return 'Order updated by another action. Refreshing...';
+        return l10n.expressOrderUpdatedRefreshInfo;
       case 400:
       default:
         return e.message;
@@ -205,18 +206,18 @@ class _ExpressAgentOrderScreenState
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
         ),
-        title: const Text(
-          'Confirm payment received?',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.expressConfirmReceivedTitle,
+          style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 17,
             fontWeight: FontWeight.w800,
             color: OpeiBrand.ink,
           ),
         ),
-        content: const Text(
-          'Only continue if the money is in your account. This will release USD to the buyer and cannot be undone. A wrong confirmation may cause financial loss.',
-          style: TextStyle(
+        content: Text(
+          AppLocalizations.of(context)!.expressConfirmReceivedMessage,
+          style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 13.5,
             color: OpeiBrand.inkSecondary,
@@ -226,9 +227,9 @@ class _ExpressAgentOrderScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
-              'Not yet',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.expressNotYetCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 color: OpeiBrand.inkSecondary,
               ),
@@ -243,9 +244,9 @@ class _ExpressAgentOrderScreenState
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text(
-              'Yes, release',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.expressYesReleaseCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
@@ -278,9 +279,9 @@ class _ExpressAgentOrderScreenState
             icon: const Icon(Icons.arrow_back_rounded, color: OpeiBrand.ink),
             onPressed: () => Navigator.of(context).maybePop(),
           ),
-          title: const Text(
-            'Order',
-            style: TextStyle(
+          title: Text(
+            AppLocalizations.of(context)!.expressOrderTitle,
+            style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -307,7 +308,7 @@ class _ExpressAgentOrderScreenState
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            _error ?? 'Order not found.',
+            _error ?? AppLocalizations.of(context)!.expressOrderNotFound,
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
@@ -408,9 +409,9 @@ class _ExpressAgentOrderScreenState
                     color: const Color(0xFFFCE8EA),
                     borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                   ),
-                  child: const Text(
-                    'Under review by admin.',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.expressUnderReviewByAdmin,
+                    style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 13.5,
                       fontWeight: FontWeight.w600,
@@ -420,9 +421,9 @@ class _ExpressAgentOrderScreenState
                 ),
               ],
               const SizedBox(height: 20),
-              const Text(
-                'PAYMENT PROOF',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.expressPaymentProofLabel,
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
@@ -466,9 +467,10 @@ class _ExpressAgentOrderScreenState
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              'Open dispute',
-                              style: TextStyle(
+                          : Text(
+                              AppLocalizations.of(context)!
+                                  .expressOpenDisputeCta,
+                              style: const TextStyle(
                                 fontFamily: kPrimaryFontFamily,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700,
@@ -480,12 +482,12 @@ class _ExpressAgentOrderScreenState
                   const SizedBox(height: 10),
                 ],
                 if (!isActive)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
                     child: Text(
-                      'Your agent account is inactive. You cannot confirm orders.',
+                      AppLocalizations.of(context)!.expressAgentInactiveConfirm,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 12.5,
                         color: OpeiBrand.danger,
@@ -516,9 +518,10 @@ class _ExpressAgentOrderScreenState
                               color: Colors.white,
                             ),
                           )
-                        : const Text(
-                            'Confirm payment received',
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)!
+                                .expressConfirmReceivedCta,
+                            style: const TextStyle(
                               fontFamily: kPrimaryFontFamily,
                               fontSize: 15,
                               fontWeight: FontWeight.w700,
@@ -585,14 +588,14 @@ class _AgentDisputeSheetState extends State<_AgentDisputeSheet> {
         _error = null;
       });
     } catch (_) {
-      setState(() => _error = 'Could not pick images.');
+      setState(() => _error = AppLocalizations.of(context)!.expressCouldNotPickImages);
     }
   }
 
   void _submit() {
     final message = _messageController.text.trim();
     if (message.isEmpty) {
-      setState(() => _error = 'Dispute message is required.');
+      setState(() => _error = AppLocalizations.of(context)!.expressDisputeMessageRequired);
       return;
     }
     Navigator.of(context).pop(
@@ -619,9 +622,9 @@ class _AgentDisputeSheetState extends State<_AgentDisputeSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Open dispute',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.expressOpenDisputeCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -652,7 +655,8 @@ class _AgentDisputeSheetState extends State<_AgentDisputeSheet> {
                   (entry) => Chip(
                     label: Text(
                       entry.value.name.isEmpty
-                          ? 'Image ${entry.key + 1}'
+                          ? AppLocalizations.of(context)!
+                              .expressImageLabel(entry.key + 1)
                           : entry.value.name,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -691,9 +695,9 @@ class _AgentDisputeSheetState extends State<_AgentDisputeSheet> {
                     borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                   ),
                 ),
-                child: const Text(
-                  'Submit dispute',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.p2pSubmitDisputeCta,
+                  style: const TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 14.5,
                     fontWeight: FontWeight.w700,
@@ -726,8 +730,8 @@ class _ProofGallery extends StatelessWidget {
         ),
         child: Text(
           status == ExpressOrderStatus.awaitingPayment
-              ? 'Waiting for the customer to pay and upload proof.'
-              : 'No proof uploaded yet.',
+              ? AppLocalizations.of(context)!.expressWaitingForCustomerProof
+              : AppLocalizations.of(context)!.expressNoProofUploadedYet,
           style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 13,
@@ -805,11 +809,11 @@ void _openProofViewer(BuildContext context, String imageUrl) {
                   child: Image.network(
                     imageUrl,
                     fit: BoxFit.contain,
-                    errorBuilder: (_, _, _) => const Padding(
-                      padding: EdgeInsets.all(24),
+                    errorBuilder: (ctx, _, _) => Padding(
+                      padding: const EdgeInsets.all(24),
                       child: Text(
-                        'Could not open this image.',
-                        style: TextStyle(
+                        AppLocalizations.of(ctx)!.expressCouldNotOpenImage,
+                        style: const TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           color: Colors.white70,
                           fontSize: 14,
@@ -963,9 +967,9 @@ class _ContactInfo extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Buyer contact',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.expressBuyerContactLabel,
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -974,7 +978,9 @@ class _ContactInfo extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                hasContact ? contact! : 'Buyer contact unavailable',
+                hasContact
+                    ? contact!
+                    : AppLocalizations.of(context)!.expressBuyerContactUnavailable,
                 style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 13.5,
@@ -1022,9 +1028,9 @@ class _ContactActions extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: const Text(
-            'Copy',
-            style: TextStyle(
+          child: Text(
+            AppLocalizations.of(context)!.depositCopyCta,
+            style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 12.5,
               fontWeight: FontWeight.w700,
@@ -1039,9 +1045,9 @@ class _ContactActions extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 8),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: const Text(
-            'Call',
-            style: TextStyle(
+          child: Text(
+            AppLocalizations.of(context)!.callCta,
+            style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 12.5,
               fontWeight: FontWeight.w700,

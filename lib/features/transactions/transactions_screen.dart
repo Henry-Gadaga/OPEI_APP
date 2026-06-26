@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/data/models/transaction_summary.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/dashboard/widgets/transaction_widgets.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/features/transactions/transactions_controller.dart';
@@ -427,16 +428,17 @@ class _SummaryCard extends StatelessWidget {
   }
 
   static String _rangeLabel(TransactionSummary summary) {
+    final l10n = ErrorHelper.l10n;
     final from = summary.from;
     final to = summary.to;
     if (from == null || to == null) {
-      return 'Last 30 days';
+      return l10n.transactionsRangeLast30Days;
     }
     final days = to.difference(from).inDays;
-    if (days >= 28 && days <= 31) return 'Last 30 days';
-    if (days >= 6 && days <= 8) return 'Last 7 days';
-    if (days >= 89 && days <= 92) return 'Last 90 days';
-    return 'Last $days days';
+    if (days >= 28 && days <= 31) return l10n.transactionsRangeLast30Days;
+    if (days >= 6 && days <= 8) return l10n.transactionsRangeLast7Days;
+    if (days >= 89 && days <= 92) return l10n.transactionsRangeLast90Days;
+    return l10n.transactionsRangeLastNDays(days);
   }
 }
 

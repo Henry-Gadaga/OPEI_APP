@@ -44,14 +44,15 @@ class CardTopUpController extends Notifier<CardTopUpState> {
   }
 
   Future<void> previewTopUp(Money amount) async {
+    final l10n = ErrorHelper.l10n;
     final cardId = state.cardId.trim();
     if (cardId.isEmpty) {
-      state = state.copyWith(errorMessage: "We couldn't find this card.");
+      state = state.copyWith(errorMessage: l10n.cardsNotFoundError);
       return;
     }
 
     if (amount.cents <= 0) {
-      state = state.copyWith(errorMessage: 'The amount you entered isn’t valid. Please enter a positive amount.');
+      state = state.copyWith(errorMessage: l10n.cardsTopupInvalidPositiveAmountError);
       return;
     }
 
@@ -89,12 +90,13 @@ class CardTopUpController extends Notifier<CardTopUpState> {
   }
 
   Future<void> confirmTopUp() async {
+    final l10n = ErrorHelper.l10n;
     final cardId = state.cardId.trim();
     final amount = state.amount;
     final preview = state.preview;
 
     if (cardId.isEmpty || amount == null || preview == null) {
-      state = state.copyWith(errorMessage: 'Please review the top-up details before continuing.');
+      state = state.copyWith(errorMessage: l10n.cardsTopupReviewDetailsError);
       return;
     }
 
@@ -178,61 +180,63 @@ class CardTopUpController extends Notifier<CardTopUpState> {
   }
 
   String? _friendlyReason(String? reasonCode) {
+    final l10n = ErrorHelper.l10n;
     if (reasonCode == null) {
       return null;
     }
 
     switch (reasonCode.toUpperCase()) {
       case 'INSUFFICIENT_FUNDS':
-        return 'You don’t have enough balance to complete this top-up.';
+        return l10n.cardsTopupInsufficientBalanceError;
       default:
         return null;
     }
   }
 
   String _mapPreviewError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final code = _extractErrorCode(error);
 
       switch (error.statusCode) {
         case 401:
-          return 'Please sign in again to continue.';
+          return l10n.p2pPleaseSignInAgainError;
         case 400:
           if (code == 'INVALID_AMOUNT') {
-            return 'The amount you entered isn’t valid. Please enter a positive amount.';
+            return l10n.cardsTopupInvalidPositiveAmountError;
           }
           if (code == 'CARD_NOT_ACTIVE') {
-            return 'This card is not active; unfreeze it before topping up.';
+            return l10n.cardsTopupCardInactiveError;
           }
           if (code == 'USER_NOT_REGISTERED_FOR_CARD') {
-            return 'You need to activate your card profile before you can continue.';
+            return l10n.cardsTopupActivateProfileError;
           }
           if (code == 'INSUFFICIENT_FUNDS') {
-            return 'Your wallet balance is too low for this top-up.';
+            return l10n.cardsTopupWalletLowBalanceError;
           }
           if (code == 'MISSING_USER_CONTEXT' || code == 'MISSING_USER_ID' || code == 'NO_USER_CONTEXT') {
-            return 'Something went wrong while loading your account. Please try again.';
+            return l10n.cardsTopupAccountLoadFailedError;
           }
           if (code == 'WALLET_BAD_REQUEST' || code == 'BAD_REQUEST' || code == 'INVALID_TOKEN') {
-            return 'Something isn’t right with your account session. Please sign in again.';
+            return l10n.cardsTopupSessionInvalidError;
           }
-          return 'Something went wrong while loading your account. Please try again.';
+          return l10n.cardsTopupAccountLoadFailedError;
         case 404:
           if (code == 'CARD_NOT_FOUND') {
-            return 'We couldn’t find this card. Please refresh and try again.';
+            return l10n.cardsTopupCardNotFoundRefreshError;
           }
           if (code == 'CARD_NOT_READY') {
-            return 'Your card is being set up. Please try again in a moment.';
+            return l10n.cardsTopupCardNotReadyError;
           }
           if (code == 'CARD_TERMINATED') {
-            return 'This card is no longer active.';
+            return l10n.cardsTopupCardNoLongerActiveError;
           }
           if (code == 'WALLET_NOT_FOUND') {
-            return 'We couldn’t find your wallet. Please contact support.';
+            return l10n.cardsTopupWalletNotFoundError;
           }
-          return "We couldn’t find this card. Please refresh and try again.";
+          return l10n.cardsTopupCardNotFoundRefreshError;
         case 503:
-          return 'The wallet service is temporarily unavailable. Please try again shortly.';
+          return l10n.cardsTopupWalletUnavailableError;
       }
     }
 
@@ -240,51 +244,52 @@ class CardTopUpController extends Notifier<CardTopUpState> {
   }
 
   String _mapConfirmError(Object error) {
+    final l10n = ErrorHelper.l10n;
     if (error is ApiError) {
       final code = _extractErrorCode(error);
 
       switch (error.statusCode) {
         case 400:
           if (code == 'INVALID_AMOUNT') {
-            return 'Please enter a valid amount.';
+            return l10n.errEnterValidAmount;
           }
           if (code == 'CARD_NOT_ACTIVE') {
-            return 'This card is not active; unfreeze it before topping up.';
+            return l10n.cardsTopupCardInactiveError;
           }
           if (code == 'USER_NOT_REGISTERED_FOR_CARD') {
-            return 'You need to finish your card setup before topping up.';
+            return l10n.cardsTopupFinishSetupError;
           }
           if (code == 'CARD_NOT_READY') {
-            return 'Your card isn’t ready yet. Try again in a moment.';
+            return l10n.cardsTopupCardNotReadyYetError;
           }
           if (code == 'CARD_TERMINATED') {
-            return 'This card has been closed and can’t be topped up.';
+            return l10n.cardsTopupCardClosedError;
           }
           if (code == 'INSUFFICIENT_FUNDS') {
-            return 'Your wallet balance is too low for this top-up.';
+            return l10n.cardsTopupWalletLowBalanceError;
           }
           if (code == 'INSUFFICIENT_FUNDS_RESERVE' || code == 'INSUFFICIENT_FUNDS_RESERVATION') {
-            return 'You don’t have enough available balance to reserve this amount.';
+            return l10n.cardsTopupReserveBalanceLowError;
           }
           if (code == 'WALLET_BAD_REQUEST' || code == 'BAD_REQUEST' || code == 'INVALID_TOKEN') {
-            return 'Something isn’t right with your account session. Please sign in again.';
+            return l10n.cardsTopupSessionInvalidError;
           }
-          return 'Please enter a valid amount.';
+          return l10n.errEnterValidAmount;
         case 401:
-          return 'Please sign in again to continue.';
+          return l10n.p2pPleaseSignInAgainError;
         case 404:
           if (code == 'CARD_NOT_FOUND') {
-            return 'We couldn’t find this card on your account.';
+            return l10n.cardsTopupCardNotFoundOnAccountError;
           }
           if (code == 'WALLET_NOT_FOUND') {
-            return 'We couldn’t find your wallet. Please contact support.';
+            return l10n.cardsTopupWalletNotFoundError;
           }
-          return 'We couldn’t find this card on your account.';
+          return l10n.cardsTopupCardNotFoundOnAccountError;
         case 503:
           if (code == 'PROVIDER_FAILURE') {
-            return 'We couldn’t complete your card top-up right now. Please try again shortly.';
+            return l10n.cardsTopupProviderFailureError;
           }
-          return 'Wallet service is temporarily unavailable. Please try again soon.';
+          return l10n.cardsTopupWalletUnavailableSoonError;
       }
     }
 

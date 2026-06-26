@@ -13,15 +13,14 @@ import 'package:opei/features/cards/card_creation_state.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
 
 class CardCreationController extends Notifier<CardCreationState> {
-  static const _cardReadyMessage =
-      'Your card is ready. You can continue setting up your card.';
-  static const _completeProfileMessage = 'Complete your profile to continue.';
-  static const _genericTryAgainMessage =
-      'Something went wrong. Please try again in a moment.';
-  static const _sessionExpiredContinueMessage =
-      'Session expired. Please sign in again to continue.';
-  static const _serviceUnavailableMessage =
-      'Card service temporarily unavailable. Please try again shortly.';
+  static String get _cardReadyMessage => ErrorHelper.l10n.cardsCreationReadyContinueInfo;
+  static String get _completeProfileMessage =>
+      ErrorHelper.l10n.cardsCreationCompleteProfileError;
+  static String get _genericTryAgainMessage => ErrorHelper.l10n.errGenericRetry;
+  static String get _sessionExpiredContinueMessage =>
+      ErrorHelper.l10n.cardsCreationSessionExpiredContinueError;
+  static String get _serviceUnavailableMessage =>
+      ErrorHelper.l10n.cardsCreationServiceUnavailableError;
 
   late CardRepository _cardRepository;
 
@@ -98,7 +97,7 @@ class CardCreationController extends Notifier<CardCreationState> {
   Future<void> loadPreview(Money amount) async {
     if (amount.cents <= 0) {
       state = state.copyWith(
-        errorMessage: 'Enter an amount above 0.00 to continue.',
+        errorMessage: ErrorHelper.l10n.cardsCreationAmountAboveZeroError,
         clearInfo: true,
       );
       return;
@@ -147,7 +146,7 @@ class CardCreationController extends Notifier<CardCreationState> {
 
     if (currentPreview == null || amount == null) {
       state = state.copyWith(
-        errorMessage: 'Preview details are missing. Please try again.',
+        errorMessage: ErrorHelper.l10n.cardsCreationPreviewMissingError,
       );
       return;
     }
@@ -157,7 +156,7 @@ class CardCreationController extends Notifier<CardCreationState> {
       state = state.copyWith(
         stage: CardCreationStage.preview,
         isBusy: false,
-        errorMessage: 'Add funds to your wallet before creating this card.',
+        errorMessage: ErrorHelper.l10n.cardsCreationAddFundsError,
         clearInfo: true,
       );
       return;
@@ -235,7 +234,7 @@ class CardCreationController extends Notifier<CardCreationState> {
         createdCard: createdCard,
         clearInfo: createdCard != null,
         infoMessage: createdCard == null
-            ? "Your card is created. It will appear in your cards list shortly."
+            ? ErrorHelper.l10n.cardsCreationWillAppearSoonInfo
             : null,
       );
     } catch (error, stackTrace) {
@@ -249,7 +248,7 @@ class CardCreationController extends Notifier<CardCreationState> {
       state = state.copyWith(
         isBusy: false,
         infoMessage:
-            "Your card is ready. It will appear in your cards list shortly.",
+            ErrorHelper.l10n.cardsCreationReadyAppearSoonInfo,
       );
     }
   }
@@ -315,14 +314,14 @@ class CardCreationController extends Notifier<CardCreationState> {
     if (error is ApiError) {
       switch (error.statusCode) {
         case 404:
-          return 'You need to register your card profile before continuing.';
+          return ErrorHelper.l10n.cardsCreationRegisterProfileError;
         case 422:
-          return 'Your balance is too low to complete this action.';
+          return ErrorHelper.l10n.cardsCreationBalanceLowError;
         case 401:
-          return 'Your session has expired. Please log in again.';
+          return ErrorHelper.l10n.errSessionExpired;
         case 503:
         case 502:
-          return 'Card services are temporarily unavailable. Please try again soon.';
+          return ErrorHelper.l10n.cardsCreationServiceUnavailableSoonError;
       }
     }
 
@@ -333,16 +332,16 @@ class CardCreationController extends Notifier<CardCreationState> {
     if (error is ApiError) {
       switch (error.statusCode) {
         case 404:
-          return 'Please register your card profile before continuing.';
+          return ErrorHelper.l10n.cardsCreationRegisterProfilePromptError;
         case 422:
-          return 'Your balance is too low to complete this action.';
+          return ErrorHelper.l10n.cardsCreationBalanceLowError;
         case 503:
         case 502:
-          return 'Card services are temporarily unavailable. Please try again soon.';
+          return ErrorHelper.l10n.cardsCreationServiceUnavailableSoonError;
         case 409:
-          return 'This request is already being processed.';
+          return ErrorHelper.l10n.cardsCreationRequestProcessingError;
         case 401:
-          return 'Your session has expired. Please log in again.';
+          return ErrorHelper.l10n.errSessionExpired;
       }
     }
 

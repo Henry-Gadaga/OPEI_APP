@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/retry_helper.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/auth/forgot_password/forgot_password_state.dart';
 
 class ForgotPasswordController extends Notifier<ForgotPasswordState> {
@@ -22,13 +23,13 @@ class ForgotPasswordController extends Notifier<ForgotPasswordState> {
     final email = state.email.trim();
 
     if (email.isEmpty) {
-      state = state.copyWith(emailError: 'Email is required');
+      state = state.copyWith(emailError: ErrorHelper.l10n.emailRequiredError);
       return false;
     }
 
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(email)) {
-      state = state.copyWith(emailError: 'Please enter a valid email');
+      state = state.copyWith(emailError: ErrorHelper.l10n.emailInvalidError);
       return false;
     }
 
@@ -53,7 +54,7 @@ class ForgotPasswordController extends Notifier<ForgotPasswordState> {
       if (response.success) {
         state = state.copyWith(
           isLoading: false,
-          successMessage: 'If an account exists, we sent a verification code to your email',
+          successMessage: ErrorHelper.l10n.forgotPinCodeSentIfAccountExists,
         );
         debugPrint('✅ Password reset request sent successfully');
         return true;
@@ -83,7 +84,7 @@ class ForgotPasswordController extends Notifier<ForgotPasswordState> {
       debugPrint('❌ Password reset request unexpected error: $e');
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Something went wrong. Please try again.',
+        errorMessage: ErrorHelper.l10n.errGenericRetry,
       );
       return false;
     }

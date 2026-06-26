@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/locale/app_locale_controller.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/login_request.dart';
 import 'package:opei/features/auth/login/login_state.dart';
 
@@ -32,19 +33,20 @@ class LoginController extends Notifier<LoginState> {
   /// - VERIFIED: User has completed all onboarding (can access dashboard)
   Future<Map<String, dynamic>?> login() async {
     if (!state.isValid) {
+      final l10n = ErrorHelper.l10n;
       String? emailError;
       String? passwordError;
 
       if (state.email.isEmpty) {
-        emailError = 'Email is required';
+        emailError = l10n.emailRequiredError;
       } else if (!_isValidEmail(state.email)) {
-        emailError = 'Please enter a valid email';
+        emailError = l10n.emailInvalidError;
       }
 
       if (state.password.isEmpty) {
-        passwordError = 'PIN is required';
+        passwordError = l10n.pinRequiredError;
       } else if (!RegExp(r'^\d{6}$').hasMatch(state.password)) {
-        passwordError = 'PIN must be exactly 6 digits';
+        passwordError = l10n.pinInvalidError;
       }
 
       state = state.copyWith(
@@ -131,24 +133,25 @@ class LoginController extends Notifier<LoginState> {
       debugPrint('❌ Login unexpected error: $e');
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Something went wrong. Please try again.',
+        errorMessage: ErrorHelper.l10n.errGenericRetry,
       );
       return null;
     }
   }
 
   String _mapApiErrorToMessage(ApiError error) {
+    final l10n = ErrorHelper.l10n;
     switch (error.statusCode) {
       case 401:
-        return 'Invalid email or PIN. Please try again.';
+        return l10n.loginInvalidCredentialsError;
       case 403:
-        return 'Your account is not active. Please contact support.';
+        return l10n.loginAccountInactiveError;
       case 429:
-        return 'Too many login attempts. Please try again in a few minutes.';
+        return l10n.loginTooManyAttemptsError;
       case 500:
       case 502:
       case 503:
-        return 'Server error. Please try again later.';
+        return l10n.errServerSideShortly;
       default:
         return error.message;
     }

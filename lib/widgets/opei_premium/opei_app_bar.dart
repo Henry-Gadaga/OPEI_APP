@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// Minimal premium app bar used across new auth/onboarding screens.
@@ -104,7 +105,7 @@ class _StepPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        'Step $current of $total',
+        AppLocalizations.of(context)!.stepIndicator(current, total),
         style: const TextStyle(
           fontFamily: kPrimaryFontFamily,
           fontSize: 12,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:opei/data/models/wallet_transaction.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 Future<void> showTransactionDetailSheet(
@@ -168,9 +169,9 @@ class TransactionDetailSheet extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'NOTE',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.transactionNoteLabel,
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,

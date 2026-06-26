@@ -133,7 +133,7 @@ class _ExpressP2PHubScreenState extends ConsumerState<ExpressP2PHubScreen> {
       _StartNewButton(onTap: _startNew),
       const SizedBox(height: 18),
       if (active.isNotEmpty) ...[
-        const _SectionLabel('ACTIVE'),
+        _SectionLabel(AppLocalizations.of(context)!.expressSectionActive),
         const SizedBox(height: 10),
         ...active.map(
           (o) => Padding(
@@ -144,7 +144,7 @@ class _ExpressP2PHubScreenState extends ConsumerState<ExpressP2PHubScreen> {
         const SizedBox(height: 14),
       ],
       if (history.isNotEmpty) ...[
-        const _SectionLabel('HISTORY'),
+        _SectionLabel(AppLocalizations.of(context)!.expressSectionHistory),
         const SizedBox(height: 10),
         ...history.map(
           (o) => Padding(
@@ -212,9 +212,9 @@ class _Header extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Express P2P',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.depositExpressP2PTitle,
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
@@ -225,7 +225,7 @@ class _Header extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Pay local currency · get USD fast',
+                      AppLocalizations.of(context)!.expressP2PHubSubtitle,
                       style: TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 11.5,
@@ -274,14 +274,14 @@ class _StartNewButton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Start new deposit',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.expressStartNewDepositTitle,
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -289,10 +289,11 @@ class _StartNewButton extends StatelessWidget {
                         letterSpacing: -0.1,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Choose amount and payment method',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!
+                          .expressStartNewDepositSubtitle,
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 11.8,
                         fontWeight: FontWeight.w500,
@@ -493,14 +494,14 @@ class _CustomerContactRow extends StatelessWidget {
                 color: OpeiBrand.primary,
                 borderRadius: BorderRadius.circular(999),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.call_rounded, size: 12, color: Colors.white),
-                  SizedBox(width: 4),
+                  const Icon(Icons.call_rounded, size: 12, color: Colors.white),
+                  const SizedBox(width: 4),
                   Text(
-                    'Call',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.callCta,
+                    style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
@@ -538,9 +539,9 @@ class _EmptyState extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
-        const Text(
-          'No deposits yet',
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.expressNoDepositsTitle,
+          style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -549,10 +550,10 @@ class _EmptyState extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          'Start a deposit to add USD to your wallet by paying a local agent.',
+        Text(
+          AppLocalizations.of(context)!.expressNoDepositsMessage,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 13,
             color: OpeiBrand.inkSecondary,
@@ -588,9 +589,9 @@ class _ErrorState extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
-        const Text(
-          "Couldn't load your deposits",
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.expressLoadDepositsError,
+          style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -618,9 +619,9 @@ class _ErrorState extends StatelessWidget {
               color: OpeiBrand.primaryTint,
               borderRadius: BorderRadius.circular(999),
             ),
-            child: const Text(
-              'Try again',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.tryAgainCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,

@@ -1,10 +1,12 @@
 import 'package:opei/core/money/money.dart';
+import 'package:opei/core/utils/error_helper.dart';
 
 enum P2PAdType { buy, sell;
 
   String get apiValue => name.toUpperCase();
 
-  String get displayLabel => name == 'buy' ? 'Buy' : 'Sell';
+  String get displayLabel =>
+      name == 'buy' ? ErrorHelper.l10n.p2pSideBuy : ErrorHelper.l10n.p2pSideSell;
 
   P2PAdType get counterpart => this == P2PAdType.buy ? P2PAdType.sell : P2PAdType.buy;
 
@@ -31,7 +33,7 @@ class P2PAdPaymentMethod {
     if (json == null) {
       return P2PAdPaymentMethod(
         id: '',
-        providerName: 'Unknown Method',
+        providerName: ErrorHelper.l10n.p2pUnknownMethodLabel,
         methodType: 'OTHER',
         currency: fallbackCurrency,
       );
@@ -55,7 +57,7 @@ class P2PAdPaymentMethod {
 
     return P2PAdPaymentMethod(
       id: (json['id'] ?? '').toString(),
-      providerName: provider.isEmpty ? 'Unknown Method' : provider,
+      providerName: provider.isEmpty ? ErrorHelper.l10n.p2pUnknownMethodLabel : provider,
       methodType: methodType.isEmpty ? 'OTHER' : methodType,
       currency: currencyRaw == null
           ? fallbackCurrency
@@ -69,7 +71,7 @@ class P2PAdPaymentMethod {
     final typeLabel = _humanizeMethodType(methodType);
 
     if (providerName.isEmpty && typeLabel.isEmpty) {
-      return 'Payment method';
+      return ErrorHelper.l10n.paymentMethodLabel;
     }
 
     if (providerName.isEmpty) {
@@ -118,9 +120,9 @@ class P2PAdSeller {
 
   factory P2PAdSeller.fromJson(Map<String, dynamic>? json) {
     if (json == null) {
-      return const P2PAdSeller(
+      return P2PAdSeller(
         id: '',
-        displayName: 'Unknown trader',
+        displayName: ErrorHelper.l10n.p2pUnknownTraderLabel,
         nickname: '',
         rating: 0,
         totalTrades: 0,
@@ -165,7 +167,7 @@ class P2PAdSeller {
     return P2PAdSeller(
       id: (idRaw ?? '').toString(),
       displayName: (displayNameRaw ?? '').toString().trim().isEmpty
-          ? 'Unknown trader'
+          ? ErrorHelper.l10n.p2pUnknownTraderLabel
           : (displayNameRaw ?? '').toString().trim(),
       nickname: (nicknameRaw ?? '').toString().trim(),
       rating: ratingValue < 0
@@ -281,11 +283,11 @@ class P2PAd {
 
   String get paymentMethodsDisplay {
     if (paymentMethods.isEmpty) {
-      return 'No payment method';
+      return ErrorHelper.l10n.p2pNoPaymentMethodLabel;
     }
     if (paymentMethods.length == 1) {
       return paymentMethods.first.providerName;
     }
-    return '${paymentMethods.length} methods';
+    return ErrorHelper.l10n.p2pMethodsCount(paymentMethods.length);
   }
 }

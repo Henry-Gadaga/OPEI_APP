@@ -1,3 +1,5 @@
+import 'package:opei/core/utils/error_helper.dart';
+
 class P2PUserProfile {
   final String id;
   final String userId;
@@ -91,7 +93,7 @@ class P2PUserProfile {
     if (nickname.trim().isNotEmpty) {
       return nickname.trim();
     }
-    return 'Trader';
+    return ErrorHelper.l10n.p2pTraderLabel;
   }
 
   String get usernameLabel {
@@ -106,12 +108,25 @@ class P2PUserProfile {
   String get friendlyLanguage {
     const lookup = {
       'en': 'English',
-      'fr': 'French',
-      'pt': 'Portuguese',
-      'es': 'Spanish',
-      'sw': 'Swahili',
+      'fr': 'Francais',
+      'pt': 'Portugues',
+      'es': 'Espanol',
+      'sw': 'Kiswahili',
     };
     final normalized = preferredLanguage.trim().toLowerCase();
-    return lookup[normalized] ?? normalized.toUpperCase();
+    switch (lookup[normalized] ?? normalized.toUpperCase()) {
+      case 'English':
+        return ErrorHelper.l10n.profileLanguageEnglish;
+      case 'Francais':
+        return ErrorHelper.l10n.profileLanguageFrench;
+      case 'Portugues':
+        return ErrorHelper.l10n.profileLanguagePortuguese;
+      case 'Espanol':
+        return ErrorHelper.l10n.profileLanguageSpanish;
+      case 'Kiswahili':
+        return ErrorHelper.l10n.profileLanguageSwahili;
+      default:
+        return normalized.toUpperCase();
+    }
   }
 }

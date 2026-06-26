@@ -1,6 +1,7 @@
 import 'package:opei/data/models/p2p_ad.dart';
 import 'package:opei/data/models/p2p_trade.dart';
 import 'package:opei/data/models/p2p_user_profile.dart';
+import 'package:opei/core/utils/error_helper.dart';
 
 class P2PAdsState {
   final List<P2PAd> allAds;
@@ -82,19 +83,20 @@ enum MyP2PAdStatusFilter {
   rejected;
 
   String get displayLabel {
+    final l10n = ErrorHelper.l10n;
     switch (this) {
       case MyP2PAdStatusFilter.all:
-        return 'All';
+        return l10n.p2pFilterAll;
       case MyP2PAdStatusFilter.pendingReview:
-        return 'Pending';
+        return l10n.p2pFilterPending;
       case MyP2PAdStatusFilter.active:
-        return 'Active';
+        return l10n.p2pFilterActive;
       case MyP2PAdStatusFilter.inactive:
-        return 'Inactive';
+        return l10n.p2pFilterInactive;
       case MyP2PAdStatusFilter.completed:
-        return 'Completed';
+        return l10n.p2pFilterCompleted;
       case MyP2PAdStatusFilter.rejected:
-        return 'Rejected';
+        return l10n.p2pFilterRejected;
     }
   }
 
@@ -238,23 +240,24 @@ enum P2POrderStatusFilter {
   expired;
 
   String get displayLabel {
+    final l10n = ErrorHelper.l10n;
     switch (this) {
       case P2POrderStatusFilter.all:
-        return 'All';
+        return l10n.p2pFilterAll;
       case P2POrderStatusFilter.initiated:
-        return 'Active';
+        return l10n.p2pFilterActive;
       case P2POrderStatusFilter.paidByBuyer:
-        return 'Paid';
+        return l10n.p2pFilterPaid;
       case P2POrderStatusFilter.releasedBySeller:
-        return 'Released';
+        return l10n.p2pFilterReleased;
       case P2POrderStatusFilter.completed:
-        return 'Completed';
+        return l10n.p2pFilterCompleted;
       case P2POrderStatusFilter.cancelled:
-        return 'Cancelled';
+        return l10n.p2pFilterCancelled;
       case P2POrderStatusFilter.disputed:
-        return 'Disputed';
+        return l10n.p2pFilterDisputed;
       case P2POrderStatusFilter.expired:
-        return 'Expired';
+        return l10n.p2pFilterExpired;
     }
   }
 

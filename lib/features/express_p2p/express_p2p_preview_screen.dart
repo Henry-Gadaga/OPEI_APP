@@ -141,9 +141,9 @@ class _ExpressP2PPreviewScreenState
             icon: const Icon(Icons.arrow_back_rounded, color: OpeiBrand.ink),
             onPressed: () => Navigator.of(context).pop(),
           ),
-          title: const Text(
-            'Review',
-            style: TextStyle(
+          title: Text(
+            AppLocalizations.of(context)!.expressReviewTitle,
+            style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -178,8 +178,8 @@ class _ExpressP2PPreviewScreenState
                 color: OpeiBrand.inkSecondary,
               ),
               const SizedBox(height: 14),
-              const Text(
-                "Couldn't get a quote",
+              Text(
+                AppLocalizations.of(context)!.expressPreviewQuoteUnavailableTitle,
                 style: TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 16,
@@ -210,9 +210,9 @@ class _ExpressP2PPreviewScreenState
                     color: OpeiBrand.primaryTint,
                     borderRadius: BorderRadius.circular(999),
                   ),
-                  child: const Text(
-                    'Try again',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.tryAgainCta,
+                    style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -288,10 +288,10 @@ class _ExpressP2PPreviewScreenState
                       color: OpeiBrand.primary,
                     ),
                     const SizedBox(width: 8),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Rate locks on confirm. An agent will be matched to collect your local payment.',
-                        style: TextStyle(
+                        AppLocalizations.of(context)!.expressRateLocksHint,
+                        style: const TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 12.5,
                           fontWeight: FontWeight.w500,
@@ -338,7 +338,7 @@ class _AmountCard extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'YOU RECEIVE',
+            AppLocalizations.of(context)!.expressYouReceiveRow,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 10.5,
@@ -370,7 +370,7 @@ class _AmountCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'You pay  ',
+                '${AppLocalizations.of(context)!.expressYouPayRow}  ',
                 style: TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 13.5,
@@ -473,9 +473,9 @@ class _ConfirmBar extends StatelessWidget {
                     color: Colors.white,
                   ),
                 )
-              : const Text(
-                  'Confirm order',
-                  style: TextStyle(
+              : Text(
+                  AppLocalizations.of(context)!.expressConfirmOrderCta,
+                  style: const TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,

@@ -180,10 +180,10 @@ class _MobileMoneyCountrySheet extends StatelessWidget {
           const SizedBox(height: 22),
 
           // ── Header ─────────────────────────────────────
-          const Text(
-            'Select country',
+          Text(
+            AppLocalizations.of(context)!.addressSelectCountryTitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: OpeiBrand.ink,
@@ -192,10 +192,10 @@ class _MobileMoneyCountrySheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
-          const Text(
-            'Mobile Money supported countries',
+          Text(
+            AppLocalizations.of(context)!.withdrawMobileMoneyCountriesSubtitle,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: OpeiBrand.inkSecondary,
@@ -495,7 +495,7 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Select Method',
+          AppLocalizations.of(context)!.depositSelectMethodTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontSize: 17,
             fontWeight: FontWeight.w600,
@@ -509,7 +509,7 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Choose the method you want to withdraw with',
+              AppLocalizations.of(context)!.withdrawChooseMethodSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 15,
                 color: OpeiColors.iosLabelSecondary,
@@ -705,7 +705,7 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Select Network',
+          AppLocalizations.of(context)!.depositSelectNetworkTitle,
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontSize: 17,
             fontWeight: FontWeight.w600,
@@ -719,7 +719,8 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Choose the network for your $currency withdrawal',
+              AppLocalizations.of(context)!
+                  .withdrawChooseNetworkSubtitle(currency),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 15,
                 color: OpeiColors.iosLabelSecondary,
@@ -798,30 +799,32 @@ class _NetworkOptionState extends State<_NetworkOption>
   }
 
   String get _displayName {
+    final l10n = AppLocalizations.of(context)!;
     switch (widget.network) {
       case 'tron':
-        return 'Tron (TRC-20)';
+        return l10n.cryptoNetworkTronTrc20;
       case 'polygon':
-        return 'Polygon (MATIC)';
+        return l10n.cryptoNetworkPolygonMatic;
       case 'ethereum':
-        return 'Ethereum (ERC-20)';
+        return l10n.cryptoNetworkEthereumErc20;
       case 'bsc':
-        return 'BNB Smart Chain (BEP-20)';
+        return l10n.cryptoNetworkBscBep20;
       default:
         return widget.network;
     }
   }
 
   String get _networkHint {
+    final l10n = AppLocalizations.of(context)!;
     switch (widget.network) {
       case 'tron':
-        return 'Very low fees • Fast confirmations';
+        return l10n.cryptoNetworkHintVeryLowFeesFastConfirmations;
       case 'polygon':
-        return 'Low fees • Fast confirmations';
+        return l10n.cryptoNetworkHintLowFeesFastConfirmations;
       case 'bsc':
-        return 'Low fees • Broad support';
+        return l10n.cryptoNetworkHintLowFeesBroadSupport;
       case 'ethereum':
-        return 'High fees • Most compatible';
+        return l10n.cryptoNetworkHintHighFeesMostCompatible;
       default:
         return '';
     }
@@ -944,15 +947,16 @@ class _CryptoWithdrawFormScreenState
   }
 
   String get _networkLabel {
+    final l10n = AppLocalizations.of(context)!;
     switch (widget.network.toLowerCase()) {
       case 'tron':
-        return 'Tron';
+        return l10n.cryptoNetworkShortTron;
       case 'polygon':
-        return 'Polygon';
+        return l10n.cryptoNetworkShortPolygon;
       case 'ethereum':
-        return 'Ethereum';
+        return l10n.cryptoNetworkShortEthereum;
       case 'bsc':
-        return 'BSC';
+        return l10n.cryptoNetworkShortBsc;
       default:
         return widget.network;
     }
@@ -1032,8 +1036,9 @@ class _CryptoWithdrawFormScreenState
     final amountDisplay = amountText.isEmpty
         ? '—'
         : '$amountText $currencyCode';
+    final l10n = AppLocalizations.of(context)!;
     final addressDisplay = addressText.isEmpty
-        ? 'Not provided'
+        ? l10n.notProvidedLabel
         : _shortenAddress(addressText);
     const feeDisplay = '\$1.50';
 
@@ -1062,6 +1067,7 @@ class _CryptoWithdrawFormScreenState
   }
 
   String? _validateAddressForNetwork(String rawAddress) {
+    final l10n = AppLocalizations.of(context)!;
     final trimmed = rawAddress.trim();
     final currency = widget.currency.toUpperCase();
     final network = widget.network.toLowerCase();
@@ -1073,29 +1079,29 @@ class _CryptoWithdrawFormScreenState
 
     if (network == 'tron') {
       if (trimmed.length != 34) {
-        return 'TRC-20 addresses must be exactly 34 characters long.';
+        return l10n.withdrawTrc20LengthError;
       }
       if (!trimmed.startsWith('T')) {
-        return 'TRC-20 addresses must start with the letter T.';
+        return l10n.withdrawTrc20StartWithTError;
       }
       final base58Regex = RegExp(r'^[1-9A-HJ-NP-Za-km-z]+$');
       if (!base58Regex.hasMatch(trimmed)) {
-        return 'TRC-20 addresses use Base58 characters only.';
+        return l10n.withdrawTrc20Base58Error;
       }
       return null;
     }
 
     if (network == 'polygon' || network == 'ethereum' || network == 'bsc') {
       if (!trimmed.startsWith('0x')) {
-        return 'This network requires addresses that start with 0x.';
+        return l10n.withdrawNetworkAddressStartsWith0xError;
       }
       if (trimmed.length != 42) {
-        return 'This address must be exactly 42 characters long.';
+        return l10n.withdrawAddressLength42Error;
       }
       final hexPart = trimmed.substring(2);
       final hexRegex = RegExp(r'^[0-9a-fA-F]+$');
       if (!hexRegex.hasMatch(hexPart)) {
-        return 'Use hexadecimal characters only (0-9, a-f).';
+        return l10n.withdrawHexCharactersOnlyError;
       }
       return null;
     }
@@ -1134,7 +1140,7 @@ class _CryptoWithdrawFormScreenState
           onPressed: () => context.pop(),
         ),
         title: Text(
-          'Withdraw ${widget.currency}',
+          AppLocalizations.of(context)!.withdrawCurrencyTitle(widget.currency),
           style: textTheme.titleLarge?.copyWith(
             fontSize: 17,
             fontWeight: FontWeight.w600,
@@ -1322,7 +1328,8 @@ class _SummaryPill extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$currency withdrawal',
+                  AppLocalizations.of(context)!
+                      .withdrawCurrencyWithdrawalLabel(currency),
                   style: textTheme.titleMedium?.copyWith(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -1602,16 +1609,17 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
     required this.network,
   });
 
-  String _resolveNetworkLabel(String value) {
+  String _resolveNetworkLabel(BuildContext context, String value) {
+    final l10n = AppLocalizations.of(context)!;
     switch (value.toLowerCase()) {
       case 'tron':
-        return 'Tron';
+        return l10n.cryptoNetworkShortTron;
       case 'polygon':
-        return 'Polygon';
+        return l10n.cryptoNetworkShortPolygon;
       case 'ethereum':
-        return 'Ethereum';
+        return l10n.cryptoNetworkShortEthereum;
       case 'bsc':
-        return 'BSC';
+        return l10n.cryptoNetworkShortBsc;
       default:
         return value;
     }
@@ -1641,7 +1649,7 @@ class CryptoWithdrawSuccessScreen extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final networkLabel = _resolveNetworkLabel(network);
+    final networkLabel = _resolveNetworkLabel(context, network);
     final statusLabel =
         response.status[0].toUpperCase() + response.status.substring(1);
     final amountDisplay = response.amount;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// A unified success hero widget used across the app.
@@ -15,13 +16,13 @@ class SuccessHero extends StatelessWidget {
   final double gap;
 
   /// The label text shown under the icon. Defaults to 'Done'.
-  final String label;
+  final String? label;
 
   const SuccessHero({
     super.key,
     this.iconHeight = 64,
     this.gap = 2,
-    this.label = 'Done',
+    this.label,
   });
 
   @override
@@ -38,7 +39,7 @@ class SuccessHero extends StatelessWidget {
         ),
         SizedBox(height: gap),
         Text(
-          label,
+          label ?? AppLocalizations.of(context)!.doneCta,
           style: textTheme.bodySmall?.copyWith(
             color: OpeiColors.pureBlack,
             fontWeight: FontWeight.w600,

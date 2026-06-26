@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 class ReferenceCopyValue extends StatefulWidget {
@@ -86,7 +87,7 @@ class _ReferenceCopyValueState extends State<ReferenceCopyValue> {
                         key: const ValueKey('copied'),
                         alignment: Alignment.center,
               child: Text(
-                          'Copied',
+                          AppLocalizations.of(context)!.copiedLabel,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,

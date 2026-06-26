@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/features/auth/quick_auth/quick_auth_state.dart';
 
 class QuickAuthController extends Notifier<QuickAuthState> {
@@ -58,7 +59,7 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       userIdentifier ??= await quickAuthService.getRegisteredUserId();
 
       if (userIdentifier == null) {
-        state = QuickAuthFailed('Session expired. Please login again.');
+        state = QuickAuthFailed(ErrorHelper.l10n.quickAuthSessionExpiredError);
         return;
       }
       
@@ -75,7 +76,7 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       final refreshToken = await storage.getRefreshToken();
       
       if (refreshToken == null) {
-        state = QuickAuthFailed('Session expired. Please login again.');
+        state = QuickAuthFailed(ErrorHelper.l10n.quickAuthSessionExpiredError);
         return;
       }
 
@@ -107,14 +108,14 @@ class QuickAuthController extends Notifier<QuickAuthState> {
         quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
         state = QuickAuthPinEntry(
           errorMessage:
-              'No internet connection. Please check your network and try again.',
+              ErrorHelper.l10n.quickAuthNoInternetError,
         );
         return;
       }
 
       quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
       _resetFailedAttempts();
-      state = QuickAuthFailed('Authentication failed. Please login again.');
+      state = QuickAuthFailed(ErrorHelper.l10n.quickAuthAuthenticationFailedError);
     }
   }
 
@@ -130,11 +131,11 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       
       // Authenticate with biometric
       final isAuthenticated = await quickAuthService.authenticateWithBiometric(
-        'Unlock Opei with biometric',
+        ErrorHelper.l10n.quickAuthBiometricPromptReason,
       );
       
       if (!isAuthenticated) {
-        const failureMessage = 'Biometric authentication failed';
+        final failureMessage = ErrorHelper.l10n.quickAuthBiometricFailedError;
         state = QuickAuthPinEntry(errorMessage: failureMessage);
         await Future.delayed(const Duration(seconds: 2));
 
@@ -151,7 +152,7 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       final refreshToken = await storage.getRefreshToken();
       
       if (refreshToken == null) {
-        state = QuickAuthFailed('Session expired. Please login again.');
+        state = QuickAuthFailed(ErrorHelper.l10n.quickAuthSessionExpiredError);
         return;
       }
 
@@ -180,13 +181,13 @@ class QuickAuthController extends Notifier<QuickAuthState> {
         quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
         state = QuickAuthPinEntry(
           errorMessage:
-              'No internet connection. Please check your network and try again.',
+              ErrorHelper.l10n.quickAuthNoInternetError,
         );
         return;
       }
 
       quickAuthStatusNotifier.setStatus(QuickAuthStatus.requiresVerification);
-      state = QuickAuthFailed('Authentication failed. Please login again.');
+      state = QuickAuthFailed(ErrorHelper.l10n.quickAuthAuthenticationFailedError);
     }
   }
 
@@ -205,7 +206,7 @@ class QuickAuthController extends Notifier<QuickAuthState> {
       ref.read(authSessionProvider.notifier).clearSession();
       _resetFailedAttempts();
       state = QuickAuthFailed(
-        'Logged out. Please sign in to create a new PIN.',
+        ErrorHelper.l10n.quickAuthLoggedOutCreateNewPinInfo,
       );
     }
   }
@@ -220,8 +221,10 @@ class QuickAuthController extends Notifier<QuickAuthState> {
     }
 
     final attemptMessage = remainingAttempts == 1
-        ? 'Invalid PIN. 1 attempt remaining.'
-        : 'Invalid PIN. $remainingAttempts attempts remaining.';
+        ? ErrorHelper.l10n.quickAuthInvalidPinOneAttemptRemaining
+        : ErrorHelper.l10n.quickAuthInvalidPinAttemptsRemaining(
+            remainingAttempts,
+          );
 
     ref.read(quickAuthStatusProvider.notifier).setStatus(
           QuickAuthStatus.requiresVerification,
@@ -270,7 +273,7 @@ class QuickAuthController extends Notifier<QuickAuthState> {
     sessionNotifier.clearSession();
     _resetFailedAttempts();
     state = QuickAuthFailed(
-      'Too many incorrect PIN attempts. Please log in again to set a new PIN.',
+      ErrorHelper.l10n.quickAuthTooManyPinAttemptsError,
     );
 
     // Fire-and-forget backend logout so a slow network call never blocks the UI

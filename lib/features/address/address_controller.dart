@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/constants/countries.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/address_request.dart';
 import 'package:opei/features/address/address_state.dart';
 
@@ -111,17 +112,18 @@ class AddressNotifier extends Notifier<AddressState> {
   }
 
   String? validateField(String value, String fieldName) {
+    final l10n = ErrorHelper.l10n;
     if (value.isEmpty) {
-      return '$fieldName is required';
+      return l10n.addressFieldRequired(fieldName);
     }
     
     if (value.length > 60) {
-      return 'Maximum 60 characters allowed';
+      return l10n.addressMax60CharsError;
     }
     
     final allowedPattern = RegExp(r'^[A-Za-z0-9 ,.\-/]+$');
     if (!allowedPattern.hasMatch(value)) {
-      return 'Only letters, numbers, spaces, and ,./-/ allowed';
+      return l10n.addressAllowedCharsError;
     }
     
     return null;
@@ -132,7 +134,7 @@ class AddressNotifier extends Notifier<AddressState> {
     if (validationErrors.isNotEmpty) {
       debugPrint('❌ Form validation failed');
       state = state.copyWith(
-        errorMessage: 'Please fix the errors below',
+        errorMessage: ErrorHelper.l10n.addressFixErrorsBelow,
         fieldErrors: validationErrors,
       );
       return false;
@@ -189,7 +191,7 @@ class AddressNotifier extends Notifier<AddressState> {
         
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Please fix the errors below',
+          errorMessage: ErrorHelper.l10n.addressFixErrorsBelow,
           fieldErrors: fieldErrors,
         );
       } else {
@@ -203,7 +205,7 @@ class AddressNotifier extends Notifier<AddressState> {
       debugPrint('❌ Unexpected error: $e');
       state = state.copyWith(
         isLoading: false,
-        errorMessage: 'Unable to submit address. Please try again.',
+        errorMessage: ErrorHelper.l10n.addressUnableSubmitError,
       );
       return false;
     }
@@ -228,39 +230,46 @@ class AddressNotifier extends Notifier<AddressState> {
   }
 
   Map<String, String> _validateForm() {
+    final l10n = ErrorHelper.l10n;
     final errors = <String, String>{};
 
     if (state.selectedCountry == null) {
-      errors['country'] = 'Country is required';
+      errors['country'] = l10n.addressCountryRequiredError;
     }
 
-    final regionError = validateField(state.state.trim(), 'State');
+    final regionError = validateField(state.state.trim(), l10n.addressStateLabel);
     if (regionError != null) {
       errors['state'] = regionError;
     }
 
-    final cityError = validateField(state.city.trim(), 'City');
+    final cityError = validateField(state.city.trim(), l10n.addressCityLabel);
     if (cityError != null) {
       errors['city'] = cityError;
     }
 
-    final zipError = validateField(state.zipCode.trim(), 'Zip Code');
+    final zipError = validateField(state.zipCode.trim(), l10n.addressZipCodeLabel);
     if (zipError != null) {
       errors['zipCode'] = zipError;
     }
 
-    final addressLineError = validateField(state.addressLine.trim(), 'Address Line');
+    final addressLineError = validateField(
+      state.addressLine.trim(),
+      l10n.addressLineLabel,
+    );
     if (addressLineError != null) {
       errors['addressLine'] = addressLineError;
     }
 
-    final houseNumberError = validateField(state.houseNumber.trim(), 'House/Apt Number');
+    final houseNumberError = validateField(
+      state.houseNumber.trim(),
+      l10n.addressAptSuiteLabel,
+    );
     if (houseNumberError != null) {
       errors['houseNumber'] = houseNumberError;
     }
 
     if (state.isNigeria) {
-      final bvnError = validateField(state.bvn.trim(), 'BVN');
+      final bvnError = validateField(state.bvn.trim(), l10n.addressBvnLabel);
       if (bvnError != null) {
         errors['bvn'] = bvnError;
       }

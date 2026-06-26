@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// Tiny trust strip used at the bottom of auth/onboarding screens.
 /// "🔒 Bank-grade encryption" — small, calm, never shouty.
 class OpeiTrustFooter extends StatelessWidget {
-  final String label;
+  final String? label;
   final IconData icon;
   final EdgeInsetsGeometry padding;
 
   const OpeiTrustFooter({
     super.key,
-    this.label = 'Bank-grade encryption',
+    this.label,
     this.icon = Icons.lock_rounded,
     this.padding = const EdgeInsets.symmetric(vertical: 12),
   });
@@ -26,7 +27,7 @@ class OpeiTrustFooter extends StatelessWidget {
           Icon(icon, size: 13, color: OpeiBrand.inkTertiary),
           const SizedBox(width: 6),
           Text(
-            label,
+            label ?? AppLocalizations.of(context)!.trustFooterBankGradeEncryption,
             style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 12,

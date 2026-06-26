@@ -36,7 +36,8 @@ class BeneficiariesController extends Notifier<BeneficiariesState> {
     final userId = ref.read(authSessionProvider).userId;
     if (userId == null) {
       state = state.copyWith(
-          error: 'You need to be signed in to view beneficiaries.');
+        error: ErrorHelper.l10n.p2pPleaseSignInAgainError,
+      );
       return;
     }
 
@@ -68,7 +69,8 @@ class BeneficiariesController extends Notifier<BeneficiariesState> {
     final userId = ref.read(authSessionProvider).userId;
     if (userId == null) {
       state = state.copyWith(
-          createError: 'You need to be signed in to add a beneficiary.');
+        createError: ErrorHelper.l10n.p2pPleaseSignInAgainError,
+      );
       return false;
     }
 

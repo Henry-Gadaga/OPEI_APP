@@ -110,19 +110,20 @@ class PromoCardCreationController extends Notifier<PromoCardCreationState> {
   }
 
   String _mapCreateError(String raw) {
+    final l10n = ErrorHelper.l10n;
     final code = raw.toUpperCase().trim();
     switch (code) {
       case 'USER_NOT_REGISTERED_FOR_CARD':
-        return 'Registration issue detected. Please close and try again.';
+        return l10n.cardsPromoRegistrationIssueError;
       case 'INSUFFICIENT_FUNDS':
-        return 'Your balance changed. Please close and try again after topping up.';
+        return l10n.cardsPromoBalanceChangedError;
       case 'PROMO_CARD_CONFIG_NOT_FOUND':
-        return 'Virtual card is no longer available. Please try again later.';
+        return l10n.cardsPromoUnavailableLaterError;
       case 'WALLET_SERVICE_UNAVAILABLE':
       case 'WALLET_UNAVAILABLE':
-        return 'Wallet service is temporarily unavailable. Please try again shortly.';
+        return l10n.cardsPromoWalletUnavailableError;
       default:
-        return raw.isNotEmpty ? raw : 'Something went wrong. Please try again.';
+        return raw.isNotEmpty ? raw : l10n.errGenericRetry;
     }
   }
 }

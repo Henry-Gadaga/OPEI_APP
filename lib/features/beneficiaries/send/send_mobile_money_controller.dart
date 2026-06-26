@@ -62,21 +62,23 @@ class SendMobileMoneyController extends Notifier<SendMobileMoneyState> {
     final userId = ref.read(authSessionProvider).userId;
     final normalizedDescription = _normalizedDescription(state.paymentDescription);
     if (userId == null) {
-      state = state.copyWith(reviewError: 'Please sign in to continue.');
+      state = state.copyWith(reviewError: ErrorHelper.l10n.p2pPleaseSignInAgainError);
       return false;
     }
     if (state.targetAmountMinor <= 0) {
-      state = state.copyWith(reviewError: 'Enter an amount above 0.');
+      state = state.copyWith(reviewError: ErrorHelper.l10n.errAmountAboveZero);
       return false;
     }
     if (normalizedDescription.length < 3) {
       state = state.copyWith(
-          reviewError: 'Enter a clear description (at least 3 characters).');
+        reviewError: ErrorHelper.l10n.mobileMoneyDescriptionMinLengthError,
+      );
       return false;
     }
     if (normalizedDescription.length > 120) {
       state = state.copyWith(
-          reviewError: 'Description is too long (max 120 characters).');
+        reviewError: ErrorHelper.l10n.mobileMoneyDescriptionMaxLengthError,
+      );
       return false;
     }
 
@@ -110,18 +112,19 @@ class SendMobileMoneyController extends Notifier<SendMobileMoneyState> {
     final description = _normalizedDescription(state.paymentDescription);
     if (userId == null || review == null) {
       state = state.copyWith(
-          initiateError: 'Missing review or session. Please try again.');
+        initiateError: ErrorHelper.l10n.mobileMoneyMissingReviewOrSessionError,
+      );
       return false;
     }
     if (description.length < 3) {
       state = state.copyWith(
-        initiateError: 'Please go back and add a valid description.',
+        initiateError: ErrorHelper.l10n.mobileMoneyAddValidDescriptionError,
       );
       return false;
     }
     if (description.length > 120) {
       state = state.copyWith(
-        initiateError: 'Description is too long. Use 120 characters or less.',
+        initiateError: ErrorHelper.l10n.mobileMoneyDescriptionTooLong120Error,
       );
       return false;
     }

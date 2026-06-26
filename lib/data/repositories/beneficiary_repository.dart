@@ -182,10 +182,7 @@ class BeneficiaryRepository {
   }) async {
     final corridor = mobileMoneyCorridors[country.toUpperCase()];
     if (corridor == null) {
-      throw ApiError(
-        message: 'Mobile money is not supported for $country yet.',
-        statusCode: 400,
-      );
+      throw ApiError(message: 'E-2601', statusCode: 400);
     }
 
     final body = <String, dynamic>{
@@ -237,40 +234,40 @@ class BeneficiaryRepository {
   /// Stored as the wire-format enum the backend expects, paired with a
   /// human-readable label for the UI.
   static const List<({String value, String label})> usBankRemittancePurposes = [
-    (value: 'FAMILY_SUPPORT', label: 'Family support'),
-    (value: 'EDUCATION', label: 'Education'),
-    (value: 'GIFT_AND_DONATION', label: 'Gift & donation'),
-    (value: 'MEDICAL_TREATMENT', label: 'Medical treatment'),
-    (value: 'MAINTENANCE_EXPENSES', label: 'Maintenance / living expenses'),
-    (value: 'TRAVEL', label: 'Travel'),
-    (value: 'SMALL_VALUE_REMITTANCE', label: 'Small-value remittance'),
-    (value: 'LIBERALIZED_REMITTANCE', label: 'Liberalized remittance'),
-    (value: 'PERSONAL_TRANSFER', label: 'Personal transfer'),
-    (value: 'SALARY_PAYMENT', label: 'Salary payment'),
-    (value: 'LOAN_PAYMENT', label: 'Loan payment'),
-    (value: 'TAX_PAYMENT', label: 'Tax payment'),
-    (value: 'UTILITY_BILLS', label: 'Utility bills'),
-    (value: 'PROPERTY_PURCHASE', label: 'Property purchase'),
-    (value: 'PROPERTY_RENTAL', label: 'Property rental'),
-    (value: 'CONSTRUCTION_EXPENSES', label: 'Construction expenses'),
-    (value: 'HOTEL_ACCOMMODATION', label: 'Hotel accommodation'),
-    (value: 'TRANSPORTATION_FEES', label: 'Transportation fees'),
-    (value: 'DELIVERY_FEES', label: 'Delivery fees'),
-    (value: 'OFFICE_EXPENSES', label: 'Office expenses'),
-    (value: 'ADVERTISING_EXPENSES', label: 'Advertising expenses'),
-    (value: 'ADVISORY_FEES', label: 'Advisory fees'),
-    (value: 'SERVICE_CHARGES', label: 'Service charges'),
-    (value: 'BUSINESS_INSURANCE', label: 'Business insurance'),
-    (value: 'INSURANCE_CLAIMS', label: 'Insurance claims'),
-    (value: 'EXPORTED_GOODS', label: 'Exported goods'),
-    (value: 'SHARES_INVESTMENT', label: 'Shares investment'),
-    (value: 'FUND_INVESTMENT', label: 'Fund investment'),
-    (value: 'ROYALTY_FEES', label: 'Royalty fees'),
-    (value: 'COMPUTER_SERVICES', label: 'Computer services'),
-    (value: 'REWARD_PAYMENT', label: 'Reward payment'),
-    (value: 'INFLUENCER_PAYMENT', label: 'Influencer payment'),
-    (value: 'OTHER_FEES', label: 'Other fees'),
-    (value: 'OTHER', label: 'Other'),
+    (value: 'FAMILY_SUPPORT', label: ''),
+    (value: 'EDUCATION', label: ''),
+    (value: 'GIFT_AND_DONATION', label: ''),
+    (value: 'MEDICAL_TREATMENT', label: ''),
+    (value: 'MAINTENANCE_EXPENSES', label: ''),
+    (value: 'TRAVEL', label: ''),
+    (value: 'SMALL_VALUE_REMITTANCE', label: ''),
+    (value: 'LIBERALIZED_REMITTANCE', label: ''),
+    (value: 'PERSONAL_TRANSFER', label: ''),
+    (value: 'SALARY_PAYMENT', label: ''),
+    (value: 'LOAN_PAYMENT', label: ''),
+    (value: 'TAX_PAYMENT', label: ''),
+    (value: 'UTILITY_BILLS', label: ''),
+    (value: 'PROPERTY_PURCHASE', label: ''),
+    (value: 'PROPERTY_RENTAL', label: ''),
+    (value: 'CONSTRUCTION_EXPENSES', label: ''),
+    (value: 'HOTEL_ACCOMMODATION', label: ''),
+    (value: 'TRANSPORTATION_FEES', label: ''),
+    (value: 'DELIVERY_FEES', label: ''),
+    (value: 'OFFICE_EXPENSES', label: ''),
+    (value: 'ADVERTISING_EXPENSES', label: ''),
+    (value: 'ADVISORY_FEES', label: ''),
+    (value: 'SERVICE_CHARGES', label: ''),
+    (value: 'BUSINESS_INSURANCE', label: ''),
+    (value: 'INSURANCE_CLAIMS', label: ''),
+    (value: 'EXPORTED_GOODS', label: ''),
+    (value: 'SHARES_INVESTMENT', label: ''),
+    (value: 'FUND_INVESTMENT', label: ''),
+    (value: 'ROYALTY_FEES', label: ''),
+    (value: 'COMPUTER_SERVICES', label: ''),
+    (value: 'REWARD_PAYMENT', label: ''),
+    (value: 'INFLUENCER_PAYMENT', label: ''),
+    (value: 'OTHER_FEES', label: ''),
+    (value: 'OTHER', label: ''),
   ];
 
   /// Creates a US bank beneficiary.
@@ -304,37 +301,25 @@ class BeneficiaryRepository {
     final bt = beneficiaryType.toUpperCase();
 
     if (!usBankTransferTypes.contains(t)) {
-      throw ApiError(
-          message: 'Transfer type must be WIRE or ACH.', statusCode: 400);
+      throw ApiError(message: 'E-2602', statusCode: 400);
     }
     if (!usBankAccountTypes.contains(at)) {
-      throw ApiError(
-          message: 'Account type must be CHECKING or SAVINGS.',
-          statusCode: 400);
+      throw ApiError(message: 'E-2603', statusCode: 400);
     }
     if (!usBankBeneficiaryTypes.contains(bt)) {
-      throw ApiError(
-          message: 'Beneficiary type must be INDIVIDUAL or BUSINESS.',
-          statusCode: 400);
+      throw ApiError(message: 'E-2604', statusCode: 400);
     }
     if (t == 'ACH' && bt == 'BUSINESS') {
-      throw ApiError(
-          message:
-              'ACH transfers are only available for individual beneficiaries. Choose Wire for businesses.',
-          statusCode: 400);
+      throw ApiError(message: 'E-2605', statusCode: 400);
     }
 
     final routing = routingNumber.replaceAll(RegExp(r'\D'), '');
     if (routing.length != 9) {
-      throw ApiError(
-          message: 'Routing number must be exactly 9 digits.',
-          statusCode: 400);
+      throw ApiError(message: 'E-2606', statusCode: 400);
     }
     final account = accountNumber.replaceAll(RegExp(r'\D'), '');
     if (account.length < 4 || account.length > 17) {
-      throw ApiError(
-          message: 'Account number must be between 4 and 17 digits.',
-          statusCode: 400);
+      throw ApiError(message: 'E-2607', statusCode: 400);
     }
 
     final body = <String, dynamic>{

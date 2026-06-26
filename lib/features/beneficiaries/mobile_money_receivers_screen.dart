@@ -6,6 +6,7 @@ import 'package:opei/features/beneficiaries/beneficiaries_controller.dart';
 import 'package:opei/features/beneficiaries/mobile_money_beneficiaries_sheet.dart'
     show MobileMoneyAddReceiverSheet;
 import 'package:opei/features/beneficiaries/send/send_amount_screen.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 import 'package:opei/widgets/opei_premium/opei_app_bar.dart';
 
@@ -133,9 +134,10 @@ class _MobileMoneyReceiversScreenState
                                   ),
                                 ),
                                 const SizedBox(height: 1),
-                                const Text(
-                                  'Mobile Money · Receivers',
-                                  style: TextStyle(
+                                Text(
+                                  AppLocalizations.of(context)!
+                                      .mobileMoneyReceiversSubtitle,
+                                  style: const TextStyle(
                                     fontSize: 12.5,
                                     fontWeight: FontWeight.w500,
                                     color: OpeiBrand.inkSecondary,
@@ -166,12 +168,12 @@ class _MobileMoneyReceiversScreenState
 
               // ── Section label ──────────────────────────────────────────
               if (state.items.isNotEmpty)
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                     child: Text(
-                      'SAVED RECEIVERS',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.savedReceiversLabel,
+                      style: const TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: OpeiBrand.inkTertiary,
@@ -262,14 +264,14 @@ class _AddReceiverButton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Add new receiver',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.addNewReceiverTitle,
+                      style: const TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.w700,
                         color: OpeiBrand.primary,
@@ -277,10 +279,11 @@ class _AddReceiverButton extends StatelessWidget {
                         height: 1.1,
                       ),
                     ),
-                    SizedBox(height: 1),
+                    const SizedBox(height: 1),
                     Text(
-                      'Save a number to send money quickly',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!
+                          .mobileMoneyAddReceiverSubtitle,
+                      style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w500,
                         color: OpeiBrand.primary,
@@ -406,9 +409,9 @@ class _ReceiverRow extends StatelessWidget {
                   color: OpeiBrand.primary,
                   borderRadius: BorderRadius.circular(99),
                 ),
-                child: const Text(
-                  'Send',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.dashboardActionSend,
+                  style: const TextStyle(
                     fontSize: 11.5,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -459,9 +462,9 @@ class _EmptyBlock extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text(
-            'No receivers yet',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.mobileMoneyNoReceiversTitle,
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w800,
               color: OpeiBrand.ink,
@@ -469,10 +472,10 @@ class _EmptyBlock extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Save a phone number above to send mobile\nmoney quickly next time.',
+          Text(
+            AppLocalizations.of(context)!.mobileMoneyNoReceiversHint,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: OpeiBrand.inkSecondary,
@@ -512,9 +515,9 @@ class _ErrorBlock extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          const Text(
-            'Couldn\'t load receivers',
-            style: TextStyle(
+          Text(
+            AppLocalizations.of(context)!.couldNotLoadReceivers,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: OpeiBrand.ink,
@@ -543,9 +546,9 @@ class _ErrorBlock extends StatelessWidget {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(99)),
             ),
-            child: const Text(
-              'Try again',
-              style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
+            child: Text(
+              AppLocalizations.of(context)!.tryAgainCta,
+              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
             ),
           ),
         ],

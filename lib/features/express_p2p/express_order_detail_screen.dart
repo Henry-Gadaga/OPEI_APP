@@ -159,9 +159,9 @@ class _ExpressOrderDetailScreenState
             icon: const Icon(Icons.arrow_back_rounded, color: OpeiBrand.ink),
             onPressed: () => Navigator.of(context).maybePop(),
           ),
-          title: const Text(
-            'Deposit',
-            style: TextStyle(
+          title: Text(
+            AppLocalizations.of(context)!.expressDepositTitle,
+            style: const TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -185,7 +185,7 @@ class _ExpressOrderDetailScreenState
 
     if (_order == null) {
       return _CenteredError(
-        message: _error ?? 'Order not found.',
+        message: _error ?? AppLocalizations.of(context)!.expressOrderNotFound,
         onRetry: () => _fetch(initial: true),
       );
     }
@@ -275,7 +275,7 @@ class _ExpressOrderDetailScreenState
         _order = updated;
         _cancelling = false;
       });
-      _toast('Order cancelled.');
+      _toast(AppLocalizations.of(context)!.expressOrderCancelledSnack);
     } on ApiError catch (e) {
       if (!mounted) return;
       setState(() => _cancelling = false);
@@ -326,7 +326,7 @@ class _ExpressOrderDetailScreenState
         _order = updated;
         _openingDispute = false;
       });
-      _toast('Dispute opened. Under admin review.');
+      _toast(AppLocalizations.of(context)!.expressDisputeOpenedUnderReview);
     } on ApiError catch (e) {
       if (!mounted) return;
       setState(() => _openingDispute = false);
@@ -350,15 +350,16 @@ class _ExpressOrderDetailScreenState
   }
 
   Future<void> _handleOrderActionError(ApiError e) async {
+    final l10n = AppLocalizations.of(context)!;
     switch (e.statusCode) {
       case 403:
-        _toast('You are not allowed to perform this action.');
+        _toast(l10n.expressNotAllowedActionError);
         break;
       case 404:
-        _toast('Order no longer exists.');
+        _toast(l10n.expressOrderNoLongerExistsError);
         break;
       case 409:
-        _toast('Order updated by another action. Refreshing...');
+        _toast(l10n.expressOrderUpdatedRefreshInfo);
         await _fetch(initial: true);
         break;
       case 400:
@@ -391,9 +392,9 @@ class _ExpressOrderDetailScreenState
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
         ),
-        title: const Text(
-          'Cancel this order?',
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.expressCancelOrderTitle,
+          style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 17,
             fontWeight: FontWeight.w800,
@@ -402,8 +403,8 @@ class _ExpressOrderDetailScreenState
         ),
         content: Text(
           paidRisk
-              ? 'If you already sent money to the agent and cancel now, that payment may be lost and cannot be recovered in-app. Cancel only if you have NOT paid yet.'
-              : 'This will cancel the order and stop the current express deposit flow.',
+              ? AppLocalizations.of(context)!.expressCancelOrderPaidRisk
+              : AppLocalizations.of(context)!.expressCancelOrderMessage,
           style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
             fontSize: 13.5,
@@ -414,9 +415,9 @@ class _ExpressOrderDetailScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: const Text(
-              'Keep order',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.expressKeepOrderCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 color: OpeiBrand.inkSecondary,
               ),
@@ -431,9 +432,9 @@ class _ExpressOrderDetailScreenState
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text(
-              'Yes, cancel',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.expressYesCancelCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
@@ -464,13 +465,14 @@ class _FindingAgentView extends StatelessWidget {
   });
 
   String _formatRemaining(Duration d) {
-    if (d <= Duration.zero) return 'Expiring…';
+    final l10n = ErrorHelper.l10n;
+    if (d <= Duration.zero) return l10n.expressExpiring;
     final h = d.inHours;
     final m = d.inMinutes % 60;
     final s = d.inSeconds % 60;
-    if (h > 0) return 'Expires in ${h}h ${m}m';
-    if (m > 0) return 'Expires in ${m}m ${s}s';
-    return 'Expires in ${s}s';
+    if (h > 0) return l10n.expressExpiresInHoursMinutes(h, m);
+    if (m > 0) return l10n.expressExpiresInMinutesSeconds(m, s);
+    return l10n.expressExpiresInSeconds(s);
   }
 
   @override
@@ -499,10 +501,10 @@ class _FindingAgentView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Order placed',
+              Text(
+                AppLocalizations.of(context)!.expressOrderPlacedTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 21,
                   fontWeight: FontWeight.w800,
@@ -511,10 +513,10 @@ class _FindingAgentView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                "We're looking for an agent for you now. Once matched, you'll be notified and can continue payment.",
+              Text(
+                AppLocalizations.of(context)!.expressOrderPlacedMessage,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 13.5,
                   color: OpeiBrand.inkSecondary,
@@ -565,9 +567,9 @@ class _FindingAgentView extends StatelessWidget {
                               color: OpeiBrand.danger,
                             ),
                           )
-                        : const Text(
-                            'Cancel order',
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)!.expressCancelOrderCta,
+                            style: const TextStyle(
                               fontFamily: kPrimaryFontFamily,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -589,9 +591,9 @@ class _FindingAgentView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                     ),
                   ),
-                  child: const Text(
-                    'View my orders',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.expressViewMyOrdersCta,
+                    style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 14.5,
                       fontWeight: FontWeight.w700,
@@ -647,9 +649,9 @@ class _PayAgentView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Pay your agent',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.expressPayYourAgentTitle,
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -659,7 +661,9 @@ class _PayAgentView extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Send exactly ${expressFiat(order.fiatAmountCents, order.quoteCurrency)} to the account below, then upload your proof.',
+                      AppLocalizations.of(context)!.expressSendExactlyMessage(
+                        expressFiat(order.fiatAmountCents, order.quoteCurrency),
+                      ),
                       style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 13,
@@ -726,8 +730,8 @@ class _PayAgentView extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Pay outside the app, then upload a screenshot or receipt as proof of payment.',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.expressPayOutsideHint,
+                      style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
                         fontSize: 12.5,
                         color: OpeiBrand.inkTertiary,
@@ -769,9 +773,9 @@ class _PayAgentView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                     ),
                   ),
-                  child: const Text(
-                    "I've paid — upload proof",
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.expressIvePaidUploadProofCta,
+                    style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -805,9 +809,9 @@ class _PayAgentView extends StatelessWidget {
                               color: OpeiBrand.danger,
                             ),
                           )
-                        : const Text(
-                            'Cancel order',
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)!.expressCancelOrderCta,
+                            style: const TextStyle(
                               fontFamily: kPrimaryFontFamily,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -867,10 +871,10 @@ class _VerifyingView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Payment submitted',
+              Text(
+                AppLocalizations.of(context)!.expressPaymentSubmittedTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -879,10 +883,10 @@ class _VerifyingView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Your proof has been sent. Please wait while the agent confirms payment. Once approved, USD will be added to your wallet.',
+              Text(
+                AppLocalizations.of(context)!.expressPaymentSubmittedMessage,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 13.5,
                   color: OpeiBrand.inkSecondary,
@@ -928,9 +932,9 @@ class _VerifyingView extends StatelessWidget {
                               color: Colors.white,
                             ),
                           )
-                        : const Text(
-                            'Open dispute',
-                            style: TextStyle(
+                        : Text(
+                            AppLocalizations.of(context)!.expressOpenDisputeCta,
+                            style: const TextStyle(
                               fontFamily: kPrimaryFontFamily,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -952,9 +956,9 @@ class _VerifyingView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                     ),
                   ),
-                  child: const Text(
-                    'View my orders',
-                    style: TextStyle(
+                  child: Text(
+                    AppLocalizations.of(context)!.expressViewMyOrdersCta,
+                    style: const TextStyle(
                       fontFamily: kPrimaryFontFamily,
                       fontSize: 14.5,
                       fontWeight: FontWeight.w700,
@@ -1003,10 +1007,10 @@ class _DisputedView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 22),
-              const Text(
-                'Dispute opened',
+              Text(
+                AppLocalizations.of(context)!.expressDisputeOpenedTitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -1014,10 +1018,10 @@ class _DisputedView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Under review by admin. We will notify you when this is resolved.',
+              Text(
+                AppLocalizations.of(context)!.expressDisputeUnderReviewMessage,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 13.5,
                   color: OpeiBrand.inkSecondary,
@@ -1060,9 +1064,9 @@ class _DisputedView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                 ),
               ),
-              child: const Text(
-                'View my orders',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.expressViewMyOrdersCta,
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 14.5,
                   fontWeight: FontWeight.w700,
@@ -1114,7 +1118,8 @@ class _SuccessView extends StatelessWidget {
               ),
               const SizedBox(height: 22),
               Text(
-                '${expressUsd(order.amountUsdCents)} added',
+                AppLocalizations.of(context)!
+                    .expressAmountAddedTitle(expressUsd(order.amountUsdCents)),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
@@ -1125,10 +1130,10 @@ class _SuccessView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Your deposit is complete and the funds are now in your Opei wallet.',
+              Text(
+                AppLocalizations.of(context)!.expressDepositCompleteMessage,
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 13.5,
                   color: OpeiBrand.inkSecondary,
@@ -1159,9 +1164,9 @@ class _SuccessView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                 ),
               ),
-              child: const Text(
-                'Done',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.doneCta,
+                style: const TextStyle(
                   fontFamily: kPrimaryFontFamily,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -1208,8 +1213,8 @@ class _TerminalView extends StatelessWidget {
         const SizedBox(height: 22),
         Text(
           order.status == ExpressOrderStatus.expired
-              ? 'Order expired'
-              : 'Order cancelled',
+              ? AppLocalizations.of(context)!.expressOrderExpiredTitle
+              : AppLocalizations.of(context)!.expressOrderCancelledTitle,
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
@@ -1223,9 +1228,9 @@ class _TerminalView extends StatelessWidget {
         Text(
           order.status == ExpressOrderStatus.expired
               ? (order.agent == null
-                    ? 'No agent accepted this order in time. You can start a new deposit.'
-                    : 'This order expired before completion. You can start a new deposit.')
-              : 'This order was cancelled. You can start a new deposit.',
+                    ? AppLocalizations.of(context)!.expressNoAgentAcceptedOrderMessage
+                    : AppLocalizations.of(context)!.expressOrderExpiredBeforeCompletionMessage)
+              : AppLocalizations.of(context)!.expressOrderCancelledStartNewDepositMessage,
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontFamily: kPrimaryFontFamily,
@@ -1416,9 +1421,9 @@ class _ContactCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            child: const Text(
-              'Call',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.callCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
@@ -1511,18 +1516,18 @@ class _DisputeSheetState extends State<_DisputeSheet> {
           _images.add(file);
         }
         _error = _images.length > _maxImages
-            ? 'You can attach up to $_maxImages images.'
+            ? AppLocalizations.of(context)!.expressAttachUpToImagesError(_maxImages)
             : null;
       });
     } catch (_) {
-      setState(() => _error = 'Could not pick images.');
+      setState(() => _error = AppLocalizations.of(context)!.expressCouldNotPickImages);
     }
   }
 
   void _submit() {
     final message = _messageController.text.trim();
     if (message.isEmpty) {
-      setState(() => _error = 'Dispute message is required.');
+      setState(() => _error = AppLocalizations.of(context)!.expressDisputeMessageRequired);
       return;
     }
     Navigator.of(context).pop(
@@ -1557,9 +1562,9 @@ class _DisputeSheetState extends State<_DisputeSheet> {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Open dispute',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.expressOpenDisputeCta,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -1567,9 +1572,9 @@ class _DisputeSheetState extends State<_DisputeSheet> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Tell us what happened. You can add proof screenshots (optional).',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.expressDisputeSheetSubtitle,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 13,
                 color: OpeiBrand.inkSecondary,
@@ -1628,9 +1633,9 @@ class _DisputeSheetState extends State<_DisputeSheet> {
                     borderRadius: BorderRadius.circular(OpeiBrand.radiusCard),
                   ),
                 ),
-                child: const Text(
-                  'Submit dispute',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.p2pSubmitDisputeCta,
+                  style: const TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -1688,9 +1693,9 @@ class _CenteredError extends StatelessWidget {
                   color: OpeiBrand.primaryTint,
                   borderRadius: BorderRadius.circular(999),
                 ),
-                child: const Text(
-                  'Try again',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.tryAgainCta,
+                  style: const TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -1748,13 +1753,13 @@ class _MarkPaidSheetState extends State<_MarkPaidSheet> {
           _images.add(f);
         }
         if (picked.length + _images.length > _maxImages) {
-          _error = 'You can upload up to $_maxImages images.';
+          _error = AppLocalizations.of(context)!.expressAttachUpToImagesError(_maxImages);
         } else {
           _error = null;
         }
       });
     } catch (_) {
-      setState(() => _error = 'Could not pick images. Please try again.');
+      setState(() => _error = AppLocalizations.of(context)!.expressCouldNotPickImagesTryAgain);
     }
   }
 
@@ -1840,9 +1845,9 @@ class _MarkPaidSheetState extends State<_MarkPaidSheet> {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'Upload payment proof',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.expressUploadProofTitle,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -1851,9 +1856,9 @@ class _MarkPaidSheetState extends State<_MarkPaidSheet> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
-              'Add a screenshot or receipt of your payment (up to 3 images).',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.expressUploadProofSubtitle,
+              style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 13,
                 color: OpeiBrand.inkSecondary,
@@ -1929,9 +1934,9 @@ class _MarkPaidSheetState extends State<_MarkPaidSheet> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text(
-                        'Submit payment',
-                        style: TextStyle(
+                    : Text(
+                        AppLocalizations.of(context)!.expressSubmitPaymentCta,
+                        style: const TextStyle(
                           fontFamily: kPrimaryFontFamily,
                           fontSize: 15,
                           fontWeight: FontWeight.w700,

@@ -17,7 +17,7 @@ class SendMoneyNotifier extends Notifier<SendMoneyState> {
     final cleanEmail = email.trim().toLowerCase();
     
     if (cleanEmail.isEmpty) {
-      state = state.copyWith(errorMessage: 'Please enter an email address');
+      state = state.copyWith(errorMessage: ErrorHelper.l10n.sendMoneyEnterEmailError);
       return false;
     }
     
@@ -47,12 +47,12 @@ class SendMoneyNotifier extends Notifier<SendMoneyState> {
 
   Future<bool> previewTransfer(Money amount) async {
     if (state.lookupResult == null) {
-      state = state.copyWith(errorMessage: 'No recipient selected');
+      state = state.copyWith(errorMessage: ErrorHelper.l10n.sendMoneyRecipientRequiredError);
       return false;
     }
 
     if (amount.cents <= 0) {
-      state = state.copyWith(errorMessage: 'Please enter a valid amount');
+      state = state.copyWith(errorMessage: ErrorHelper.l10n.sendMoneyValidAmountError);
       return false;
     }
 
@@ -92,7 +92,7 @@ class SendMoneyNotifier extends Notifier<SendMoneyState> {
 
   Future<bool> confirmTransfer() async {
     if (state.lookupResult == null || state.amount == null) {
-      state = state.copyWith(errorMessage: 'Invalid transfer details');
+      state = state.copyWith(errorMessage: ErrorHelper.l10n.sendMoneyInvalidTransferDetailsError);
       return false;
     }
 
@@ -111,7 +111,9 @@ class SendMoneyNotifier extends Notifier<SendMoneyState> {
         state.lookupResult!.userId,
         state.amount!,
         idempotencyKey,
-        description: 'Transfer to ${state.lookupResult!.bestDisplayName}',
+        description: ErrorHelper.l10n.sendMoneyTransferToDescription(
+          state.lookupResult!.bestDisplayName,
+        ),
         expectedSenderBalanceAfter: expectedBalanceAfter,
       );
       

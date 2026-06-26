@@ -1,4 +1,5 @@
 import 'package:opei/core/money/money.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/p2p_ad.dart';
 
 DateTime? _parseDate(dynamic value) {
@@ -54,11 +55,11 @@ enum P2PTradeStatus {
   String get displayLabel {
     switch (this) {
       case P2PTradeStatus.initiated:
-        return 'Pending payment';
+        return ErrorHelper.l10n.p2pTradeStatusPendingPayment;
       case P2PTradeStatus.paidByBuyer:
-        return 'Pending release';
+        return ErrorHelper.l10n.p2pTradeStatusPendingRelease;
       case P2PTradeStatus.releasedBySeller:
-        return 'Release confirmed';
+        return ErrorHelper.l10n.p2pTradeStatusReleaseConfirmed;
       default:
         return apiValue
             .split('_')
@@ -126,10 +127,10 @@ class P2PTradePaymentMethod {
     if (json == null) {
       return P2PTradePaymentMethod(
         id: '',
-        providerName: 'Unknown method',
+        providerName: ErrorHelper.l10n.p2pUnknownMethodLabel,
         methodType: 'OTHER',
         currency: fallbackCurrency,
-        accountName: 'Account',
+        accountName: ErrorHelper.l10n.p2pAccountLabel,
         accountNumber: '',
         accountNumberMasked: null,
         extraDetails: null,
@@ -152,12 +153,12 @@ class P2PTradePaymentMethod {
     return P2PTradePaymentMethod(
       id: resolveString(json['id']),
       providerName: resolveString(json['providerName']).isEmpty
-          ? 'Unknown method'
+          ? ErrorHelper.l10n.p2pUnknownMethodLabel
           : resolveString(json['providerName']),
       methodType: methodType.isEmpty ? 'OTHER' : methodType,
       currency: currencyRaw.isEmpty ? fallbackCurrency : currencyRaw.toUpperCase(),
       accountName: resolveString(json['accountName']).isEmpty
-          ? 'Account'
+          ? ErrorHelper.l10n.p2pAccountLabel
           : resolveString(json['accountName']),
       accountNumber: accountNumber,
       accountNumberMasked: accountNumberMasked,
@@ -217,7 +218,8 @@ class P2PTradeAdSummary {
     );
   }
 
-  String get typeLabel => type == P2PAdType.sell ? 'Sell' : 'Buy';
+  String get typeLabel =>
+      type == P2PAdType.sell ? ErrorHelper.l10n.p2pSideSell : ErrorHelper.l10n.p2pSideBuy;
 }
 
 class P2PTradeProof {
@@ -523,9 +525,9 @@ class P2PTrade {
   String get roleLabel {
     switch (ad.type) {
       case P2PAdType.buy:
-        return 'Seller';
+        return ErrorHelper.l10n.p2pSellerLabel;
       case P2PAdType.sell:
-        return 'Buyer';
+        return ErrorHelper.l10n.p2pBuyerLabel;
     }
   }
 

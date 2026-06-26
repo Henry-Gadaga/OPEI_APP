@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/network/api_error.dart';
 import 'package:opei/core/providers/providers.dart';
+import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/core/utils/retry_helper.dart';
 import 'package:opei/features/auth/verify_email/verify_email_state.dart';
 
@@ -63,7 +64,7 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
       debugPrint('❌ Unexpected send error: $e');
       state = state.copyWith(
         isResending: false,
-        errorMessage: 'Failed to send code',
+        errorMessage: ErrorHelper.l10n.verifyEmailFailedToSendCodeError,
         resendCountdown: 0,
       );
       return false;
@@ -125,11 +126,11 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
 
       String errorMessage;
       if (e.statusCode == 400) {
-        errorMessage = 'Invalid or expired code';
+        errorMessage = ErrorHelper.l10n.verifyEmailInvalidOrExpiredCodeError;
       } else if (e.statusCode == 404) {
-        errorMessage = 'User not found';
+        errorMessage = ErrorHelper.l10n.verifyEmailUserNotFoundError;
       } else if (e.statusCode == 500) {
-        errorMessage = 'Server error. Try again';
+        errorMessage = ErrorHelper.l10n.verifyEmailServerErrorTryAgain;
       } else {
         errorMessage = e.message;
       }
@@ -145,7 +146,7 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
       debugPrint('❌ Unexpected verification error: $e');
       state = state.copyWith(
         isVerifying: false,
-        errorMessage: 'Unexpected error occurred',
+        errorMessage: ErrorHelper.l10n.verifyEmailUnexpectedError,
         codeDigits: List.filled(6, ''),
       );
       return false;
@@ -193,7 +194,7 @@ class VerifyEmailNotifier extends Notifier<VerifyEmailState> {
       debugPrint('❌ Unexpected resend error: $e');
       state = state.copyWith(
         isResending: false,
-        errorMessage: 'Failed to resend code',
+        errorMessage: ErrorHelper.l10n.verifyEmailFailedToResendCodeError,
         resendCountdown: 0,
       );
       return false;

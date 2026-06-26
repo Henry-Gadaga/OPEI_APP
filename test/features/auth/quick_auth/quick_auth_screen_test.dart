@@ -14,6 +14,7 @@ import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_controller.
 import 'package:opei/features/auth/quick_auth_setup/quick_auth_setup_state.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
 import 'package:opei/features/dashboard/dashboard_state.dart';
+import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 class _MockQuickAuthService extends Mock implements QuickAuthService {}
@@ -203,9 +204,21 @@ Future<void> _pumpQuickAuthScreen(
       ],
     );
     addTearDown(router.dispose);
-    app = MaterialApp.router(theme: theme, routerConfig: router);
+    app = MaterialApp.router(
+      theme: theme,
+      routerConfig: router,
+      locale: const Locale('en'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+    );
   } else {
-    app = MaterialApp(theme: theme, home: const QuickAuthScreen());
+    app = MaterialApp(
+      theme: theme,
+      home: const QuickAuthScreen(),
+      locale: const Locale('en'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+    );
   }
 
   await tester.pumpWidget(
