@@ -334,7 +334,10 @@ class _DialCountrySheetState extends State<_DialCountrySheet> {
       _filtered = _baseList()
           .where((c) {
             final dial = kDialCodes[c.iso]!;
-            return c.name.toLowerCase().contains(ql) ||
+            return localizedCountryName(
+                  c,
+                  AppLocalizations.of(context)!,
+                ).toLowerCase().contains(ql) ||
                 c.iso.toLowerCase().contains(ql) ||
                 dial.dialCode.contains(ql.replaceAll('+', ''));
           })
@@ -428,7 +431,10 @@ class _DialCountrySheetState extends State<_DialCountrySheet> {
                           const SizedBox(width: 14),
                           Expanded(
                             child: Text(
-                              country.name,
+                              localizedCountryName(
+                                country,
+                                AppLocalizations.of(context)!,
+                              ),
                               style: TextStyle(
                                 fontFamily: kPrimaryFontFamily,
                                 fontSize: 15,

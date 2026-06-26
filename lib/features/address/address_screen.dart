@@ -600,7 +600,10 @@ class _CountryPickerField extends StatelessWidget {
                 Expanded(
                   child: Text(
                     hasValue
-                        ? selectedCountry!.name
+                        ? localizedCountryName(
+                            selectedCountry!,
+                            AppLocalizations.of(context)!,
+                          )
                         : AppLocalizations.of(
                             context,
                           )!.addressSelectCountryHint,
@@ -685,7 +688,10 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
         _filtered = allowedCountries
             .where(
               (c) =>
-                  c.name.toLowerCase().contains(ql) ||
+                  localizedCountryName(
+                    c,
+                    AppLocalizations.of(context)!,
+                  ).toLowerCase().contains(ql) ||
                   c.iso.toLowerCase().contains(ql),
             )
             .toList();
@@ -793,7 +799,10 @@ class _CountryPickerSheetState extends State<_CountryPickerSheet> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              country.name,
+                              localizedCountryName(
+                                country,
+                                AppLocalizations.of(context)!,
+                              ),
                               style: TextStyle(
                                 fontFamily: kPrimaryFontFamily,
                                 fontSize: 15,

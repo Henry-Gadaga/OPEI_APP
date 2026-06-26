@@ -12,7 +12,7 @@ class AddressNotifier extends Notifier<AddressState> {
   AddressState build() => AddressState();
 
   void setCountry(Country country) {
-    debugPrint('📍 Country selected: ${country.name} (${country.iso})');
+    debugPrint('📍 Country selected: ${country.iso}');
     var fieldErrors = _clearFieldError('country');
     if (country.iso != 'NG') {
       fieldErrors = _clearFieldError('bvn', fieldErrors);
