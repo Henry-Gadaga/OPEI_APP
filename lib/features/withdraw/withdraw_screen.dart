@@ -9,6 +9,7 @@ import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/features/beneficiaries/bank_transfer_country_sheet.dart';
 import 'package:opei/features/beneficiaries/mobile_money_receivers_screen.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/features/withdraw/withdraw_controller.dart';
 import 'package:opei/features/withdraw/withdraw_state.dart';
 import 'package:opei/l10n/app_localizations.dart';
@@ -18,13 +19,17 @@ import 'package:opei/theme.dart';
 import 'package:opei/widgets/reference_copy_value.dart';
 import 'package:opei/widgets/success_hero.dart';
 
-class WithdrawOptionsSheet extends StatelessWidget {
+class WithdrawOptionsSheet extends ConsumerWidget {
   const WithdrawOptionsSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final withdrawal = availability.withdrawal;
 
     return Container(
       decoration: const BoxDecoration(
@@ -73,35 +78,40 @@ class WithdrawOptionsSheet extends StatelessWidget {
 
           // ── Options ─────────────────────────────────────
           const _RowDivider(),
-          _WithdrawRow(
-            title: l10n.withdrawMobileMoneyTitle,
-            subtitle: l10n.withdrawMobileMoneySubtitle,
-            onTap: () {
-              Navigator.of(context).pop();
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => const _MobileMoneyCountrySheet(),
-              );
-            },
-          ),
-          const _RowDivider(),
-          _WithdrawRow(
-            title: l10n.withdrawBankTransferTitle,
-            subtitle: l10n.withdrawBankTransferSubtitle,
-            onTap: () {
-              Navigator.of(context).pop();
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => const BankTransferCountrySheet(),
-              );
-            },
-          ),
-          const _RowDivider(),
-          if (FeatureFlags.enableClassicP2P) ...[
+          if (withdrawal.mobileMoney.enabled) ...[
+            _WithdrawRow(
+              title: l10n.withdrawMobileMoneyTitle,
+              subtitle: l10n.withdrawMobileMoneySubtitle,
+              onTap: () {
+                Navigator.of(context).pop();
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => const _MobileMoneyCountrySheet(),
+                );
+              },
+            ),
+            const _RowDivider(),
+          ],
+          if (withdrawal.bankTransfer.enabled) ...[
+            _WithdrawRow(
+              title: l10n.withdrawBankTransferTitle,
+              subtitle: l10n.withdrawBankTransferSubtitle,
+              onTap: () {
+                Navigator.of(context).pop();
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (_) => const BankTransferCountrySheet(),
+                );
+              },
+            ),
+            const _RowDivider(),
+          ],
+          if (FeatureFlags.enableClassicP2P &&
+              withdrawal.classicP2P.enabled) ...[
             _WithdrawRow(
               title: l10n.withdrawP2PExchangeTitle,
               subtitle: l10n.withdrawP2PExchangeSubtitle,
@@ -115,15 +125,17 @@ class WithdrawOptionsSheet extends StatelessWidget {
             ),
             const _RowDivider(),
           ],
-          _WithdrawRow(
-            title: l10n.depositStablecoinTitle,
-            subtitle: l10n.withdrawStablecoinSubtitle,
-            onTap: () {
-              context.pop();
-              context.push('/withdraw/crypto-currency');
-            },
-          ),
-          const _RowDivider(),
+          if (withdrawal.crypto.enabled) ...[
+            _WithdrawRow(
+              title: l10n.depositStablecoinTitle,
+              subtitle: l10n.withdrawStablecoinSubtitle,
+              onTap: () {
+                context.pop();
+                context.push('/withdraw/crypto-currency');
+              },
+            ),
+            const _RowDivider(),
+          ],
 
           SizedBox(height: 16 + bottomPadding),
         ],
@@ -136,13 +148,16 @@ class WithdrawOptionsSheet extends StatelessWidget {
 // MOBILE MONEY — COUNTRY SELECTION SHEET
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _MobileMoneyCountrySheet extends StatelessWidget {
+class _MobileMoneyCountrySheet extends ConsumerWidget {
   const _MobileMoneyCountrySheet();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final countries = [
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final supportedCountries = [
       ('🇬🇭', l10n.mobileMoneyCountryGhana, 'GH'),
       ('🇰🇪', l10n.mobileMoneyCountryKenya, 'KE'),
       ('🇺🇬', l10n.mobileMoneyCountryUganda, 'UG'),
@@ -155,6 +170,12 @@ class _MobileMoneyCountrySheet extends StatelessWidget {
       ('🇬🇲', l10n.mobileMoneyCountryGambia, 'GM'),
       ('🇿🇲', l10n.mobileMoneyCountryZambia, 'ZM'),
     ];
+    final countries = supportedCountries
+        .where(
+          (country) =>
+              availability.withdrawal.mobileMoney.isCountryEnabled(country.$3),
+        )
+        .toList(growable: false);
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
     final maxHeight = MediaQuery.of(context).size.height * 0.82;
 
@@ -479,6 +500,12 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final cryptoAvailability = availability.withdrawal.crypto;
+    final showUsdt = cryptoAvailability.isAssetEnabled('USDT');
+    final showUsdc = cryptoAvailability.isAssetEnabled('USDC');
 
     return ResponsiveScaffold(
       useSafeArea: false,
@@ -516,36 +543,47 @@ class WithdrawCurrencySelectionScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(height: spacing * 2.5),
-            _CurrencyOption(
-              currency: 'USDT',
-              name: AppLocalizations.of(context)!.tokenTetherName,
-              networksLabel:
-                  '${AppLocalizations.of(context)!.cryptoNetworkShortTron} • '
-                  '${AppLocalizations.of(context)!.cryptoNetworkShortPolygon} • '
-                  '${AppLocalizations.of(context)!.cryptoNetworkShortEthereum} • '
-                  '${AppLocalizations.of(context)!.cryptoNetworkShortBsc}',
-              onTap: () {
-                ref
-                    .read(withdrawControllerProvider.notifier)
-                    .setCurrency('USDT');
-                context.push('/withdraw/crypto-network', extra: 'USDT');
-              },
-            ),
-            SizedBox(height: spacing * 0.5),
-            _CurrencyOption(
-              currency: 'USDC',
-              name: AppLocalizations.of(context)!.tokenUsdCoinName,
-              networksLabel:
-                  '${AppLocalizations.of(context)!.cryptoNetworkShortPolygon} • '
-                  '${AppLocalizations.of(context)!.cryptoNetworkShortEthereum} • '
-                  '${AppLocalizations.of(context)!.cryptoNetworkShortBsc}',
-              onTap: () {
-                ref
-                    .read(withdrawControllerProvider.notifier)
-                    .setCurrency('USDC');
-                context.push('/withdraw/crypto-network', extra: 'USDC');
-              },
-            ),
+            if (showUsdt) ...[
+              _CurrencyOption(
+                currency: 'USDT',
+                name: AppLocalizations.of(context)!.tokenTetherName,
+                networksLabel:
+                    '${AppLocalizations.of(context)!.cryptoNetworkShortTron} • '
+                    '${AppLocalizations.of(context)!.cryptoNetworkShortPolygon} • '
+                    '${AppLocalizations.of(context)!.cryptoNetworkShortEthereum} • '
+                    '${AppLocalizations.of(context)!.cryptoNetworkShortBsc}',
+                onTap: () {
+                  ref
+                      .read(withdrawControllerProvider.notifier)
+                      .setCurrency('USDT');
+                  context.push('/withdraw/crypto-network', extra: 'USDT');
+                },
+              ),
+              SizedBox(height: spacing * 0.5),
+            ],
+            if (showUsdc)
+              _CurrencyOption(
+                currency: 'USDC',
+                name: AppLocalizations.of(context)!.tokenUsdCoinName,
+                networksLabel:
+                    '${AppLocalizations.of(context)!.cryptoNetworkShortPolygon} • '
+                    '${AppLocalizations.of(context)!.cryptoNetworkShortEthereum} • '
+                    '${AppLocalizations.of(context)!.cryptoNetworkShortBsc}',
+                onTap: () {
+                  ref
+                      .read(withdrawControllerProvider.notifier)
+                      .setCurrency('USDC');
+                  context.push('/withdraw/crypto-network', extra: 'USDC');
+                },
+              ),
+            if (!showUsdt && !showUsdc)
+              Text(
+                AppLocalizations.of(context)!.errServiceUnavailable,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 13,
+                  color: OpeiBrand.inkSecondary,
+                ),
+              ),
           ],
         ),
       ),
@@ -696,6 +734,17 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
     final notifier = ref.read(withdrawControllerProvider.notifier);
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final networks = _networks
+        .where(
+          (network) => availability.withdrawal.crypto.isNetworkEnabled(
+            currency,
+            network,
+          ),
+        )
+        .toList(growable: false);
 
     return ResponsiveScaffold(
       useSafeArea: false,
@@ -726,29 +775,39 @@ class WithdrawNetworkSelectionScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!
-                  .withdrawChooseNetworkSubtitle(currency),
+              AppLocalizations.of(
+                context,
+              )!.withdrawChooseNetworkSubtitle(currency),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontSize: 15,
                 color: OpeiColors.iosLabelSecondary,
               ),
             ),
             SizedBox(height: spacing * 2.5),
-            ..._networks.map(
-              (network) => Padding(
-                padding: EdgeInsets.only(bottom: spacing * 0.75),
-                child: _NetworkOption(
-                  network: network,
-                  onTap: () {
-                    notifier.setNetwork(network);
-                    context.push(
-                      '/withdraw/crypto-form',
-                      extra: {'currency': currency, 'network': network},
-                    );
-                  },
+            if (networks.isEmpty)
+              Text(
+                AppLocalizations.of(context)!.errServiceUnavailable,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 13,
+                  color: OpeiBrand.inkSecondary,
+                ),
+              )
+            else
+              ...networks.map(
+                (network) => Padding(
+                  padding: EdgeInsets.only(bottom: spacing * 0.75),
+                  child: _NetworkOption(
+                    network: network,
+                    onTap: () {
+                      notifier.setNetwork(network);
+                      context.push(
+                        '/withdraw/crypto-form',
+                        extra: {'currency': currency, 'network': network},
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -1335,8 +1394,9 @@ class _SummaryPill extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!
-                      .withdrawCurrencyWithdrawalLabel(currency),
+                  AppLocalizations.of(
+                    context,
+                  )!.withdrawCurrencyWithdrawalLabel(currency),
                   style: textTheme.titleMedium?.copyWith(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,

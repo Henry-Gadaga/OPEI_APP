@@ -11,9 +11,11 @@ import 'package:opei/data/models/virtual_card.dart';
 import 'package:opei/data/repositories/card_repository.dart';
 import 'package:opei/features/cards/card_creation_state.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 
 class CardCreationController extends Notifier<CardCreationState> {
-  static String get _cardReadyMessage => ErrorHelper.l10n.cardsCreationReadyContinueInfo;
+  static String get _cardReadyMessage =>
+      ErrorHelper.l10n.cardsCreationReadyContinueInfo;
   static String get _completeProfileMessage =>
       ErrorHelper.l10n.cardsCreationCompleteProfileError;
   static String get _genericTryAgainMessage => ErrorHelper.l10n.errGenericRetry;
@@ -35,6 +37,17 @@ class CardCreationController extends Notifier<CardCreationState> {
   }
 
   Future<void> startRegistration() async {
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.creation.enabled) {
+      state = state.copyWith(
+        stage: CardCreationStage.registering,
+        isBusy: false,
+        errorMessage: ErrorHelper.l10n.errServiceUnavailable,
+        clearInfo: true,
+      );
+      return;
+    }
+
     debugPrint('💳 Starting card registration flow...');
     state = state.copyWith(
       stage: CardCreationStage.registering,
@@ -95,6 +108,16 @@ class CardCreationController extends Notifier<CardCreationState> {
   }
 
   Future<void> loadPreview(Money amount) async {
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.creation.enabled) {
+      state = state.copyWith(
+        isBusy: false,
+        errorMessage: ErrorHelper.l10n.errServiceUnavailable,
+        clearInfo: true,
+      );
+      return;
+    }
+
     if (amount.cents <= 0) {
       state = state.copyWith(
         errorMessage: ErrorHelper.l10n.cardsCreationAmountAboveZeroError,
@@ -141,6 +164,17 @@ class CardCreationController extends Notifier<CardCreationState> {
   }
 
   Future<void> submitCreation() async {
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.creation.enabled) {
+      state = state.copyWith(
+        stage: CardCreationStage.preview,
+        isBusy: false,
+        errorMessage: ErrorHelper.l10n.errServiceUnavailable,
+        clearInfo: true,
+      );
+      return;
+    }
+
     final currentPreview = state.preview;
     final amount = state.amount;
 
@@ -247,8 +281,7 @@ class CardCreationController extends Notifier<CardCreationState> {
 
       state = state.copyWith(
         isBusy: false,
-        infoMessage:
-            ErrorHelper.l10n.cardsCreationReadyAppearSoonInfo,
+        infoMessage: ErrorHelper.l10n.cardsCreationReadyAppearSoonInfo,
       );
     }
   }

@@ -17,6 +17,7 @@ import 'package:opei/features/cards/create_virtual_card_flow.dart';
 import 'package:opei/features/cards/card_topup_sheet.dart';
 import 'package:opei/features/cards/card_withdraw_sheet.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
@@ -63,6 +64,10 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final cardsState = ref.watch(cardsControllerProvider);
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final cardAvailability = availability.cards;
     final isInitialLoading = cardsState.isLoading && !cardsState.hasLoaded;
     final rawError = cardsState.error;
     final normalizedError = rawError?.trim() ?? '';
@@ -87,7 +92,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
     final showBlockingLoader =
         cardsState.isLoading && cardsState.cards.isEmpty && !showErrorState;
     final showHeaderCreateButton =
-        cardsState.hasLoaded && !cardsState.isLoading;
+        cardsState.hasLoaded &&
+        !cardsState.isLoading &&
+        cardAvailability.creation.enabled;
 
     final platform = Theme.of(context).platform;
     final isCupertino =
@@ -229,6 +236,9 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                             onTerminateTap: () =>
                                 _handleTerminateCard(selectedCard),
                             isBusy: isBusy,
+                            topUpEnabled: cardAvailability.topUp.enabled,
+                            withdrawEnabled:
+                                cardAvailability.withdrawal.enabled,
                           );
                         },
                       ),
@@ -246,7 +256,10 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
                     const _CardsLoadingPlaceholder(),
                     SizedBox(height: spacing * 3),
                   ] else if (showEmptyState) ...[
-                    _CardsEmptyState(onCreateCard: _startCardCreationFlow),
+                    _CardsEmptyState(
+                      onCreateCard: _startCardCreationFlow,
+                      creationEnabled: cardAvailability.creation.enabled,
+                    ),
                     SizedBox(height: spacing * 2),
                   ] else ...[
                     SizedBox(height: spacing * 1.5),
@@ -271,6 +284,12 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
 
   Future<void> _startCardCreationFlow() async {
     final l10n = AppLocalizations.of(context)!;
+    final availability = availabilityFromWidgetRef(ref);
+    if (!availability.cards.creation.enabled) {
+      showError(context, l10n.errServiceUnavailable);
+      return;
+    }
+
     final creation = await Navigator.of(
       context,
     ).push<PromoCardCreateResult?>(_buildCreateCardFlowRoute());
@@ -415,12 +434,15 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
 
   Future<void> _handleTopUp(VirtualCard card) async {
     final l10n = AppLocalizations.of(context)!;
+    final availability = availabilityFromWidgetRef(ref);
+    if (!availability.cards.topUp.enabled) {
+      showError(context, l10n.errServiceUnavailable);
+      return;
+    }
+
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
-      showError(
-        context,
-        l10n.cardsNotFoundError,
-      );
+      showError(context, l10n.cardsNotFoundError);
       return;
     }
 
@@ -433,12 +455,15 @@ class _CardsScreenState extends ConsumerState<CardsScreen> {
 
   Future<void> _handleWithdraw(VirtualCard card) async {
     final l10n = AppLocalizations.of(context)!;
+    final availability = availabilityFromWidgetRef(ref);
+    if (!availability.cards.withdrawal.enabled) {
+      showError(context, l10n.errServiceUnavailable);
+      return;
+    }
+
     final cardId = card.id.trim();
     if (cardId.isEmpty) {
-      showError(
-        context,
-        l10n.cardsNotFoundError,
-      );
+      showError(context, l10n.cardsNotFoundError);
       return;
     }
 
@@ -1989,7 +2014,12 @@ class _CardStatusPill extends StatelessWidget {
 
 class _CardsEmptyState extends StatelessWidget {
   final VoidCallback onCreateCard;
-  const _CardsEmptyState({required this.onCreateCard});
+  final bool creationEnabled;
+
+  const _CardsEmptyState({
+    required this.onCreateCard,
+    required this.creationEnabled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2056,10 +2086,12 @@ class _CardsEmptyState extends StatelessWidget {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: onCreateCard,
+            onPressed: creationEnabled ? onCreateCard : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: OpeiBrand.primaryTint,
               foregroundColor: OpeiBrand.primary,
+              disabledBackgroundColor: OpeiBrand.surfaceMuted,
+              disabledForegroundColor: OpeiBrand.inkTertiary,
               elevation: 0,
               shadowColor: Colors.transparent,
               padding: const EdgeInsets.symmetric(vertical: 15),
@@ -2070,7 +2102,13 @@ class _CardsEmptyState extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add_rounded, size: 18, color: OpeiBrand.primary),
+                Icon(
+                  Icons.add_rounded,
+                  size: 18,
+                  color: creationEnabled
+                      ? OpeiBrand.primary
+                      : OpeiBrand.inkTertiary,
+                ),
                 SizedBox(width: 7),
                 Text(
                   l10n.cardsCreateCardCta,
@@ -2078,7 +2116,9 @@ class _CardsEmptyState extends StatelessWidget {
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.3,
-                    color: OpeiBrand.primary,
+                    color: creationEnabled
+                        ? OpeiBrand.primary
+                        : OpeiBrand.inkTertiary,
                   ),
                 ),
               ],
@@ -2578,6 +2618,8 @@ class _CardActionsRow extends StatelessWidget {
   final VoidCallback? onWithdrawTap;
   final VoidCallback? onTerminateTap;
   final bool isBusy;
+  final bool topUpEnabled;
+  final bool withdrawEnabled;
 
   const _CardActionsRow({
     required this.card,
@@ -2588,6 +2630,8 @@ class _CardActionsRow extends StatelessWidget {
     this.onTopUpTap,
     this.onWithdrawTap,
     this.isBusy = false,
+    this.topUpEnabled = true,
+    this.withdrawEnabled = true,
   });
 
   @override
@@ -2604,12 +2648,12 @@ class _CardActionsRow extends StatelessWidget {
       _CardActionConfig(
         icon: Icons.add_circle_outline,
         label: l10n.cardsTopUpAction,
-        onTap: (isTerminated || isBusy) ? null : onTopUpTap,
+        onTap: (isTerminated || isBusy || !topUpEnabled) ? null : onTopUpTap,
       ),
       _CardActionConfig(
         icon: Icons.arrow_circle_up_outlined,
         label: l10n.cardsWithdrawAction,
-        onTap: isTerminated ? null : onWithdrawTap,
+        onTap: (isTerminated || !withdrawEnabled) ? null : onWithdrawTap,
       ),
       _CardActionConfig(
         icon: Icons.receipt_long_outlined,
@@ -2848,10 +2892,22 @@ class _CreateCardButtonState extends ConsumerState<CreateCardButton>
   Widget build(BuildContext context) {
     final navigator = Navigator.of(context);
     final parentState = context.findAncestorStateOfType<_CardsScreenState>();
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final creationEnabled = availability.cards.creation.enabled;
 
     return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
+      onTapDown: creationEnabled ? (_) => _controller.forward() : null,
       onTapUp: (_) async {
+        final unavailableMessage = AppLocalizations.of(
+          context,
+        )!.errServiceUnavailable;
+        if (!creationEnabled) {
+          showError(context, unavailableMessage);
+          return;
+        }
+
         await _controller.reverse();
         if (!mounted) return;
 
@@ -2869,7 +2925,9 @@ class _CreateCardButtonState extends ConsumerState<CreateCardButton>
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: OpeiColors.pureBlack,
+            color: creationEnabled
+                ? OpeiColors.pureBlack
+                : OpeiBrand.surfaceMuted,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -2885,7 +2943,9 @@ class _CreateCardButtonState extends ConsumerState<CreateCardButton>
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: OpeiColors.pureWhite,
+                color: creationEnabled
+                    ? OpeiColors.pureWhite
+                    : OpeiBrand.inkTertiary,
                 letterSpacing: -0.2,
               ),
             ),

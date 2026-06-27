@@ -9,10 +9,12 @@ import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/repositories/card_repository.dart';
 import 'package:opei/features/cards/card_withdraw_state.dart';
 import 'package:opei/features/cards/cards_controller.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 
-final cardWithdrawControllerProvider = NotifierProvider<CardWithdrawController, CardWithdrawState>(
-  CardWithdrawController.new,
-);
+final cardWithdrawControllerProvider =
+    NotifierProvider<CardWithdrawController, CardWithdrawState>(
+      CardWithdrawController.new,
+    );
 
 class CardWithdrawController extends Notifier<CardWithdrawState> {
   late CardRepository _cardRepository;
@@ -25,7 +27,9 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
 
   void attachCard({required String cardId, required String currency}) {
     final trimmedId = cardId.trim();
-    final normalizedCurrency = currency.isNotEmpty ? currency.toUpperCase() : 'USD';
+    final normalizedCurrency = currency.isNotEmpty
+        ? currency.toUpperCase()
+        : 'USD';
 
     final shouldKeepState =
         state.cardId == trimmedId &&
@@ -39,11 +43,20 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
     }
 
     debugPrint('💳 Preparing withdraw flow for card $trimmedId');
-    state = state.resetForCard(newCardId: trimmedId, newCurrency: normalizedCurrency);
+    state = state.resetForCard(
+      newCardId: trimmedId,
+      newCurrency: normalizedCurrency,
+    );
   }
 
   Future<void> previewWithdraw(Money amount) async {
     final l10n = ErrorHelper.l10n;
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.withdrawal.enabled) {
+      state = state.copyWith(errorMessage: l10n.errServiceUnavailable);
+      return;
+    }
+
     final cardId = state.cardId.trim();
     if (cardId.isEmpty) {
       state = state.copyWith(errorMessage: l10n.cardsNotFoundError);
@@ -51,7 +64,9 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
     }
 
     if (amount.cents <= 0) {
-      state = state.copyWith(errorMessage: l10n.cardsWithdrawAmountAboveZeroError);
+      state = state.copyWith(
+        errorMessage: l10n.cardsWithdrawAmountAboveZeroError,
+      );
       return;
     }
 
@@ -65,7 +80,9 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
     );
 
     try {
-      debugPrint('🔍 Loading withdraw preview for $cardId with ${amount.cents} cents');
+      debugPrint(
+        '🔍 Loading withdraw preview for $cardId with ${amount.cents} cents',
+      );
       final preview = await _cardRepository.previewWithdraw(
         cardId: cardId,
         amountCents: amount.cents,
@@ -95,12 +112,23 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
 
   Future<void> confirmWithdraw() async {
     final l10n = ErrorHelper.l10n;
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.withdrawal.enabled) {
+      state = state.copyWith(
+        isSubmitting: false,
+        errorMessage: l10n.errServiceUnavailable,
+      );
+      return;
+    }
+
     final cardId = state.cardId.trim();
     final amount = state.amount;
     final preview = state.preview;
 
     if (cardId.isEmpty || amount == null || preview == null) {
-      state = state.copyWith(errorMessage: l10n.cardsWithdrawReviewDetailsError);
+      state = state.copyWith(
+        errorMessage: l10n.cardsWithdrawReviewDetailsError,
+      );
       return;
     }
 
@@ -109,13 +137,12 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
       return;
     }
 
-    state = state.copyWith(
-      isSubmitting: true,
-      clearError: true,
-    );
+    state = state.copyWith(isSubmitting: true, clearError: true);
 
     try {
-      debugPrint('💸 Confirming withdraw of ${amount.cents} cents for card $cardId');
+      debugPrint(
+        '💸 Confirming withdraw of ${amount.cents} cents for card $cardId',
+      );
       final response = await _cardRepository.confirmWithdraw(
         cardId: cardId,
         amountCents: amount.cents,
@@ -273,7 +300,7 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
           if (code == 'MINIMUM_CARD_BALANCE_REQUIRED') {
             return l10n.cardsWithdrawMinimumBalanceRequiredError;
           }
-            return l10n.cardsWithdrawCompleteFailedError;
+          return l10n.cardsWithdrawCompleteFailedError;
         case 401:
           return l10n.cardsWithdrawSessionVerifyError;
         case 404:
@@ -308,7 +335,8 @@ class CardWithdrawController extends Notifier<CardWithdrawState> {
   String? _extractErrorCode(ApiError error) {
     final errors = error.errors;
     if (errors != null) {
-      final dynamic codeCandidate = errors['code'] ?? errors['errorCode'] ?? errors['error_code'];
+      final dynamic codeCandidate =
+          errors['code'] ?? errors['errorCode'] ?? errors['error_code'];
       if (codeCandidate != null) {
         final parsed = codeCandidate.toString().trim();
         if (parsed.isNotEmpty) {

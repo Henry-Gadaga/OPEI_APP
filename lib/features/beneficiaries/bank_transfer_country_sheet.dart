@@ -1,20 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/features/beneficiaries/us_bank/us_bank_receivers_screen.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
 /// Bank-Transfer country picker. Only the US is enabled for now; more
 /// corridors get appended here as they roll out.
-class BankTransferCountrySheet extends StatelessWidget {
+class BankTransferCountrySheet extends ConsumerWidget {
   const BankTransferCountrySheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final countries = [
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final supportedCountries = [
       ('🇺🇸', l10n.bankTransferCountryUnitedStates, 'US'),
     ];
+    final countries = supportedCountries
+        .where(
+          (country) =>
+              availability.withdrawal.bankTransfer.isCountryEnabled(country.$3),
+        )
+        .toList(growable: false);
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
 
     return Container(
@@ -62,8 +73,7 @@ class BankTransferCountrySheet extends StatelessWidget {
           ),
           const SizedBox(height: 22),
 
-          const Divider(
-              height: 1, thickness: 0.5, color: OpeiBrand.hairline),
+          const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline),
           ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -93,13 +103,12 @@ class BankTransferCountrySheet extends StatelessWidget {
                   highlightColor: OpeiBrand.surfaceMuted,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
                     child: Row(
                       children: [
-                        Text(
-                          flag,
-                          style: const TextStyle(fontSize: 22),
-                        ),
+                        Text(flag, style: const TextStyle(fontSize: 22)),
                         const SizedBox(width: 14),
                         Expanded(
                           child: Text(
@@ -128,8 +137,7 @@ class BankTransferCountrySheet extends StatelessWidget {
               );
             },
           ),
-          const Divider(
-              height: 1, thickness: 0.5, color: OpeiBrand.hairline),
+          const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline),
 
           SizedBox(height: 16 + bottomPadding),
         ],

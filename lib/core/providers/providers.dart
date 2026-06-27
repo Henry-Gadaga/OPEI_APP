@@ -15,6 +15,7 @@ import 'package:opei/data/repositories/card_repository.dart';
 import 'package:opei/data/repositories/crypto_repository.dart';
 import 'package:opei/data/repositories/p2p_repository.dart';
 import 'package:opei/data/repositories/express_order_repository.dart';
+import 'package:opei/data/repositories/money_movement_availability_repository.dart';
 import 'package:opei/data/repositories/wallet_repository.dart';
 import 'package:opei/data/repositories/transaction_repository.dart';
 import 'package:opei/data/repositories/beneficiary_repository.dart';
@@ -211,6 +212,12 @@ final expressOrderRepositoryProvider = Provider<ExpressOrderRepository>((ref) {
   final storage = ref.watch(secureStorageServiceProvider);
   return ExpressOrderRepository(apiClient, storage);
 });
+
+final moneyMovementAvailabilityRepositoryProvider =
+    Provider<MoneyMovementAvailabilityRepository>((ref) {
+      final apiClient = ref.watch(apiClientProvider);
+      return MoneyMovementAvailabilityRepository(apiClient);
+    });
 
 final beneficiaryRepositoryProvider = Provider<BeneficiaryRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);

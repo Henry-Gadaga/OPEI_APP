@@ -8,6 +8,7 @@ import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/p2p_payment_method_type.dart';
 import 'package:opei/features/express_p2p/express_p2p_preview_screen.dart';
 import 'package:opei/features/express_p2p/express_ui.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
@@ -144,6 +145,15 @@ class _ExpressP2PSetupScreenState extends ConsumerState<ExpressP2PSetupScreen> {
       l10n.expressSetupPaymentMethodTitle,
       l10n.expressSetupEnterAmountTitle,
     ];
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final currencies = kExpressCurrencies
+        .where(
+          (currency) =>
+              availability.deposit.expressP2P.isCurrencyEnabled(currency.code),
+        )
+        .toList(growable: false);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -203,6 +213,7 @@ class _ExpressP2PSetupScreenState extends ConsumerState<ExpressP2PSetupScreen> {
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     _Page1Currency(
+                      currencies: currencies,
                       selected: _currency,
                       onSelect: (code) {
                         _selectCurrency(code);
@@ -289,9 +300,14 @@ class _StepBar extends StatelessWidget {
 // ── Page 1 — Currency ────────────────────────────────────────────────────────
 
 class _Page1Currency extends StatelessWidget {
+  final List<ExpressCurrencyOption> currencies;
   final String? selected;
   final void Function(String) onSelect;
-  const _Page1Currency({required this.selected, required this.onSelect});
+  const _Page1Currency({
+    required this.currencies,
+    required this.selected,
+    required this.onSelect,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,7 +321,7 @@ class _Page1Currency extends StatelessWidget {
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          itemCount: kExpressCurrencies.length,
+          itemCount: currencies.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             mainAxisSpacing: 8,
@@ -313,7 +329,7 @@ class _Page1Currency extends StatelessWidget {
             childAspectRatio: 1.34,
           ),
           itemBuilder: (_, i) {
-            final c = kExpressCurrencies[i];
+            final c = currencies[i];
             final sel = selected == c.code;
             return Material(
               color: sel ? OpeiBrand.primaryTint : OpeiBrand.surface,
@@ -403,7 +419,9 @@ class _Page2Method extends StatelessWidget {
       children: [
         _PageHint(
           currency != null
-              ? AppLocalizations.of(context)!.expressPickSendMethodHint(currency!)
+              ? AppLocalizations.of(
+                  context,
+                )!.expressPickSendMethodHint(currency!)
               : AppLocalizations.of(context)!.expressLoadingMethods,
         ),
         const SizedBox(height: 16),

@@ -6,10 +6,12 @@ import 'package:opei/core/money/money.dart';
 import 'package:opei/core/providers/providers.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/repositories/crypto_repository.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
 import 'package:opei/features/withdraw/withdraw_state.dart';
 
-final withdrawControllerProvider = NotifierProvider<WithdrawController, WithdrawState>(WithdrawController.new);
+final withdrawControllerProvider =
+    NotifierProvider<WithdrawController, WithdrawState>(WithdrawController.new);
 
 class WithdrawController extends Notifier<WithdrawState> {
   late CryptoRepository _cryptoRepository;
@@ -21,17 +23,11 @@ class WithdrawController extends Notifier<WithdrawState> {
   }
 
   void setCurrency(String currency) {
-    state = state.copyWith(
-      selectedCurrency: currency,
-      clearError: true,
-    );
+    state = state.copyWith(selectedCurrency: currency, clearError: true);
   }
 
   void setNetwork(String network) {
-    state = state.copyWith(
-      selectedNetwork: network,
-      clearError: true,
-    );
+    state = state.copyWith(selectedNetwork: network, clearError: true);
   }
 
   Future<bool> submitCryptoWithdrawal({
@@ -41,6 +37,15 @@ class WithdrawController extends Notifier<WithdrawState> {
     required String address,
     String? description,
   }) async {
+    final availability = availabilityFromRef(ref);
+    if (!availability.withdrawal.crypto.isNetworkEnabled(currency, network)) {
+      state = state.copyWith(
+        error: ErrorHelper.l10n.errServiceUnavailable,
+        clearTransferResponse: true,
+      );
+      return false;
+    }
+
     final sanitizedAmount = amount.replaceAll(',', '').trim();
     final amountMoney = Money.parse(sanitizedAmount, currency: currency);
 
@@ -74,7 +79,9 @@ class WithdrawController extends Notifier<WithdrawState> {
         assetType: currency,
         amount: amountMoney,
         address: address.trim(),
-        description: (description != null && description.trim().isNotEmpty) ? description.trim() : null,
+        description: (description != null && description.trim().isNotEmpty)
+            ? description.trim()
+            : null,
       );
 
       state = state.copyWith(
@@ -87,17 +94,18 @@ class WithdrawController extends Notifier<WithdrawState> {
 
       // Refresh wallet balance quietly after a successful withdrawal
       unawaited(
-        ref.read(dashboardControllerProvider.notifier).refreshBalance(showSpinner: false),
+        ref
+            .read(dashboardControllerProvider.notifier)
+            .refreshBalance(showSpinner: false),
       );
 
       return true;
     } catch (error) {
       final message = ErrorHelper.getErrorMessage(error, context: 'withdraw');
-      debugPrint('[WithdrawController] Failed to submit crypto withdrawal: $message');
-      state = state.copyWith(
-        isLoading: false,
-        error: message,
+      debugPrint(
+        '[WithdrawController] Failed to submit crypto withdrawal: $message',
       );
+      state = state.copyWith(isLoading: false, error: message);
       return false;
     }
   }
@@ -107,9 +115,6 @@ class WithdrawController extends Notifier<WithdrawState> {
   }
 
   void resetSubmission() {
-    state = state.copyWith(
-      clearTransferResponse: true,
-      clearError: true,
-    );
+    state = state.copyWith(clearTransferResponse: true, clearError: true);
   }
 }

@@ -6,11 +6,12 @@ import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/repositories/card_repository.dart';
 import 'package:opei/features/cards/promo_card_creation_state.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 
 final promoCardCreationControllerProvider =
     NotifierProvider<PromoCardCreationController, PromoCardCreationState>(
-  PromoCardCreationController.new,
-);
+      PromoCardCreationController.new,
+    );
 
 class PromoCardCreationController extends Notifier<PromoCardCreationState> {
   late CardRepository _repo;
@@ -25,6 +26,16 @@ class PromoCardCreationController extends Notifier<PromoCardCreationState> {
 
   /// Step 1 — call prepare. Auto-advances to confirm stage.
   Future<void> prepare() async {
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.creation.enabled) {
+      state = state.copyWith(
+        stage: PromoCardStage.preparing,
+        isBusy: false,
+        errorMessage: ErrorHelper.l10n.errServiceUnavailable,
+      );
+      return;
+    }
+
     debugPrint('💳 [PromoCard] Starting prepare...');
     state = state.copyWith(
       stage: PromoCardStage.preparing,
@@ -46,22 +57,26 @@ class PromoCardCreationController extends Notifier<PromoCardCreationState> {
       );
     } on ApiError catch (e) {
       debugPrint('💳 [PromoCard] Prepare ApiError: ${e.message}');
-      state = state.copyWith(
-        isBusy: false,
-        errorMessage: e.message,
-      );
+      state = state.copyWith(isBusy: false, errorMessage: e.message);
     } catch (e) {
       final msg = ErrorHelper.getErrorMessage(e);
       debugPrint('💳 [PromoCard] Prepare error: $msg');
-      state = state.copyWith(
-        isBusy: false,
-        errorMessage: msg,
-      );
+      state = state.copyWith(isBusy: false, errorMessage: msg);
     }
   }
 
   /// Step 2 — user confirmed; call create-promo.
   Future<void> createCard() async {
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.creation.enabled) {
+      state = state.copyWith(
+        stage: PromoCardStage.confirm,
+        isBusy: false,
+        errorMessage: ErrorHelper.l10n.errServiceUnavailable,
+      );
+      return;
+    }
+
     final prepare = state.prepare;
     if (prepare == null || !prepare.canCreate) return;
 
@@ -76,7 +91,9 @@ class PromoCardCreationController extends Notifier<PromoCardCreationState> {
     );
 
     try {
-      final result = await _repo.createPromoCard(idempotencyKey: idempotencyKey);
+      final result = await _repo.createPromoCard(
+        idempotencyKey: idempotencyKey,
+      );
       debugPrint(
         '💳 [PromoCard] Card created — ref=${result.reference} status=${result.status}',
       );

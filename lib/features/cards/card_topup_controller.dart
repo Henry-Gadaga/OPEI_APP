@@ -10,10 +10,12 @@ import 'package:opei/data/repositories/card_repository.dart';
 import 'package:opei/features/cards/card_topup_state.dart';
 import 'package:opei/features/cards/cards_controller.dart';
 import 'package:opei/features/dashboard/dashboard_controller.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 
-final cardTopUpControllerProvider = NotifierProvider<CardTopUpController, CardTopUpState>(
-  CardTopUpController.new,
-);
+final cardTopUpControllerProvider =
+    NotifierProvider<CardTopUpController, CardTopUpState>(
+      CardTopUpController.new,
+    );
 
 class CardTopUpController extends Notifier<CardTopUpState> {
   late CardRepository _cardRepository;
@@ -26,7 +28,9 @@ class CardTopUpController extends Notifier<CardTopUpState> {
 
   void attachCard({required String cardId, required String currency}) {
     final trimmedId = cardId.trim();
-    final normalizedCurrency = currency.isNotEmpty ? currency.toUpperCase() : 'USD';
+    final normalizedCurrency = currency.isNotEmpty
+        ? currency.toUpperCase()
+        : 'USD';
 
     final shouldKeepState =
         state.cardId == trimmedId &&
@@ -40,11 +44,20 @@ class CardTopUpController extends Notifier<CardTopUpState> {
     }
 
     debugPrint('💳 Preparing top-up flow for card $trimmedId');
-    state = state.resetForCard(newCardId: trimmedId, newCurrency: normalizedCurrency);
+    state = state.resetForCard(
+      newCardId: trimmedId,
+      newCurrency: normalizedCurrency,
+    );
   }
 
   Future<void> previewTopUp(Money amount) async {
     final l10n = ErrorHelper.l10n;
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.topUp.enabled) {
+      state = state.copyWith(errorMessage: l10n.errServiceUnavailable);
+      return;
+    }
+
     final cardId = state.cardId.trim();
     if (cardId.isEmpty) {
       state = state.copyWith(errorMessage: l10n.cardsNotFoundError);
@@ -52,7 +65,9 @@ class CardTopUpController extends Notifier<CardTopUpState> {
     }
 
     if (amount.cents <= 0) {
-      state = state.copyWith(errorMessage: l10n.cardsTopupInvalidPositiveAmountError);
+      state = state.copyWith(
+        errorMessage: l10n.cardsTopupInvalidPositiveAmountError,
+      );
       return;
     }
 
@@ -66,7 +81,9 @@ class CardTopUpController extends Notifier<CardTopUpState> {
     );
 
     try {
-      debugPrint('🔍 Loading top-up preview for $cardId with ${amount.cents} cents');
+      debugPrint(
+        '🔍 Loading top-up preview for $cardId with ${amount.cents} cents',
+      );
       final preview = await _cardRepository.previewTopUp(
         cardId: cardId,
         amountCents: amount.cents,
@@ -91,6 +108,15 @@ class CardTopUpController extends Notifier<CardTopUpState> {
 
   Future<void> confirmTopUp() async {
     final l10n = ErrorHelper.l10n;
+    final availability = availabilityFromRef(ref);
+    if (!availability.cards.topUp.enabled) {
+      state = state.copyWith(
+        isSubmitting: false,
+        errorMessage: l10n.errServiceUnavailable,
+      );
+      return;
+    }
+
     final cardId = state.cardId.trim();
     final amount = state.amount;
     final preview = state.preview;
@@ -105,13 +131,12 @@ class CardTopUpController extends Notifier<CardTopUpState> {
       return;
     }
 
-    state = state.copyWith(
-      isSubmitting: true,
-      clearError: true,
-    );
+    state = state.copyWith(isSubmitting: true, clearError: true);
 
     try {
-      debugPrint('💸 Confirming top-up of ${amount.cents} cents for card $cardId');
+      debugPrint(
+        '💸 Confirming top-up of ${amount.cents} cents for card $cardId',
+      );
       final response = await _cardRepository.confirmTopUp(
         cardId: cardId,
         amountCents: amount.cents,
@@ -129,7 +154,9 @@ class CardTopUpController extends Notifier<CardTopUpState> {
       // Refresh cards so balance/status updates propagate.
       unawaited(ref.read(cardsControllerProvider.notifier).refresh());
 
-      final dashboardController = ref.read(dashboardControllerProvider.notifier);
+      final dashboardController = ref.read(
+        dashboardControllerProvider.notifier,
+      );
 
       // Apply the debit locally so the dashboard balance updates immediately.
       dashboardController.applyOptimisticDelta(-response.totalDebit.cents);
@@ -214,10 +241,14 @@ class CardTopUpController extends Notifier<CardTopUpState> {
           if (code == 'INSUFFICIENT_FUNDS') {
             return l10n.cardsTopupWalletLowBalanceError;
           }
-          if (code == 'MISSING_USER_CONTEXT' || code == 'MISSING_USER_ID' || code == 'NO_USER_CONTEXT') {
+          if (code == 'MISSING_USER_CONTEXT' ||
+              code == 'MISSING_USER_ID' ||
+              code == 'NO_USER_CONTEXT') {
             return l10n.cardsTopupAccountLoadFailedError;
           }
-          if (code == 'WALLET_BAD_REQUEST' || code == 'BAD_REQUEST' || code == 'INVALID_TOKEN') {
+          if (code == 'WALLET_BAD_REQUEST' ||
+              code == 'BAD_REQUEST' ||
+              code == 'INVALID_TOKEN') {
             return l10n.cardsTopupSessionInvalidError;
           }
           return l10n.cardsTopupAccountLoadFailedError;
@@ -268,10 +299,13 @@ class CardTopUpController extends Notifier<CardTopUpState> {
           if (code == 'INSUFFICIENT_FUNDS') {
             return l10n.cardsTopupWalletLowBalanceError;
           }
-          if (code == 'INSUFFICIENT_FUNDS_RESERVE' || code == 'INSUFFICIENT_FUNDS_RESERVATION') {
+          if (code == 'INSUFFICIENT_FUNDS_RESERVE' ||
+              code == 'INSUFFICIENT_FUNDS_RESERVATION') {
             return l10n.cardsTopupReserveBalanceLowError;
           }
-          if (code == 'WALLET_BAD_REQUEST' || code == 'BAD_REQUEST' || code == 'INVALID_TOKEN') {
+          if (code == 'WALLET_BAD_REQUEST' ||
+              code == 'BAD_REQUEST' ||
+              code == 'INVALID_TOKEN') {
             return l10n.cardsTopupSessionInvalidError;
           }
           return l10n.errEnterValidAmount;
@@ -299,7 +333,8 @@ class CardTopUpController extends Notifier<CardTopUpState> {
   String? _extractErrorCode(ApiError error) {
     final errors = error.errors;
     if (errors != null) {
-      final dynamic codeCandidate = errors['code'] ?? errors['errorCode'] ?? errors['error_code'];
+      final dynamic codeCandidate =
+          errors['code'] ?? errors['errorCode'] ?? errors['error_code'];
       if (codeCandidate != null) {
         final parsed = codeCandidate.toString().trim();
         if (parsed.isNotEmpty) {

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/beneficiary.dart';
 import 'package:opei/data/repositories/beneficiary_repository.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
@@ -496,8 +497,19 @@ class _MobileMoneyAddReceiverSheetState
   bool get _requiresName =>
       BeneficiaryRepository.requiresAccountName(widget.country);
 
-  List<String> get _networks =>
-      BeneficiaryRepository.mobileMoneyNetworks[widget.country] ?? const [];
+  List<String> _networksForAvailability() {
+    final availability = availabilityFromWidgetRef(ref);
+    final networks =
+        BeneficiaryRepository.mobileMoneyNetworks[widget.country] ?? const [];
+    return networks
+        .where(
+          (network) => availability.withdrawal.mobileMoney.isNetworkEnabled(
+            widget.country,
+            network,
+          ),
+        )
+        .toList(growable: false);
+  }
 
   ({String dialCode, int nationalLength}) get _phoneMeta =>
       BeneficiaryRepository.mobileMoneyPhoneMeta[widget.country] ??
@@ -526,8 +538,9 @@ class _MobileMoneyAddReceiverSheetState
   @override
   void initState() {
     super.initState();
-    if (_networks.length == 1) {
-      _selectedNetwork = _networks.first;
+    final networks = _networksForAvailability();
+    if (networks.length == 1) {
+      _selectedNetwork = networks.first;
     }
     // Re-evaluate `_isFormReady` on every keystroke so the button enables
     // the moment everything is valid (and disables again the moment it's not).
@@ -573,6 +586,14 @@ class _MobileMoneyAddReceiverSheetState
       showError(context, l10n.mobileMoneyChooseNetworkError);
       return;
     }
+    final availability = availabilityFromWidgetRef(ref);
+    if (!availability.withdrawal.mobileMoney.isNetworkEnabled(
+      widget.country,
+      _selectedNetwork!,
+    )) {
+      showError(context, l10n.errServiceUnavailable);
+      return;
+    }
 
     final controller = ref.read(
       beneficiariesControllerProvider(widget.country).notifier,
@@ -603,8 +624,16 @@ class _MobileMoneyAddReceiverSheetState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(beneficiariesControllerProvider(widget.country));
+    ref.watch(moneyMovementAvailabilityProvider);
     final viewInsets = MediaQuery.of(context).viewInsets;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+    final networks = _networksForAvailability();
+    if (_selectedNetwork != null && !networks.contains(_selectedNetwork)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() => _selectedNetwork = null);
+      });
+    }
     final canSubmit = _isFormReady && !state.isCreating;
 
     return Padding(
@@ -686,7 +715,7 @@ class _MobileMoneyAddReceiverSheetState
                       ),
                       const SizedBox(height: 10),
                       _NetworkSelector(
-                        networks: _networks,
+                        networks: networks,
                         selected: _selectedNetwork,
                         onSelect: (v) => setState(() => _selectedNetwork = v),
                       ),
@@ -696,9 +725,7 @@ class _MobileMoneyAddReceiverSheetState
                       if (_requiresName) ...[
                         Row(
                           children: [
-                            _FieldLabel(
-                              l10n.mobileMoneyReceiverNameLabel,
-                            ),
+                            _FieldLabel(l10n.mobileMoneyReceiverNameLabel),
                             const Spacer(),
                             if (_nameCtrl.text.trim().length >= 2 &&
                                 _nameCtrl.text.trim().contains(' '))
@@ -720,7 +747,8 @@ class _MobileMoneyAddReceiverSheetState
                               return l10n.mobileMoneyReceiverFullNameRequired;
                             }
                             if (!value.contains(' ')) {
-                              return l10n.mobileMoneyReceiverFirstLastNameRequired;
+                              return l10n
+                                  .mobileMoneyReceiverFirstLastNameRequired;
                             }
                             return null;
                           },
@@ -731,9 +759,7 @@ class _MobileMoneyAddReceiverSheetState
                       // ── Phone number ─────────────────────────────
                       Row(
                         children: [
-                          _FieldLabel(
-                            l10n.phoneNumberLabel,
-                          ),
+                          _FieldLabel(l10n.phoneNumberLabel),
                           const Spacer(),
                           if (_numberCtrl.text.trim().length ==
                                   _phoneMeta.nationalLength &&

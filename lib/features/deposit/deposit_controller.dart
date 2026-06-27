@@ -5,8 +5,10 @@ import 'package:opei/core/utils/error_helper.dart';
 import 'package:opei/data/models/crypto_address_response.dart';
 import 'package:opei/data/repositories/crypto_repository.dart';
 import 'package:opei/features/deposit/deposit_state.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 
-final depositControllerProvider = NotifierProvider<DepositController, DepositState>(DepositController.new);
+final depositControllerProvider =
+    NotifierProvider<DepositController, DepositState>(DepositController.new);
 
 class DepositController extends Notifier<DepositState> {
   late CryptoRepository _cryptoRepository;
@@ -21,6 +23,17 @@ class DepositController extends Notifier<DepositState> {
     required String currency,
     required String network,
   }) async {
+    final availability = availabilityFromRef(ref);
+    if (!availability.deposit.crypto.isNetworkEnabled(currency, network)) {
+      state = state.copyWith(
+        isLoading: false,
+        error: ErrorHelper.l10n.errServiceUnavailable,
+        clearAddress: true,
+        clearLoadingNetwork: true,
+      );
+      return false;
+    }
+
     state = state.copyWith(
       isLoading: true,
       clearError: true,
@@ -28,10 +41,8 @@ class DepositController extends Notifier<DepositState> {
     );
 
     try {
-      final CryptoAddressResponse response = await _cryptoRepository.getDepositAddress(
-        currency: currency,
-        network: network,
-      );
+      final CryptoAddressResponse response = await _cryptoRepository
+          .getDepositAddress(currency: currency, network: network);
 
       state = state.copyWith(
         isLoading: false,
@@ -44,7 +55,9 @@ class DepositController extends Notifier<DepositState> {
       return true;
     } catch (error) {
       final errorMsg = ErrorHelper.getErrorMessage(error, context: 'deposit');
-      debugPrint('[DepositController] Failed to fetch deposit address: $errorMsg');
+      debugPrint(
+        '[DepositController] Failed to fetch deposit address: $errorMsg',
+      );
       state = state.copyWith(
         isLoading: false,
         error: errorMsg,

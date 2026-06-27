@@ -7,18 +7,23 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:opei/core/config/feature_flags.dart';
 import 'package:opei/features/deposit/deposit_controller.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 
-class DepositOptionsSheet extends StatelessWidget {
+class DepositOptionsSheet extends ConsumerWidget {
   const DepositOptionsSheet({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final deposit = availability.deposit;
 
     return Container(
       decoration: const BoxDecoration(
@@ -64,16 +69,18 @@ class DepositOptionsSheet extends StatelessWidget {
           const SizedBox(height: 24),
 
           const _DepositRowDivider(),
-          _DepositRow(
-            title: l10n.depositExpressP2PTitle,
-            subtitle: l10n.depositExpressP2PSubtitle,
-            onTap: () {
-              context.pop();
-              context.push('/express-p2p');
-            },
-          ),
-          const _DepositRowDivider(),
-          if (FeatureFlags.enableClassicP2P) ...[
+          if (deposit.expressP2P.enabled) ...[
+            _DepositRow(
+              title: l10n.depositExpressP2PTitle,
+              subtitle: l10n.depositExpressP2PSubtitle,
+              onTap: () {
+                context.pop();
+                context.push('/express-p2p');
+              },
+            ),
+            const _DepositRowDivider(),
+          ],
+          if (FeatureFlags.enableClassicP2P && deposit.classicP2P.enabled) ...[
             _DepositRow(
               title: l10n.depositP2PExchangeTitle,
               subtitle: l10n.depositP2PExchangeSubtitle,
@@ -87,15 +94,17 @@ class DepositOptionsSheet extends StatelessWidget {
             ),
             const _DepositRowDivider(),
           ],
-          _DepositRow(
-            title: l10n.depositStablecoinTitle,
-            subtitle: l10n.depositStablecoinSubtitle,
-            onTap: () {
-              context.pop();
-              context.push('/deposit/crypto-currency');
-            },
-          ),
-          const _DepositRowDivider(),
+          if (deposit.crypto.enabled) ...[
+            _DepositRow(
+              title: l10n.depositStablecoinTitle,
+              subtitle: l10n.depositStablecoinSubtitle,
+              onTap: () {
+                context.pop();
+                context.push('/deposit/crypto-currency');
+              },
+            ),
+            const _DepositRowDivider(),
+          ],
 
           SizedBox(height: 16 + bottomPadding),
         ],
@@ -292,14 +301,20 @@ class _DepositOptionCardState extends State<DepositOptionCard>
   }
 }
 
-class CryptoCurrencySelectionScreen extends StatelessWidget {
+class CryptoCurrencySelectionScreen extends ConsumerWidget {
   const CryptoCurrencySelectionScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final cryptoAvailability = availability.deposit.crypto;
+    final showUsdt = cryptoAvailability.isAssetEnabled('USDT');
+    final showUsdc = cryptoAvailability.isAssetEnabled('USDC');
 
     return ResponsiveScaffold(
       useSafeArea: false,
@@ -337,30 +352,41 @@ class CryptoCurrencySelectionScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: spacing * 2.5),
-            CurrencyOption(
-              currency: 'USDT',
-              name: l10n.tokenTetherName,
-              networks: [
-                l10n.cryptoNetworkShortPolygon,
-                l10n.cryptoNetworkShortEthereum,
-                l10n.cryptoNetworkShortBsc,
-                l10n.cryptoNetworkShortTron,
-              ],
-              onTap: () =>
-                  context.push('/deposit/crypto-network', extra: 'USDT'),
-            ),
-            SizedBox(height: spacing * 0.5),
-            CurrencyOption(
-              currency: 'USDC',
-              name: l10n.tokenUsdCoinName,
-              networks: [
-                l10n.cryptoNetworkShortPolygon,
-                l10n.cryptoNetworkShortEthereum,
-                l10n.cryptoNetworkShortBsc,
-              ],
-              onTap: () =>
-                  context.push('/deposit/crypto-network', extra: 'USDC'),
-            ),
+            if (showUsdt) ...[
+              CurrencyOption(
+                currency: 'USDT',
+                name: l10n.tokenTetherName,
+                networks: [
+                  l10n.cryptoNetworkShortPolygon,
+                  l10n.cryptoNetworkShortEthereum,
+                  l10n.cryptoNetworkShortBsc,
+                  l10n.cryptoNetworkShortTron,
+                ],
+                onTap: () =>
+                    context.push('/deposit/crypto-network', extra: 'USDT'),
+              ),
+              SizedBox(height: spacing * 0.5),
+            ],
+            if (showUsdc)
+              CurrencyOption(
+                currency: 'USDC',
+                name: l10n.tokenUsdCoinName,
+                networks: [
+                  l10n.cryptoNetworkShortPolygon,
+                  l10n.cryptoNetworkShortEthereum,
+                  l10n.cryptoNetworkShortBsc,
+                ],
+                onTap: () =>
+                    context.push('/deposit/crypto-network', extra: 'USDC'),
+              ),
+            if (!showUsdt && !showUsdc)
+              Text(
+                l10n.errServiceUnavailable,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 13,
+                  color: OpeiBrand.inkSecondary,
+                ),
+              ),
           ],
         ),
       ),
@@ -472,7 +498,9 @@ class _CurrencyOptionState extends State<CurrencyOption>
                     const SizedBox(height: 2),
                     Text(
                       AppLocalizations.of(context)!.depositNetworksCount(
-                          widget.name, widget.networks.length),
+                        widget.name,
+                        widget.networks.length,
+                      ),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontSize: 12.5,
                         color: OpeiColors.iosLabelSecondary,
@@ -511,6 +539,15 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context)!;
     final spacing = context.responsiveSpacingUnit;
     final tokens = context.responsiveTokens;
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final networks = _availableNetworks
+        .where(
+          (network) =>
+              availability.deposit.crypto.isNetworkEnabled(currency, network),
+        )
+        .toList(growable: false);
 
     return ResponsiveScaffold(
       useSafeArea: false,
@@ -548,47 +585,56 @@ class CryptoNetworkSelectionScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(height: spacing * 2.5),
-            ..._availableNetworks.map(
-              (network) => Padding(
-                padding: EdgeInsets.only(bottom: spacing * 0.75),
-                child: NetworkOption(
-                  network: network,
-                  onTap: () async {
-                    final notifier = ref.read(
-                      depositControllerProvider.notifier,
-                    );
-                    final success = await notifier.fetchDepositAddress(
-                      currency: currency,
-                      network: network,
-                    );
+            if (networks.isEmpty)
+              Text(
+                l10n.errServiceUnavailable,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 13,
+                  color: OpeiBrand.inkSecondary,
+                ),
+              )
+            else
+              ...networks.map(
+                (network) => Padding(
+                  padding: EdgeInsets.only(bottom: spacing * 0.75),
+                  child: NetworkOption(
+                    network: network,
+                    onTap: () async {
+                      final notifier = ref.read(
+                        depositControllerProvider.notifier,
+                      );
+                      final success = await notifier.fetchDepositAddress(
+                        currency: currency,
+                        network: network,
+                      );
 
-                    if (success && context.mounted) {
-                      context.push(
-                        '/deposit/crypto-address',
-                        extra: {'currency': currency, 'network': network},
-                      );
-                    } else if (context.mounted) {
-                      final error = ref.read(depositControllerProvider).error;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            error ?? l10n.depositFetchAddressFailed,
-                            maxLines: 4,
-                            overflow: TextOverflow.ellipsis,
+                      if (success && context.mounted) {
+                        context.push(
+                          '/deposit/crypto-address',
+                          extra: {'currency': currency, 'network': network},
+                        );
+                      } else if (context.mounted) {
+                        final error = ref.read(depositControllerProvider).error;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              error ?? l10n.depositFetchAddressFailed,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            backgroundColor: const Color(0xFFFF3B30),
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.all(16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          backgroundColor: const Color(0xFFFF3B30),
-                          behavior: SnackBarBehavior.floating,
-                          margin: const EdgeInsets.all(16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      );
-                    }
-                  },
+                        );
+                      }
+                    },
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
