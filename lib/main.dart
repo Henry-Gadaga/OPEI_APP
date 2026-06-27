@@ -33,6 +33,7 @@ import 'package:opei/features/referral/apply_referral_screen.dart';
 import 'package:opei/features/referral/referral_hub_screen.dart';
 import 'package:opei/features/send_money/send_money_screen.dart';
 import 'package:opei/features/deposit/deposit_screen.dart';
+import 'package:opei/features/deposit/bank_accounts/bank_accounts_screen.dart';
 import 'package:opei/features/express_p2p/express_p2p_hub_screen.dart';
 import 'package:opei/features/express_p2p/express_p2p_setup_screen.dart';
 import 'package:opei/features/express_p2p/express_p2p_preview_screen.dart';
@@ -551,6 +552,14 @@ class _OpeiAppState extends ConsumerState<OpeiApp> with WidgetsBindingObserver {
           ),
         );
       },
+    ),
+    GoRoute(
+      path: '/deposit/bank-accounts',
+      name: 'deposit-bank-accounts',
+      pageBuilder: (context, state) => buildOpeiTransitionPage(
+        state: state,
+        child: const BankAccountsScreen(),
+      ),
     ),
     GoRoute(
       path: '/deposit/crypto-currency',

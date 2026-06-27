@@ -589,6 +589,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get cancelCta => 'Cancelar';
 
   @override
+  String get deleteCta => 'Excluir';
+
+  @override
   String get quickAuthPinLabel => 'Autenticacao por PIN';
 
   @override
@@ -695,6 +698,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get dashboardActionCards => 'Cartoes';
 
   @override
+  String get dashboardActionBankAccounts => 'Contas bancarias';
+
+  @override
   String get transactionsNoActivityTitle => 'Sem atividade ainda';
 
   @override
@@ -749,6 +755,13 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get depositP2PExchangeSubtitle =>
       'Transferencia bancaria, pagamentos moveis e mais';
+
+  @override
+  String get depositMobileMoneySubtitle =>
+      'Deposite instantaneamente via dinheiro móvel';
+
+  @override
+  String get mobileMoneyAddNewNumber => 'Adicionar número';
 
   @override
   String get depositStablecoinTitle => 'Stablecoin USD';
@@ -1767,7 +1780,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get withdrawMobileMoneyTitle => 'Dinheiro movel';
 
   @override
-  String get withdrawMobileMoneySubtitle => 'M-Pesa, Airtel Money e mais';
+  String get withdrawMobileMoneySubtitle => 'Levantamento por dinheiro movel';
 
   @override
   String get withdrawBankTransferTitle => 'Transferencia bancaria';
@@ -4741,6 +4754,357 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get mobileMoneyCountryZambia => 'Zambia';
+
+  @override
+  String get mobileMoneyCountryMalawi => 'Malawi';
+
+  @override
+  String get depositMalawiMobileMoneyTitle => 'Dinheiro Móvel do Malawi';
+
+  @override
+  String get mobileMoneySetPrimary => 'Definir principal';
+
+  @override
+  String get mobileMoneyPrimary => 'Principal';
+
+  @override
+  String get mobileMoneyPrimaryUpdated => 'Número principal atualizado.';
+
+  @override
+  String get mobileMoneyNetworkAirtelMoney => 'Airtel Money';
+
+  @override
+  String get mobileMoneyNetworkTnmMpamba => 'TNM Mpamba';
+
+  @override
+  String get mobileMoneyPhoneHintMw => '+265XXXXXXXXX';
+
+  @override
+  String get mobileMoneyPrimaryDefaultsOffHint =>
+      'Novos números não são principais por padrão. Defina o principal na lista salva.';
+
+  @override
+  String get mobileMoneyDepositPreviewCta => 'Pré-visualizar depósito';
+
+  @override
+  String get mobileMoneyDepositInitiated =>
+      'Depósito por dinheiro móvel iniciado.';
+
+  @override
+  String get mobileMoneyDepositSummaryTitle => 'RESUMO DO DEPÓSITO';
+
+  @override
+  String get mobileMoneyMwkEquivalentLabel => 'Equivalente em MWK';
+
+  @override
+  String get mobileMoneyDepositPromptHint =>
+      'Um prompt de dinheiro móvel será enviado para o seu telefone para concluir o pagamento.';
+
+  @override
+  String get withdrawMalawiMobileMoneyTitle =>
+      'Levantar via Dinheiro Móvel do Malawi';
+
+  @override
+  String get mobileMoneyWithdrawalUseSavedNumber => 'Número salvo';
+
+  @override
+  String get mobileMoneyWithdrawalUseNewNumber => 'Novo número';
+
+  @override
+  String get mobileMoneyWithdrawalNoSavedNumbers =>
+      'Ainda não há números salvos para esta rede.';
+
+  @override
+  String get mobileMoneyWithdrawalManualPhoneHint => 'ex.: 0886316226';
+
+  @override
+  String get mobileMoneyWithdrawalPreviewCta => 'Pré-visualizar levantamento';
+
+  @override
+  String get mobileMoneyWithdrawalSummaryTitle => 'RESUMO DO LEVANTAMENTO';
+
+  @override
+  String get mobileMoneyWithdrawalFeeLabel => 'Taxa';
+
+  @override
+  String get mobileMoneyWithdrawalTotalDebitLabel => 'Débito total';
+
+  @override
+  String get mobileMoneyWithdrawalPayoutLabel => 'Valor líquido';
+
+  @override
+  String get mobileMoneyWithdrawalAvailableBalanceLabel => 'Saldo disponível';
+
+  @override
+  String get mobileMoneyWithdrawalInitiateCta => 'Iniciar levantamento';
+
+  @override
+  String get mobileMoneyWithdrawalInitiated =>
+      'Levantamento iniciado. A verificar estado...';
+
+  @override
+  String get mobileMoneyWithdrawalStatusPending =>
+      'Pagamento iniciado. Em processamento...';
+
+  @override
+  String get mobileMoneyWithdrawalStatusSuccess =>
+      'Levantamento concluído com sucesso.';
+
+  @override
+  String get mobileMoneyWithdrawalStatusFailed => 'Levantamento falhou.';
+
+  @override
+  String get mobileMoneyWithdrawalStatusReviewRequired =>
+      'Levantamento em revisão.';
+
+  @override
+  String get mobileMoneyWithdrawalProcessingTitle =>
+      'Levantamento em processamento';
+
+  @override
+  String get mobileMoneyWithdrawalProcessingMessage =>
+      'Estamos a verificar o estado do seu levantamento.';
+
+  @override
+  String get mobileMoneyWithdrawalStillProcessingTitle =>
+      'Ainda em processamento';
+
+  @override
+  String get mobileMoneyWithdrawalStillProcessingMessage =>
+      'Seu levantamento esta a demorar mais do que o esperado. Verifique novamente em breve.';
+
+  @override
+  String get mobileMoneyWithdrawalSelectSavedNumberError =>
+      'Selecione um número móvel salvo.';
+
+  @override
+  String get mobileMoneyWithdrawalCannotProceed =>
+      'Não é possível continuar com esta pré-visualização.';
+
+  @override
+  String get mobileMoneyDeleteNumberTitle => 'Excluir numero?';
+
+  @override
+  String get mobileMoneyDeleteNumberMessage =>
+      'Este numero salvo sera removido da sua conta.';
+
+  @override
+  String get mobileMoneyNumberDeletedSuccess => 'Numero excluido com sucesso.';
+
+  @override
+  String get bankAccountsTitle => 'Contas bancarias';
+
+  @override
+  String get bankAccountsMalawiTitle => 'Conta bancaria Malawi';
+
+  @override
+  String get bankAccountsMalawiSubtitle =>
+      'Detalhes da conta bancaria do Malawi';
+
+  @override
+  String get bankAccountsUsaTitle => 'Conta bancaria EUA';
+
+  @override
+  String get bankAccountsUsaSubtitle => 'Conta bancaria dos EUA';
+
+  @override
+  String get bankAccountsMalawiOptionTitle => 'Conta bancaria Malawi';
+
+  @override
+  String get bankAccountsMalawiOptionSubtitle => 'Conta bancaria Malawi';
+
+  @override
+  String get bankAccountsUsaOptionTitle => 'Conta bancaria EUA';
+
+  @override
+  String get bankAccountsUsaOptionSubtitle => 'Conta bancaria EUA';
+
+  @override
+  String get bankAccountsUsaComingSoon => 'Contas bancarias dos EUA em breve.';
+
+  @override
+  String get bankAccountsYourAccountTitle => 'Sua conta bancaria do Malawi';
+
+  @override
+  String get bankAccountsGetMalawiTitle => 'Obter conta bancaria do Malawi';
+
+  @override
+  String get bankAccountsGetMalawiSubtitle =>
+      'Confirme para criar sua conta bancaria do Malawi.';
+
+  @override
+  String get bankAccountsGetMalawiCta => 'Obter conta bancaria do Malawi';
+
+  @override
+  String get bankAccountsWalletAvailableLabel => 'Saldo disponivel';
+
+  @override
+  String get bankAccountsCanAffordLabel => 'Elegibilidade';
+
+  @override
+  String get bankAccountsCanAffordYes => 'Elegivel';
+
+  @override
+  String get bankAccountsCanAffordNo => 'Nao elegivel';
+
+  @override
+  String get bankAccountsActivationFeeLabel => 'Taxa de ativacao';
+
+  @override
+  String get bankAccountsEligibilityLabel => 'Elegibilidade';
+
+  @override
+  String get bankAccountsEligibleYes => 'Elegivel';
+
+  @override
+  String get bankAccountsEligibleNo => 'Nao elegivel';
+
+  @override
+  String get bankAccountsInsufficientBalance =>
+      'Saldo insuficiente para criar conta bancaria do Malawi.';
+
+  @override
+  String get bankAccountsCreatedSuccess =>
+      'Conta bancaria do Malawi criada com sucesso.';
+
+  @override
+  String get bankAccountsExistingLoadedSuccess =>
+      'Conta bancaria existente do Malawi carregada.';
+
+  @override
+  String get bankAccountsCopyAccountNumberCta => 'Copiar numero da conta';
+
+  @override
+  String get bankAccountsCopiedAccountNumber => 'Numero da conta copiado.';
+
+  @override
+  String get bankWithdrawMalawiTitle => 'Levantar para banco do Malawi';
+
+  @override
+  String get bankWithdrawBankLabel => 'Banco';
+
+  @override
+  String get bankWithdrawPreviewCta => 'Pré-visualizar transferencia';
+
+  @override
+  String get bankWithdrawSummaryTitle => 'RESUMO DA TRANSFERENCIA BANCARIA';
+
+  @override
+  String get bankWithdrawFeeLabel => 'Taxa de levantamento';
+
+  @override
+  String get bankWithdrawTotalDebitLabel => 'Débito total';
+
+  @override
+  String get bankWithdrawPayoutLabel => 'Valor liquido';
+
+  @override
+  String get bankWithdrawWalletAvailableLabel => 'Saldo disponivel';
+
+  @override
+  String get bankWithdrawInitiateCta => 'Iniciar transferencia';
+
+  @override
+  String get bankWithdrawInitiated =>
+      'Transferencia bancaria iniciada. A verificar estado...';
+
+  @override
+  String get bankWithdrawStatusPending =>
+      'Pagamento iniciado. Em processamento...';
+
+  @override
+  String get bankWithdrawStatusSuccess =>
+      'Transferencia bancaria concluida com sucesso.';
+
+  @override
+  String get bankWithdrawStatusFailed => 'Transferencia bancaria falhou.';
+
+  @override
+  String get bankWithdrawStatusReviewRequired =>
+      'Transferencia bancaria em revisao.';
+
+  @override
+  String get bankWithdrawSelectBankError => 'Selecione um banco primeiro.';
+
+  @override
+  String get bankWithdrawAccountNameRequired => 'Digite o nome da conta.';
+
+  @override
+  String get bankWithdrawAccountNumberRequired => 'Digite o numero da conta.';
+
+  @override
+  String get bankWithdrawCannotProceed =>
+      'Nao e possivel continuar com esta pre-visualizacao da transferencia bancaria.';
+
+  @override
+  String get bankWithdrawProcessingTitle => 'Levantamento em processamento';
+
+  @override
+  String get bankWithdrawProcessingMessage =>
+      'Estamos a processar sua transferencia bancaria. Aguarde enquanto confirmamos o estado do pagamento.';
+
+  @override
+  String get bankWithdrawSuccessTitle => 'Levantamento concluido';
+
+  @override
+  String get bankWithdrawSuccessMessage =>
+      'Sua transferencia bancaria foi concluida com sucesso.';
+
+  @override
+  String get bankWithdrawFailedTitle => 'Levantamento falhou';
+
+  @override
+  String get bankWithdrawFailedMessage =>
+      'Sua transferencia bancaria nao foi concluida. Tente novamente.';
+
+  @override
+  String get bankWithdrawReviewTitle => 'Levantamento em revisao';
+
+  @override
+  String get bankWithdrawReviewMessage =>
+      'Sua transferencia precisa de revisao manual. Vamos atualizar voce em breve.';
+
+  @override
+  String get bankWithdrawStillProcessingTitle => 'Ainda em processamento';
+
+  @override
+  String get bankWithdrawStillProcessingMessage =>
+      'Sua transferencia esta a demorar mais do que o esperado. Verifique novamente em breve.';
+
+  @override
+  String get mobileMoneyDepositProcessingTitle => 'Deposito em processamento';
+
+  @override
+  String get mobileMoneyDepositProcessingMessage =>
+      'Confirme o PIN no seu telefone. Estamos a verificar o estado do deposito.';
+
+  @override
+  String get mobileMoneyDepositSuccessTitle => 'Deposito concluido';
+
+  @override
+  String get mobileMoneyDepositSuccessMessage =>
+      'Seu deposito foi concluido com sucesso.';
+
+  @override
+  String get mobileMoneyDepositFailedTitle => 'Deposito falhou';
+
+  @override
+  String get mobileMoneyDepositFailedMessage =>
+      'Seu deposito nao foi concluido. Tente novamente.';
+
+  @override
+  String get mobileMoneyDepositReviewTitle => 'Deposito em revisao';
+
+  @override
+  String get mobileMoneyDepositReviewMessage =>
+      'Seu deposito precisa de revisao manual. Vamos atualizar voce em breve.';
+
+  @override
+  String get mobileMoneyDepositStillProcessingTitle => 'Ainda em processamento';
+
+  @override
+  String get mobileMoneyDepositStillProcessingMessage =>
+      'Seu deposito esta a demorar mais do que o esperado. Verifique novamente em breve.';
 
   @override
   String get bankTransferCountryUnitedStates => 'Estados Unidos';

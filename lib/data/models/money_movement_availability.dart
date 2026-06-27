@@ -28,15 +28,43 @@ class MoneyMovementAvailability {
       version: 0,
       updatedAt: null,
       deposit: DepositAvailability(
+        mobileMoney: MobileMoneyAvailability(
+          enabled: true,
+          countries: [
+            MobileMoneyCountryAvailability(
+              country: 'MW',
+              currency: 'MWK',
+              enabled: true,
+              networks: [
+                RailToggle(code: 'AIRTEL', name: 'Airtel Money', enabled: true),
+                RailToggle(code: 'TNM', name: 'TNM Mpamba', enabled: true),
+              ],
+            ),
+          ],
+        ),
         expressP2P: ExpressP2PAvailability(
           enabled: true,
           currencies: [
             RailToggle(code: 'MZN', enabled: true),
             RailToggle(code: 'ZMW', enabled: true),
-            RailToggle(code: 'MWK', enabled: true),
+            RailToggle(
+              code: 'MWK',
+              enabled: true,
+              networks: [
+                RailToggle(code: 'AIRTEL', name: 'Airtel Money', enabled: true),
+                RailToggle(code: 'TNM', name: 'TNM Mpamba', enabled: true),
+              ],
+            ),
             RailToggle(code: 'ZAR', enabled: true),
             RailToggle(code: 'KES', enabled: true),
             RailToggle(code: 'NGN', enabled: true),
+          ],
+        ),
+        bankAccounts: BankAccountsAvailability(
+          enabled: true,
+          countries: [
+            CountryToggle(country: 'MW', enabled: true),
+            CountryToggle(country: 'US', enabled: true),
           ],
         ),
         classicP2P: SimpleRailAvailability(enabled: true),
@@ -226,12 +254,14 @@ class RailToggle {
   final String? name;
   final bool enabled;
   final String? reason;
+  final List<RailToggle> networks;
 
   const RailToggle({
     required this.code,
     this.name,
     required this.enabled,
     this.reason,
+    this.networks = const [],
   });
 
   factory RailToggle.fromJson(Map<String, dynamic> json) {
@@ -240,7 +270,30 @@ class RailToggle {
       name: _nullableString(json['name']),
       enabled: _asBool(json['enabled']) ?? true,
       reason: _nullableString(json['reason']),
+      networks: _asList(json['networks'])
+          .map((item) => RailToggle.fromJson(_asMap(item)))
+          .where((item) => item.code.isNotEmpty)
+          .toList(growable: false),
     );
+  }
+
+  bool isNetworkEnabled(String networkCode) {
+    if (!enabled) return false;
+    if (networks.isEmpty) return true;
+    final upper = networkCode.toUpperCase();
+    for (final network in networks) {
+      if (network.code.toUpperCase() == upper) return network.enabled;
+    }
+    return true;
+  }
+
+  bool get hasAnyEnabledNetwork {
+    if (!enabled) return false;
+    if (networks.isEmpty) return true;
+    for (final network in networks) {
+      if (network.enabled) return true;
+    }
+    return false;
   }
 }
 
@@ -259,21 +312,97 @@ class SimpleRailAvailability {
 }
 
 class DepositAvailability {
+  final MobileMoneyAvailability mobileMoney;
   final ExpressP2PAvailability expressP2P;
+  final BankAccountsAvailability bankAccounts;
   final SimpleRailAvailability classicP2P;
   final CryptoRailAvailability crypto;
 
   const DepositAvailability({
+    required this.mobileMoney,
     required this.expressP2P,
+    required this.bankAccounts,
     required this.classicP2P,
     required this.crypto,
   });
 
   factory DepositAvailability.fromJson(Map<String, dynamic> json) {
     return DepositAvailability(
+      mobileMoney: MobileMoneyAvailability.fromJson(
+        _asMap(json['mobileMoney']),
+      ),
       expressP2P: ExpressP2PAvailability.fromJson(_asMap(json['expressP2P'])),
+      bankAccounts: BankAccountsAvailability.fromJson(
+        _asMap(json['bankAccounts']),
+      ),
       classicP2P: SimpleRailAvailability.fromJson(_asMap(json['classicP2P'])),
       crypto: CryptoRailAvailability.fromJson(_asMap(json['crypto'])),
+    );
+  }
+}
+
+class BankAccountsAvailability {
+  final bool enabled;
+  final String? reason;
+  final List<CountryToggle> countries;
+
+  const BankAccountsAvailability({
+    required this.enabled,
+    this.reason,
+    required this.countries,
+  });
+
+  factory BankAccountsAvailability.fromJson(Map<String, dynamic> json) {
+    return BankAccountsAvailability(
+      enabled: _asBool(json['enabled']) ?? true,
+      reason: _nullableString(json['reason']),
+      countries: _asList(json['countries'])
+          .map((item) => CountryToggle.fromJson(_asMap(item)))
+          .where((item) => item.country.isNotEmpty)
+          .toList(growable: false),
+    );
+  }
+
+  CountryToggle? country(String code) {
+    final upper = code.toUpperCase();
+    for (final item in countries) {
+      if (item.country.toUpperCase() == upper) return item;
+    }
+    return null;
+  }
+
+  bool isCountryEnabled(String code) {
+    if (!enabled) return false;
+    final found = country(code);
+    return found == null ? true : found.enabled;
+  }
+
+  bool get hasAnyEnabledCountry {
+    if (!enabled) return false;
+    if (countries.isEmpty) return true;
+    for (final item in countries) {
+      if (item.enabled) return true;
+    }
+    return false;
+  }
+}
+
+class CountryToggle {
+  final String country;
+  final bool enabled;
+  final String? reason;
+
+  const CountryToggle({
+    required this.country,
+    required this.enabled,
+    this.reason,
+  });
+
+  factory CountryToggle.fromJson(Map<String, dynamic> json) {
+    return CountryToggle(
+      country: (json['country'] ?? '').toString(),
+      enabled: _asBool(json['enabled']) ?? true,
+      reason: _nullableString(json['reason']),
     );
   }
 }
@@ -354,6 +483,28 @@ class ExpressP2PAvailability {
       if (currency.code.toUpperCase() == upper) return currency.enabled;
     }
     return true;
+  }
+
+  RailToggle? currency(String code) {
+    final upper = code.toUpperCase();
+    for (final currency in currencies) {
+      if (currency.code.toUpperCase() == upper) return currency;
+    }
+    return null;
+  }
+
+  bool isNetworkEnabled(String currencyCode, String networkCode) {
+    if (!enabled) return false;
+    final found = currency(currencyCode);
+    if (found == null) return true;
+    return found.isNetworkEnabled(networkCode);
+  }
+
+  bool hasAnyEnabledNetwork(String currencyCode) {
+    if (!enabled) return false;
+    final found = currency(currencyCode);
+    if (found == null) return true;
+    return found.hasAnyEnabledNetwork;
   }
 }
 
@@ -470,6 +621,16 @@ class MobileMoneyAvailability {
     if (!enabled) return false;
     final found = country(code);
     return found == null ? true : found.enabled;
+  }
+
+  /// Stricter check for deposit/withdraw country pickers.
+  ///
+  /// Returns true only when [code] is explicitly listed in [countries] and
+  /// enabled. Omitted countries count as unavailable.
+  bool isCountryListedAndEnabled(String code) {
+    if (!enabled) return false;
+    final found = country(code);
+    return found != null && found.enabled;
   }
 
   bool isNetworkEnabled(String countryCode, String networkCode) {

@@ -586,6 +586,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancelCta => 'Cancel';
 
   @override
+  String get deleteCta => 'Delete';
+
+  @override
   String get quickAuthPinLabel => 'PIN Authentication';
 
   @override
@@ -690,6 +693,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardActionCards => 'Cards';
 
   @override
+  String get dashboardActionBankAccounts => 'Bank Accounts';
+
+  @override
   String get transactionsNoActivityTitle => 'No activity yet';
 
   @override
@@ -743,6 +749,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get depositP2PExchangeSubtitle =>
       'Bank transfer, Mobile Payments and more';
+
+  @override
+  String get depositMobileMoneySubtitle => 'Deposit instantly via mobile money';
+
+  @override
+  String get mobileMoneyAddNewNumber => 'Add number';
 
   @override
   String get depositStablecoinTitle => 'USD Stablecoin';
@@ -1748,7 +1760,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get withdrawMobileMoneyTitle => 'Mobile Money';
 
   @override
-  String get withdrawMobileMoneySubtitle => 'M-Pesa, Airtel Money and more';
+  String get withdrawMobileMoneySubtitle => 'Mobile money withdrawal';
 
   @override
   String get withdrawBankTransferTitle => 'Bank Transfer';
@@ -4685,6 +4697,352 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mobileMoneyCountryZambia => 'Zambia';
+
+  @override
+  String get mobileMoneyCountryMalawi => 'Malawi';
+
+  @override
+  String get depositMalawiMobileMoneyTitle => 'Malawi Mobile Money';
+
+  @override
+  String get mobileMoneySetPrimary => 'Set Primary';
+
+  @override
+  String get mobileMoneyPrimary => 'Primary';
+
+  @override
+  String get mobileMoneyPrimaryUpdated => 'Primary number updated.';
+
+  @override
+  String get mobileMoneyNetworkAirtelMoney => 'Airtel Money';
+
+  @override
+  String get mobileMoneyNetworkTnmMpamba => 'TNM Mpamba';
+
+  @override
+  String get mobileMoneyPhoneHintMw => '+265XXXXXXXXX';
+
+  @override
+  String get mobileMoneyPrimaryDefaultsOffHint =>
+      'New numbers are not primary by default. Set primary from the saved list.';
+
+  @override
+  String get mobileMoneyDepositPreviewCta => 'Preview deposit';
+
+  @override
+  String get mobileMoneyDepositInitiated => 'Mobile money deposit initiated.';
+
+  @override
+  String get mobileMoneyDepositSummaryTitle => 'DEPOSIT SUMMARY';
+
+  @override
+  String get mobileMoneyMwkEquivalentLabel => 'MWK equivalent';
+
+  @override
+  String get mobileMoneyDepositPromptHint =>
+      'A mobile money prompt will be sent to your phone to complete the payment.';
+
+  @override
+  String get withdrawMalawiMobileMoneyTitle =>
+      'Withdraw via Malawi Mobile Money';
+
+  @override
+  String get mobileMoneyWithdrawalUseSavedNumber => 'Saved number';
+
+  @override
+  String get mobileMoneyWithdrawalUseNewNumber => 'New number';
+
+  @override
+  String get mobileMoneyWithdrawalNoSavedNumbers =>
+      'No saved numbers for this network yet.';
+
+  @override
+  String get mobileMoneyWithdrawalManualPhoneHint => 'e.g. 0886316226';
+
+  @override
+  String get mobileMoneyWithdrawalPreviewCta => 'Preview withdrawal';
+
+  @override
+  String get mobileMoneyWithdrawalSummaryTitle => 'WITHDRAWAL SUMMARY';
+
+  @override
+  String get mobileMoneyWithdrawalFeeLabel => 'Fee';
+
+  @override
+  String get mobileMoneyWithdrawalTotalDebitLabel => 'Total debit';
+
+  @override
+  String get mobileMoneyWithdrawalPayoutLabel => 'Net payout';
+
+  @override
+  String get mobileMoneyWithdrawalAvailableBalanceLabel => 'Wallet available';
+
+  @override
+  String get mobileMoneyWithdrawalInitiateCta => 'Initiate withdrawal';
+
+  @override
+  String get mobileMoneyWithdrawalInitiated =>
+      'Withdrawal initiated. Checking status...';
+
+  @override
+  String get mobileMoneyWithdrawalStatusPending =>
+      'Payout initiated. Processing...';
+
+  @override
+  String get mobileMoneyWithdrawalStatusSuccess =>
+      'Withdrawal completed successfully.';
+
+  @override
+  String get mobileMoneyWithdrawalStatusFailed => 'Withdrawal failed.';
+
+  @override
+  String get mobileMoneyWithdrawalStatusReviewRequired =>
+      'Withdrawal is under review.';
+
+  @override
+  String get mobileMoneyWithdrawalProcessingTitle => 'Processing withdrawal';
+
+  @override
+  String get mobileMoneyWithdrawalProcessingMessage =>
+      'We are checking your withdrawal status.';
+
+  @override
+  String get mobileMoneyWithdrawalStillProcessingTitle => 'Still processing';
+
+  @override
+  String get mobileMoneyWithdrawalStillProcessingMessage =>
+      'Your withdrawal is taking longer than expected. Please check again soon.';
+
+  @override
+  String get mobileMoneyWithdrawalSelectSavedNumberError =>
+      'Select a saved mobile number.';
+
+  @override
+  String get mobileMoneyWithdrawalCannotProceed =>
+      'Cannot proceed with this withdrawal preview.';
+
+  @override
+  String get mobileMoneyDeleteNumberTitle => 'Delete number?';
+
+  @override
+  String get mobileMoneyDeleteNumberMessage =>
+      'This saved number will be removed from your account.';
+
+  @override
+  String get mobileMoneyNumberDeletedSuccess => 'Number deleted successfully.';
+
+  @override
+  String get bankAccountsTitle => 'Bank Accounts';
+
+  @override
+  String get bankAccountsMalawiTitle => 'Malawi Bank Account';
+
+  @override
+  String get bankAccountsMalawiSubtitle => 'Malawi bank account details';
+
+  @override
+  String get bankAccountsUsaTitle => 'USA Bank Account';
+
+  @override
+  String get bankAccountsUsaSubtitle => 'USA bank account';
+
+  @override
+  String get bankAccountsMalawiOptionTitle => 'Malawi Bank Account';
+
+  @override
+  String get bankAccountsMalawiOptionSubtitle => 'Malawi bank account';
+
+  @override
+  String get bankAccountsUsaOptionTitle => 'USA Bank Account';
+
+  @override
+  String get bankAccountsUsaOptionSubtitle => 'USA bank account';
+
+  @override
+  String get bankAccountsUsaComingSoon => 'USA bank accounts are coming soon.';
+
+  @override
+  String get bankAccountsYourAccountTitle => 'Your Malawi Bank Account';
+
+  @override
+  String get bankAccountsGetMalawiTitle => 'Get Malawi Bank Account';
+
+  @override
+  String get bankAccountsGetMalawiSubtitle =>
+      'Confirm to create your Malawi bank account.';
+
+  @override
+  String get bankAccountsGetMalawiCta => 'Get Malawi Bank Account';
+
+  @override
+  String get bankAccountsWalletAvailableLabel => 'Wallet available';
+
+  @override
+  String get bankAccountsCanAffordLabel => 'Eligibility';
+
+  @override
+  String get bankAccountsCanAffordYes => 'Eligible';
+
+  @override
+  String get bankAccountsCanAffordNo => 'Not eligible';
+
+  @override
+  String get bankAccountsActivationFeeLabel => 'Activation fee';
+
+  @override
+  String get bankAccountsEligibilityLabel => 'Eligibility';
+
+  @override
+  String get bankAccountsEligibleYes => 'Eligible';
+
+  @override
+  String get bankAccountsEligibleNo => 'Not eligible';
+
+  @override
+  String get bankAccountsInsufficientBalance =>
+      'Insufficient balance to create Malawi bank account.';
+
+  @override
+  String get bankAccountsCreatedSuccess =>
+      'Malawi bank account created successfully.';
+
+  @override
+  String get bankAccountsExistingLoadedSuccess =>
+      'Existing Malawi bank account loaded.';
+
+  @override
+  String get bankAccountsCopyAccountNumberCta => 'Copy account number';
+
+  @override
+  String get bankAccountsCopiedAccountNumber => 'Account number copied.';
+
+  @override
+  String get bankWithdrawMalawiTitle => 'Withdraw to Malawi Bank';
+
+  @override
+  String get bankWithdrawBankLabel => 'Bank';
+
+  @override
+  String get bankWithdrawPreviewCta => 'Preview transfer';
+
+  @override
+  String get bankWithdrawSummaryTitle => 'BANK TRANSFER SUMMARY';
+
+  @override
+  String get bankWithdrawFeeLabel => 'Withdrawal fee';
+
+  @override
+  String get bankWithdrawTotalDebitLabel => 'Total debit';
+
+  @override
+  String get bankWithdrawPayoutLabel => 'Net payout';
+
+  @override
+  String get bankWithdrawWalletAvailableLabel => 'Wallet available';
+
+  @override
+  String get bankWithdrawInitiateCta => 'Initiate transfer';
+
+  @override
+  String get bankWithdrawInitiated =>
+      'Bank transfer initiated. Checking status...';
+
+  @override
+  String get bankWithdrawStatusPending => 'Payout initiated. Processing...';
+
+  @override
+  String get bankWithdrawStatusSuccess =>
+      'Bank transfer completed successfully.';
+
+  @override
+  String get bankWithdrawStatusFailed => 'Bank transfer failed.';
+
+  @override
+  String get bankWithdrawStatusReviewRequired =>
+      'Bank transfer is under review.';
+
+  @override
+  String get bankWithdrawSelectBankError => 'Select a bank first.';
+
+  @override
+  String get bankWithdrawAccountNameRequired => 'Enter account name.';
+
+  @override
+  String get bankWithdrawAccountNumberRequired => 'Enter account number.';
+
+  @override
+  String get bankWithdrawCannotProceed =>
+      'Cannot proceed with this bank transfer preview.';
+
+  @override
+  String get bankWithdrawProcessingTitle => 'Processing withdrawal';
+
+  @override
+  String get bankWithdrawProcessingMessage =>
+      'We are processing your bank transfer. Please wait while we confirm the payout status.';
+
+  @override
+  String get bankWithdrawSuccessTitle => 'Withdrawal successful';
+
+  @override
+  String get bankWithdrawSuccessMessage =>
+      'Your bank transfer was completed successfully.';
+
+  @override
+  String get bankWithdrawFailedTitle => 'Withdrawal failed';
+
+  @override
+  String get bankWithdrawFailedMessage =>
+      'Your bank transfer could not be completed. Please try again.';
+
+  @override
+  String get bankWithdrawReviewTitle => 'Withdrawal under review';
+
+  @override
+  String get bankWithdrawReviewMessage =>
+      'Your transfer needs manual review. We will update you shortly.';
+
+  @override
+  String get bankWithdrawStillProcessingTitle => 'Still processing';
+
+  @override
+  String get bankWithdrawStillProcessingMessage =>
+      'Your transfer is taking longer than expected. Please check again shortly.';
+
+  @override
+  String get mobileMoneyDepositProcessingTitle => 'Processing deposit';
+
+  @override
+  String get mobileMoneyDepositProcessingMessage =>
+      'Please confirm your PIN on your phone. We are checking your deposit status.';
+
+  @override
+  String get mobileMoneyDepositSuccessTitle => 'Deposit successful';
+
+  @override
+  String get mobileMoneyDepositSuccessMessage =>
+      'Your deposit was completed successfully.';
+
+  @override
+  String get mobileMoneyDepositFailedTitle => 'Deposit failed';
+
+  @override
+  String get mobileMoneyDepositFailedMessage =>
+      'Your deposit could not be completed. Please try again.';
+
+  @override
+  String get mobileMoneyDepositReviewTitle => 'Deposit under review';
+
+  @override
+  String get mobileMoneyDepositReviewMessage =>
+      'Your deposit needs manual review. We will update you shortly.';
+
+  @override
+  String get mobileMoneyDepositStillProcessingTitle => 'Still processing';
+
+  @override
+  String get mobileMoneyDepositStillProcessingMessage =>
+      'Your deposit is taking longer than expected. Please check again shortly.';
 
   @override
   String get bankTransferCountryUnitedStates => 'United States';

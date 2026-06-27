@@ -10,6 +10,7 @@ import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/features/beneficiaries/bank_transfer_country_sheet.dart';
 import 'package:opei/features/beneficiaries/mobile_money_receivers_screen.dart';
 import 'package:opei/features/money_movement/availability_controller.dart';
+import 'package:opei/features/withdraw/mobile_money/malawi_mobile_money_withdrawal_screen.dart';
 import 'package:opei/features/withdraw/withdraw_controller.dart';
 import 'package:opei/features/withdraw/withdraw_state.dart';
 import 'package:opei/l10n/app_localizations.dart';
@@ -83,12 +84,12 @@ class WithdrawOptionsSheet extends ConsumerWidget {
               title: l10n.withdrawMobileMoneyTitle,
               subtitle: l10n.withdrawMobileMoneySubtitle,
               onTap: () {
-                Navigator.of(context).pop();
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (_) => const _MobileMoneyCountrySheet(),
+                final navigator = Navigator.of(context);
+                navigator.pop();
+                navigator.push(
+                  OpeiPageRoute(
+                    builder: (_) => const MobileMoneyWithdrawalCountryScreen(),
+                  ),
                 );
               },
             ),
@@ -145,11 +146,11 @@ class WithdrawOptionsSheet extends ConsumerWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// MOBILE MONEY — COUNTRY SELECTION SHEET
+// MOBILE MONEY — COUNTRY SELECTION (full-screen)
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _MobileMoneyCountrySheet extends ConsumerWidget {
-  const _MobileMoneyCountrySheet();
+class MobileMoneyWithdrawalCountryScreen extends ConsumerWidget {
+  const MobileMoneyWithdrawalCountryScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -158,6 +159,7 @@ class _MobileMoneyCountrySheet extends ConsumerWidget {
       ref.watch(moneyMovementAvailabilityProvider),
     );
     final supportedCountries = [
+      ('🇲🇼', l10n.mobileMoneyCountryMalawi, 'MW'),
       ('🇬🇭', l10n.mobileMoneyCountryGhana, 'GH'),
       ('🇰🇪', l10n.mobileMoneyCountryKenya, 'KE'),
       ('🇺🇬', l10n.mobileMoneyCountryUganda, 'UG'),
@@ -172,134 +174,142 @@ class _MobileMoneyCountrySheet extends ConsumerWidget {
     ];
     final countries = supportedCountries
         .where(
-          (country) =>
-              availability.withdrawal.mobileMoney.isCountryEnabled(country.$3),
+          (c) => availability.withdrawal.mobileMoney.isCountryListedAndEnabled(
+            c.$3,
+          ),
         )
         .toList(growable: false);
-    final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
-    final maxHeight = MediaQuery.of(context).size.height * 0.82;
 
-    return Container(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      decoration: const BoxDecoration(
-        color: OpeiBrand.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    return Scaffold(
+      backgroundColor: OpeiBrand.surface,
+      appBar: AppBar(
+        backgroundColor: OpeiBrand.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        title: Text(l10n.withdrawMobileMoneyTitle),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(0.5),
+          child: Container(height: 0.5, color: OpeiBrand.hairline),
+        ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ── Handle ─────────────────────────────────────
-          const SizedBox(height: 14),
-          Container(
-            width: 36,
-            height: 4,
-            decoration: BoxDecoration(
-              color: OpeiBrand.hairlineStrong,
-              borderRadius: BorderRadius.circular(99),
-            ),
-          ),
-          const SizedBox(height: 22),
-
-          // ── Header ─────────────────────────────────────
-          Text(
-            AppLocalizations.of(context)!.addressSelectCountryTitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: OpeiBrand.ink,
-              letterSpacing: -0.4,
-              height: 1.0,
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            AppLocalizations.of(context)!.withdrawMobileMoneyCountriesSubtitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
-            ),
-          ),
-          const SizedBox(height: 22),
-
-          // ── Country list ────────────────────────────────
-          const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline),
-          Flexible(
-            child: ListView.separated(
-              padding: EdgeInsets.zero,
-              physics: const ClampingScrollPhysics(),
-              itemCount: countries.length,
-              separatorBuilder: (context, i) => const Divider(
-                height: 1,
-                thickness: 0.5,
-                color: OpeiBrand.hairline,
+      body: SafeArea(
+        top: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+              child: Text(
+                l10n.addressSelectCountryTitle,
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: OpeiBrand.inkTertiary,
+                  letterSpacing: .9,
+                ),
               ),
-              itemBuilder: (context, i) {
-                final (flag, name, code) = countries[i];
-                return Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      final navigator = Navigator.of(context);
-                      navigator.pop();
-                      navigator.push(
-                        OpeiPageRoute(
-                          builder: (_) => MobileMoneyReceiversScreen(
-                            country: code,
-                            countryName: name,
-                            flag: flag,
-                          ),
-                        ),
-                      );
-                    },
-                    splashColor: OpeiBrand.primary.withValues(alpha: 0.04),
-                    highlightColor: OpeiBrand.surfaceMuted,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
+            ),
+            const Divider(
+              height: 0.5,
+              thickness: 0.5,
+              color: OpeiBrand.hairline,
+            ),
+            Expanded(
+              child: countries.isEmpty
+                  ? Center(
+                      child: Text(
+                        l10n.errServiceUnavailable,
+                        style: const TextStyle(color: OpeiBrand.inkSecondary),
+                        textAlign: TextAlign.center,
                       ),
-                      child: Row(
-                        children: [
-                          Text(flag, style: const TextStyle(fontSize: 22)),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Text(
-                              name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: OpeiBrand.ink,
-                                letterSpacing: -0.2,
+                    )
+                  : ListView.separated(
+                      padding: EdgeInsets.zero,
+                      itemCount: countries.length,
+                      separatorBuilder: (context, i) => const Divider(
+                        height: 0.5,
+                        thickness: 0.5,
+                        indent: 72,
+                        color: OpeiBrand.hairline,
+                      ),
+                      itemBuilder: (context, i) {
+                        final (flag, name, code) = countries[i];
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              if (code == 'MW') {
+                                Navigator.of(context).push(
+                                  OpeiPageRoute(
+                                    builder: (_) =>
+                                        const MalawiMobileMoneyWithdrawalScreen(),
+                                  ),
+                                );
+                              } else {
+                                Navigator.of(context).push(
+                                  OpeiPageRoute(
+                                    builder: (_) => MobileMoneyReceiversScreen(
+                                      country: code,
+                                      countryName: name,
+                                      flag: flag,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            splashColor: OpeiBrand.primary.withValues(
+                              alpha: 0.04,
+                            ),
+                            highlightColor: OpeiBrand.surfaceMuted,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 14,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: OpeiBrand.surfaceMuted,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      flag,
+                                      style: const TextStyle(fontSize: 22),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 14),
+                                  Expanded(
+                                    child: Text(
+                                      name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: OpeiBrand.ink,
+                                        letterSpacing: -0.2,
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.chevron_right_rounded,
+                                    size: 18,
+                                    color: OpeiBrand.inkTertiary,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          Text(
-                            code,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: OpeiBrand.inkTertiary,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  ),
-                );
-              },
             ),
-          ),
-          const Divider(height: 1, thickness: 0.5, color: OpeiBrand.hairline),
-
-          SizedBox(height: 16 + bottomPadding),
-        ],
+          ],
+        ),
       ),
     );
   }

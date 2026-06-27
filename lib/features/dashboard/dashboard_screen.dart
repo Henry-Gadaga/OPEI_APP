@@ -11,6 +11,7 @@ import 'package:opei/features/dashboard/dashboard_controller.dart';
 import 'package:opei/features/dashboard/dashboard_state.dart';
 import 'package:opei/features/dashboard/widgets/transaction_widgets.dart';
 import 'package:opei/features/deposit/deposit_screen.dart';
+import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/features/profile/profile_screen.dart';
 import 'package:opei/features/transactions/transactions_screen.dart';
 import 'package:opei/features/transactions/widgets/transaction_detail_sheet.dart';
@@ -101,7 +102,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       DashboardHomeScreen(
         onProfileTap: () => _goTo(profileIndex),
         onActivityTap: () => _goTo(2),
-        onCardsTap: () => _goTo(1),
+        onBankAccountsTap: () => context.push('/deposit/bank-accounts'),
       ),
       const CardsScreen(),
       const TransactionsScreen(),
@@ -164,13 +165,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 class DashboardHomeScreen extends ConsumerStatefulWidget {
   final VoidCallback onProfileTap;
   final VoidCallback onActivityTap;
-  final VoidCallback onCardsTap;
+  final VoidCallback onBankAccountsTap;
 
   const DashboardHomeScreen({
     super.key,
     required this.onProfileTap,
     required this.onActivityTap,
-    required this.onCardsTap,
+    required this.onBankAccountsTap,
   });
 
   @override
@@ -187,6 +188,12 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
     final dash = ref.watch(dashboardControllerProvider);
     final profile = ref.watch(profileControllerProvider);
     final controller = ref.read(dashboardControllerProvider.notifier);
+    final availability = availabilityFromAsync(
+      ref.watch(moneyMovementAvailabilityProvider),
+    );
+    final bankAccountsEnabled =
+        availability.deposit.bankAccounts.enabled &&
+        availability.deposit.bankAccounts.hasAnyEnabledCountry;
 
     final walletReady = dash.hasAttemptedInitialLoad && !dash.isLoading;
     final txReady =
@@ -226,7 +233,8 @@ class _DashboardHomeScreenState extends ConsumerState<DashboardHomeScreen> {
         dismissOnBarrierTap: true,
         builder: (_) => const WithdrawOptionsSheet(),
       ),
-      onCards: widget.onCardsTap,
+      onBankAccounts: widget.onBankAccountsTap,
+      bankAccountsEnabled: bankAccountsEnabled,
       onRetryWallet: () => controller.retryWalletOnly(),
     );
 
@@ -322,7 +330,8 @@ class _TopFixedSection extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onSend;
   final VoidCallback onWithdraw;
-  final VoidCallback onCards;
+  final VoidCallback onBankAccounts;
+  final bool bankAccountsEnabled;
   final VoidCallback onRetryWallet;
 
   const _TopFixedSection({
@@ -337,7 +346,8 @@ class _TopFixedSection extends StatelessWidget {
     required this.onAdd,
     required this.onSend,
     required this.onWithdraw,
-    required this.onCards,
+    required this.onBankAccounts,
+    required this.bankAccountsEnabled,
     required this.onRetryWallet,
   });
 
@@ -370,7 +380,8 @@ class _TopFixedSection extends StatelessWidget {
             onAdd: onAdd,
             onSend: onSend,
             onWithdraw: onWithdraw,
-            onCards: onCards,
+            onBankAccounts: onBankAccounts,
+            bankAccountsEnabled: bankAccountsEnabled,
           ),
         ),
         const SizedBox(height: 28),
@@ -938,13 +949,15 @@ class _ActionRow extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onSend;
   final VoidCallback onWithdraw;
-  final VoidCallback onCards;
+  final VoidCallback onBankAccounts;
+  final bool bankAccountsEnabled;
 
   const _ActionRow({
     required this.onAdd,
     required this.onSend,
     required this.onWithdraw,
-    required this.onCards,
+    required this.onBankAccounts,
+    required this.bankAccountsEnabled,
   });
 
   @override
@@ -969,9 +982,10 @@ class _ActionRow extends StatelessWidget {
           onTap: onWithdraw,
         ),
         _ActionChip(
-          icon: Icons.credit_card_rounded,
-          label: l10n.dashboardActionCards,
-          onTap: onCards,
+          icon: Icons.account_balance_rounded,
+          label: l10n.dashboardActionBankAccounts,
+          onTap: onBankAccounts,
+          enabled: bankAccountsEnabled,
         ),
       ],
     );
@@ -982,10 +996,12 @@ class _ActionChip extends StatefulWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final bool enabled;
   const _ActionChip({
     required this.icon,
     required this.label,
     required this.onTap,
+    this.enabled = true,
   });
 
   @override
@@ -1020,41 +1036,61 @@ class _ActionChipState extends State<_ActionChip>
   Widget build(BuildContext context) {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTapDown: (_) => _c.forward(),
-      onTapUp: (_) {
-        _c.reverse();
-        widget.onTap();
-      },
+      onTapDown: widget.enabled ? (_) => _c.forward() : null,
+      onTapUp: widget.enabled
+          ? (_) {
+              _c.reverse();
+              widget.onTap();
+            }
+          : null,
       onTapCancel: () => _c.reverse(),
       child: ScaleTransition(
         scale: _s,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.20),
-                  width: 0.7,
+            Opacity(
+              opacity: widget.enabled ? 1 : 0.45,
+              child: Column(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.20),
+                        width: 0.7,
+                      ),
+                    ),
+                    child: Icon(widget.icon, color: Colors.white, size: 21),
+                  ),
+                  const SizedBox(height: 7),
+                  Text(
+                    widget.label,
+                    style: TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withValues(alpha: 0.88),
+                      letterSpacing: -0.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (!widget.enabled) const SizedBox(height: 1),
+            if (!widget.enabled)
+              Text(
+                AppLocalizations.of(context)!.notAvailableLabel,
+                style: TextStyle(
+                  fontFamily: kPrimaryFontFamily,
+                  fontSize: 9.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white.withValues(alpha: 0.75),
                 ),
               ),
-              child: Icon(widget.icon, color: Colors.white, size: 21),
-            ),
-            const SizedBox(height: 7),
-            Text(
-              widget.label,
-              style: TextStyle(
-                fontFamily: kPrimaryFontFamily,
-                fontSize: 11.5,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withValues(alpha: 0.88),
-                letterSpacing: -0.1,
-              ),
-            ),
           ],
         ),
       ),

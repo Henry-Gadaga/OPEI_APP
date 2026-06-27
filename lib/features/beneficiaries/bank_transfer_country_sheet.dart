@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/features/beneficiaries/us_bank/us_bank_receivers_screen.dart';
 import 'package:opei/features/money_movement/availability_controller.dart';
+import 'package:opei/features/withdraw/bank/malawi_bank_withdrawal_screen.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/theme.dart';
 
@@ -18,6 +19,7 @@ class BankTransferCountrySheet extends ConsumerWidget {
       ref.watch(moneyMovementAvailabilityProvider),
     );
     final supportedCountries = [
+      ('🇲🇼', l10n.mobileMoneyCountryMalawi, 'MW'),
       ('🇺🇸', l10n.bankTransferCountryUnitedStates, 'US'),
     ];
     final countries = supportedCountries
@@ -95,6 +97,12 @@ class BankTransferCountrySheet extends ConsumerWidget {
                       navigator.push(
                         OpeiPageRoute(
                           builder: (_) => const UsBankReceiversScreen(),
+                        ),
+                      );
+                    } else if (code == 'MW') {
+                      navigator.push(
+                        OpeiPageRoute(
+                          builder: (_) => const MalawiBankWithdrawalScreen(),
                         ),
                       );
                     }

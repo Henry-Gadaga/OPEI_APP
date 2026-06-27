@@ -6,24 +6,42 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:opei/core/config/feature_flags.dart';
+import 'package:opei/core/navigation/opei_page_transitions.dart';
 import 'package:opei/features/deposit/deposit_controller.dart';
+import 'package:opei/features/deposit/mobile_money/mobile_money_deposit_screen.dart';
 import 'package:opei/features/money_movement/availability_controller.dart';
 import 'package:opei/l10n/app_localizations.dart';
 import 'package:opei/responsive/responsive_tokens.dart';
 import 'package:opei/responsive/responsive_widgets.dart';
 import 'package:opei/theme.dart';
 
-class DepositOptionsSheet extends ConsumerWidget {
+class DepositOptionsSheet extends ConsumerStatefulWidget {
   const DepositOptionsSheet({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DepositOptionsSheet> createState() =>
+      _DepositOptionsSheetState();
+}
+
+class _DepositOptionsSheetState extends ConsumerState<DepositOptionsSheet> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(moneyMovementAvailabilityProvider.notifier).refresh();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final bottomPadding = MediaQuery.of(context).viewPadding.bottom;
-    final availability = availabilityFromAsync(
-      ref.watch(moneyMovementAvailabilityProvider),
-    );
+    final availabilityAsync = ref.watch(moneyMovementAvailabilityProvider);
+    final availability = availabilityFromAsync(availabilityAsync);
     final deposit = availability.deposit;
+    final mobileMoneyDepositEnabled =
+        deposit.expressP2P.isCurrencyEnabled('MWK') &&
+        deposit.expressP2P.hasAnyEnabledNetwork('MWK');
 
     return Container(
       decoration: const BoxDecoration(
@@ -69,6 +87,21 @@ class DepositOptionsSheet extends ConsumerWidget {
           const SizedBox(height: 24),
 
           const _DepositRowDivider(),
+          if (mobileMoneyDepositEnabled) ...[
+            _DepositRow(
+              title: l10n.withdrawMobileMoneyTitle,
+              subtitle: l10n.depositMobileMoneySubtitle,
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  OpeiPageRoute(
+                    builder: (_) => const MobileMoneyDepositCountryScreen(),
+                  ),
+                );
+              },
+            ),
+            const _DepositRowDivider(),
+          ],
           if (deposit.expressP2P.enabled) ...[
             _DepositRow(
               title: l10n.depositExpressP2PTitle,

@@ -16,6 +16,9 @@ import 'package:opei/data/repositories/crypto_repository.dart';
 import 'package:opei/data/repositories/p2p_repository.dart';
 import 'package:opei/data/repositories/express_order_repository.dart';
 import 'package:opei/data/repositories/money_movement_availability_repository.dart';
+import 'package:opei/data/repositories/mobile_money_deposit_repository.dart';
+import 'package:opei/data/repositories/bank_account_repository.dart';
+import 'package:opei/data/repositories/bank_withdrawal_repository.dart';
 import 'package:opei/data/repositories/wallet_repository.dart';
 import 'package:opei/data/repositories/transaction_repository.dart';
 import 'package:opei/data/repositories/beneficiary_repository.dart';
@@ -218,6 +221,24 @@ final moneyMovementAvailabilityRepositoryProvider =
       final apiClient = ref.watch(apiClientProvider);
       return MoneyMovementAvailabilityRepository(apiClient);
     });
+
+final mobileMoneyDepositRepositoryProvider =
+    Provider<MobileMoneyDepositRepository>((ref) {
+      final apiClient = ref.watch(apiClientProvider);
+      return MobileMoneyDepositRepository(apiClient);
+    });
+
+final bankAccountRepositoryProvider = Provider<BankAccountRepository>((ref) {
+  final apiClient = ref.watch(apiClientProvider);
+  return BankAccountRepository(apiClient);
+});
+
+final bankWithdrawalRepositoryProvider = Provider<BankWithdrawalRepository>((
+  ref,
+) {
+  final apiClient = ref.watch(apiClientProvider);
+  return BankWithdrawalRepository(apiClient);
+});
 
 final beneficiaryRepositoryProvider = Provider<BeneficiaryRepository>((ref) {
   final apiClient = ref.watch(apiClientProvider);

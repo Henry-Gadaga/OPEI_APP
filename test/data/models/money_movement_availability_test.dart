@@ -95,5 +95,62 @@ void main() {
       expect(availability.cards.topUp.enabled, isTrue);
       expect(availability.cards.withdrawal.enabled, isFalse);
     });
+
+    test('deposit mobile money requires explicit listed country', () {
+      final disabled = MoneyMovementAvailability.fromJson({
+        'version': 3,
+        'deposit': {
+          'mobileMoney': {
+            'enabled': true,
+            'countries': [
+              {
+                'country': 'MW',
+                'currency': 'MWK',
+                'enabled': false,
+                'networks': [
+                  {'code': 'AIRTEL', 'enabled': true},
+                ],
+              },
+            ],
+          },
+        },
+      });
+
+      expect(
+        disabled.deposit.mobileMoney.isCountryListedAndEnabled('MW'),
+        isFalse,
+      );
+      expect(
+        disabled.deposit.mobileMoney.isCountryEnabled('MW'),
+        isFalse,
+      );
+
+      final omitted = MoneyMovementAvailability.fromJson({
+        'version': 3,
+        'deposit': {
+          'mobileMoney': {
+            'enabled': true,
+            'countries': [
+              {
+                'country': 'GH',
+                'enabled': true,
+                'networks': [
+                  {'code': 'MTN', 'enabled': true},
+                ],
+              },
+            ],
+          },
+        },
+      });
+
+      expect(
+        omitted.deposit.mobileMoney.isCountryListedAndEnabled('MW'),
+        isFalse,
+      );
+      expect(
+        omitted.deposit.mobileMoney.isCountryEnabled('MW'),
+        isTrue,
+      );
+    });
   });
 }

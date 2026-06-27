@@ -1202,6 +1202,12 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancelCta;
 
+  /// No description provided for @deleteCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteCta;
+
   /// No description provided for @quickAuthPinLabel.
   ///
   /// In en, this message translates to:
@@ -1400,6 +1406,12 @@ abstract class AppLocalizations {
   /// **'Cards'**
   String get dashboardActionCards;
 
+  /// No description provided for @dashboardActionBankAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Accounts'**
+  String get dashboardActionBankAccounts;
+
   /// No description provided for @transactionsNoActivityTitle.
   ///
   /// In en, this message translates to:
@@ -1495,6 +1507,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bank transfer, Mobile Payments and more'**
   String get depositP2PExchangeSubtitle;
+
+  /// No description provided for @depositMobileMoneySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit instantly via mobile money'**
+  String get depositMobileMoneySubtitle;
+
+  /// No description provided for @mobileMoneyAddNewNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Add number'**
+  String get mobileMoneyAddNewNumber;
 
   /// No description provided for @depositStablecoinTitle.
   ///
@@ -3338,7 +3362,7 @@ abstract class AppLocalizations {
   /// No description provided for @withdrawMobileMoneySubtitle.
   ///
   /// In en, this message translates to:
-  /// **'M-Pesa, Airtel Money and more'**
+  /// **'Mobile money withdrawal'**
   String get withdrawMobileMoneySubtitle;
 
   /// No description provided for @withdrawBankTransferTitle.
@@ -8368,6 +8392,636 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Zambia'**
   String get mobileMoneyCountryZambia;
+
+  /// No description provided for @mobileMoneyCountryMalawi.
+  ///
+  /// In en, this message translates to:
+  /// **'Malawi'**
+  String get mobileMoneyCountryMalawi;
+
+  /// No description provided for @depositMalawiMobileMoneyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Malawi Mobile Money'**
+  String get depositMalawiMobileMoneyTitle;
+
+  /// No description provided for @mobileMoneySetPrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Primary'**
+  String get mobileMoneySetPrimary;
+
+  /// No description provided for @mobileMoneyPrimary.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary'**
+  String get mobileMoneyPrimary;
+
+  /// No description provided for @mobileMoneyPrimaryUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary number updated.'**
+  String get mobileMoneyPrimaryUpdated;
+
+  /// No description provided for @mobileMoneyNetworkAirtelMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Airtel Money'**
+  String get mobileMoneyNetworkAirtelMoney;
+
+  /// No description provided for @mobileMoneyNetworkTnmMpamba.
+  ///
+  /// In en, this message translates to:
+  /// **'TNM Mpamba'**
+  String get mobileMoneyNetworkTnmMpamba;
+
+  /// No description provided for @mobileMoneyPhoneHintMw.
+  ///
+  /// In en, this message translates to:
+  /// **'+265XXXXXXXXX'**
+  String get mobileMoneyPhoneHintMw;
+
+  /// No description provided for @mobileMoneyPrimaryDefaultsOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New numbers are not primary by default. Set primary from the saved list.'**
+  String get mobileMoneyPrimaryDefaultsOffHint;
+
+  /// No description provided for @mobileMoneyDepositPreviewCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview deposit'**
+  String get mobileMoneyDepositPreviewCta;
+
+  /// No description provided for @mobileMoneyDepositInitiated.
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile money deposit initiated.'**
+  String get mobileMoneyDepositInitiated;
+
+  /// No description provided for @mobileMoneyDepositSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'DEPOSIT SUMMARY'**
+  String get mobileMoneyDepositSummaryTitle;
+
+  /// No description provided for @mobileMoneyMwkEquivalentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'MWK equivalent'**
+  String get mobileMoneyMwkEquivalentLabel;
+
+  /// No description provided for @mobileMoneyDepositPromptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A mobile money prompt will be sent to your phone to complete the payment.'**
+  String get mobileMoneyDepositPromptHint;
+
+  /// No description provided for @withdrawMalawiMobileMoneyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw via Malawi Mobile Money'**
+  String get withdrawMalawiMobileMoneyTitle;
+
+  /// No description provided for @mobileMoneyWithdrawalUseSavedNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved number'**
+  String get mobileMoneyWithdrawalUseSavedNumber;
+
+  /// No description provided for @mobileMoneyWithdrawalUseNewNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'New number'**
+  String get mobileMoneyWithdrawalUseNewNumber;
+
+  /// No description provided for @mobileMoneyWithdrawalNoSavedNumbers.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved numbers for this network yet.'**
+  String get mobileMoneyWithdrawalNoSavedNumbers;
+
+  /// No description provided for @mobileMoneyWithdrawalManualPhoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 0886316226'**
+  String get mobileMoneyWithdrawalManualPhoneHint;
+
+  /// No description provided for @mobileMoneyWithdrawalPreviewCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview withdrawal'**
+  String get mobileMoneyWithdrawalPreviewCta;
+
+  /// No description provided for @mobileMoneyWithdrawalSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'WITHDRAWAL SUMMARY'**
+  String get mobileMoneyWithdrawalSummaryTitle;
+
+  /// No description provided for @mobileMoneyWithdrawalFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee'**
+  String get mobileMoneyWithdrawalFeeLabel;
+
+  /// No description provided for @mobileMoneyWithdrawalTotalDebitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total debit'**
+  String get mobileMoneyWithdrawalTotalDebitLabel;
+
+  /// No description provided for @mobileMoneyWithdrawalPayoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Net payout'**
+  String get mobileMoneyWithdrawalPayoutLabel;
+
+  /// No description provided for @mobileMoneyWithdrawalAvailableBalanceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet available'**
+  String get mobileMoneyWithdrawalAvailableBalanceLabel;
+
+  /// No description provided for @mobileMoneyWithdrawalInitiateCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Initiate withdrawal'**
+  String get mobileMoneyWithdrawalInitiateCta;
+
+  /// No description provided for @mobileMoneyWithdrawalInitiated.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal initiated. Checking status...'**
+  String get mobileMoneyWithdrawalInitiated;
+
+  /// No description provided for @mobileMoneyWithdrawalStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Payout initiated. Processing...'**
+  String get mobileMoneyWithdrawalStatusPending;
+
+  /// No description provided for @mobileMoneyWithdrawalStatusSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal completed successfully.'**
+  String get mobileMoneyWithdrawalStatusSuccess;
+
+  /// No description provided for @mobileMoneyWithdrawalStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal failed.'**
+  String get mobileMoneyWithdrawalStatusFailed;
+
+  /// No description provided for @mobileMoneyWithdrawalStatusReviewRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal is under review.'**
+  String get mobileMoneyWithdrawalStatusReviewRequired;
+
+  /// No description provided for @mobileMoneyWithdrawalProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing withdrawal'**
+  String get mobileMoneyWithdrawalProcessingTitle;
+
+  /// No description provided for @mobileMoneyWithdrawalProcessingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We are checking your withdrawal status.'**
+  String get mobileMoneyWithdrawalProcessingMessage;
+
+  /// No description provided for @mobileMoneyWithdrawalStillProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still processing'**
+  String get mobileMoneyWithdrawalStillProcessingTitle;
+
+  /// No description provided for @mobileMoneyWithdrawalStillProcessingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your withdrawal is taking longer than expected. Please check again soon.'**
+  String get mobileMoneyWithdrawalStillProcessingMessage;
+
+  /// No description provided for @mobileMoneyWithdrawalSelectSavedNumberError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a saved mobile number.'**
+  String get mobileMoneyWithdrawalSelectSavedNumberError;
+
+  /// No description provided for @mobileMoneyWithdrawalCannotProceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot proceed with this withdrawal preview.'**
+  String get mobileMoneyWithdrawalCannotProceed;
+
+  /// No description provided for @mobileMoneyDeleteNumberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete number?'**
+  String get mobileMoneyDeleteNumberTitle;
+
+  /// No description provided for @mobileMoneyDeleteNumberMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This saved number will be removed from your account.'**
+  String get mobileMoneyDeleteNumberMessage;
+
+  /// No description provided for @mobileMoneyNumberDeletedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Number deleted successfully.'**
+  String get mobileMoneyNumberDeletedSuccess;
+
+  /// No description provided for @bankAccountsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Accounts'**
+  String get bankAccountsTitle;
+
+  /// No description provided for @bankAccountsMalawiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Malawi Bank Account'**
+  String get bankAccountsMalawiTitle;
+
+  /// No description provided for @bankAccountsMalawiSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Malawi bank account details'**
+  String get bankAccountsMalawiSubtitle;
+
+  /// No description provided for @bankAccountsUsaTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'USA Bank Account'**
+  String get bankAccountsUsaTitle;
+
+  /// No description provided for @bankAccountsUsaSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'USA bank account'**
+  String get bankAccountsUsaSubtitle;
+
+  /// No description provided for @bankAccountsMalawiOptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Malawi Bank Account'**
+  String get bankAccountsMalawiOptionTitle;
+
+  /// No description provided for @bankAccountsMalawiOptionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Malawi bank account'**
+  String get bankAccountsMalawiOptionSubtitle;
+
+  /// No description provided for @bankAccountsUsaOptionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'USA Bank Account'**
+  String get bankAccountsUsaOptionTitle;
+
+  /// No description provided for @bankAccountsUsaOptionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'USA bank account'**
+  String get bankAccountsUsaOptionSubtitle;
+
+  /// No description provided for @bankAccountsUsaComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'USA bank accounts are coming soon.'**
+  String get bankAccountsUsaComingSoon;
+
+  /// No description provided for @bankAccountsYourAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Malawi Bank Account'**
+  String get bankAccountsYourAccountTitle;
+
+  /// No description provided for @bankAccountsGetMalawiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Malawi Bank Account'**
+  String get bankAccountsGetMalawiTitle;
+
+  /// No description provided for @bankAccountsGetMalawiSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm to create your Malawi bank account.'**
+  String get bankAccountsGetMalawiSubtitle;
+
+  /// No description provided for @bankAccountsGetMalawiCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Malawi Bank Account'**
+  String get bankAccountsGetMalawiCta;
+
+  /// No description provided for @bankAccountsWalletAvailableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet available'**
+  String get bankAccountsWalletAvailableLabel;
+
+  /// No description provided for @bankAccountsCanAffordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Eligibility'**
+  String get bankAccountsCanAffordLabel;
+
+  /// No description provided for @bankAccountsCanAffordYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Eligible'**
+  String get bankAccountsCanAffordYes;
+
+  /// No description provided for @bankAccountsCanAffordNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not eligible'**
+  String get bankAccountsCanAffordNo;
+
+  /// No description provided for @bankAccountsActivationFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Activation fee'**
+  String get bankAccountsActivationFeeLabel;
+
+  /// No description provided for @bankAccountsEligibilityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Eligibility'**
+  String get bankAccountsEligibilityLabel;
+
+  /// No description provided for @bankAccountsEligibleYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Eligible'**
+  String get bankAccountsEligibleYes;
+
+  /// No description provided for @bankAccountsEligibleNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Not eligible'**
+  String get bankAccountsEligibleNo;
+
+  /// No description provided for @bankAccountsInsufficientBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient balance to create Malawi bank account.'**
+  String get bankAccountsInsufficientBalance;
+
+  /// No description provided for @bankAccountsCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Malawi bank account created successfully.'**
+  String get bankAccountsCreatedSuccess;
+
+  /// No description provided for @bankAccountsExistingLoadedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing Malawi bank account loaded.'**
+  String get bankAccountsExistingLoadedSuccess;
+
+  /// No description provided for @bankAccountsCopyAccountNumberCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy account number'**
+  String get bankAccountsCopyAccountNumberCta;
+
+  /// No description provided for @bankAccountsCopiedAccountNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Account number copied.'**
+  String get bankAccountsCopiedAccountNumber;
+
+  /// No description provided for @bankWithdrawMalawiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdraw to Malawi Bank'**
+  String get bankWithdrawMalawiTitle;
+
+  /// No description provided for @bankWithdrawBankLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get bankWithdrawBankLabel;
+
+  /// No description provided for @bankWithdrawPreviewCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview transfer'**
+  String get bankWithdrawPreviewCta;
+
+  /// No description provided for @bankWithdrawSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'BANK TRANSFER SUMMARY'**
+  String get bankWithdrawSummaryTitle;
+
+  /// No description provided for @bankWithdrawFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal fee'**
+  String get bankWithdrawFeeLabel;
+
+  /// No description provided for @bankWithdrawTotalDebitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Total debit'**
+  String get bankWithdrawTotalDebitLabel;
+
+  /// No description provided for @bankWithdrawPayoutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Net payout'**
+  String get bankWithdrawPayoutLabel;
+
+  /// No description provided for @bankWithdrawWalletAvailableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet available'**
+  String get bankWithdrawWalletAvailableLabel;
+
+  /// No description provided for @bankWithdrawInitiateCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Initiate transfer'**
+  String get bankWithdrawInitiateCta;
+
+  /// No description provided for @bankWithdrawInitiated.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer initiated. Checking status...'**
+  String get bankWithdrawInitiated;
+
+  /// No description provided for @bankWithdrawStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Payout initiated. Processing...'**
+  String get bankWithdrawStatusPending;
+
+  /// No description provided for @bankWithdrawStatusSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer completed successfully.'**
+  String get bankWithdrawStatusSuccess;
+
+  /// No description provided for @bankWithdrawStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer failed.'**
+  String get bankWithdrawStatusFailed;
+
+  /// No description provided for @bankWithdrawStatusReviewRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer is under review.'**
+  String get bankWithdrawStatusReviewRequired;
+
+  /// No description provided for @bankWithdrawSelectBankError.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a bank first.'**
+  String get bankWithdrawSelectBankError;
+
+  /// No description provided for @bankWithdrawAccountNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter account name.'**
+  String get bankWithdrawAccountNameRequired;
+
+  /// No description provided for @bankWithdrawAccountNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter account number.'**
+  String get bankWithdrawAccountNumberRequired;
+
+  /// No description provided for @bankWithdrawCannotProceed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot proceed with this bank transfer preview.'**
+  String get bankWithdrawCannotProceed;
+
+  /// No description provided for @bankWithdrawProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing withdrawal'**
+  String get bankWithdrawProcessingTitle;
+
+  /// No description provided for @bankWithdrawProcessingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We are processing your bank transfer. Please wait while we confirm the payout status.'**
+  String get bankWithdrawProcessingMessage;
+
+  /// No description provided for @bankWithdrawSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal successful'**
+  String get bankWithdrawSuccessTitle;
+
+  /// No description provided for @bankWithdrawSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bank transfer was completed successfully.'**
+  String get bankWithdrawSuccessMessage;
+
+  /// No description provided for @bankWithdrawFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal failed'**
+  String get bankWithdrawFailedTitle;
+
+  /// No description provided for @bankWithdrawFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your bank transfer could not be completed. Please try again.'**
+  String get bankWithdrawFailedMessage;
+
+  /// No description provided for @bankWithdrawReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Withdrawal under review'**
+  String get bankWithdrawReviewTitle;
+
+  /// No description provided for @bankWithdrawReviewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transfer needs manual review. We will update you shortly.'**
+  String get bankWithdrawReviewMessage;
+
+  /// No description provided for @bankWithdrawStillProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still processing'**
+  String get bankWithdrawStillProcessingTitle;
+
+  /// No description provided for @bankWithdrawStillProcessingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your transfer is taking longer than expected. Please check again shortly.'**
+  String get bankWithdrawStillProcessingMessage;
+
+  /// No description provided for @mobileMoneyDepositProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing deposit'**
+  String get mobileMoneyDepositProcessingTitle;
+
+  /// No description provided for @mobileMoneyDepositProcessingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please confirm your PIN on your phone. We are checking your deposit status.'**
+  String get mobileMoneyDepositProcessingMessage;
+
+  /// No description provided for @mobileMoneyDepositSuccessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit successful'**
+  String get mobileMoneyDepositSuccessTitle;
+
+  /// No description provided for @mobileMoneyDepositSuccessMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your deposit was completed successfully.'**
+  String get mobileMoneyDepositSuccessMessage;
+
+  /// No description provided for @mobileMoneyDepositFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit failed'**
+  String get mobileMoneyDepositFailedTitle;
+
+  /// No description provided for @mobileMoneyDepositFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your deposit could not be completed. Please try again.'**
+  String get mobileMoneyDepositFailedMessage;
+
+  /// No description provided for @mobileMoneyDepositReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deposit under review'**
+  String get mobileMoneyDepositReviewTitle;
+
+  /// No description provided for @mobileMoneyDepositReviewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your deposit needs manual review. We will update you shortly.'**
+  String get mobileMoneyDepositReviewMessage;
+
+  /// No description provided for @mobileMoneyDepositStillProcessingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Still processing'**
+  String get mobileMoneyDepositStillProcessingTitle;
+
+  /// No description provided for @mobileMoneyDepositStillProcessingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your deposit is taking longer than expected. Please check again shortly.'**
+  String get mobileMoneyDepositStillProcessingMessage;
 
   /// No description provided for @bankTransferCountryUnitedStates.
   ///
