@@ -32,7 +32,7 @@ void main() {
       expect(success, isFalse);
       expect(
         harness.container.read(sendMoneyControllerProvider).errorMessage,
-        'Please enter an email address',
+        'Please enter an email',
       );
     });
 
@@ -69,7 +69,7 @@ void main() {
       expect(missingRecipient, isFalse);
       expect(
         harness.container.read(sendMoneyControllerProvider).errorMessage,
-        'No recipient selected',
+        'Please select a recipient first.',
       );
 
       final lookupResponse = WalletLookupResponse(
