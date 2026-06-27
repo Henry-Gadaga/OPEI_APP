@@ -328,25 +328,35 @@ class _CanCreateBody extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Text(
-                AppLocalizations.of(context)!.sendPreviewTotalChargedRow,
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: OpeiBrand.ink,
-                  letterSpacing: -0.1,
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.sendPreviewTotalChargedRow,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: OpeiBrand.ink,
+                    letterSpacing: -0.1,
+                  ),
                 ),
               ),
-              const Spacer(),
-              Text(
-                _usd(prepare.totalToChargeCents),
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: OpeiBrand.primary,
-                  letterSpacing: -0.5,
+              const SizedBox(width: 8),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    _usd(prepare.totalToChargeCents),
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: OpeiBrand.primary,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -494,25 +504,35 @@ class _InsufficientBody extends StatelessWidget {
                 color: Color(0xFFB36B00),
               ),
               const SizedBox(width: 10),
-              Text(
-                AppLocalizations.of(context)!.cardsAddToContinueLabel,
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF8A5200),
-                  letterSpacing: -0.1,
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.cardsAddToContinueLabel,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: kPrimaryFontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF8A5200),
+                    letterSpacing: -0.1,
+                  ),
                 ),
               ),
-              const Spacer(),
-              Text(
-                _usd(prepare.shortfallCents),
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFFB36B00),
-                  letterSpacing: -0.4,
+              const SizedBox(width: 8),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    _usd(prepare.shortfallCents),
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFFB36B00),
+                      letterSpacing: -0.4,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -609,6 +629,9 @@ class _SuccessScreen extends StatelessWidget {
             // ── Reference chip ────────────────────────────────────
             if (result.reference.isNotEmpty)
               Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width - 80,
+                ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
                   vertical: 8,
@@ -626,14 +649,18 @@ class _SuccessScreen extends StatelessWidget {
                       color: OpeiBrand.inkSecondary,
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      result.reference,
-                      style: const TextStyle(
-                        fontFamily: kPrimaryFontFamily,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: OpeiBrand.inkSecondary,
-                        letterSpacing: 0.2,
+                    Flexible(
+                      child: Text(
+                        result.reference,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: OpeiBrand.inkSecondary,
+                          letterSpacing: 0.2,
+                        ),
                       ),
                     ),
                   ],
@@ -963,25 +990,34 @@ class _Row extends StatelessWidget {
             Icon(icon, size: 15, color: OpeiBrand.inkTertiary),
             const SizedBox(width: 10),
           ],
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13.5,
-              fontWeight: valueWeight ?? FontWeight.w600,
-              color: valueColor ?? OpeiBrand.ink,
-              letterSpacing: -0.1,
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13.5,
+                fontWeight: valueWeight ?? FontWeight.w600,
+                color: valueColor ?? OpeiBrand.ink,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
         ],

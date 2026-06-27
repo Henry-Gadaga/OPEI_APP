@@ -356,30 +356,29 @@ class _QuickWithdrawChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const amounts = <int>[5, 10, 25, 50];
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
       children: amounts.asMap().entries.map((e) {
-        return Padding(
-          padding: EdgeInsets.only(left: e.key == 0 ? 0 : 8),
-          child: GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onAdd(e.value);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-              decoration: BoxDecoration(
-                color: OpeiBrand.primaryTint,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                '+\$${e.value}',
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: OpeiBrand.primary,
-                ),
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onAdd(e.value);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            decoration: BoxDecoration(
+              color: OpeiBrand.primaryTint,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '+\$${e.value}',
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: OpeiBrand.primary,
               ),
             ),
           ),
@@ -834,16 +833,19 @@ class _PreviewRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13,
-              fontWeight: isEmphasis ? FontWeight.w700 : FontWeight.w500,
-              color: isEmphasis ? OpeiBrand.ink : OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13,
+                fontWeight: isEmphasis ? FontWeight.w700 : FontWeight.w500,
+                color: isEmphasis ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
           const SizedBox(width: 10),

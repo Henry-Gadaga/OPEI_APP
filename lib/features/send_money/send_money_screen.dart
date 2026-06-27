@@ -536,6 +536,8 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
               Expanded(
                 child: Text(
                   l10n.walletBalanceRow,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontFamily: kPrimaryFontFamily,
                     fontSize: 13,
@@ -545,16 +547,23 @@ class _SendMoneyScreenState extends ConsumerState<SendMoneyScreen> {
                   ),
                 ),
               ),
-              Text(
-                preview.senderBalanceAfterMoney.format(
-                  includeCurrencySymbol: true,
-                ),
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: OpeiBrand.ink,
-                  letterSpacing: -0.2,
+              const SizedBox(width: 10),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    preview.senderBalanceAfterMoney.format(
+                      includeCurrencySymbol: true,
+                    ),
+                    style: const TextStyle(
+                      fontFamily: kPrimaryFontFamily,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: OpeiBrand.ink,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -826,15 +835,19 @@ class _ResultStep extends ConsumerWidget {
     }
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: isHighlight ? OpeiColors.pureBlack : OpeiColors.grey600,
-            fontWeight: isHighlight ? FontWeight.w600 : FontWeight.w400,
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: isHighlight ? OpeiColors.pureBlack : OpeiColors.grey600,
+              fontWeight: isHighlight ? FontWeight.w600 : FontWeight.w400,
+            ),
           ),
         ),
+        const SizedBox(width: 10),
         Flexible(
           child: Text(
             value,
@@ -893,26 +906,35 @@ class _SendPreviewRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13,
-              fontWeight: emphasize ? FontWeight.w700 : FontWeight.w500,
-              color: emphasize ? OpeiBrand.ink : OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13,
+                fontWeight: emphasize ? FontWeight.w700 : FontWeight.w500,
+                color: emphasize ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: emphasize ? 16 : 14,
-              fontWeight: emphasize ? FontWeight.w800 : FontWeight.w700,
-              color: OpeiBrand.ink,
-              letterSpacing: -0.2,
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: emphasize ? 16 : 14,
+                fontWeight: emphasize ? FontWeight.w800 : FontWeight.w700,
+                color: OpeiBrand.ink,
+                letterSpacing: -0.2,
+              ),
             ),
           ),
         ],

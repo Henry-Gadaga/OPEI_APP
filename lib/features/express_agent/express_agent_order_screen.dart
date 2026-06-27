@@ -866,6 +866,8 @@ class _Row extends StatelessWidget {
           Expanded(
             child: Text(
               label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 13.5,
@@ -874,14 +876,20 @@ class _Row extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
-              color: OpeiBrand.ink,
-              letterSpacing: -0.2,
+          const SizedBox(width: 12),
+          Flexible(
+            child: Text(
+              value,
+              maxLines: 1,
+              textAlign: TextAlign.end,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w700,
+                color: OpeiBrand.ink,
+                letterSpacing: -0.2,
+              ),
             ),
           ),
         ],

@@ -73,6 +73,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     final media = MediaQuery.of(context);
     final topPad = media.viewPadding.top;
     final bottomPad = media.viewPadding.bottom;
+    final keyboardInset = media.viewInsets.bottom;
 
     const headerContentHeight = 190.0;
     final headerHeight = headerContentHeight + topPad;
@@ -87,7 +88,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.primary,
+        backgroundColor: OpeiBrand.surface,
+        resizeToAvoidBottomInset: false,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
@@ -249,7 +251,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                           24,
                           20,
                           24,
-                          20 + bottomPad,
+                          20 + bottomPad + keyboardInset,
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,

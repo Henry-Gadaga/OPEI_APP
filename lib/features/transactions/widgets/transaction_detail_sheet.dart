@@ -303,6 +303,7 @@ class _StatusChip extends StatelessWidget {
     }
 
     return Container(
+      constraints: const BoxConstraints(maxWidth: 130),
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
         color: bg,
@@ -319,6 +320,8 @@ class _StatusChip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontFamily: kPrimaryFontFamily,
               fontSize: 11,
@@ -363,17 +366,21 @@ class _DetailRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            entry.label,
-            style: const TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
+          Expanded(
+            child: Text(
+              entry.label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 10),
           Flexible(
             child: entry.isCopy
                 ? _CopyValue(value: val)

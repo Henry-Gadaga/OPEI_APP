@@ -26,14 +26,20 @@ class OpeiTrustFooter extends StatelessWidget {
         children: [
           Icon(icon, size: 13, color: OpeiBrand.inkTertiary),
           const SizedBox(width: 6),
-          Text(
-            label ?? AppLocalizations.of(context)!.trustFooterBankGradeEncryption,
-            style: const TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: OpeiBrand.inkTertiary,
-              letterSpacing: -0.1,
+          Flexible(
+            child: Text(
+              label ??
+                  AppLocalizations.of(context)!.trustFooterBankGradeEncryption,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: OpeiBrand.inkTertiary,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
         ],

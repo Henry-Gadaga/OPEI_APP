@@ -166,6 +166,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     final media = MediaQuery.of(context);
     final topPad = media.viewPadding.top;
     final bottomPad = media.viewPadding.bottom;
+    final keyboardInset = media.viewInsets.bottom;
 
     const headerContentHeight = 190.0;
     final headerHeight = headerContentHeight + topPad;
@@ -180,7 +181,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.primary,
+        backgroundColor: OpeiBrand.surface,
+        resizeToAvoidBottomInset: false,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
@@ -465,7 +467,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                           24,
                           20,
                           24,
-                          20 + bottomPad,
+                          20 + bottomPad + keyboardInset,
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,

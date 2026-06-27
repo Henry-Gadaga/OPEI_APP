@@ -172,6 +172,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final media = MediaQuery.of(context);
     final topPad = media.viewPadding.top;
     final bottomPad = media.viewPadding.bottom;
+    final keyboardInset = media.viewInsets.bottom;
 
     const headerContentHeight = 200.0;
     final headerHeight = headerContentHeight + topPad;
@@ -186,7 +187,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.primary,
+        backgroundColor: OpeiBrand.surface,
+        resizeToAvoidBottomInset: false,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
@@ -266,7 +268,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ],
                   ),
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(24, 28, 24, 24 + bottomPad),
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      28,
+                      24,
+                      24 + bottomPad + keyboardInset,
+                    ),
                     physics: const ClampingScrollPhysics(),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,

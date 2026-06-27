@@ -527,21 +527,26 @@ class _DetailsCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    l10n.sendPreviewNoteRow,
-                    style: TextStyle(
-                      fontFamily: kPrimaryFontFamily,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: OpeiBrand.inkSecondary,
-                      letterSpacing: -0.1,
+                  Expanded(
+                    child: Text(
+                      l10n.sendPreviewNoteRow,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.1,
+                      ),
                     ),
                   ),
-                  const Spacer(),
-                  const SizedBox(width: 24),
+                  const SizedBox(width: 10),
                   Flexible(
                     child: Text(
                       description!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.right,
                       style: const TextStyle(
                         fontFamily: kPrimaryFontFamily,
@@ -588,25 +593,34 @@ class _DetailRow extends StatelessWidget {
             Icon(icon, size: 14, color: OpeiBrand.inkTertiary),
             const SizedBox(width: 6),
           ],
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
-          const Spacer(),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: valueSize,
-              fontWeight: valueWeight,
-              color: OpeiBrand.ink,
-              letterSpacing: -0.2,
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: valueSize,
+                fontWeight: valueWeight,
+                color: OpeiBrand.ink,
+                letterSpacing: -0.2,
+              ),
             ),
           ),
         ],
@@ -641,16 +655,20 @@ class _ExpiryHint extends StatelessWidget {
           color: OpeiBrand.inkTertiary,
         ),
         const SizedBox(width: 6),
-        Text(
-          l10n.sendPreviewQuoteExpiresAt(
-            DateFormat.Hm().format(expiresAt.toLocal()),
-          ),
-          style: const TextStyle(
-            fontFamily: kPrimaryFontFamily,
-            fontSize: 11.5,
-            fontWeight: FontWeight.w500,
-            color: OpeiBrand.inkTertiary,
-            letterSpacing: -0.1,
+        Flexible(
+          child: Text(
+            l10n.sendPreviewQuoteExpiresAt(
+              DateFormat.Hm().format(expiresAt.toLocal()),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontFamily: kPrimaryFontFamily,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w500,
+              color: OpeiBrand.inkTertiary,
+              letterSpacing: -0.1,
+            ),
           ),
         ),
       ],

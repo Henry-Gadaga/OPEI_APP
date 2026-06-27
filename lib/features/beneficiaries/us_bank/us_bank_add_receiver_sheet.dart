@@ -781,24 +781,33 @@ class _FieldRow extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-                color: OpeiBrand.ink,
-                letterSpacing: -0.1,
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: OpeiBrand.ink,
+                  letterSpacing: -0.1,
+                ),
               ),
             ),
             if (helper != null) ...[
-              const Spacer(),
-              Text(
-                helper!,
-                style: const TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: OpeiBrand.inkTertiary,
-                  letterSpacing: -0.1,
+              const SizedBox(width: 10),
+              Flexible(
+                child: Text(
+                  helper!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    color: OpeiBrand.inkTertiary,
+                    letterSpacing: -0.1,
+                  ),
                 ),
               ),
             ],
@@ -821,16 +830,20 @@ class _CardRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: OpeiBrand.ink,
-            letterSpacing: -0.1,
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: OpeiBrand.ink,
+              letterSpacing: -0.1,
+            ),
           ),
         ),
-        const Spacer(),
+        const SizedBox(width: 10),
         child,
       ],
     );
@@ -925,7 +938,11 @@ class _Pill extends StatelessWidget {
                         color: active ? OpeiBrand.ink : OpeiBrand.inkSecondary,
                         letterSpacing: -0.1,
                       ),
-                      child: Text(opt.$2),
+                      child: Text(
+                        opt.$2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                 ),

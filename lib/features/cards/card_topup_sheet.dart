@@ -352,30 +352,29 @@ class _QuickTopUpChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const amounts = <int>[5, 10, 25, 50];
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
       children: amounts.asMap().entries.map((e) {
-        return Padding(
-          padding: EdgeInsets.only(left: e.key == 0 ? 0 : 8),
-          child: GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onAdd(e.value);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-              decoration: BoxDecoration(
-                color: OpeiBrand.primaryTint,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                '+\$${e.value}',
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: OpeiBrand.primary,
-                ),
+        return GestureDetector(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onAdd(e.value);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            decoration: BoxDecoration(
+              color: OpeiBrand.primaryTint,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '+\$${e.value}',
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: OpeiBrand.primary,
               ),
             ),
           ),
@@ -493,6 +492,8 @@ class _PreviewStep extends ConsumerWidget {
               Expanded(
                 child: Text(
                   l10n.walletBalanceRow,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -501,15 +502,22 @@ class _PreviewStep extends ConsumerWidget {
                   ),
                 ),
               ),
-              Text(
-                preview.walletBalanceAfterMoney.format(
-                  includeCurrencySymbol: true,
-                ),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: OpeiBrand.ink,
-                  letterSpacing: -0.2,
+              const SizedBox(width: 10),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    preview.walletBalanceAfterMoney.format(
+                      includeCurrencySymbol: true,
+                    ),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: OpeiBrand.ink,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -846,15 +854,18 @@ class _PreviewRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isEmphasis ? FontWeight.w700 : FontWeight.w500,
-              color: isEmphasis ? OpeiBrand.ink : OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isEmphasis ? FontWeight.w700 : FontWeight.w500,
+                color: isEmphasis ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
           const SizedBox(width: 10),

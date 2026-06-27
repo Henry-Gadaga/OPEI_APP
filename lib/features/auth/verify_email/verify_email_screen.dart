@@ -267,6 +267,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
     final media = MediaQuery.of(context);
     final topPad = media.viewPadding.top;
     final bottomPad = media.viewPadding.bottom;
+    final keyboardInset = media.viewInsets.bottom;
 
     const headerContentHeight = 190.0;
     final headerHeight = headerContentHeight + topPad;
@@ -288,7 +289,8 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
           await _handleBackNavigation();
         },
         child: Scaffold(
-          backgroundColor: OpeiBrand.primary,
+          backgroundColor: OpeiBrand.surface,
+          resizeToAvoidBottomInset: false,
           body: GestureDetector(
             onTap: () => FocusScope.of(context).unfocus(),
             behavior: HitTestBehavior.opaque,
@@ -374,7 +376,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                               24,
                               28,
                               24,
-                              24 + bottomPad,
+                              24 + bottomPad + keyboardInset,
                             ),
                             physics: const ClampingScrollPhysics(),
                             child: Column(
@@ -483,7 +485,7 @@ class _VerifyEmailScreenState extends ConsumerState<VerifyEmailScreen> {
                           busyLabel: _isLoggingOut
                               ? l10n.verifyEmailSigningOut
                               : l10n.verifyEmailVerifying,
-                          bottomPad: bottomPad,
+                          bottomPad: bottomPad + keyboardInset,
                         ),
                       ],
                     ),
@@ -587,7 +589,10 @@ class _OtpRow extends StatelessWidget {
       builder: (context, c) {
         const spacing = 10.0;
         final available = c.maxWidth - spacing * 5;
-        final boxWidth = (available / 6).clamp(44.0, 60.0);
+        // Allow OTP boxes to shrink further on very narrow widths
+        // (split-screen, large text scale, keyboard transitions) to avoid
+        // RenderFlex overflow.
+        final boxWidth = (available / 6).clamp(28.0, 60.0);
         final boxHeight = boxWidth * 1.22;
 
         return Row(
@@ -814,14 +819,18 @@ class _BottomTrust extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    busyLabel,
-                    style: const TextStyle(
-                      fontFamily: kPrimaryFontFamily,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: OpeiBrand.inkSecondary,
-                      letterSpacing: -0.1,
+                  Flexible(
+                    child: Text(
+                      busyLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: OpeiBrand.inkSecondary,
+                        letterSpacing: -0.1,
+                      ),
                     ),
                   ),
                 ],

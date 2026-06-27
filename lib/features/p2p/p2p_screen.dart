@@ -558,23 +558,29 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                         children: [
                           _BackButton(onTap: () => context.go('/dashboard')),
                           SizedBox(width: spacing),
-                          Text(
-                            AppLocalizations.of(context)!.p2pSectionTitle,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: -0.2,
-                              color: OpeiColors.pureBlack,
-                              fontFamily: '.SF Pro Display',
-                              height: 1.05,
+                          Expanded(
+                            child: Text(
+                              AppLocalizations.of(context)!.p2pSectionTitle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.2,
+                                color: OpeiColors.pureBlack,
+                                fontFamily: '.SF Pro Display',
+                                height: 1.05,
+                              ),
                             ),
                           ),
-                          const Spacer(),
+                          const SizedBox(width: 8),
                           _buildCurrencyPicker(state, controller),
                         ],
                       ),
                       SizedBox(height: spacing * 1.75),
-                      Row(
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
                         children: [
                           _CompactToggleButton(
                             label: AppLocalizations.of(context)!.p2pBuyLabel,
@@ -593,7 +599,7 @@ class _P2PExchangeScreenState extends ConsumerState<P2PExchangeScreen> {
                                 state.selectedType == P2PAdType.sell,
                             onTap: () => controller.updateType(P2PAdType.sell),
                           ),
-                          SizedBox(width: spacing * 1.5),
+                          SizedBox(width: spacing * 0.5),
                           _FilterButton(
                             onTap: () =>
                                 _showAmountFilterSheet(state, controller),
@@ -4485,21 +4491,30 @@ class _OrderCardState extends State<_OrderCard>
               ),
               const SizedBox(height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '${AppLocalizations.of(context)!.idLabel}: $shortId',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: OpeiColors.iosLabelSecondary,
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: Text(
+                      '${AppLocalizations.of(context)!.idLabel}: $shortId',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 11,
+                        color: OpeiColors.iosLabelSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                  Text(
-                    createdLabel,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: OpeiColors.iosLabelTertiary,
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      createdLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.end,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontSize: 11,
+                        color: OpeiColors.iosLabelTertiary,
+                      ),
                     ),
                   ),
                 ],
@@ -4554,11 +4569,17 @@ class _OrderCardState extends State<_OrderCard>
                                     ),
                                   ),
                                 )
-                              : Text(
-                                  AppLocalizations.of(context)!.p2pCancelTradeCta,
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                              : FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.p2pCancelTradeCta,
+                                    maxLines: 1,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                         ),
@@ -4581,13 +4602,17 @@ class _OrderCardState extends State<_OrderCard>
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text(
-                            AppLocalizations.of(
-                              context,
-                            )!.p2pRateCounterpartyTitle(counterpartLabel),
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.p2pRateCounterpartyTitle(counterpartLabel),
+                              maxLines: 1,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
@@ -4639,35 +4664,46 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          label,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontSize: 13,
-            color: OpeiColors.iosLabelSecondary,
-            fontWeight: FontWeight.w500,
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontSize: 13,
+              color: OpeiColors.iosLabelSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
         const SizedBox(width: 8),
-        Flexible(
-          child: Row(
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Flexible(
-                child: Text(
-                  value,
-                  textAlign: TextAlign.right,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 13,
-                    color: OpeiColors.pureBlack,
-                    fontWeight: FontWeight.w600,
-                  ),
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 13,
+                  color: OpeiColors.pureBlack,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              if (trailing != null) ...[const SizedBox(width: 4), trailing!],
+              if (trailing != null) ...[
+                const SizedBox(height: 2),
+                DefaultTextStyle.merge(
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.right,
+                  child: trailing!,
+                ),
+              ],
             ],
           ),
         ),
@@ -8145,14 +8181,18 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
             children: [
               Row(
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.p2pCreateAdTitle,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.p2pCreateAdTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(width: 8),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
                     icon: const Icon(Icons.close_rounded, size: 20),
@@ -8213,16 +8253,21 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                 const SizedBox(height: 18),
                 Row(
                   children: [
-                    Text(
-                      _selectedType == P2PAdType.sell
-                          ? AppLocalizations.of(context)!.p2pCreateSellAdTitle
-                          : AppLocalizations.of(context)!.p2pCreateBuyAdTitle,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
+                    Expanded(
+                      child: Text(
+                        _selectedType == P2PAdType.sell
+                            ? AppLocalizations.of(context)!.p2pCreateSellAdTitle
+                            : AppLocalizations.of(context)!.p2pCreateBuyAdTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                    const Spacer(),
+                    if (_selectedType != null && _step >= 1)
+                      const SizedBox(width: 8),
                     if (_selectedType != null && _step >= 1)
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -8257,7 +8302,7 @@ class _CreateAdFlowSheetState extends ConsumerState<_CreateAdFlowSheet> {
                       style: TextButton.styleFrom(
                         foregroundColor: OpeiColors.iosLabelSecondary,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
+                          horizontal: 8,
                           vertical: 6,
                         ),
                         shape: RoundedRectangleBorder(
@@ -8720,14 +8765,18 @@ class _CurrencyPickerSheet extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
             child: Row(
               children: [
-                Text(
-                  AppLocalizations.of(context)!.p2pSelectCurrency,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.p2pSelectCurrency,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                const Spacer(),
+                const SizedBox(width: 8),
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
                   icon: const Icon(Icons.close_rounded, size: 20),
@@ -9421,14 +9470,18 @@ class _CreateSellAdSheetState extends ConsumerState<_CreateSellAdSheet> {
     Widget stepHeader() {
       return Row(
         children: [
-          Text(
-            AppLocalizations.of(context)!.p2pCreateSellAdTitle,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontSize: 17,
-              fontWeight: FontWeight.w700,
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context)!.p2pCreateSellAdTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
@@ -12974,40 +13027,50 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                AppLocalizations.of(context)!.p2pYouSendLabel,
-                style: textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: OpeiColors.iosLabelSecondary,
-                  letterSpacing: -0.1,
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.p2pYouSendLabel,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: OpeiColors.iosLabelSecondary,
+                    letterSpacing: -0.1,
+                  ),
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    sendLabel,
-                    style: textTheme.titleLarge?.copyWith(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.4,
-                      color: OpeiColors.pureBlack,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      sendLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.titleLarge?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.4,
+                        color: OpeiColors.pureBlack,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    effectiveSend.currency,
-                    style: textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                      color: OpeiColors.iosLabelSecondary,
-                      letterSpacing: 0.1,
+                    const SizedBox(height: 2),
+                    Text(
+                      effectiveSend.currency,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textTheme.bodySmall?.copyWith(
+                        fontSize: 11,
+                        color: OpeiColors.iosLabelSecondary,
+                        letterSpacing: 0.1,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -13018,25 +13081,34 @@ class _BuyTradeSuccessViewState extends ConsumerState<BuyTradeSuccessView> {
           ),
           const SizedBox(height: 14),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                AppLocalizations.of(context)!.p2pYouWillReceiveLabel,
-                style: textTheme.bodyMedium?.copyWith(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: OpeiColors.iosLabelSecondary,
-                  letterSpacing: -0.1,
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.p2pYouWillReceiveLabel,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: OpeiColors.iosLabelSecondary,
+                    letterSpacing: -0.1,
+                  ),
                 ),
               ),
-              Text(
-                usdReservedLabel,
-                style: textTheme.titleLarge?.copyWith(
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.3,
-                  color: OpeiColors.pureBlack,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  usdReservedLabel,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: textTheme.titleLarge?.copyWith(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.3,
+                    color: OpeiColors.pureBlack,
+                  ),
                 ),
               ),
             ],

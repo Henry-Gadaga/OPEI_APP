@@ -424,15 +424,18 @@ class _Row extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
-              color: emphasized ? OpeiBrand.ink : OpeiBrand.inkSecondary,
-              letterSpacing: -0.1,
+          Expanded(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
+                color: emphasized ? OpeiBrand.ink : OpeiBrand.inkSecondary,
+                letterSpacing: -0.1,
+              ),
             ),
           ),
           const SizedBox(width: 10),

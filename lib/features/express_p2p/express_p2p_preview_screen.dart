@@ -370,23 +370,33 @@ class _AmountCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                '${AppLocalizations.of(context)!.expressYouPayRow}  ',
-                style: TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withValues(alpha: 0.75),
-                ),
-              ),
-              Text(
-                expressFiat(payFiatCents, quoteCurrency),
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.3,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${AppLocalizations.of(context)!.expressYouPayRow}  ',
+                        style: TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withValues(alpha: 0.75),
+                        ),
+                      ),
+                      Text(
+                        expressFiat(payFiatCents, quoteCurrency),
+                        style: const TextStyle(
+                          fontFamily: kPrimaryFontFamily,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -417,6 +427,8 @@ class _DetailRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 13.5,
@@ -425,14 +437,20 @@ class _DetailRow extends StatelessWidget {
               ),
             ),
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontFamily: kPrimaryFontFamily,
-              fontSize: 13.5,
-              fontWeight: FontWeight.w700,
-              color: highlight ? OpeiBrand.primary : OpeiBrand.ink,
-              letterSpacing: -0.2,
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.end,
+              style: TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13.5,
+                fontWeight: FontWeight.w700,
+                color: highlight ? OpeiBrand.primary : OpeiBrand.ink,
+                letterSpacing: -0.2,
+              ),
             ),
           ),
         ],

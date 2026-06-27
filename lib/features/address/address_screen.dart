@@ -165,6 +165,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
     final media = MediaQuery.of(context);
     final topPad = media.viewPadding.top;
     final bottomPad = media.viewPadding.bottom;
+    final keyboardInset = media.viewInsets.bottom;
     final isOnboarding = !widget.isFromProfile;
 
     const headerContentHeight = 190.0;
@@ -180,7 +181,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: OpeiBrand.primary,
+        backgroundColor: OpeiBrand.surface,
+        resizeToAvoidBottomInset: false,
         body: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           behavior: HitTestBehavior.opaque,
@@ -266,7 +268,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                             24,
                             28,
                             24,
-                            24 + bottomPad,
+                            24 + bottomPad + keyboardInset,
                           ),
                           physics: const ClampingScrollPhysics(),
                           child: Column(

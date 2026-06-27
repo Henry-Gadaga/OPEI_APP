@@ -483,6 +483,9 @@ class _Page3Amount extends StatelessWidget {
         if (currency != null && method != null)
           Center(
             child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width - 56,
+              ),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
                 color: OpeiBrand.primaryTint,
@@ -497,13 +500,17 @@ class _Page3Amount extends StatelessWidget {
                     color: OpeiBrand.primary,
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    '$currency · $methodLabel',
-                    style: const TextStyle(
-                      fontFamily: kPrimaryFontFamily,
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w700,
-                      color: OpeiBrand.primary,
+                  Flexible(
+                    child: Text(
+                      '$currency · $methodLabel',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: kPrimaryFontFamily,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: OpeiBrand.primary,
+                      ),
                     ),
                   ),
                 ],
@@ -655,27 +662,26 @@ class _AmountQuickChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chips = <int>[5, 10, 25, 50];
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 8,
+      runSpacing: 8,
       children: chips.asMap().entries.map((e) {
-        return Padding(
-          padding: EdgeInsets.only(left: e.key == 0 ? 0 : 8),
-          child: GestureDetector(
-            onTap: () => onAddAmount(e.value),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-              decoration: BoxDecoration(
-                color: OpeiBrand.primaryTint,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                '+\$${e.value}',
-                style: const TextStyle(
-                  fontFamily: kPrimaryFontFamily,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: OpeiBrand.primary,
-                ),
+        return GestureDetector(
+          onTap: () => onAddAmount(e.value),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            decoration: BoxDecoration(
+              color: OpeiBrand.primaryTint,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Text(
+              '+\$${e.value}',
+              style: const TextStyle(
+                fontFamily: kPrimaryFontFamily,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: OpeiBrand.primary,
               ),
             ),
           ),
@@ -809,6 +815,7 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final bottomPad = MediaQuery.of(context).viewPadding.bottom;
     final isLast = page == 2;
     return Padding(

@@ -420,7 +420,9 @@ class _TransactionCardPreview extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: Row(
+                child: Wrap(
+                  spacing: 14,
+                  runSpacing: 8,
                   children: [
                     _CardInfoColumn(
                       label: l10n.cardsExpiresLabel,
@@ -428,12 +430,10 @@ class _TransactionCardPreview extends StatelessWidget {
                           ? '—'
                           : card.expiry!,
                     ),
-                    const SizedBox(width: 28),
                     _CardInfoColumn(
                       label: l10n.cardsCvvLabel,
                       value: _maskCvv(card.cvv),
                     ),
-                    const SizedBox(width: 28),
                     _CardInfoColumn(
                       label: l10n.walletBalanceRow,
                       value: _maskBalance(card.balance),
@@ -586,6 +586,8 @@ class _CardInfoColumn extends StatelessWidget {
         const SizedBox(height: 5),
         Text(
           value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: theme.textTheme.titleSmall?.copyWith(
             color: OpeiColors.pureWhite,
             fontSize: 13,

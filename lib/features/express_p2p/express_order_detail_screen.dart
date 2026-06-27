@@ -1313,6 +1313,8 @@ class _CopyRow extends StatelessWidget {
           Expanded(
             child: Text(
               label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
                 fontSize: 13.5,
@@ -1324,6 +1326,8 @@ class _CopyRow extends StatelessWidget {
           Flexible(
             child: Text(
               value,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.right,
               style: const TextStyle(
                 fontFamily: kPrimaryFontFamily,
